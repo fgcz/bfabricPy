@@ -13,6 +13,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 - Config: new CLI-only `scope` field recording the scope *requested* at login, so a login can be replayed from disk; `config_writer.clear_environment_credentials` strips inline secrets while keeping the environment configured.
 - `upload_files` / `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. `.DS_Store`).
+- `upload_files` accepts an `on_url` callback, reporting each file's resumable tus URL as soon as it exists (including for a transfer that then fails), so a caller can persist it for a later `send_to_sink(resume_url=...)`.
 - `on_duplicate="link"` registers a duplicate as a resource pointing at the existing bytes instead of omitting the file, transferring nothing. See `FileInfo.link_from_resource_id`.
 - `create_workunit` attaches a `dataset` (a `WorkunitDataset` of name + base64-encoded `csv`/`tsv`/`parquet`) as the workunit's output dataset, and references an existing one as its input via `input_dataset_id`. A dataset alone satisfies the "no workunit data was provided" check, and the new step runs inside the existing failure cleanup.
 

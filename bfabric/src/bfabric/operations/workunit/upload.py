@@ -41,6 +41,9 @@ UploadStartCallback = Callable[[int, int], None]
 FileDoneCallback = Callable[[str, bool], None]
 """Called with (filename, success) after each file's transfer finishes (success or failure)."""
 
+FileUrlCallback = Callable[[str, str], None]
+"""Called with (filename, upload_url) as soon as a file's resumable tus URL is known."""
+
 OnDuplicate = Literal["upload", "skip", "link"]
 """What to do with a file whose content the target container already stores.
 
@@ -146,6 +149,7 @@ def upload_files(
     on_progress: FileProgressCallback | None = None,
     on_start: UploadStartCallback | None = None,
     on_file_done: FileDoneCallback | None = None,
+    on_url: FileUrlCallback | None = None,
     audit_attributes: dict[str, str] | None = None,
     exclude_names: Collection[str] | None = None,
 ) -> UploadSummary:
@@ -176,6 +180,11 @@ def upload_files(
         register some of those as links, fewer files than announced are actually transferred.
     :param on_file_done: optional ``(filename, success)`` callback fired after each file's transfer,
         for successes and failures alike.
+    :param on_url: optional ``(filename, upload_url)`` callback fired once per transferred file, as
+        soon as its resumable tus URL exists -- including for a file whose transfer then fails, which
+        is the case the URL is worth keeping for. Persisting these lets a later run resume via
+        :func:`~bfabric.transfer.send_to_sink`'s ``resume_url``; ``upload_files`` itself never resumes,
+        since each run mints fresh resources. Not fired for linked or skipped files (nothing is sent).
     :param audit_attributes: written verbatim as workunit custom attributes.
     :param exclude_names: basenames to skip at any depth (e.g. a sentinel file the caller drops in
         the folder, or ``.DS_Store``). Filter here rather than pre-filtering ``files`` yourself: a
@@ -249,6 +258,7 @@ def upload_files(
                 job_id=job_id,
                 on_progress=on_progress,
                 on_file_done=on_file_done,
+                on_url=on_url,
             )
     except BaseException:
         # Mark the workunit failed (do NOT delete) so the partial state is diagnosable — see the
@@ -486,6 +496,7 @@ def _transfer_files(
     job_id: int | None = None,
     on_progress: FileProgressCallback | None,
     on_file_done: FileDoneCallback | None = None,
+    on_url: FileUrlCallback | None = None,
 ) -> tuple[list[FileUpload], list[FileFailure]]:
     """Transfer each file over tus, recording per-file success/failure.
 
@@ -502,8 +513,9 @@ def _transfer_files(
             resource, token_result, workunit_id=workunit_id, container_id=container_id, job_id=job_id
         )
         file_progress = _make_file_progress(on_progress, file_info.name)
+        file_url = _make_file_url(on_url, file_info.name)
         try:
-            _ = send_to_sink(sink, file_info.path, creds, on_progress=file_progress)
+            _ = send_to_sink(sink, file_info.path, creds, on_progress=file_progress, on_url=file_url)
         except TransferError as error:
             logger.warning("Upload failed for {}: {}", file_info.name, error)
             failures.append(FileFailure(filename=file_info.name, resource_id=resource.id, error=str(error)))
@@ -531,5 +543,20 @@ def _make_file_progress(on_progress: FileProgressCallback | None, filename: str)
 
     def _report(done: int, total: int) -> None:
         on_progress(filename, done, total)
+
+    return _report
+
+
+def _make_file_url(on_url: FileUrlCallback | None, filename: str) -> Callable[[str], None] | None:
+    """Adapt the mover's ``(url)`` callback to the caller's ``(filename, url)``.
+
+    The mover transfers one file per call and so reports a bare URL; a caller collecting URLs across
+    a batch needs to know which file each belongs to.
+    """
+    if on_url is None:
+        return None
+
+    def _report(url: str) -> None:
+        on_url(filename, url)
 
     return _report
