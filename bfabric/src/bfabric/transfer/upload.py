@@ -61,6 +61,15 @@ class DuplicateResult(BaseModel):
     category: str  # new | exact_duplicate | renamed_duplicate | content_conflict | batch_duplicate
     action: str  # upload | skip | link
     resource_id: int | None = Field(default=None, alias="existingResourceId")
+    resource_status: str | None = Field(default=None, alias="existingResourceStatus")
+    """Status of the matched resource, when the server reports it (e.g. ``available``, ``pending``)."""
+    linkable: bool | None = Field(default=None)
+    """Whether the match may be reused as ``linkFromResourceId`` on ``create-resources``.
+
+    ``None`` means the server did not say -- older servers omit it. It is not guessed: linking under
+    a wrong assumption would register a resource with no bytes behind it, so a file whose verdict
+    lacks it is refused (see ``operations.workunit.upload._select_linkable_targets``).
+    """
 
 
 class CreatedResource(BaseModel):

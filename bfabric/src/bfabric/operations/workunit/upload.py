@@ -22,12 +22,13 @@ from bfabric.transfer import (
     send_to_sink,
     tus_sink_for_resource,
 )
+from bfabric.transfer.resume_cache import ResumeCache
 
 if TYPE_CHECKING:
     from collections.abc import Collection
 
     from bfabric import Bfabric
-    from bfabric.transfer import CreatedResource, DuplicateResult, FileInfo, UploadTokenResult
+    from bfabric.transfer import CreatedResource, DuplicateResult, FileInfo, TransferSinkTus, UploadTokenResult
 
 
 # --- upload_files: the create-workunit -> dedup -> create-resources -> upload -> register workflow ---
@@ -59,7 +60,11 @@ class UploadFileParam(BaseModel):
     on_duplicate: OnDuplicate = "upload"
     """``upload`` sends the file regardless (no duplicate check is made for it), ``skip`` leaves it
     out of the workunit entirely, ``link`` registers a resource pointing at the already-stored bytes
-    without transferring any. A directory applies its policy to every file under it."""
+    without transferring any. A directory applies its policy to every file under it.
+
+    ``link`` only links to a duplicate the server reports as ``linkable``; one whose resource is
+    still ``pending`` or ``failed`` has no bytes to link to, so that file is uploaded instead. It
+    needs a B-Fabric that reports ``linkable`` on ``check-duplicates``."""
 
 
 class UploadFilesParams(BaseModel):
@@ -142,6 +147,19 @@ class UploadSummary:
     """The tracking job's id when ``track_job`` was set, else ``None``."""
 
 
+class WorkunitCompletionError(BfabricTransferError):
+    """The upload finished but the workunit's final status flip failed.
+
+    Carries the :class:`UploadSummary` of the completed transfers, so a caller can record what
+    actually landed and retry only the status flip instead of re-uploading or creating a second
+    workunit. The workunit is left ``processing`` (never ``failed``): its bytes are real.
+    """
+
+    def __init__(self, message: str, summary: UploadSummary) -> None:
+        super().__init__(message)
+        self.summary: UploadSummary = summary
+
+
 def upload_files(
     client: Bfabric,
     params: UploadFilesParams,
@@ -152,6 +170,7 @@ def upload_files(
     on_url: FileUrlCallback | None = None,
     audit_attributes: dict[str, str] | None = None,
     exclude_names: Collection[str] | None = None,
+    resume_cache: Path | None = None,
 ) -> UploadSummary:
     """Upload files to a B-Fabric workunit over tus, end to end.
 
@@ -182,16 +201,24 @@ def upload_files(
         for successes and failures alike.
     :param on_url: optional ``(filename, upload_url)`` callback fired once per transferred file, as
         soon as its resumable tus URL exists -- including for a file whose transfer then fails, which
-        is the case the URL is worth keeping for. Persisting these lets a later run resume via
-        :func:`~bfabric.transfer.send_to_sink`'s ``resume_url``; ``upload_files`` itself never resumes,
-        since each run mints fresh resources. Not fired for linked or skipped files (nothing is sent).
+        is the case the URL is worth keeping for. Pass ``resume_cache`` to have ``upload_files``
+        persist and reuse these itself; this callback is for a caller keeping its own ledger besides.
+        Not fired for linked or skipped files (nothing is sent).
     :param audit_attributes: written verbatim as workunit custom attributes.
+    :param resume_cache: path to a JSON file in which each transferred file's resumable tus URL is
+        kept, keyed by MD5, so a later run resumes an interrupted transfer instead of re-sending it
+        from byte 0. An entry is dropped once its file transfers, and ignored when it is stale, past
+        its TTL, or no longer same-origin with the tus endpoint -- in each of those cases the file is
+        uploaded afresh. ``None`` keeps no state and never resumes.
     :param exclude_names: basenames to skip at any depth (e.g. a sentinel file the caller drops in
         the folder, or ``.DS_Store``). Filter here rather than pre-filtering ``files`` yourself: a
         flat file list loses the directory that gives nested files their relative resource name.
     :returns: an :class:`UploadSummary`; its ``workunit_id`` is the created or reused workunit, and is
         ``None`` only on the create path when every file was skipped as a duplicate (nothing was
         created). Setup failures raise :class:`~bfabric.transfer.BfabricTransferError`.
+    :raises WorkunitCompletionError: if every transfer succeeded but marking the created workunit
+        ``available`` failed. It carries the ``UploadSummary`` of what landed, so the caller can
+        retry only that status flip rather than re-uploading into a second workunit.
     """
     # Fail fast (before creating a workunit) if the tus mover, an OAuth client, or the 'tus' scope is
     # missing, so a missing dependency / wrong auth / scope-less token never leaves an orphaned
@@ -259,6 +286,7 @@ def upload_files(
                 on_progress=on_progress,
                 on_file_done=on_file_done,
                 on_url=on_url,
+                resume_cache=ResumeCache(resume_cache) if resume_cache is not None else None,
             )
     except BaseException:
         # Mark the workunit failed (do NOT delete) so the partial state is diagnosable — see the
@@ -267,18 +295,12 @@ def upload_files(
             mark_workunit_failed(client, workunit_id)
         raise
 
-    if not uploads and not links:
+    if not uploads and not links and created:
         # Every transfer failed: the workunit has no usable content, so flip it to failed (kept, not
         # deleted). The per-file errors are returned for the caller to inspect. Linked resources are
         # already AVAILABLE, so a run that only linked has real content despite transferring nothing.
-        if created:
-            mark_workunit_failed(client, workunit_id)
-    elif created:
-        # Intentionally outside the try/except above: the bytes have already landed, so a failure of
-        # this final status flip should surface as-is rather than mark a workunit-with-real-content
-        # 'failed'. It stays 'processing' and the exception propagates for the caller to retry.
-        _ = complete_workunit(client=client, workunit_id=workunit_id)
-    return UploadSummary(
+        mark_workunit_failed(client, workunit_id)
+    summary = UploadSummary(
         workunit_id=workunit_id,
         uploads=uploads,
         skips=skips,
@@ -286,6 +308,19 @@ def upload_files(
         links=links,
         job_id=job_id,
     )
+    if (uploads or links) and created:
+        # Intentionally outside the try/except above: the bytes have already landed, so a failure of
+        # this final status flip must not mark a workunit-with-real-content 'failed'. It stays
+        # 'processing' and the error propagates -- but as a WorkunitCompletionError carrying the
+        # summary, so the caller can record what transferred and retry only the flip.
+        try:
+            _ = complete_workunit(client=client, workunit_id=workunit_id)
+        except BaseException as error:
+            raise WorkunitCompletionError(
+                f"Upload to workunit {workunit_id} succeeded but marking it 'available' failed: {error}",
+                summary,
+            ) from error
+    return summary
 
 
 def _collect_entries(
@@ -398,6 +433,9 @@ def _select_files_to_upload(
         for r in results
         if policies[r.filename] == "link" and r.action in ("skip", "link") and r.resource_id is not None
     }
+    # A target whose bytes may not exist is unlinkable; those files stay selected but lose their link
+    # id, so they are transferred as ordinary uploads instead of being dropped.
+    linkable_ids = _select_linkable_targets(link_ids, results)
 
     # An explicit "link" verdict with no id is unusable: we can neither link nor safely fall back to
     # uploading (the server already told us not to), so fail loud rather than silently drop the file.
@@ -412,7 +450,7 @@ def _select_files_to_upload(
 
     upload_names = {r.filename for r in results if r.action == "upload"}
     to_upload = [
-        replace(fi, link_from_resource_id=link_ids[fi.name]) if fi.name in link_ids else fi
+        replace(fi, link_from_resource_id=linkable_ids[fi.name]) if fi.name in linkable_ids else fi
         for fi in file_infos
         if policies[fi.name] == "upload" or fi.name in upload_names or fi.name in link_ids
     ]
@@ -437,6 +475,66 @@ def _is_actionable(result: DuplicateResult, policy: OnDuplicate) -> bool:
     if result.action in ("upload", "skip"):
         return True
     return result.action == "link" and policy == "link"
+
+
+_MAX_LOGGED_DROPPED = 5
+
+
+def _describe_dropped(dropped: list[str], link_ids: dict[str, int], statuses: dict[int, str]) -> str:
+    """Name the first few dropped targets and their status, counting the rest.
+
+    Truncated because a single bundle can carry thousands of files, and the per-file detail is a
+    diagnostic aid -- the count is the part that always matters.
+    """
+    shown = ", ".join(
+        f"{name} -> resource {link_ids[name]} {statuses.get(link_ids[name], 'not found')}"
+        for name in dropped[:_MAX_LOGGED_DROPPED]
+    )
+    remaining = len(dropped) - _MAX_LOGGED_DROPPED
+    return f"{shown} (and {remaining} more)" if remaining > 0 else shown
+
+
+def _select_linkable_targets(link_ids: dict[str, int], results: list[DuplicateResult]) -> dict[str, int]:
+    """Keep the link targets the server reported as ``linkable``.
+
+    ``check-duplicates`` already knows the matched resource's status, so its ``linkable`` verdict is
+    the authority: only a resource whose bytes provably exist may be reused as ``linkFromResourceId``.
+    A target reported unlinkable -- ``pending`` (nothing conclusive happened yet) or ``failed`` --
+    loses its link id and is transferred as an ordinary upload instead, so a retry after a failed
+    transfer no longer fails until B-Fabric's orphan cleanup runs.
+
+    A response that does not report ``linkable`` for a target is an error, not a fallback: guessing
+    would risk registering a resource with no bytes behind it.
+    """
+    if not link_ids:
+        return link_ids
+    verdicts = {r.filename: r.linkable for r in results if r.filename in link_ids}
+    unreported = sorted(name for name in link_ids if verdicts.get(name) is None)
+    if unreported:
+        raise BfabricTransferError(
+            "check-duplicates did not report 'linkable' for: "
+            + ", ".join(unreported)
+            + "; cannot tell whether the matched resource has bytes to link to. This needs a "
+            "B-Fabric that reports linkable on /upload/check-duplicates."
+        )
+    keep = {name: rid for name, rid in link_ids.items() if verdicts[name]}
+    dropped = sorted(set(link_ids) - set(keep))
+    if dropped:
+        statuses = {link_ids[name]: _reported_status(results, name) for name in dropped}
+        logger.info(
+            "{} file(s) will be uploaded rather than linked: the server reported them unlinkable. {}",
+            len(dropped),
+            _describe_dropped(dropped, link_ids, statuses),
+        )
+    return keep
+
+
+def _reported_status(results: list[DuplicateResult], filename: str) -> str:
+    """The status ``check-duplicates`` reported for ``filename``'s match, for logging."""
+    for r in results:
+        if r.filename == filename:
+            return (r.resource_status or "unlinkable").lower()
+    return "unlinkable"
 
 
 def _create_upload_workunit(client: Bfabric, params: UploadFilesParams, audit_attributes: dict[str, str]) -> int:
@@ -497,12 +595,16 @@ def _transfer_files(
     on_progress: FileProgressCallback | None,
     on_file_done: FileDoneCallback | None = None,
     on_url: FileUrlCallback | None = None,
+    resume_cache: ResumeCache | None = None,
 ) -> tuple[list[FileUpload], list[FileFailure]]:
     """Transfer each file over tus, recording per-file success/failure.
 
     A :class:`~bfabric.transfer.TransferError` is recorded and the run continues; any other exception
     propagates so a genuine bug is not silently logged as a flaky upload. ``on_file_done`` fires once
     per file either way, so a caller-side progress counter still reaches the total when files fail.
+
+    With a ``resume_cache``, a file that has a saved URL is resumed from it, and a URL that turns out
+    to be stale costs one retry from byte 0 rather than a failure.
     """
     uploads: list[FileUpload] = []
     failures: list[FileFailure] = []
@@ -513,19 +615,71 @@ def _transfer_files(
             resource, token_result, workunit_id=workunit_id, container_id=container_id, job_id=job_id
         )
         file_progress = _make_file_progress(on_progress, file_info.name)
-        file_url = _make_file_url(on_url, file_info.name)
+        file_url = _make_resume_url_callback(on_url, file_info, resume_cache)
         try:
-            _ = send_to_sink(sink, file_info.path, creds, on_progress=file_progress, on_url=file_url)
+            _transfer_one(sink, file_info, creds, file_progress, file_url, resume_cache, token_result.tus_endpoint)
         except TransferError as error:
             logger.warning("Upload failed for {}: {}", file_info.name, error)
             failures.append(FileFailure(filename=file_info.name, resource_id=resource.id, error=str(error)))
             if on_file_done is not None:
                 on_file_done(file_info.name, False)
             continue
+        if resume_cache is not None:
+            # The bytes are stored; a kept URL would only resume an upload that is already complete.
+            resume_cache.discard(md5=file_info.md5)
         uploads.append(_as_file_upload(file_info.name, resource))
         if on_file_done is not None:
             on_file_done(file_info.name, True)
     return uploads, failures
+
+
+def _transfer_one(
+    sink: TransferSinkTus,
+    file_info: FileInfo,
+    creds: Credentials,
+    on_progress: Callable[[int, int], None] | None,
+    on_url: Callable[[str], None] | None,
+    resume_cache: ResumeCache | None,
+    tus_endpoint: str,
+) -> None:
+    """Send one file, resuming from a cached URL when there is a usable one.
+
+    A saved URL the server no longer knows about (tusd expired it, or it was never created) fails the
+    ``HEAD`` the mover issues; that is not a transport problem, so it costs one restart from byte 0
+    rather than a recorded failure. A failure without a resume URL is genuine and propagates.
+    """
+    resume_url = resume_cache.lookup(md5=file_info.md5, endpoint=tus_endpoint) if resume_cache is not None else None
+    try:
+        _ = send_to_sink(sink, file_info.path, creds, on_progress=on_progress, on_url=on_url, resume_url=resume_url)
+    except TransferError:
+        if resume_url is None:
+            raise
+        logger.info("Resume URL for {} is no longer usable; restarting the upload.", file_info.name)
+        assert resume_cache is not None
+        resume_cache.discard(md5=file_info.md5)
+        _ = send_to_sink(sink, file_info.path, creds, on_progress=on_progress, on_url=on_url, resume_url=None)
+
+
+def _make_resume_url_callback(
+    on_url: FileUrlCallback | None,
+    file_info: FileInfo,
+    resume_cache: ResumeCache | None,
+) -> Callable[[str], None] | None:
+    """The mover's ``(url)`` callback: saves the URL to the cache and forwards it to ``on_url``.
+
+    Saving here rather than after the transfer is the point -- the URL is worth keeping precisely for
+    a file whose transfer then fails, and this fires as soon as the URL exists.
+    """
+    forward = _make_file_url(on_url, file_info.name)
+    if resume_cache is None:
+        return forward
+
+    def _report(url: str) -> None:
+        resume_cache.store(md5=file_info.md5, url=url)
+        if forward is not None:
+            forward(url)
+
+    return _report
 
 
 def _as_file_upload(filename: str, resource: CreatedResource) -> FileUpload:

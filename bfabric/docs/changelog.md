@@ -9,6 +9,16 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- `upload_files` accepts a `resume_cache` path, keeping each file's tus URL keyed by MD5 so an interrupted transfer resumes instead of restarting from byte 0. `None` (the default) keeps no state and never resumes.
+
+### Changed
+
+- `DuplicateResult` carries the `check-duplicates` response's `linkable` and `existingResourceStatus`, and `linkable` decides whether a duplicate may be linked. **Breaking:** `on_duplicate="link"` now requires a B-Fabric that reports `linkable`; a response omitting it is refused rather than guessed.
+- `on_duplicate="link"` only links to a duplicate the server reports as linkable; one whose resource is still `pending` or `failed` is uploaded instead, so a retry after a failed transfer no longer fails until B-Fabric's orphan cleanup runs.
+- `upload_files` raises `WorkunitCompletionError` when every transfer succeeded but marking the workunit `available` failed. It carries the `UploadSummary`, so a caller can record what landed and retry only the status flip rather than creating a second workunit.
+
 ## \[1.21.0\] - 2026-08-20
 
 ### Added

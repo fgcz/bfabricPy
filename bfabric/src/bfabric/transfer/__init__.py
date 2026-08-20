@@ -41,6 +41,7 @@ from bfabric.transfer.errors import (
     BfabricTransferError,
     ScopeError,
 )
+from bfabric.transfer.resume_cache import DEFAULT_RESUME_TTL_SECONDS, ResumeCache
 from bfabric.transfer.sources import http_source, ssh_source
 from bfabric.transfer.tokens import (
     check_download_scope,
@@ -60,11 +61,13 @@ from bfabric.transfer.upload import (
 )
 
 __all__ = [
+    "DEFAULT_RESUME_TTL_SECONDS",
     "BfabricTransferError",
     "CreatedResource",
     "Credentials",
     "DuplicateResult",
     "FileInfo",
+    "ResumeCache",
     "ScopeError",
     "TransferError",
     "TransferSink",
