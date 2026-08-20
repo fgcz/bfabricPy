@@ -158,9 +158,9 @@ class Entity(FindMixin):
     def load_yaml(cls, path: Path, client: Bfabric | None = None, bfabric_instance: str | None = None) -> Self:
         """Loads an entity from a YAML file written by :meth:`dump_yaml`.
 
-        Called on ``Entity`` this returns the most specific class for the dumped entity type, whereas calling it on a
-        subclass rejects a file holding a different entity type. ``bfabric_instance`` is only needed for files
-        written before the provenance metadata existed, and otherwise has to agree with the file.
+        Called on ``Entity`` this returns the most specific class for the dumped type, whereas calling it on a
+        subclass rejects a file holding a different type. ``bfabric_instance`` is only needed for files predating
+        the provenance metadata, and otherwise has to agree with the file.
 
         :raises TypeError: if the file holds an entity type other than ``cls``
         """
@@ -169,15 +169,13 @@ class Entity(FindMixin):
         from bfabric.entities.core.import_entity import entity_type_of, import_entity
         from bfabric.entities.core.serialization import parse_document
 
-        data, bfabric_instance = parse_document(yaml.safe_load(path.read_text()), bfabric_instance)
+        document: object = yaml.safe_load(path.read_text())  # pyright: ignore[reportAny]
+        data, bfabric_instance = parse_document(document, bfabric_instance)
         classname = data.get("classname")
-        if cls is Entity:
-            entity_class = import_entity(classname) if isinstance(classname, str) else Entity
-        elif classname != entity_type_of(cls):
+        if cls is not Entity and classname != entity_type_of(cls):
             msg = f"{path} holds a {classname!r} entity, which cannot be loaded as {cls.__name__}"
             raise TypeError(msg)
-        else:
-            entity_class = cls
+        entity_class = import_entity(classname) if cls is Entity and isinstance(classname, str) else cls
         return cast("Self", entity_class(data, client=client, bfabric_instance=bfabric_instance))
 
 
