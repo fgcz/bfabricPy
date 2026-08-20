@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Datasets &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>Datasets &#8212; bfabricPy 1.21.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=8f581bc6"></script>
+    <script src="../../_static/documentation_options.js?v=73822e2a"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="API Inspection with CLI" href="api_inspection.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0" />
+  <meta name="docsearch:version" content="1.21.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.21.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">User Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -212,6 +212,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../writing_data/index.html">Writing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../working_with_entities/index.html">Entity Features</a></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">bfabric-cli</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="authentication.html">Authentication</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api_operations.html">API Operations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api_inspection.html">API Inspection with CLI</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Datasets</a></li>
@@ -615,28 +616,28 @@
 <p><strong>Read Parquet file (Python):</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">polars</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">polars</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">&quot;my_data.parquet&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">polars</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s2">"my_data.parquet"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
 <p><strong>Read CSV file:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;my_data.csv&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"my_data.csv"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
 <p><strong>Read TSV file:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;my_data.tsv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"my_data.tsv"</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
 <p><strong>Read Excel file:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s2">&quot;my_data.xlsx&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s2">"my_data.xlsx"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -649,7 +650,7 @@
 <li><p>Progress is shown during download</p></li>
 <li><p>The default <code class="docutils literal notranslate"><span class="pre">auto</span></code> format automatically detects the format from the file extension</p></li>
 <li><p>Excel format (<code class="docutils literal notranslate"><span class="pre">.xlsx</span></code>) requires the optional <code class="docutils literal notranslate"><span class="pre">excel</span></code> dependency to be installed:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;bfabric_scripts[excel]&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'bfabric_scripts[excel]'</span>
 </pre></div>
 </div>
 </li>
@@ -733,8 +734,8 @@
 <p><strong>Upload Parquet with metadata:</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>upload<span class="w"> </span>parquet<span class="w"> </span>my_data.parquet<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--container-id<span class="w"> </span><span class="m">1234</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;My Dataset&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--description<span class="w"> </span><span class="s2">&quot;Analysis results from experiment X&quot;</span>
+<span class="w">    </span>--name<span class="w"> </span><span class="s2">"My Dataset"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--description<span class="w"> </span><span class="s2">"Analysis results from experiment X"</span>
 </pre></div>
 </div>
 <p><strong>Upload TSV:</strong></p>
@@ -798,7 +799,7 @@
 <section id="verifying-upload">
 <h3>Verifying Upload<a class="headerlink" href="#verifying-upload" title="Link to this heading">#</a></h3>
 <p>After uploading, verify the dataset:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show the new dataset (you&#39;ll need the new ID from upload output)</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show the new dataset (you'll need the new ID from upload output)</span>
 bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>show<span class="w"> </span>&lt;NEW_DATASET_ID&gt;
 </pre></div>
 </div>
@@ -830,8 +831,8 @@ bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>download<span 
 <span class="c1"># 3. Upload the processed dataset</span>
 bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>upload<span class="w"> </span>parquet<span class="w"> </span>processed.parquet<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--container-id<span class="w"> </span><span class="m">6789</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;Processed Analysis&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--description<span class="w"> </span><span class="s2">&quot;Processed version of dataset 12345&quot;</span>
+<span class="w">    </span>--name<span class="w"> </span><span class="s2">"Processed Analysis"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--description<span class="w"> </span><span class="s2">"Processed version of dataset 12345"</span>
 </pre></div>
 </div>
 </section>
@@ -861,7 +862,7 @@ ls<span class="w"> </span>-lh<span class="w"> </span>large_file.parquet
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use descriptive names with dates</span>
 bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>upload<span class="w"> </span>parquet<span class="w"> </span>results_2025-01-20.parquet<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--container-id<span class="w"> </span><span class="m">1234</span><span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;QC Results - 2025-01-20&quot;</span>
+<span class="w">    </span>--name<span class="w"> </span><span class="s2">"QC Results - 2025-01-20"</span>
 </pre></div>
 </div>
 </section>

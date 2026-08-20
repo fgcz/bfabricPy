@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Quick Start &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>Quick Start &#8212; bfabricPy 1.21.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=8f581bc6"></script>
+    <script src="../_static/documentation_options.js?v=73822e2a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0" />
+  <meta name="docsearch:version" content="1.21.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.21.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -212,6 +212,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../user_guides/writing_data/index.html">Writing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_entities/index.html">Entity Features</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/authentication.html">Authentication</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
@@ -426,7 +427,7 @@
 <p>Before starting, make sure you have:</p>
 <ol class="arabic simple">
 <li><p><strong>Installed bfabricPy</strong>: Follow <a class="reference internal" href="installation.html"><span class="std std-doc">Installation Guide</span></a></p></li>
-<li><p><strong>Configured credentials</strong>: Follow <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a></p></li>
+<li><p><strong>Logged in</strong>: run <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">login</span></code>, or see the <a class="reference internal" href="configuration.html"><span class="std std-doc">Configuration Guide</span></a> for the other options</p></li>
 </ol>
 </section>
 <hr class="docutils" />
@@ -438,14 +439,14 @@
 <span class="c1"># Connect to B-Fabric (uses your config file)</span>
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Connected to: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Connected to: </span><span class="si">{</span><span class="n">client</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">base_url</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Query for recent workunits</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"workunit"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> recent workunit(s):&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> recent workunit(s):"</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">workunit</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - ID: </span><span class="si">{</span><span class="n">workunit</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, Status: </span><span class="si">{</span><span class="n">workunit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - ID: </span><span class="si">{</span><span class="n">workunit</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">, Status: </span><span class="si">{</span><span class="n">workunit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'status'</span><span class="p">,</span><span class="w"> </span><span class="s1">'N/A'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Run it:</strong></p>
@@ -475,8 +476,8 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Create a client using your configuration from <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<p>Connect using your configuration from <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"workunit"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{},</span> <span class="n">max_results</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Query B-Fabric for workunits. Returns a <code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code> object.</p>
@@ -510,7 +511,7 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Understand client authentication</p></td>
-<td><p><a class="reference internal" href="../user_guides/creating_a_client/index.html"><span class="std std-doc">Creating a Client</span></a></p></td>
+<td><p><a class="reference internal" href="../user_guides/connecting/index.html"><span class="std std-doc">Connecting</span></a></p></td>
 </tr>
 <tr class="row-odd"><td><p>Query and retrieve data efficiently</p></td>
 <td><p><a class="reference internal" href="../user_guides/reading_data/index.html"><span class="std std-doc">Reading Data</span></a></p></td>
@@ -534,7 +535,7 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>inspect<span class
 <li><p><a class="reference internal" href="installation.html"><span class="doc std std-doc">Installation Guide</span></a> - Installation options</p></li>
 <li><p><a class="reference internal" href="configuration.html"><span class="doc std std-doc">Configuration Guide</span></a> - Config file structure and options</p></li>
 <li><p><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html"><span class="doc std std-doc">API Inspection Guide</span></a> - Discovering API endpoints and parameters</p></li>
-<li><p><a class="reference internal" href="../user_guides/creating_a_client/index.html"><span class="doc std std-doc">Creating a Client</span></a> - Authentication methods</p></li>
+<li><p><a class="reference internal" href="../user_guides/connecting/index.html"><span class="doc std std-doc">Connecting</span></a> - Authentication methods</p></li>
 <li><p><a class="reference internal" href="troubleshooting.html"><span class="doc std std-doc">Troubleshooting</span></a> - Common issues and solutions</p></li>
 </ul>
 </section>

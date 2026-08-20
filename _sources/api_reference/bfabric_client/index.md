@@ -4,7 +4,7 @@ Complete API reference for the `Bfabric` client class, automatically generated f
 
 ## Quick Links
 
-- **[Creating a Client](../../user_guides/creating_a_client/index.md)** - Step-by-step guides for different use cases
+- **[Connecting](../../user_guides/connecting/index.md)** - Step-by-step guides for different use cases
 - **[Configuration](../../getting_started/configuration.md)** - Config file setup and options
 - **[Quick Start](../../getting_started/quick_start.md)** - 5-minute tutorial
 

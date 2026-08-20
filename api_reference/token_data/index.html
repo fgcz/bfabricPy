@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API Reference: Token Data &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>API Reference: Token Data &#8212; bfabricPy 1.21.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=8f581bc6"></script>
+    <script src="../../_static/documentation_options.js?v=73822e2a"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="ResultContainer API Reference" href="../result_container/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0" />
+  <meta name="docsearch:version" content="1.21.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.21.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -212,6 +212,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../user_guides/writing_data/index.html">Writing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../user_guides/working_with_entities/index.html">Entity Features</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/authentication.html">Authentication</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
@@ -595,15 +596,15 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.experimental.webapp_integration_settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenValidationSettings</span>
 
 <span class="n">settings</span> <span class="o">=</span> <span class="n">TokenValidationSettings</span><span class="p">(</span>
-    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">,</span>
-    <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/&quot;</span><span class="p">],</span>
+    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
+    <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">],</span>
 <span class="p">)</span>
 
 <span class="n">client</span><span class="p">,</span> <span class="n">token_data</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_token</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Authenticated as: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Application ID: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">application_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Entity: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">entity_class</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Authenticated as: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">user</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Application ID: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">application_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Entity: </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">entity_class</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">entity_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -616,7 +617,7 @@
 <span class="c1"># Check if token expires soon</span>
 <span class="n">time_until_expiry</span> <span class="o">=</span> <span class="n">token_data</span><span class="o">.</span><span class="n">token_expires</span> <span class="o">-</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">time_until_expiry</span> <span class="o">&lt;</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Token expires in less than 1 hour!&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Warning: Token expires in less than 1 hour!"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -625,7 +626,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">client</span><span class="p">,</span> <span class="n">token_data</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect_token</span><span class="p">(</span><span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="ow">not</span> <span class="n">token_data</span><span class="o">.</span><span class="n">web_service_user</span><span class="p">:</span>
-    <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="s2">&quot;User does not have web service permissions&quot;</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">PermissionError</span><span class="p">(</span><span class="s2">"User does not have web service permissions"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -636,7 +637,7 @@
 <span class="c1"># Load entity from token data</span>
 <span class="n">entity</span> <span class="o">=</span> <span class="n">token_data</span><span class="o">.</span><span class="n">load_entity</span><span class="p">(</span><span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded entity: </span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded entity: </span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -644,7 +645,7 @@
 <section id="see-also">
 <h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">#</a></h2>
 <ul class="simple">
-<li><p><a class="reference internal" href="../../user_guides/creating_a_client/server_webapp_usage.html"><span class="std std-doc">Server/Webapp Usage</span></a> - Server authentication guide</p></li>
+<li><p><a class="reference internal" href="../../user_guides/connecting/server_webapp_usage.html"><span class="std std-doc">Server/Webapp Usage</span></a> - Server authentication guide</p></li>
 </ul>
 </section>
 </section>

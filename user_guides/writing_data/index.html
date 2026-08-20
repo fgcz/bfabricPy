@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Writing Data &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>Writing Data &#8212; bfabricPy 1.21.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=8f581bc6"></script>
+    <script src="../../_static/documentation_options.js?v=73822e2a"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="Entity Caching" href="../reading_data/caching_for_performance.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0" />
+  <meta name="docsearch:version" content="1.21.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.21.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">User Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -212,6 +212,7 @@
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Writing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../working_with_entities/index.html">Entity Features</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/authentication.html">Authentication</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/api_operations.html">API Operations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/datasets.html">Datasets</a></li>
@@ -483,7 +484,7 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <span class="c1"># Always connect to test instance</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bfabric</span>
 
-<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="s2">&quot;TEST&quot;</span><span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">config_file_env</span><span class="o">=</span><span class="s2">"TEST"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -493,14 +494,14 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <h3>Create<a class="headerlink" href="#create" title="Link to this heading">#</a></h3>
 <p>Create new entities using <code class="docutils literal notranslate"><span class="pre">client.save()</span></code> without an <code class="docutils literal notranslate"><span class="pre">id</span></code> field:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">new_sample</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;TEST_MySample&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;containerid&quot;</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">,</span>
-    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Biological Sample - Generic&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;A test sample&quot;</span><span class="p">,</span>
+    <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"TEST_MySample"</span><span class="p">,</span>
+    <span class="s2">"containerid"</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">,</span>
+    <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"Biological Sample - Generic"</span><span class="p">,</span>
+    <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"A test sample"</span><span class="p">,</span>
 <span class="p">}</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">new_sample</span><span class="p">)</span>
-<span class="n">sample_id</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created: </span><span class="si">{</span><span class="n">sample_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">new_sample</span><span class="p">)</span>
+<span class="n">sample_id</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"id"</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Created: </span><span class="si">{</span><span class="n">sample_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Tips:</strong></p>
@@ -514,13 +515,13 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <h3>Update<a class="headerlink" href="#update" title="Link to this heading">#</a></h3>
 <p>Updates require the <code class="docutils literal notranslate"><span class="pre">id</span></code> field and only the fields you want to change:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
-    <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span>
+    <span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span>
     <span class="n">obj</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">sample_id</span><span class="p">,</span>  <span class="c1"># Required for updates</span>
-        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Updated description&quot;</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="n">sample_id</span><span class="p">,</span>  <span class="c1"># Required for updates</span>
+        <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"Updated description"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Updated&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Updated"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Important warnings:</strong></p>
@@ -533,8 +534,8 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <section id="delete">
 <h3>Delete<a class="headerlink" href="#delete" title="Link to this heading">#</a></h3>
 <p>Delete entities by ID:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">sample_id</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleted&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">sample_id</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Deleted"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Warning:</strong> Deletion is permanent. Consider using TEST environment first.</p>
@@ -548,26 +549,26 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create multiple samples</span>
 <span class="n">objects</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sample1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;containerid&quot;</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">,</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Biological Sample - Generic&quot;</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Sample1"</span><span class="p">,</span>
+        <span class="s2">"containerid"</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">,</span>
+        <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"Biological Sample - Generic"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sample2&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;containerid&quot;</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">,</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Biological Sample - Generic&quot;</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Sample2"</span><span class="p">,</span>
+        <span class="s2">"containerid"</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">,</span>
+        <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"Biological Sample - Generic"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Sample3&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;containerid&quot;</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">,</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Biological Sample - Generic&quot;</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Sample3"</span><span class="p">,</span>
+        <span class="s2">"containerid"</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">,</span>
+        <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"Biological Sample - Generic"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">]</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">objects</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">objects</span><span class="p">)</span>
 
 <span class="c1"># Process all results</span>
 <span class="k">for</span> <span class="n">saved_object</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created: </span><span class="si">{</span><span class="n">saved_object</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">saved_object</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Created: </span><span class="si">{</span><span class="n">saved_object</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">saved_object</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -575,13 +576,13 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <h3>The <code class="docutils literal notranslate"><span class="pre">method</span></code> Parameter<a class="headerlink" href="#the-method-parameter" title="Link to this heading">#</a></h3>
 <p>Most endpoints use <code class="docutils literal notranslate"><span class="pre">method=&quot;save&quot;</span></code> (the default), but some require specific methods:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default method (works for most endpoints)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test&quot;</span><span class="p">})</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Test"</span><span class="p">})</span>
 
 <span class="c1"># Explicit method</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test&quot;</span><span class="p">},</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;save&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Test"</span><span class="p">},</span> <span class="n">method</span><span class="o">=</span><span class="s2">"save"</span><span class="p">)</span>
 
 <span class="c1"># Some endpoints may require different methods</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;special_endpoint&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;update&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"special_endpoint"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"update"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Check the B-Fabric documentation or use <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">inspect</span></code> to determine if a specific method is required.</p>
@@ -590,25 +591,25 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <h3>Checking for Existence<a class="headerlink" href="#checking-for-existence" title="Link to this heading">#</a></h3>
 <p>Avoid creating duplicates by checking existence first:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check if sample exists with given name</span>
-<span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;TEST_MySample&quot;</span><span class="p">):</span>
-    <span class="c1"># Only create if doesn&#39;t exist</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">"name"</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">"TEST_MySample"</span><span class="p">):</span>
+    <span class="c1"># Only create if doesn't exist</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
-        <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span>
-        <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;TEST_MySample&quot;</span><span class="p">,</span> <span class="s2">&quot;containerid&quot;</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">},</span>
+        <span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span>
+        <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"TEST_MySample"</span><span class="p">,</span> <span class="s2">"containerid"</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">},</span>
     <span class="p">)</span>
-    <span class="n">sample_id</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created new sample: </span><span class="si">{</span><span class="n">sample_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">sample_id</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"id"</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Created new sample: </span><span class="si">{</span><span class="n">sample_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Sample already exists, skipping creation&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Sample already exists, skipping creation"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Use additional query conditions for more specific checks:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check for sample with specific name in specific project</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">client</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span>
-    <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span>
-    <span class="n">key</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
-    <span class="n">value</span><span class="o">=</span><span class="s2">&quot;TEST_MySample&quot;</span><span class="p">,</span>
-    <span class="n">query</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;containerid&quot;</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">},</span>
+    <span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span>
+    <span class="n">key</span><span class="o">=</span><span class="s2">"name"</span><span class="p">,</span>
+    <span class="n">value</span><span class="o">=</span><span class="s2">"TEST_MySample"</span><span class="p">,</span>
+    <span class="n">query</span><span class="o">=</span><span class="p">{</span><span class="s2">"containerid"</span><span class="p">:</span> <span class="n">TEST_PROJECT_ID</span><span class="p">},</span>
 <span class="p">):</span>
     <span class="c1"># Safe to create</span>
     <span class="k">pass</span>
@@ -619,8 +620,8 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <h3>Deleting Multiple Entities<a class="headerlink" href="#deleting-multiple-entities" title="Link to this heading">#</a></h3>
 <p>Delete multiple entities in a single call:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Delete by list of IDs</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="p">[</span><span class="mi">1001</span><span class="p">,</span> <span class="mi">1002</span><span class="p">,</span> <span class="mi">1003</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Deleted </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="p">[</span><span class="mi">1001</span><span class="p">,</span> <span class="mi">1002</span><span class="p">,</span> <span class="mi">1003</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Deleted </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -680,13 +681,13 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <h2>Response Handling<a class="headerlink" href="#response-handling" title="Link to this heading">#</a></h2>
 <section id="successful-operations">
 <h3>Successful Operations<a class="headerlink" href="#successful-operations" title="Link to this heading">#</a></h3>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test&quot;</span><span class="p">,</span> <span class="s2">&quot;containerid&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">})</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Test"</span><span class="p">,</span> <span class="s2">"containerid"</span><span class="p">:</span> <span class="mi">123</span><span class="p">})</span>
 
 <span class="c1"># ResultContainer with saved objects</span>
 <span class="k">for</span> <span class="n">saved_object</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID: </span><span class="si">{</span><span class="n">saved_object</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Name: </span><span class="si">{</span><span class="n">saved_object</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Created: </span><span class="si">{</span><span class="n">saved_object</span><span class="p">[</span><span class="s1">&#39;created&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ID: </span><span class="si">{</span><span class="n">saved_object</span><span class="p">[</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Name: </span><span class="si">{</span><span class="n">saved_object</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Created: </span><span class="si">{</span><span class="n">saved_object</span><span class="p">[</span><span class="s1">'created'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 <span class="c1"># Access as list</span>
 <span class="n">objects</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">to_list_dict</span><span class="p">()</span>
@@ -696,15 +697,15 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <section id="handling-errors">
 <h3>Handling Errors<a class="headerlink" href="#handling-errors" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Manual error handling</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test&quot;</span><span class="p">},</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Test"</span><span class="p">},</span> <span class="n">check</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_success</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Saved successfully&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ID: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Saved successfully"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"ID: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">'id'</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Save failed:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Save failed:"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  - </span><span class="si">{</span><span class="n">error</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>See <a class="reference internal" href="../error_handling.html"><span class="std std-doc">Error Handling</span></a> for comprehensive error handling patterns.</p>
@@ -715,22 +716,22 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <section id="pattern-1-safe-create-or-update">
 <h3>Pattern 1: Safe Create-or-Update<a class="headerlink" href="#pattern-1-safe-create-or-update" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_or_update_sample</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">containerid</span><span class="p">,</span> <span class="o">**</span><span class="n">attrs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create sample if it doesn&#39;t exist, otherwise update it.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Create sample if it doesn't exist, otherwise update it."""</span>
     <span class="c1"># Try to find existing sample</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">read</span><span class="p">(</span>
-        <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span>
-        <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;containerid&quot;</span><span class="p">:</span> <span class="n">containerid</span><span class="p">},</span>
+        <span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span>
+        <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"containerid"</span><span class="p">:</span> <span class="n">containerid</span><span class="p">},</span>
         <span class="n">max_results</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="c1"># Update existing</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="o">**</span><span class="n">attrs</span><span class="p">}</span>
-        <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"id"</span><span class="p">],</span> <span class="o">**</span><span class="n">attrs</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Create new</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;containerid&quot;</span><span class="p">:</span> <span class="n">containerid</span><span class="p">,</span> <span class="o">**</span><span class="n">attrs</span><span class="p">}</span>
-        <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"containerid"</span><span class="p">:</span> <span class="n">containerid</span><span class="p">,</span> <span class="o">**</span><span class="n">attrs</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -738,23 +739,23 @@ See <a class="reference internal" href="../../getting_started/configuration.html
 <h3>Pattern 2: Creating Related Objects<a class="headerlink" href="#pattern-2-creating-related-objects" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a workunit with parameters</span>
 <span class="n">workunit</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
-    <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span>
+    <span class="n">endpoint</span><span class="o">=</span><span class="s2">"workunit"</span><span class="p">,</span>
     <span class="n">obj</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;My Analysis&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;applicationid&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
-        <span class="s2">&quot;containerid&quot;</span><span class="p">:</span> <span class="mi">456</span><span class="p">,</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;WAITING&quot;</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"My Analysis"</span><span class="p">,</span>
+        <span class="s2">"applicationid"</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+        <span class="s2">"containerid"</span><span class="p">:</span> <span class="mi">456</span><span class="p">,</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"WAITING"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">)</span>
-<span class="n">workunit_id</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+<span class="n">workunit_id</span> <span class="o">=</span> <span class="n">workunit</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"id"</span><span class="p">]</span>
 
 <span class="c1"># Add parameters to the workunit</span>
 <span class="n">client</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
-    <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;parameter&quot;</span><span class="p">,</span>
+    <span class="n">endpoint</span><span class="o">=</span><span class="s2">"parameter"</span><span class="p">,</span>
     <span class="n">obj</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">&quot;workunitid&quot;</span><span class="p">:</span> <span class="n">workunit_id</span><span class="p">,</span>
-        <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;param1&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;value1&quot;</span><span class="p">,</span>
+        <span class="s2">"workunitid"</span><span class="p">:</span> <span class="n">workunit_id</span><span class="p">,</span>
+        <span class="s2">"key"</span><span class="p">:</span> <span class="s2">"param1"</span><span class="p">,</span>
+        <span class="s2">"value"</span><span class="p">:</span> <span class="s2">"value1"</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">)</span>
 </pre></div>

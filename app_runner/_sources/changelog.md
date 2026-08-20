@@ -4,6 +4,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.8.0\] - 2026-08-20
+
+### Added
+
+- New `${app.dir}` template variable holding the app spec's directory, for paths no spec field resolves — e.g. `command: uv run --script ${app.dir}/dispatch.py`.
+
+### Changed
+
+- Output registration always creates a new resource instead of recycling the legacy wrapper creator's `pending` placeholder ([#361](https://github.com/fgcz/bfabricPy/issues/361)); the `reuse_default_resource` field and its CLI options are gone, but remain tolerated in an `app.yml`.
+- Relative paths in the app spec (`pylock`, `local_extra_deps`, `prepend_paths`, host side of docker `mounts`) resolve against the `app.yml` directory instead of the run's scratch directory, with a leading `~` expanded ([#212](https://github.com/fgcz/bfabricPy/issues/212)).
+- Captured command output (`uv venv` / `uv pip install`) is logged one record per line, so every line carries its level prefix.
+- Requires `bfabric` 1.21.0 for the logging fix that keeps a nested app-runner from falling back to loguru's verbose DEBUG format.
+- Internal: the input `Resolver` dispatches through a spec-class registry instead of an `issubclass` ladder, and reports a spec type with no resolver when it is constructed rather than part-way through a resolve; clears the 38 grandfathered basedpyright entries on that module.
+
+### Fixed
+
+- A `python_env` command whose `uv` binary is missing from `PATH` fails with `uv executable not found on PATH` instead of an obscure `TypeError`.
+- The demo app copier template can be instantiated again; the destination must now be given as an absolute path.
+- A failing app command reports a single `Error: Command failed with exit code N: <command>` line instead of ~10 frames of app-runner boilerplate ([#231](https://github.com/fgcz/bfabricPy/issues/231)).
+- `run workunit` no longer prints a second traceback when `make run-all` fails; it reports one line naming the workunit, exit code, and work directory.
+
 ## \[0.7.0\] - 2026-08-03
 
 - `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv` default, or `parquet`), so an output dataset can be registered from Parquet; `separator` is now optional (csv-only) ([#359](https://github.com/fgcz/bfabricPy/issues/359)).

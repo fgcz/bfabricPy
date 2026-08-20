@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Data Operations &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>Data Operations &#8212; bfabricPy 1.21.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=8f581bc6"></script>
+    <script src="../_static/documentation_options.js?v=73822e2a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="Experimental: Workunit Definitions" href="workunit_definitions/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0" />
+  <meta name="docsearch:version" content="1.21.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.21.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -212,6 +212,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../user_guides/writing_data/index.html">Writing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_entities/index.html">Entity Features</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/authentication.html">Authentication</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
@@ -443,15 +444,15 @@ validation defaults.</p>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
-<span class="n">table</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/measurements.csv&quot;</span><span class="p">)</span>
+<span class="n">table</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"data/measurements.csv"</span><span class="p">)</span>
 <span class="n">check_for_invalid_characters</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>  <span class="c1"># raises on forbidden characters</span>
 
 <span class="n">dataset</span> <span class="o">=</span> <span class="n">create_dataset</span><span class="p">(</span>
     <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span>
     <span class="n">table</span><span class="o">=</span><span class="n">table</span><span class="p">,</span>
-    <span class="n">params</span><span class="o">=</span><span class="n">CreateDatasetParams</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;MyMeasurements&quot;</span><span class="p">,</span> <span class="n">container_id</span><span class="o">=</span><span class="mi">123</span><span class="p">),</span>
+    <span class="n">params</span><span class="o">=</span><span class="n">CreateDatasetParams</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"MyMeasurements"</span><span class="p">,</span> <span class="n">container_id</span><span class="o">=</span><span class="mi">123</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset created with ID: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dataset created with ID: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">create_dataset</span></code> does not validate input — apply <code class="docutils literal notranslate"><span class="pre">check_for_invalid_characters</span></code>
@@ -467,8 +468,8 @@ beforehand if you need those checks.</p>
 
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 
-<span class="n">custom_attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;processed&quot;</span><span class="p">,</span> <span class="s2">&quot;qc_status&quot;</span><span class="p">:</span> <span class="s2">&quot;passed&quot;</span><span class="p">}</span>
-<span class="n">uri</span> <span class="o">=</span> <span class="n">EntityUri</span><span class="p">(</span><span class="s2">&quot;https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123&quot;</span><span class="p">)</span>
+<span class="n">custom_attrs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"status"</span><span class="p">:</span> <span class="s2">"processed"</span><span class="p">,</span> <span class="s2">"qc_status"</span><span class="p">:</span> <span class="s2">"passed"</span><span class="p">}</span>
+<span class="n">uri</span> <span class="o">=</span> <span class="n">EntityUri</span><span class="p">(</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123"</span><span class="p">)</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">update_custom_attributes</span><span class="p">(</span>
     <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span>
@@ -478,7 +479,7 @@ beforehand if you need those checks.</p>
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_success</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Custom attributes updated&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Custom attributes updated"</span><span class="p">)</span>
 </pre></div>
 </div>
 <section id="parameters">
@@ -497,13 +498,13 @@ beforehand if you need those checks.</p>
 <h3>Workflow Status Tracking<a class="headerlink" href="#workflow-status-tracking" title="Link to this heading">#</a></h3>
 <p>Track processing status across samples:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Mark samples as processed</span>
-<span class="n">samples</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projectid&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">})</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="p">{</span><span class="s2">"projectid"</span><span class="p">:</span> <span class="mi">123</span><span class="p">})</span>
 
 <span class="k">for</span> <span class="n">uri</span><span class="p">,</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="n">update_custom_attributes</span><span class="p">(</span>
         <span class="n">client</span><span class="o">=</span><span class="n">client</span><span class="p">,</span>
         <span class="n">entity_uri</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span>
-        <span class="n">custom_attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;processing_status&quot;</span><span class="p">:</span> <span class="s2">&quot;completed&quot;</span><span class="p">},</span>
+        <span class="n">custom_attributes</span><span class="o">=</span><span class="p">{</span><span class="s2">"processing_status"</span><span class="p">:</span> <span class="s2">"completed"</span><span class="p">},</span>
     <span class="p">)</span>
 </pre></div>
 </div>
@@ -513,9 +514,9 @@ beforehand if you need those checks.</p>
 <p>Add quality control results:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Annotate samples with QC results</span>
 <span class="n">qc_results</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;qc_status&quot;</span><span class="p">:</span> <span class="s2">&quot;passed&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;qc_date&quot;</span><span class="p">:</span> <span class="s2">&quot;2025-01-22&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;qc_score&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>
+    <span class="s2">"qc_status"</span><span class="p">:</span> <span class="s2">"passed"</span><span class="p">,</span>
+    <span class="s2">"qc_date"</span><span class="p">:</span> <span class="s2">"2025-01-22"</span><span class="p">,</span>
+    <span class="s2">"qc_score"</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">update_custom_attributes</span><span class="p">(</span>

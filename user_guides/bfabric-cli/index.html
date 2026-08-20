@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>bfabric-cli &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>bfabric-cli &#8212; bfabricPy 1.21.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=8f581bc6"></script>
+    <script src="../../_static/documentation_options.js?v=73822e2a"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -48,11 +48,11 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="API Operations" href="api_operations.html" />
+    <link rel="next" title="Authentication" href="authentication.html" />
     <link rel="prev" title="Entity Features" href="../working_with_entities/index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0" />
+  <meta name="docsearch:version" content="1.21.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.21.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">User Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -212,6 +212,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../writing_data/index.html">Writing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../working_with_entities/index.html">Entity Features</a></li>
 <li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">bfabric-cli</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="authentication.html">Authentication</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api_operations.html">API Operations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api_inspection.html">API Inspection with CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="datasets.html">Datasets</a></li>
@@ -459,19 +460,22 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span></code></p></td>
+<td><p>Log in and manage instances / credentials</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span></code></p></td>
 <td><p>Generic CRUD operations on B-Fabric entities</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">dataset</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">dataset</span></code></p></td>
 <td><p>Dataset-specific operations (read, upload, download)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">executable</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">executable</span></code></p></td>
 <td><p>Executable operations (show, upload, dump)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">workunit</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">workunit</span></code></p></td>
 <td><p>Workunit operations (check status, export definitions)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">feeder</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">feeder</span></code></p></td>
 <td><p>Feeder operations for creating importresources</p></td>
 </tr>
 </tbody>
@@ -558,7 +562,7 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">r
 <h3>Python Equivalence<a class="headerlink" href="#python-equivalence" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">api</span> <span class="pre">read</span></code> command displays the equivalent Python code, making it easy to transition from CLI to Python:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>--limit<span class="w"> </span><span class="m">10</span>
-<span class="c1"># Outputs: results = client.read(endpoint=&#39;resource&#39;, obj={}, max_results=100)</span>
+<span class="c1"># Outputs: results = client.read(endpoint='resource', obj={}, max_results=100)</span>
 </pre></div>
 </div>
 </section>
@@ -566,11 +570,11 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">r
 <section id="confirmation-prompts">
 <h2>Confirmation Prompts<a class="headerlink" href="#confirmation-prompts" title="Link to this heading">#</a></h2>
 <p>Destructive operations (<code class="docutils literal notranslate"><span class="pre">update</span></code>, <code class="docutils literal notranslate"><span class="pre">delete</span></code>) require confirmation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">12345</span><span class="w"> </span>description<span class="w"> </span><span class="s2">&quot;Updated description&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">12345</span><span class="w"> </span>description<span class="w"> </span><span class="s2">"Updated description"</span>
 <span class="c1"># Prompts: Do you want to proceed with the update? [y/N]</span>
 
 <span class="c1"># Skip confirmation (use with caution!)</span>
-bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">12345</span><span class="w"> </span>description<span class="w"> </span><span class="s2">&quot;Updated description&quot;</span><span class="w"> </span>--no-confirm
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">12345</span><span class="w"> </span>description<span class="w"> </span><span class="s2">"Updated description"</span><span class="w"> </span>--no-confirm
 </pre></div>
 </div>
 </section>
@@ -578,6 +582,7 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class=
 <h2>Command Documentation<a class="headerlink" href="#command-documentation" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_operations.html">API Operations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api_inspection.html">API Inspection with CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="datasets.html">Datasets</a></li>
@@ -610,11 +615,11 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class=
       </div>
     </a>
     <a class="right-next"
-       href="api_operations.html"
+       href="authentication.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API Operations</p>
+        <p class="prev-next-title">Authentication</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

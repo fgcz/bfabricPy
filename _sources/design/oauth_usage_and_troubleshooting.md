@@ -1,10 +1,5 @@
 # OAuth Usage & Troubleshooting
 
-> **⚠️ EXPERIMENTAL / NOT OFFICIALLY SHIPPED.** The `bfabric._oauth` module and the
-> `connect_pkce` / `connect_device_code` / `connect_oauth` factory methods are under active
-> development (the asgi-auth OAuth migration is still in flight). APIs, defaults, and server-side
-> scope enforcement may change. Do not treat this as stable public API yet.
-
 A task-oriented companion to [OAuth Integration](oauth_integration.md): how to obtain a working
 token from a `Bfabric` client via OAuth, and the non-obvious failure modes observed on
 `fgcz-bfabric-demo`. For the architecture and module layout, see the integration doc.
@@ -173,6 +168,18 @@ machine (a remote/hosted marimo, Jupyter on a server, SSH), the redirect to `127
 *user's* machine where nothing is listening, so the code is never caught and PKCE times out.
 **On remote hosts use `connect_device_code` instead** — it needs no callback server (you get a URL +
 code and the process polls the token endpoint). On a truly local notebook, PKCE works.
+
+Both the printed-URL fallback and the timeout error name the redirect target and point at the
+device-code flow. Neither message is conditional on whether a browser appeared, because the signal is
+not trustworthy: `webbrowser.open` returns `True` for a *terminal* browser (`w3m`, `lynx`, …) that
+renders the page into the shell, and on macOS it returns `True` even over SSH where nothing opened.
+That is also why the CLI does not autodetect browser availability and route the flow itself.
+
+`pkce_login(open_browser=False)` (CLI: `--no-browser`) prints the URL instead of opening anything; the
+loopback server still listens, so it helps a *local* machine with no configured browser and does not
+make the flow work remotely. See the
+[authentication guide](../user_guides/bfabric-cli/authentication.md) for the user-facing escape
+hatches.
 
 ### `connect_pkce` only supports **public** clients (tentative on the 401 cause)
 `_exchange_code` sends only `client_id` + PKCE `code_verifier` at the token endpoint — **no

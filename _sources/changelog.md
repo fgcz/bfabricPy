@@ -9,6 +9,50 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.21.0\] - 2026-08-20
+
+### Added
+
+- `create_workunit` attaches a `dataset` (a `WorkunitDataset` of name + base64-encoded `csv`/`tsv`/`parquet`) as the workunit's output dataset, and references an existing one as its input via `input_dataset_id`. A dataset alone counts as workunit data, so neither resources nor files are required.
+- `on_duplicate="link"` registers a duplicate as a resource pointing at the existing bytes instead of omitting the file, transferring nothing. See `FileInfo.link_from_resource_id`.
+- `upload_files` / `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. `.DS_Store`).
+- `upload_files` accepts an `on_url` callback, reporting each file's resumable tus URL as soon as it exists (including for a transfer that then fails), so a caller can persist it for a later `send_to_sink(resume_url=...)`.
+- Config: new CLI-only `scope` field recording the scope *requested* at login, so a login can be replayed from disk; `config_writer.clear_environment_credentials` strips inline secrets while keeping the environment configured.
+
+### Changed
+
+- `upload_files(client, params)` takes its files as `UploadFilesParams.files`, a list of `UploadFileParam(path=..., on_duplicate=...)`; the `force` / `link_duplicates` booleans are gone.
+- **`on_duplicate` defaults to `upload`, so the duplicate check no longer runs unless asked for** — pass `skip` for the old behaviour.
+- `UploadSummary` holds one list per outcome — `uploads`, `skips`, `failures`, `links` — replacing the 1.20.0 counters; skips carry the duplicate they lost out to.
+- A workunit whose files were all linked now completes instead of failing the "nothing uploaded" check.
+- Two input files mapping to the same resource name are rejected before the workunit is created, not after.
+- `create_workunit` accepts a plain mapping for `params`, validated internally so an invalid mapping raises `ValidationError` before any write.
+- The OAuth module moved from `bfabric._oauth` to `bfabric.oauth`.
+- `import bfabric` no longer imports `polars` eagerly (~296 ms → ~184 ms); it loads on first use.
+- PKCE's printed-URL fallback and timeout error now name the loopback redirect target and point at the device-code flow.
+- `use_client` logs the reported error's traceback at DEBUG; the `Error: <message>` line and exit code 1 are unchanged.
+
+### Removed
+
+- **Breaking:** the zeep engine, which had stopped working against B-Fabric. `EngineSUDS` is the only engine, `BfabricAPIEngineType.ZEEP` is gone, and so is the `bfabric[zeep]` extra. An environment setting `engine: ZEEP` no longer loads — drop the key.
+- **Breaking:** the `engine` parameter of `Bfabric.from_config` (which never applied it) and of `BfabricClientConfig.copy_with`.
+
+### Fixed
+
+- An unreachable B-Fabric instance raises `BfabricUnavailableError` (a `BfabricRequestError`) naming the instance and the transport failure, instead of leaking `suds.transport.TransportError`, `urllib.error.URLError` or `httpx.TransportError`. Covers the SOAP engine and the OAuth/REST calls (JWKS, device code, registration, token exchange, introspection, PKCE).
+- `ResultContainer.assert_success` raises `BfabricRequestError` instead of a bare `RuntimeError`; it remains a `RuntimeError` subclass, so existing `except RuntimeError` handlers keep working.
+- `MultiQuery.read_multi` reserves query elements for `obj`'s other fields when chunking, instead of overflowing the API's 100-element limit. A query that already exhausts it raises `ValueError`.
+- Uploading a folder with sub-directories now works against servers that echo the resource name verbatim.
+- A nested re-upload reports `renamed_duplicate` rather than `exact_duplicate`; both carry the `skip` action, so branch on `action`, not `category`.
+- Device-code login reports a non-JSON token-endpoint response (e.g. an app-server 404 page during a redeploy) as `BfabricOAuthError` instead of a traceback.
+- `write_environment_to_config` merges into an existing environment instead of replacing it, so unrelated keys survive a re-login; auth-owned keys are still replaced wholesale.
+- `Bfabric.connect()` errors clearly when an `auth_method: oauth` config has no `env_name`.
+- `created_by` / `modified_by` raise a `ValueError` naming the login instead of returning `None`.
+- `setup_script_logging` no longer skips setup in subprocesses, which fell back to loguru's verbose DEBUG default; its repeat guard is now process-local.
+- The "could not find the config file" and "empty list provided for deletion" diagnostics go through loguru at WARNING instead of `print()`, so they honour the configured log level and sink.
+- Packaging: `project.readme` points at a package-local `README.md`, fixing builds from source with hatchling 1.32.0.
+- Internal: owner typing corrected across the `entities/core` descriptors and mixins; `HasMany(bfabric_field=...)` is now required and class-level access raises like `HasOne`.
+
 ## \[1.20.0\] - 2026-08-03
 
 - OAuth 2.0 authentication: `connect_oauth` (client-credentials grant, auto-refresh + optional token cache), `connect_pkce` (interactive browser login, PKCE), `connect_device_code` (headless device grant), and `connect_pat` (Personal Access Token). `connect` auto-routes to OAuth when an environment sets `auth_method: oauth`. All three OAuth entry points require an explicit `client_id` and `scope` — the core library bakes in no defaults (those are CLI policy; `bfabric-cli auth …` supplies its own), and `connect()` raises if an `auth_method: oauth` environment has no `client_id`. Token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) raise `BfabricOAuthError` instead of leaking an `authlib`/`requests` traceback, and a failed PKCE login renders a distinct "Login failed" callback page showing the provider's error (e.g. a two-factor-enrollment requirement) rather than always claiming success. Adds the `authlib` / `joserfc` dependencies.

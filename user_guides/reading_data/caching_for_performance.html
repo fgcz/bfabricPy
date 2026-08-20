@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Entity Caching &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>Entity Caching &#8212; bfabricPy 1.21.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=8f581bc6"></script>
+    <script src="../../_static/documentation_options.js?v=73822e2a"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="Entity API" href="entity_api.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0" />
+  <meta name="docsearch:version" content="1.21.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.21.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">User Guides</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="index.html">Reading Data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -212,6 +212,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../writing_data/index.html">Writing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../working_with_entities/index.html">Entity Features</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/authentication.html">Authentication</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/api_operations.html">API Operations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../bfabric-cli/datasets.html">Datasets</a></li>
@@ -476,12 +477,12 @@ briefly out of date, and keep the context short-lived (or avoid caching entirely
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 <span class="n">reader</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">reader</span>
 
-<span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
     <span class="c1"># First call fetches from API</span>
-    <span class="n">sample1</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+    <span class="n">sample1</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
 
     <span class="c1"># Second call uses cache (no API call)</span>
-    <span class="n">sample2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+    <span class="n">sample2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
 
     <span class="c1"># Both are the same object</span>
     <span class="k">assert</span> <span class="n">sample1</span> <span class="ow">is</span> <span class="n">sample2</span>
@@ -491,20 +492,20 @@ briefly out of date, and keep the context short-lived (or avoid caching entirely
 <section id="unlimited-cache-size">
 <h3>Unlimited Cache Size<a class="headerlink" href="#unlimited-cache-size" title="Link to this heading">#</a></h3>
 <p>Set <code class="docutils literal notranslate"><span class="pre">max_size=0</span></code> for unlimited cache size:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="c1"># Cache as many samples as needed</span>
-    <span class="n">samples</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)))</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)))</span>
 </pre></div>
 </div>
 </section>
 <section id="cache-multiple-entity-types">
 <h3>Cache Multiple Entity Types<a class="headerlink" href="#cache-multiple-entity-types" title="Link to this heading">#</a></h3>
 <p>Cache multiple entity types with the same size limit:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">([</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="s2">&quot;workunit&quot;</span><span class="p">],</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">([</span><span class="s2">"sample"</span><span class="p">,</span> <span class="s2">"project"</span><span class="p">,</span> <span class="s2">"workunit"</span><span class="p">],</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">500</span><span class="p">):</span>
     <span class="c1"># All three types are cached</span>
-    <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">samples</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
-    <span class="n">workunits</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;workunit&quot;</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"project"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+    <span class="n">workunits</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_ids</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"workunit"</span><span class="p">,</span> <span class="n">entity_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
 </pre></div>
 </div>
 </section>
@@ -512,9 +513,9 @@ briefly out of date, and keep the context short-lived (or avoid caching entirely
 <h3>Different Sizes per Type<a class="headerlink" href="#different-sizes-per-type" title="Link to this heading">#</a></h3>
 <p>Configure different cache sizes for each entity type:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">cache_config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>  <span class="c1"># Cache up to 1000 samples</span>
-    <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># Cache up to 10 projects</span>
-    <span class="s2">&quot;workunit&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>  <span class="c1"># Cache up to 500 workunits</span>
+    <span class="s2">"sample"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>  <span class="c1"># Cache up to 1000 samples</span>
+    <span class="s2">"project"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># Cache up to 10 projects</span>
+    <span class="s2">"workunit"</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>  <span class="c1"># Cache up to 500 workunits</span>
 <span class="p">}</span>
 
 <span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="n">cache_config</span><span class="p">):</span>
@@ -530,18 +531,18 @@ briefly out of date, and keep the context short-lived (or avoid caching entirely
 <h3>Nested Contexts<a class="headerlink" href="#nested-contexts" title="Link to this heading">#</a></h3>
 <p>Cache contexts can be nested. Inner contexts can override or extend outer ones:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Outer context caches samples</span>
-<span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-    <span class="n">sample1</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">sample1</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Inner context adds project caching</span>
-    <span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-        <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">"project"</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"project"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Sample is still cached from outer context</span>
-        <span class="n">sample2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">sample2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">assert</span> <span class="n">sample1</span> <span class="ow">is</span> <span class="n">sample2</span>
 
     <span class="c1"># Project cache is cleared, sample cache remains</span>
-    <span class="c1"># project = reader.read_id(entity_type=&quot;project&quot;, entity_id=1)  # Would fetch from API</span>
+    <span class="c1"># project = reader.read_id(entity_type="project", entity_id=1)  # Would fetch from API</span>
 </pre></div>
 </div>
 </section>
@@ -554,18 +555,18 @@ briefly out of date, and keep the context short-lived (or avoid caching entirely
 <span class="n">client</span> <span class="o">=</span> <span class="n">Bfabric</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
 <span class="n">reader</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">reader</span>
 
-<span class="k">with</span> <span class="n">cache_entities</span><span class="p">([</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="s2">&quot;workunit&quot;</span><span class="p">],</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">([</span><span class="s2">"project"</span><span class="p">,</span> <span class="s2">"sample"</span><span class="p">,</span> <span class="s2">"workunit"</span><span class="p">],</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="c1"># Load project</span>
-    <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"project"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
 
     <span class="c1"># Navigate to samples (lazy-loaded)</span>
-    <span class="n">samples</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">)</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"member"</span><span class="p">)</span>
 
     <span class="c1"># Navigate to workunits for each sample</span>
     <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
-        <span class="n">workunits</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">)</span>
+        <span class="n">workunits</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"member"</span><span class="p">)</span>
         <span class="c1"># Entities may be reused across relationships</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sample </span><span class="si">{</span><span class="n">sample</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">workunits</span><span class="p">)</span><span class="si">}</span><span class="s2"> workunits&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Sample </span><span class="si">{</span><span class="n">sample</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">workunits</span><span class="p">)</span><span class="si">}</span><span class="s2"> workunits"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>In this example, the same entities might be accessed multiple times through different relationships. Caching ensures they’re only
@@ -597,16 +598,16 @@ fetched once from the API.</p>
 <section id="cache-stack">
 <h3>Cache Stack<a class="headerlink" href="#cache-stack" title="Link to this heading">#</a></h3>
 <p>bfabricPy uses a stack-based cache system. When you nest contexts, caches are layered:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-    <span class="n">sample1</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">sample1</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
-        <span class="n">sample2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">sample2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Returns cached entity from outer context</span>
         <span class="k">assert</span> <span class="n">sample1</span> <span class="ow">is</span> <span class="n">sample2</span>
 
         <span class="c1"># New entities go to inner cache (limited to 10)</span>
-        <span class="n">sample3</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">sample3</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="c1"># Inner cache cleared, outer cache remains</span>
 </pre></div>
@@ -615,12 +616,12 @@ fetched once from the API.</p>
 <section id="cache-invalidation">
 <h3>Cache Invalidation<a class="headerlink" href="#cache-invalidation" title="Link to this heading">#</a></h3>
 <p>Caches are automatically invalidated when the context exits:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
-    <span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="c1"># Sample is cached</span>
 
 <span class="c1"># Cache is cleared here</span>
-<span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;sample&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sample</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="c1"># Sample fetched from API again</span>
 </pre></div>
 </div>
@@ -647,12 +648,12 @@ fetched once from the API.</p>
 </ul>
 <p>Example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># High-throughput scenario: larger caches</span>
-<span class="k">with</span> <span class="n">cache_entities</span><span class="p">({</span><span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">({</span><span class="s2">"sample"</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span> <span class="s2">"project"</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="c1"># Process thousands of entities efficiently</span>
     <span class="k">pass</span>
 
 <span class="c1"># Memory-constrained scenario: smaller caches</span>
-<span class="k">with</span> <span class="n">cache_entities</span><span class="p">({</span><span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}):</span>
+<span class="k">with</span> <span class="n">cache_entities</span><span class="p">({</span><span class="s2">"sample"</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">"project"</span><span class="p">:</span> <span class="mi">10</span><span class="p">}):</span>
     <span class="c1"># Keep memory usage low</span>
     <span class="k">pass</span>
 </pre></div>
@@ -669,28 +670,28 @@ fetched once from the API.</p>
 
 <span class="c1"># Configure caches for your workflow</span>
 <span class="n">cache_config</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;project&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>  <span class="c1"># Fewer projects, larger entities</span>
-    <span class="s2">&quot;sample&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>  <span class="c1"># More samples, smaller entities</span>
-    <span class="s2">&quot;workunit&quot;</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>  <span class="c1"># Many workunits, small entities</span>
+    <span class="s2">"project"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>  <span class="c1"># Fewer projects, larger entities</span>
+    <span class="s2">"sample"</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>  <span class="c1"># More samples, smaller entities</span>
+    <span class="s2">"workunit"</span><span class="p">:</span> <span class="mi">5000</span><span class="p">,</span>  <span class="c1"># Many workunits, small entities</span>
 <span class="p">}</span>
 
 <span class="k">with</span> <span class="n">cache_entities</span><span class="p">(</span><span class="n">cache_config</span><span class="p">):</span>
     <span class="c1"># Load a project</span>
-    <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"project"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># Get all samples for the project</span>
-    <span class="n">samples</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">)</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"member"</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span><span class="si">}</span><span class="s2"> samples"</span><span class="p">)</span>
 
     <span class="c1"># Process each sample</span>
     <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
         <span class="c1"># Get workunits (may reuse workunits from other samples)</span>
-        <span class="n">workunits</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;member&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sample </span><span class="si">{</span><span class="n">sample</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">workunits</span><span class="p">)</span><span class="si">}</span><span class="s2"> workunits&quot;</span><span class="p">)</span>
+        <span class="n">workunits</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">refs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"member"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Sample </span><span class="si">{</span><span class="n">sample</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">workunits</span><span class="p">)</span><span class="si">}</span><span class="s2"> workunits"</span><span class="p">)</span>
 
     <span class="c1"># Entities are cached, so repeated accesses are fast</span>
-    <span class="n">project2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">project2</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read_id</span><span class="p">(</span><span class="n">entity_type</span><span class="o">=</span><span class="s2">"project"</span><span class="p">,</span> <span class="n">entity_id</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">assert</span> <span class="n">project</span> <span class="ow">is</span> <span class="n">project2</span>  <span class="c1"># Same object, no API call</span>
 </pre></div>
 </div>

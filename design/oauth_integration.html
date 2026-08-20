@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>OAuth Integration &#8212; bfabricPy 1.20.0 documentation</title>
+    <title>OAuth Integration &#8212; bfabricPy 1.21.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=8f581bc6"></script>
+    <script src="../_static/documentation_options.js?v=73822e2a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="bfabric.operations Module Design" href="operations_module.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.20.0" />
+  <meta name="docsearch:version" content="1.21.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.20.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.21.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -198,9 +198,9 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../user_guides/index.html">User Guides</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/creating_a_client/index.html">Creating a Client</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/interactive_scripted_usage.html">Creating a Client for Interactive and Scripted Usage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../user_guides/creating_a_client/server_webapp_usage.html">Creating a Client for Server and Webapp Usage</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/connecting/index.html">Connecting</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/connecting/interactive_scripted_usage.html">Interactive and Scripted Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/connecting/server_webapp_usage.html">Server and Webapp Usage</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/reading_data/index.html">Reading Data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -212,6 +212,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../user_guides/writing_data/index.html">Writing Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guides/working_with_entities/index.html">Entity Features</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../user_guides/bfabric-cli/index.html">bfabric-cli</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/authentication.html">Authentication</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_operations.html">API Operations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/api_inspection.html">API Inspection with CLI</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../user_guides/bfabric-cli/datasets.html">Datasets</a></li>
@@ -402,7 +403,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-bfabric-oauth-module">New: <code class="docutils literal notranslate"><span class="pre">bfabric._oauth</span></code> module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-bfabric-oauth-module">New: <code class="docutils literal notranslate"><span class="pre">bfabric.oauth</span></code> module</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-factory-methods-on-bfabric">New: Factory methods on <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-cli-commands-bfabric-cli-auth">New: CLI commands (<code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span></code>)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#auth-register-enhancements"><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span></code> enhancements</a></li>
@@ -441,8 +442,11 @@
 </section>
 <hr class="docutils" />
 <section id="new-bfabric-oauth-module">
-<h2>New: <code class="docutils literal notranslate"><span class="pre">bfabric._oauth</span></code> module<a class="headerlink" href="#new-bfabric-oauth-module" title="Link to this heading">#</a></h2>
-<p>Private module under <code class="docutils literal notranslate"><span class="pre">bfabric/src/bfabric/_oauth/</span></code> implementing all OAuth primitives.</p>
+<h2>New: <code class="docutils literal notranslate"><span class="pre">bfabric.oauth</span></code> module<a class="headerlink" href="#new-bfabric-oauth-module" title="Link to this heading">#</a></h2>
+<p>Package under <code class="docutils literal notranslate"><span class="pre">bfabric/src/bfabric/oauth/</span></code> implementing all OAuth primitives.</p>
+<p>The package root is the entire public surface: every submodule is underscore-prefixed, so the only supported import is <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">bfabric.oauth</span> <span class="pre">import</span> <span class="pre">...</span></code>. <code class="docutils literal notranslate"><span class="pre">__init__</span></code> exports <code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code>, <code class="docutils literal notranslate"><span class="pre">pkce_login</span></code>, <code class="docutils literal notranslate"><span class="pre">device_code_login</span></code>, <code class="docutils literal notranslate"><span class="pre">register_client</span></code>, <code class="docutils literal notranslate"><span class="pre">register_webapp</span></code>, <code class="docutils literal notranslate"><span class="pre">TokenCache</span></code>, <code class="docutils literal notranslate"><span class="pre">compute_token_cache_path</span></code>, <code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> and <code class="docutils literal notranslate"><span class="pre">WebappClient</span></code> — enough that nothing outside the package, including <code class="docutils literal notranslate"><span class="pre">bfabric_scripts</span></code>, ever names a module. Those names are provisional while the asgi-auth OAuth migration is in flight and may change without a deprecation cycle.</p>
+<p><code class="docutils literal notranslate"><span class="pre">bfabric.py</span></code> is the one place that names the private submodules, and only because <code class="docutils literal notranslate"><span class="pre">__init__</span></code> re-exports <code class="docutils literal notranslate"><span class="pre">WebappClient</span></code>, whose module imports <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> — routing <code class="docutils literal notranslate"><span class="pre">connect_*</span></code> through the root makes that a static import cycle. It is an intra-package import, not a consumer reaching in.</p>
+<p>Separately, those <code class="docutils literal notranslate"><span class="pre">connect_*</span></code> imports are <em>function-local</em>: the OAuth code pulls <code class="docutils literal notranslate"><span class="pre">authlib</span></code> and <code class="docutils literal notranslate"><span class="pre">joserfc</span></code>, and <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">bfabric</span></code> must stay free of both. Note that targeting a submodule does not by itself avoid this — importing <code class="docutils literal notranslate"><span class="pre">bfabric.oauth.&lt;anything&gt;</span></code> executes <code class="docutils literal notranslate"><span class="pre">__init__</span></code> first — so laziness, not module choice, is what keeps the base import clean.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>File</p></th>
@@ -450,31 +454,31 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">credential_provider.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_credential_provider.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> — thread-safe token management with automatic refresh and disk caching. Supports both <code class="docutils literal notranslate"><span class="pre">client_credentials</span></code> and <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> grant types.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pkce.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_pkce.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">pkce_login()</span></code> — browser-based PKCE flow. Starts a local HTTP server, opens the browser, exchanges the authorization code for tokens.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">device_code.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_device_code.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">device_code_login()</span></code> — RFC 8628 device authorization flow for headless environments.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">registration.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_registration.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">register_client()</span></code> — RFC 7591 dynamic client registration via HTTP POST.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">token_cache.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_token_cache.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">TokenCache</span></code> — JSON file cache at <code class="docutils literal notranslate"><span class="pre">~/.bfabric/tokens/{hash}.json</span></code> with 0o600 permissions. <code class="docutils literal notranslate"><span class="pre">compute_token_cache_path()</span></code> derives a unique path from <code class="docutils literal notranslate"><span class="pre">(base_url,</span> <span class="pre">client_id,</span> <span class="pre">env_name)</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">url_token.py</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> + <code class="docutils literal notranslate"><span class="pre">parse_url_token()</span></code> — extracts entity context (entity_id, application_id, etc.) from B-Fabric URL token JWTs.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_url_token.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> + <code class="docutils literal notranslate"><span class="pre">verify_jwt()</span></code> — verifies a B-Fabric URL token JWT against the instance JWKS (cached 1 h) and returns its claims.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">webapp_client.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_webapp_client.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">WebappClient</span></code> — dual-identity client bundling a <code class="docutils literal notranslate"><span class="pre">user</span></code> (from URL token) and <code class="docutils literal notranslate"><span class="pre">service</span></code> (from client credentials) <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> instance.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>The core <code class="docutils literal notranslate"><span class="pre">_oauth</span></code> API requires explicit <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code> arguments on all OAuth entry points. The library does not bake in a default client ID or scope. Tools like the CLI specify these values explicitly.</p>
+<p>The core <code class="docutils literal notranslate"><span class="pre">oauth</span></code> API requires explicit <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code> arguments on all OAuth entry points. The library does not bake in a default client ID or scope. Tools like the CLI specify these values explicitly.</p>
 </section>
 <hr class="docutils" />
 <section id="new-factory-methods-on-bfabric">
@@ -503,13 +507,17 @@
 <td><p>device_code</p></td>
 <td><p>Headless interactive login (programmatic).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_url_token(base_url,</span> <span class="pre">jwt,</span> <span class="pre">refresh_token)</span></code></p></td>
-<td><p>URL token</p></td>
-<td><p>Webapps launched from B-Fabric. Returns <code class="docutils literal notranslate"><span class="pre">(Bfabric,</span> <span class="pre">UrlTokenContext)</span></code>.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pat(base_url,</span> <span class="pre">pat)</span></code></p></td>
+<td><p>personal access token</p></td>
+<td><p>Opaque bearer token, no browser and no automatic refresh.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">WebappClient.create(base_url,</span> <span class="pre">jwt,</span> <span class="pre">...,</span> <span class="pre">client_id,</span> <span class="pre">client_secret)</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_token(token,</span> <span class="pre">settings)</span></code></p></td>
+<td><p>URL token</p></td>
+<td><p>Webapps launched from B-Fabric. Returns <code class="docutils literal notranslate"><span class="pre">(Bfabric,</span> <span class="pre">TokenData)</span></code>; <code class="docutils literal notranslate"><span class="pre">connect_token_async</span></code> for coroutines.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">WebappClient.create(base_url,</span> <span class="pre">launch_token,</span> <span class="pre">...,</span> <span class="pre">client_id,</span> <span class="pre">client_secret)</span></code></p></td>
 <td><p>URL token + client_credentials</p></td>
-<td><p>Dual-identity webapp client.</p></td>
+<td><p>Dual-identity webapp client for apps launched from B-Fabric.</p></td>
 </tr>
 </tbody>
 </table>
@@ -527,11 +535,11 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">login</span> <span class="pre">&lt;base_url&gt;</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">login</span> <span class="pre">[base_url]</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cli/login/oauth_login.py</span></code></p></td>
-<td><p>Browser-based OAuth login. Caches tokens + writes config.</p></td>
+<td><p>Browser-based OAuth login. Caches tokens + writes config. Also registered top-level as <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">login</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">device-code</span> <span class="pre">&lt;base_url&gt;</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">device-code</span> <span class="pre">[base_url]</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">cli/login/oauth_login.py</span></code></p></td>
 <td><p>Headless OAuth login.</p></td>
 </tr>
@@ -543,18 +551,45 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">cli/login/register.py</span></code></p></td>
 <td><p>RFC 7591 dynamic client registration. Outputs JSON.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">status</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/status.py</span></code></p></td>
-<td><p>Show current auth status for an environment.</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register-webapp</span> <span class="pre">&lt;client_name&gt;</span> <span class="pre">&lt;redirect_uri&gt;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/register_webapp.py</span></code></p></td>
+<td><p>Registration preset for webapps (OIDC-inclusive scope).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">logout</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/logout.py</span></code></p></td>
-<td><p>Clear cached OAuth tokens.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">status</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/manage.py</span></code></p></td>
+<td><p>Show auth status for an environment.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">list</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/manage.py</span></code></p></td>
+<td><p>List environments grouped by instance, with scope / expiry / why-active.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">activate</span> <span class="pre">[env]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/manage.py</span></code></p></td>
+<td><p>Make an environment the config default.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">logout</span> <span class="pre">[env]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/manage.py</span></code></p></td>
+<td><p>Remove stored credentials for this machine, keeping the environment. <code class="docutils literal notranslate"><span class="pre">--all</span></code> for every environment.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">remove</span> <span class="pre">[env]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cli/login/manage.py</span></code></p></td>
+<td><p>Delete an environment: config entry plus cached tokens.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>All auth commands use <code class="docutils literal notranslate"><span class="pre">--config-env</span></code> (consistent with API commands via <code class="docutils literal notranslate"><span class="pre">&#64;use_client</span></code>).</p>
+<p>See <a class="reference internal" href="../user_guides/bfabric-cli/authentication.html"><span class="std std-doc">the CLI authentication guide</span></a> for the user-facing
+view; this section covers only what is not visible from the outside.</p>
+<p>All auth commands resolve the environment as <code class="docutils literal notranslate"><span class="pre">--config-env</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> &gt;
+<code class="docutils literal notranslate"><span class="pre">GENERAL.default_config</span></code>, matching <code class="docutils literal notranslate"><span class="pre">ConfigFile.get_selected_config_env</span></code>, and <code class="docutils literal notranslate"><span class="pre">base_url</span></code> is optional
+for the login commands because it is read back from that environment. Commands that write to the
+config refuse to run while <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_OVERRIDE</span></code> is set, since the file would not be the config
+in effect.</p>
+<p><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">logout</span></code> removes credentials per auth method — the token cache for <code class="docutils literal notranslate"><span class="pre">oauth</span></code>, the inline <code class="docutils literal notranslate"><span class="pre">pat</span></code> or
+<code class="docutils literal notranslate"><span class="pre">login</span></code>/<code class="docutils literal notranslate"><span class="pre">password</span></code> keys for the others (via <code class="docutils literal notranslate"><span class="pre">clear_environment_credentials</span></code>). It deliberately does not
+revoke server-side. Instances <em>do</em> advertise <code class="docutils literal notranslate"><span class="pre">revocation_endpoint</span></code> in their discovery document (trace:
+<code class="docutils literal notranslate"><span class="pre">{base_url}/rest/oauth/token</span></code> → <code class="docutils literal notranslate"><span class="pre">/rest/oauth/revoke</span></code>), but whether it is implemented is unverified, so
+logout promises only what it delivers: local credentials gone, an issued token valid until it expires.</p>
 <section id="auth-register-enhancements">
 <h3><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span></code> enhancements<a class="headerlink" href="#auth-register-enhancements" title="Link to this heading">#</a></h3>
 <ul class="simple">
@@ -571,17 +606,26 @@
 <section id="new-fields-in-environment-config">
 <h3>New fields in environment config<a class="headerlink" href="#new-fields-in-environment-config" title="Link to this heading">#</a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://bfabric.example.com/bfabric&quot;</span>
-<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;oauth&quot;</span><span class="w">        </span><span class="c1"># NEW — triggers OAuth flow in Bfabric.connect()</span>
-<span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CLI&quot;</span><span class="w">    </span><span class="c1"># NEW — optional, defaults to &quot;CLI&quot;</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">"https://bfabric.example.com/bfabric"</span>
+<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">"oauth"</span><span class="w">        </span><span class="c1"># NEW — triggers OAuth flow in Bfabric.connect()</span>
+<span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="s">"CLI"</span><span class="w">    </span><span class="c1"># NEW — optional, defaults to "CLI"</span>
+<span class="w">  </span><span class="nt">scope</span><span class="p">:</span><span class="w"> </span><span class="s">"api:write</span><span class="nv"> </span><span class="s">tus"</span><span class="w">      </span><span class="c1"># NEW — the scope *requested* at login</span>
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">scope</span></code> is what makes a login replayable from disk, and it is deliberately the <strong>requested</strong> value
+rather than the granted one: the server drops scopes the client isn’t registered for, so replaying the
+granted scope would bake that drop in permanently. Only the CLI reads the key — it is excluded from
+<code class="docutils literal notranslate"><span class="pre">BfabricClientConfig</span></code> and not plumbed through <code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">export_config_data</span></code>.</p>
+<p>A re-login <strong>merges</strong> into an existing environment section rather than replacing it, so hand-written
+keys (<code class="docutils literal notranslate"><span class="pre">application_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">engine</span></code>, <code class="docutils literal notranslate"><span class="pre">job_notification_emails</span></code>, …) survive. The auth-owned keys
+(<code class="docutils literal notranslate"><span class="pre">login</span></code>, <code class="docutils literal notranslate"><span class="pre">password</span></code>, <code class="docutils literal notranslate"><span class="pre">pat</span></code>, <code class="docutils literal notranslate"><span class="pre">auth_method</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, <code class="docutils literal notranslate"><span class="pre">scope</span></code>) are replaced wholesale, so a stale
+<code class="docutils literal notranslate"><span class="pre">pat</span></code> cannot outlive the auth method that wrote it and be resurrected by <code class="docutils literal notranslate"><span class="pre">gather_auth</span></code>.</p>
 <p>For PAT (Personal Access Token) logins the token is stored inline under <code class="docutils literal notranslate"><span class="pre">pat</span></code> (with
 <code class="docutils literal notranslate"><span class="pre">auth_method:</span> <span class="pre">pat</span></code>), never as <code class="docutils literal notranslate"><span class="pre">login:</span> <span class="pre">__oauth__</span></code> / <code class="docutils literal notranslate"><span class="pre">password:</span> <span class="pre">&lt;token&gt;</span></code>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://bfabric.example.com/bfabric&quot;</span>
-<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;pat&quot;</span>
-<span class="w">  </span><span class="nt">pat</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;token&gt;&quot;</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="s">"https://bfabric.example.com/bfabric"</span>
+<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="s">"pat"</span>
+<span class="w">  </span><span class="nt">pat</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;token&gt;"</span>
 </pre></div>
 </div>
 <p><strong>Backward-compatibility contract.</strong> A PAT is not 32 characters, and a ≤1.19.0 client
@@ -648,12 +692,12 @@ upgrade is required. The reader still accepts the legacy <code class="docutils l
 <section id="how-to-install-from-this-branch">
 <h2>How to install from this branch<a class="headerlink" href="#how-to-install-from-this-branch" title="Link to this heading">#</a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># As a library dependency</span>
-pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;bfabric @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric&quot;</span>
+pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"bfabric @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric"</span>
 
 <span class="c1"># As a CLI tool (both packages from branch)</span>
 uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span><span class="s2">&quot;bfabric-scripts @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric_scripts&quot;</span><span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--with<span class="w"> </span><span class="s2">&quot;bfabric @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="s2">"bfabric-scripts @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric_scripts"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--with<span class="w"> </span><span class="s2">"bfabric @ git+https://github.com/fgcz/bfabricPy.git@oauth-integration#subdirectory=bfabric"</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--reinstall
 </pre></div>
 </div>
@@ -708,7 +752,7 @@ uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-bfabric-oauth-module">New: <code class="docutils literal notranslate"><span class="pre">bfabric._oauth</span></code> module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-bfabric-oauth-module">New: <code class="docutils literal notranslate"><span class="pre">bfabric.oauth</span></code> module</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-factory-methods-on-bfabric">New: Factory methods on <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#new-cli-commands-bfabric-cli-auth">New: CLI commands (<code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span></code>)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#auth-register-enhancements"><code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span></code> enhancements</a></li>
