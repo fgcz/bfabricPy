@@ -11,9 +11,6 @@ Every command that talks to B-Fabric also accepts these options (omitted from th
 | `--config-env` | Override the config environment; falls back to `BFABRICPY_CONFIG_ENV` or the file default |
 | `--config-file`| Override the config file path (default `~/.bfabricpy.yml`) |
 
-The `outputs` commands additionally accept `--reuse-default-resource` / `--no-reuse-default-resource`, which
-controls whether the workunit's auto-created default resource is reused.
-
 ## run
 
 ### run workunit

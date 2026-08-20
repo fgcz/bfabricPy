@@ -23,7 +23,6 @@ def parsed() -> AppVersion:
             ),
             collect=CommandShell(command="collect"),
         ),
-        reuse_default_resource=True,
     )
 
 
@@ -53,7 +52,6 @@ def serialized() -> str:
       work_dir_target: null
       writeable: []
     type: docker
-reuse_default_resource: true
 version: 0.0.1"""
 
 
@@ -63,3 +61,11 @@ def test_serialize(parsed, serialized):
 
 def test_parse(parsed, serialized):
     assert AppVersion.model_validate(yaml.safe_load(serialized)) == parsed
+
+
+def test_parse_ignores_removed_reuse_default_resource(parsed, serialized):
+    """An app.yml still carrying the removed legacy flag must keep parsing, not be rejected."""
+    data = yaml.safe_load(serialized) | {"reuse_default_resource": True}
+    app_version = AppVersion.model_validate(data)
+    assert app_version == parsed
+    assert not hasattr(app_version, "reuse_default_resource")

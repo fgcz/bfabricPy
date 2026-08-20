@@ -10,6 +10,32 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+## \[1.17.0\] - 2026-08-20
+
+### Added
+
+- `bfabric-cli login` (also a top-level shortcut for `auth login`) renews an expired token with **no arguments**; a first login picks the instance from the known hosts and derives the environment name.
+- `auth login --no-browser` prints the authorization URL instead of opening one; over SSH use `auth device-code`.
+- `auth register` / `register-webapp` require `--service-user LOGIN` or the new `--no-service-user`, instead of silently registering without the `client_credentials` grant.
+- New user guide: [Authentication](https://fgcz.github.io/bfabricPy/user_guides/bfabric-cli/authentication.html) — command surface, scopes, logout vs remove, remote hosts.
+
+### Changed
+
+- `auth default` is now `auth activate`; deleting an environment is `auth remove`.
+- `auth logout` clears only this machine's credentials, leaving the environment ready for a zero-argument re-login (`--all` covers every environment). It does not revoke the token server-side.
+- `auth list` groups environments by instance and shows scope and token expiry; `list` and `status` mark *why* an environment is active.
+- Every `auth` command resolves its environment as `--config-env` > `BFABRICPY_CONFIG_ENV` > the configured default, and refuses to write the config under `BFABRICPY_CONFIG_OVERRIDE`.
+- Base URLs are normalised up front (scheme, host case, trailing slash, known-host expansion), and re-pointing an environment at a different instance needs confirmation.
+- `workunit upload --force` is replaced by `--on-duplicate upload|skip|link`, defaulting to `upload` — the duplicate check no longer runs unless asked for. Pass `skip` for the old behaviour.
+- Requires `bfabric` 1.21.0.
+- Packaging: `project.readme` points at the package's own `README.md`, expanded into a proper landing page since PyPI shows it.
+- Internal: the `auth` command implementations were reorganised onto shared environment- and URL-resolution helpers.
+
+### Fixed
+
+- `auth register-webapp` prints `Error: ...` and exits 1 when the OAuth session cannot be refreshed, instead of a raw traceback.
+- `auth register` no longer prompts for an *Employee Bearer token* when a login exists; it authenticates as the environment in effect.
+
 ## \[1.16.0\] - 2026-08-03
 
 - `bfabric-cli auth` — OAuth authentication & client management. Login: `login` (browser), `device-code` (headless), `pat`; client registration: `register` / `register-webapp`; environment management: `default`, `list`, `status`, `logout`. Scope presets (`read-only` / `read-write` / `upload`) or a raw scope, via an interactive picker when `--scope` is omitted in a terminal; no baked-in default scope, so a headless run must pass `--scope` (registration keeps the OIDC-inclusive default webapps need). When `--config-env` is omitted it prompts for the environment (else targets the current default / `PRODUCTION`); unless `--set-default` / `--no-set-default` is given it asks (default yes) whether to make the env the default, and cancelling that prompt aborts the login. `status` reports an OAuth env's cached-token freshness and granted scope (annotated with the matching preset); `logout` removes an env's config entry and cached tokens (confirmation required). PATs are stored under a `pat` key (`auth_method: pat`), keeping the config parseable by ≤1.19.0 clients.

@@ -23,7 +23,7 @@ from rich.progress import (
 )
 
 from bfabric import Bfabric
-from bfabric.operations.workunit import UploadFilesParams, upload_files
+from bfabric.operations.workunit import OnDuplicate, UploadFileParam, UploadFilesParams, upload_files
 from bfabric.utils.cli_integration import use_client
 
 if TYPE_CHECKING:
@@ -45,8 +45,10 @@ class UploadParams(BaseModel):
     """Upload into this existing workunit instead of creating a new one. Mutually exclusive with ``--workunit-name``."""
     workunit_name: Annotated[str | None, cyclopts.Parameter(name="--workunit-name")] = None
     """Name for the created workunit (``None`` → "File upload"); mutually exclusive with ``--workunit-id``."""
-    force: bool = False
-    """Skip the duplicate check and upload every file."""
+    on_duplicate: Annotated[OnDuplicate, cyclopts.Parameter(name="--on-duplicate")] = "upload"
+    """What to do with a file whose content the container already stores: ``upload`` sends it anyway
+    (no duplicate check is made), ``skip`` leaves it out of the workunit, ``link`` gives the workunit
+    a resource pointing at the already-stored bytes without re-transferring them."""
     track_job: bool = False
     """Create a ``UPLOAD`` job tracking the upload; the tus server flips it to DONE/FAILED."""
     progress: bool = True
@@ -80,13 +82,12 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
     with _upload_progress(enabled=_progress_enabled(requested=params.progress)) as reporter:
         summary = upload_files(
             client=client,
-            files=params.files,
             params=UploadFilesParams(
+                files=[UploadFileParam(path=path, on_duplicate=params.on_duplicate) for path in params.files],
                 container_id=params.container_id,
                 application_id=params.application_id,
                 workunit_id=params.workunit_id,
                 workunit_name=params.workunit_name,
-                force=params.force,
                 track_job=params.track_job,
             ),
             on_progress=reporter.on_progress if reporter else None,
@@ -95,13 +96,15 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
         )
 
     if summary.workunit_id is None:
-        logger.info(f"Nothing to upload ({summary.skipped} file(s) skipped as duplicates).")
+        logger.info(f"Nothing to upload ({len(summary.skips)} file(s) skipped as duplicates).")
         return
 
     job_note = f" (tracking job {summary.job_id})" if summary.job_id is not None else ""
+    # Only mention linking when it happened, so the usual summary line stays as it was.
+    linked_note = f"linked {len(summary.links)}, " if summary.links else ""
     logger.success(
-        f"Workunit {summary.workunit_id}{job_note}: uploaded {summary.uploaded} file(s), "
-        f"skipped {summary.skipped}, failed {summary.failed}."
+        f"Workunit {summary.workunit_id}{job_note}: uploaded {len(summary.uploads)} file(s), "
+        f"{linked_note}skipped {len(summary.skips)}, failed {len(summary.failures)}."
     )
     for failure in summary.failures:
         logger.error(f"  Failed: {failure.filename}: {failure.error}")

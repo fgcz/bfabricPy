@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import getpass
 import json
 import sys
 from pathlib import Path
@@ -10,58 +9,28 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth.registration import register_client
+from bfabric.oauth import register_client
 from bfabric.config import DEFAULT_CONFIG_FILE
-from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID, DEFAULT_REGISTRATION_SCOPE
+from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
 
 
-def _resolve_token_from_config(config_env: str, config_file: Path) -> tuple[str, str]:
-    """Load the cached OAuth access token and base_url for *config_env* as ``(token, base_url)``.
+def _resolve_token_from_config(config_env: str | None, config_file: Path) -> tuple[str, str]:
+    """The bearer token and base URL of the environment in effect, as ``(token, base_url)``.
 
-    Raises :class:`SystemExit` on failure.
+    Registration authenticates with a bare bearer token rather than a client, but the token is the one
+    ``connect()`` already resolves — so environment precedence, the token cache, and the "log in first"
+    errors are shared with the rest of the CLI instead of being reimplemented here.
+
+    :raises SystemExit: ``connect()`` could not authenticate the environment.
     """
-    import yaml
-
-    from bfabric._oauth.credential_provider import OAuthCredentialProvider
-    from bfabric._oauth.token_cache import compute_token_cache_path
-    from bfabric.config.config_file import ConfigFile
-
-    config_path = config_file.expanduser()
-    if not config_path.is_file():
-        print(f"Error: Config file not found: {config_path}", file=sys.stderr)
-        raise SystemExit(1)
-
-    config_file_obj = ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
-    if config_env not in config_file_obj.environments:
-        print(f"Error: Environment '{config_env}' not found in config.", file=sys.stderr)
-        raise SystemExit(1)
-
-    env = config_file_obj.environments[config_env]
-    base_url = env.config.base_url.rstrip("/")
-
-    if env.auth_method != "oauth":
-        print(f"Error: Environment '{config_env}' does not use OAuth.", file=sys.stderr)
-        raise SystemExit(1)
-
-    client_id = env.client_id or DEFAULT_CLIENT_ID
-    cache_path = compute_token_cache_path(base_url, client_id, config_env).expanduser()
-    token_url = f"{base_url}/rest/oauth/token"
+    from bfabric import Bfabric
 
     try:
-        provider = OAuthCredentialProvider(
-            client_id=client_id,
-            client_secret="",
-            token_url=token_url,
-            scope="",
-            grant_type="refresh_token",
-            token_cache_path=cache_path,
-        )
-        auth = provider.get_auth()
+        client = Bfabric.connect(config_file_path=config_file, config_file_env=config_env or "default")
+        return client.auth.password.get_secret_value(), str(client.config.base_url).rstrip("/")
     except Exception as e:
-        print(f"Error: Could not obtain token from cached credentials: {e}", file=sys.stderr)
+        print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
-
-    return auth.password.get_secret_value(), base_url
 
 
 def cmd_login_register(
@@ -72,13 +41,21 @@ def cmd_login_register(
     ] = None,
     *,
     token: Annotated[
-        str | None, cyclopts.Parameter(help="Employee Bearer token (prompted if omitted and --config-env not given).")
+        str | None,
+        cyclopts.Parameter(help="Employee Bearer token (defaults to the logged-in environment's token)."),
     ] = None,
     config_env: Annotated[str | None, cyclopts.Parameter(help="Reuse OAuth token from this environment.")] = None,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
     service_user: Annotated[
         str | None, cyclopts.Parameter(help="Service user login (enables client_credentials grant).")
     ] = None,
+    no_service_user: Annotated[
+        bool,
+        cyclopts.Parameter(
+            help="Explicitly register without a service user (no client_credentials grant).",
+            negative=(),
+        ),
+    ] = False,
     scope: Annotated[str, cyclopts.Parameter(help="OAuth scope.")] = DEFAULT_REGISTRATION_SCOPE,
     grant_types: Annotated[
         list[str] | None,
@@ -86,21 +63,31 @@ def cmd_login_register(
     ] = None,
 ) -> None:
     """Register a new OAuth client with the B-Fabric server."""
+    if service_user is not None and no_service_user:
+        print("Error: --service-user and --no-service-user are mutually exclusive.", file=sys.stderr)
+        raise SystemExit(1)
+    if service_user is None and not no_service_user:
+        print(
+            "Error: pass --service-user LOGIN to enable the client_credentials grant, "
+            "or --no-service-user to register without one.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
     resolved_base_url = base_url
     resolved_token = token
 
     if token is not None:
         print("Warning: passing secrets via CLI flags is insecure (visible in ps, shell history).", file=sys.stderr)
-    elif config_env is not None:
+    else:
+        # No token given: authenticate as the environment in effect, like every other `auth` command.
         cached_token, cached_base_url = _resolve_token_from_config(config_env, config_file)
         resolved_token = cached_token
         if resolved_base_url is None:
             resolved_base_url = cached_base_url
-    else:
-        resolved_token = getpass.getpass("Employee Bearer token: ")
 
     if resolved_base_url is None:
-        print("Error: base_url is required when --config-env is not provided.", file=sys.stderr)
+        print("Error: base_url is required when --token is given.", file=sys.stderr)
         raise SystemExit(1)
 
     assert resolved_token is not None  # narrowed: set by every branch above

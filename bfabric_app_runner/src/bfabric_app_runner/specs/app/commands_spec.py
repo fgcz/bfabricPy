@@ -3,6 +3,8 @@ from typing import Literal, Annotated
 
 from pydantic import BaseModel, Discriminator, ConfigDict
 
+from bfabric_app_runner.specs.common_types import SpecRelativePath
+
 
 class CommandShell(BaseModel):
     """A command run by splitting a string on spaces (no real shell).
@@ -34,7 +36,7 @@ class CommandExec(BaseModel):
     env: dict[str, str] = {}
     """Environment variables to set before executing the command."""
 
-    prepend_paths: list[Path] = []
+    prepend_paths: list[SpecRelativePath] = []
     """A list of paths to prepend to the PATH variable before executing the command.
 
     If multiple paths are specified, the first one will be the first in PATH, etc.
@@ -47,10 +49,10 @@ class MountOptions(BaseModel):
     model_config = ConfigDict(extra="forbid")
     work_dir_target: Path | None = None
     """Container path to mount the work directory at; ``None`` reuses the host work-directory path."""
-    read_only: list[tuple[Path, Path]] = []
-    """Read-only bind mounts, each a ``(host_path, container_path)`` pair."""
-    writeable: list[tuple[Path, Path]] = []
-    """Writeable bind mounts, each a ``(host_path, container_path)`` pair."""
+    read_only: list[tuple[SpecRelativePath, Path]] = []
+    """Read-only bind mounts, each a ``(host_path, container_path)`` pair; only the host side is spec-relative."""
+    writeable: list[tuple[SpecRelativePath, Path]] = []
+    """Writeable bind mounts, each a ``(host_path, container_path)`` pair; only the host side is spec-relative."""
     share_bfabric_config: bool = True
     """If True, mount the host's ``~/.bfabricpy.yml`` into the container (read-only)."""
 
@@ -88,7 +90,7 @@ class CommandPythonEnv(BaseModel):
 
     type: Literal["python_env"] = "python_env"
 
-    pylock: Path
+    pylock: SpecRelativePath
     """Path to the Pylock file that specifies the environment to use."""
 
     command: str
@@ -97,7 +99,7 @@ class CommandPythonEnv(BaseModel):
     python_version: str = "3.13"
     """The Python version to use for the environment (passed to `uv venv -p`)."""
 
-    local_extra_deps: list[Path] = []
+    local_extra_deps: list[SpecRelativePath] = []
     """Additional dependencies to install into the environment.
 
     Each entry should be a path to a wheel, sdist, or local package directory.
@@ -109,7 +111,7 @@ class CommandPythonEnv(BaseModel):
     env: dict[str, str] = {}
     """Environment variables to set before executing the command."""
 
-    prepend_paths: list[Path] = []
+    prepend_paths: list[SpecRelativePath] = []
     """A list of paths to prepend to the PATH variable before executing the command.
 
     If multiple paths are specified, the first one will be the first in PATH, etc.

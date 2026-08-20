@@ -20,11 +20,6 @@ class AppVersion(BaseModel):
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement this version."""
 
-    # TODO remove when new submitter becomes available
-    reuse_default_resource: bool = True
-    """Legacy flag: reuse the workunit's auto-created default resource for the first copied output
-    instead of creating a new resource entry."""
-
 
 class AppVersionTemplate(BaseModel):
     """Template for a single app version, expanded to an ``AppVersion`` after variable interpolation."""
@@ -34,11 +29,6 @@ class AppVersionTemplate(BaseModel):
 
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement this version."""
-
-    # TODO remove when new submitter becomes available
-    reuse_default_resource: bool = True
-    """Legacy flag: reuse the workunit's auto-created default resource for the first copied output
-    instead of creating a new resource entry."""
 
     def evaluate(self, variables_app: VariablesApp) -> AppVersion:
         """Evaluates the template to a concrete ``AppVersion`` instance."""
@@ -58,11 +48,6 @@ class AppVersionMultiTemplate(BaseModel):
 
     commands: CommandsSpec
     """The dispatch, process, and (optional) collect commands that implement these versions."""
-
-    # TODO remove when new submitter becomes available
-    reuse_default_resource: bool = True
-    """Legacy flag: reuse the workunit's auto-created default resource for the first copied output
-    instead of creating a new resource entry."""
 
     @field_validator("version", mode="before")
     def _version_ensure_list(cls, values: Any) -> list[str]:

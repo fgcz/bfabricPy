@@ -172,6 +172,19 @@ class TestPythonEnvironment:
         assert "list" in call_args
         assert str(temp_env_path / "bin" / "python") in call_args
 
+    def test_log_packages_logs_one_record_per_line(self, temp_env_path, sample_command, mock_uv, mocker):
+        """Each package is its own record, so no line ends up without a log prefix."""
+        mock_subprocess = mocker.patch("bfabric_app_runner.commands.command_python_env.subprocess.run")
+        mock_subprocess.return_value = mocker.MagicMock(stdout="package1==1.0\npackage2==2.0\n")
+        mock_logger = mocker.patch("bfabric_app_runner.commands.command_exec.logger")
+
+        PythonEnvironment(temp_env_path, sample_command).log_packages()
+
+        assert mock_logger.log.call_args_list == [
+            mocker.call("DEBUG", "package1==1.0"),
+            mocker.call("DEBUG", "package2==2.0"),
+        ]
+
 
 class TestCachedEnvironmentStrategy:
     """Tests for the CachedEnvironmentStrategy."""

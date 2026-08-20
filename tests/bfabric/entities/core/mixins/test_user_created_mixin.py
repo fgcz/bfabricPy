@@ -63,3 +63,17 @@ def test_created_by(entity, user_creator, mock_get_by_login, bfabric_instance):
 def test_modified_by(entity, user_modifier, mock_get_by_login, bfabric_instance):
     assert entity.modified_by == user_modifier
     mock_get_by_login.assert_called_with(bfabric_instance=bfabric_instance, login="modifier_login")
+
+
+def test_created_by_when_login_unresolvable(entity, data_dict, mock_get_by_login):
+    data_dict["createdby"] = "ghost_login"
+    with pytest.raises(ValueError) as err:
+        _ = entity.created_by
+    assert str(err.value) == "Field 'createdby' refers to login 'ghost_login', which is not a known user"
+
+
+def test_users_when_no_client(data_dict, bfabric_instance):
+    entity = MockEntity(data_dict=data_dict, bfabric_instance=bfabric_instance)
+    with pytest.raises(ValueError) as err:
+        _ = entity._users
+    assert str(err.value) == "Cannot resolve users: this entity has no client"
