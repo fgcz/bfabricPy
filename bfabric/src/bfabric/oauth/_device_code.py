@@ -18,7 +18,7 @@ import time
 import httpx
 from loguru import logger
 
-from bfabric.errors import BfabricOAuthError
+from bfabric.errors import BfabricOAuthError, raise_if_unavailable
 
 
 def _request_device_code(
@@ -37,14 +37,15 @@ def _request_device_code(
     :raises httpx.HTTPStatusError: On non-2xx responses
     """
     logger.debug("Requesting device code from {}", base_url)
-    response = httpx.post(
-        f"{base_url}/rest/oauth/device_authorization",
-        data={
-            "client_id": client_id,
-            "scope": scope,
-        },
-        timeout=30,
-    )
+    with raise_if_unavailable(base_url):
+        response = httpx.post(
+            f"{base_url}/rest/oauth/device_authorization",
+            data={
+                "client_id": client_id,
+                "scope": scope,
+            },
+            timeout=30,
+        )
     _ = response.raise_for_status()
     result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
     return result
@@ -107,8 +108,13 @@ def _poll_for_token(
         try:
             error_body: dict[str, object] = response.json()  # pyright: ignore[reportAny]
         except (ValueError, KeyError):
-            _ = response.raise_for_status()
-            raise BfabricOAuthError(f"Unexpected response: {response.status_code}")  # pragma: no cover
+            # A non-JSON body means this isn't the OAuth endpoint answering — an app-server 404 page
+            # during a redeploy, say. Report it as a domain error so the CLI prints a clean message
+            # instead of letting httpx's HTTPStatusError escape as a traceback.
+            raise BfabricOAuthError(
+                f"Token endpoint returned a non-JSON {response.status_code} response at {token_url}. "
+                "The server may be unavailable — try again shortly."
+            ) from None
 
         error = str(error_body.get("error", ""))
 

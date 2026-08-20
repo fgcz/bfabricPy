@@ -10,6 +10,8 @@ from __future__ import annotations
 import httpx
 from loguru import logger
 
+from bfabric.errors import raise_if_unavailable
+
 from bfabric.oauth._url_token import UrlTokenContext
 
 
@@ -34,16 +36,17 @@ def exchange_token(
     """
     url = f"{base_url.rstrip('/')}/rest/oauth/token"
     logger.debug("Exchanging launch token at {}", url)
-    response = httpx.post(
-        url,
-        data={
-            "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
-            "subject_token": launch_token,
-            "subject_token_type": "urn:ietf:params:oauth:token-type:access_token",
-        },
-        auth=(client_id, client_secret),
-        timeout=30,
-    )
+    with raise_if_unavailable(base_url):
+        response = httpx.post(
+            url,
+            data={
+                "grant_type": "urn:ietf:params:oauth:grant-type:token-exchange",
+                "subject_token": launch_token,
+                "subject_token_type": "urn:ietf:params:oauth:token-type:access_token",
+            },
+            auth=(client_id, client_secret),
+            timeout=30,
+        )
     if not response.is_success:
         logger.error("Token exchange failed ({}): {}", response.status_code, response.text)
     _ = response.raise_for_status()
@@ -72,12 +75,13 @@ def introspect_token(
     """
     url = f"{base_url.rstrip('/')}/rest/oauth/introspect"
     logger.debug("Introspecting token at {}", url)
-    response = httpx.post(
-        url,
-        data={"token": access_token},
-        auth=(client_id, client_secret),
-        timeout=30,
-    )
+    with raise_if_unavailable(base_url):
+        response = httpx.post(
+            url,
+            data={"token": access_token},
+            auth=(client_id, client_secret),
+            timeout=30,
+        )
     _ = response.raise_for_status()
     claims: dict[str, object] = response.json()  # pyright: ignore[reportAny]
     return UrlTokenContext.model_validate(claims)

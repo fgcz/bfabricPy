@@ -7,6 +7,8 @@ from typing import TYPE_CHECKING, TypedDict, cast
 import httpx
 from loguru import logger
 
+from bfabric.errors import raise_if_unavailable
+
 if TYPE_CHECKING:
     from bfabric.bfabric import Bfabric
     from bfabric.results.result_container import ResultContainer
@@ -70,12 +72,13 @@ def register_client(
         body["service_user_login"] = service_user
 
     logger.debug("Registering OAuth client '{}' at {} with body: {}", client_name, url, body)
-    response = httpx.post(
-        url,
-        json=body,
-        headers={"Authorization": f"Bearer {token}"},
-        timeout=30,
-    )
+    with raise_if_unavailable(base_url):
+        response = httpx.post(
+            url,
+            json=body,
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=30,
+        )
     _ = response.raise_for_status()
     result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
     logger.debug("Registration response: {}", result)

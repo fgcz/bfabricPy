@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 import httpx
 import pytest
 
@@ -8,6 +10,7 @@ from bfabric.oauth._device_code import (
     _request_device_code,
     device_code_login,
 )
+from bfabric.errors import BfabricOAuthError
 
 
 class TestRequestDeviceCode:
@@ -224,6 +227,25 @@ class TestPollForToken:
 
         mocker.patch("bfabric.oauth._device_code.httpx.post", return_value=error_response)
         with pytest.raises(RuntimeError, match="Device code token error: server_error .* Internal failure"):
+            _poll_for_token(
+                "https://example.com/bfabric",
+                device_code="dc_123",
+                client_id="test-cli",
+                interval=5,
+                timeout=60,
+            )
+
+    def test_non_json_error_body_raises_oauth_error(self, mocker):
+        """A 4xx carrying HTML (e.g. an app-server 404 page) must not escape as httpx.HTTPStatusError."""
+        error_response = mocker.MagicMock()
+        error_response.status_code = 404
+        error_response.json.side_effect = json.JSONDecodeError("Expecting value", "<!DOCTYPE html>", 0)
+        error_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "Client error '404 Not Found'", request=mocker.MagicMock(), response=error_response
+        )
+
+        mocker.patch("bfabric.oauth._device_code.httpx.post", return_value=error_response)
+        with pytest.raises(BfabricOAuthError, match="404"):
             _poll_for_token(
                 "https://example.com/bfabric",
                 device_code="dc_123",
