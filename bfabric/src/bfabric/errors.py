@@ -88,6 +88,31 @@ class BfabricOAuthError(RuntimeError):
     """Raised when an OAuth operation fails (token exchange, device code flow, PKCE, etc.)."""
 
 
+class BfabricUnavailableError(BfabricRequestError):
+    """Raised when the B-Fabric instance could not be reached at all.
+
+    Distinct from an error the server *returned*: nothing was refused, the request never landed.
+    Callers that only need "this did not work" can keep catching
+    :class:`BfabricRequestError`, while a service that wants to retry or degrade can catch this
+    specifically.
+
+    It exists because the underlying transports raise types that share no useful base --
+    ``suds.transport.TransportError``, ``httpx.ConnectError``, ``urllib.error.URLError`` -- and none
+    of them is a ``RuntimeError``, so an unreachable instance would otherwise escape the CLI's error
+    handling as a traceback.
+    """
+
+    base_url: str
+
+    def __init__(self, base_url: str, cause: BaseException) -> None:
+        """
+        :param base_url: the instance that could not be reached
+        :param cause: the transport-level error, quoted in the message and kept as ``__cause__``
+        """
+        super().__init__(f"Could not reach the B-Fabric instance at {base_url}: {cause}")
+        self.base_url = base_url
+
+
 def get_response_errors(response: object, endpoint: str) -> list[BfabricRequestError]:
     """
     :param response:  A raw response to a query from an underlying engine

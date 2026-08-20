@@ -4,6 +4,7 @@ from types import SimpleNamespace
 
 from bfabric.errors import (
     BfabricRequestError,
+    BfabricUnavailableError,
     BfabricTokenExpiredError,
     BfabricTokenInvalidError,
     BfabricTokenValidationFailedError,
@@ -140,3 +141,23 @@ class TestGetResponseErrorsNoMatch:
         result = get_response_errors(response, "getDataset")
 
         assert result == []
+
+
+def test_unavailable_error_is_caught_as_a_request_error() -> None:
+    """The CLI catches RuntimeError, so an unreachable server must arrive as one.
+
+    Subclassing BfabricRequestError additionally lets a caller that already handles "the request
+    failed" treat unreachability as a special case of it rather than a separate axis.
+    """
+    error = BfabricUnavailableError("https://example.com/bfabric", ConnectionRefusedError(111, "nope"))
+
+    assert isinstance(error, BfabricRequestError)
+    assert isinstance(error, RuntimeError)
+
+
+def test_unavailable_error_names_the_instance_and_the_cause() -> None:
+    error = BfabricUnavailableError("https://example.com/bfabric", ConnectionRefusedError(111, "nope"))
+
+    message = str(error)
+    assert "https://example.com/bfabric" in message
+    assert "nope" in message

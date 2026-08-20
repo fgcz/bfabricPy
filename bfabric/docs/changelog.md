@@ -39,6 +39,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `Bfabric.connect()` errors clearly when an `auth_method: oauth` config has no `env_name`.
 - Packaging: `project.readme` points at a package-local `README.md`; hatchling 1.32.0 rejects paths outside the project directory, breaking builds from source.
 - Device-code login reports a non-JSON token-endpoint response (e.g. an app-server 404 page during a redeploy) as `BfabricOAuthError`, instead of letting `httpx.HTTPStatusError` escape the CLI as a traceback.
+- An unreachable B-Fabric instance raises `BfabricUnavailableError` (a `BfabricRequestError`) naming the instance and the transport failure, instead of leaking `suds.transport.TransportError` or `urllib.error.URLError` — neither of which is a `RuntimeError`, so they escaped the CLI's error handling and any caller catching `BfabricRequestError`.
 - Uploading a folder with sub-directories now works against servers that echo the resource name verbatim.
 - A nested re-upload reports `renamed_duplicate` rather than `exact_duplicate`; both carry the `skip` action, so branch on `action`, not `category`.
 - `created_by` / `modified_by` raise a `ValueError` naming the login instead of returning `None`.

@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import copy
 from typing import TYPE_CHECKING, Any
+from urllib.error import URLError
 
 import suds.transport
 from suds import MethodNotFound
 from suds.client import Client
 
 from bfabric.engine.response_format_suds import suds_asdict_recursive
-from bfabric.errors import BfabricRequestError, get_response_errors
+from bfabric.errors import BfabricRequestError, BfabricUnavailableError, get_response_errors
 from bfabric.results.response_delete import ResponseDelete
 from bfabric.results.response_format_dict import clean_result
 from bfabric.results.result_container import ResultContainer
@@ -96,7 +97,13 @@ class EngineSUDS:
         return ResponseDelete.from_suds(suds_response=response, endpoint=endpoint)
 
     def _get_suds_service(self, endpoint: str) -> ServiceProxy:
-        """Returns a SUDS service for the given endpoint. Reuses existing instances when possible."""
+        """Returns a SUDS service for the given endpoint. Reuses existing instances when possible.
+
+        Fetching the WSDL is the first thing every operation does, so it is also where an unreachable
+        instance shows up. Both failure shapes are translated here: suds raises ``TransportError`` for
+        an HTTP status and lets urllib's ``URLError`` through for a connection-level failure, and
+        neither is a ``RuntimeError``, so untranslated they escape the callers' error handling.
+        """
         if endpoint not in self._cl:
             try:
                 self._cl[endpoint] = Client(f"{self._base_url}/{endpoint}?wsdl", cache=None)
@@ -104,7 +111,9 @@ class EngineSUDS:
                 if error.httpcode == 404:
                     msg = f"Non-existent endpoint {repr(endpoint)} or the configured B-Fabric instance was not found."
                     raise BfabricRequestError(msg) from error
-                raise
+                raise BfabricUnavailableError(self._base_url, error) from error
+            except URLError as error:
+                raise BfabricUnavailableError(self._base_url, error) from error
         return self._cl[endpoint].service
 
     def _convert_results(self, response: Any, endpoint: str) -> ResultContainer:
