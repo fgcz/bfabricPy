@@ -1,7 +1,12 @@
+import datetime
+from importlib.metadata import version
 from pathlib import Path
 
 import pytest
+import yaml
+from pydantic import ValidationError
 
+from bfabric.entities import Resource, Workunit
 from bfabric.entities.core.entity import Entity
 from bfabric.entities.core.entity_reader import EntityReader, EntityResult
 from bfabric.entities.core.uri import EntityUri
@@ -178,25 +183,83 @@ class TestFindMixin:
         mock_client.read.assert_called_once_with("testendpoint", obj={"id": 1}, max_results=100)
 
 
-def test_dump_yaml(mocker, mock_entity) -> None:
-    mock_yaml_dump = mocker.patch("yaml.safe_dump")
-    mock_path = mocker.MagicMock(spec=Path)
-    mock_entity.dump_yaml(mock_path)
-    mock_path.open.assert_called_once_with("w")
-    mock_yaml_dump.assert_called_once_with(mock_entity.data_dict, mock_path.open.return_value.__enter__.return_value)
+class TestSerialization:
+    @pytest.fixture
+    def workunit_data_dict(self) -> dict:
+        return {"id": 1234, "classname": "workunit", "name": "Test Workunit", "status": "AVAILABLE"}
 
+    @pytest.fixture
+    def workunit(self, workunit_data_dict, mock_client, bfabric_instance) -> Workunit:
+        return Workunit(workunit_data_dict, mock_client, bfabric_instance)
 
-def test_load_yaml(mocker) -> None:
-    mock_yaml_load = mocker.patch("yaml.safe_load", return_value={"key": "value"})
-    mock_path = mocker.MagicMock(spec=Path)
-    mock_client = mocker.MagicMock()
+    @pytest.fixture
+    def dump_path(self, tmp_path, workunit) -> Path:
+        path = tmp_path / "entity.yml"
+        workunit.dump_yaml(path)
+        return path
 
-    entity = Entity.load_yaml(mock_path, client=mock_client)
+    def test_dump_yaml_writes_metadata(self, dump_path, workunit, workunit_data_dict) -> None:
+        document = yaml.safe_load(dump_path.read_text())
+        assert document["format_version"] == 1
+        assert document["uri"] == str(workunit.uri)
+        assert document["bfabricpy_version"] == version("bfabric")
+        assert datetime.datetime.fromisoformat(document["dumped_at"]).tzinfo is not None
+        assert document["data"] == workunit_data_dict
 
-    mock_path.open.assert_called_once_with("r")
-    mock_yaml_load.assert_called_once_with(mock_path.open.return_value.__enter__.return_value)
-    assert entity.data_dict == {"key": "value"}
-    assert isinstance(entity, Entity)
+    def test_dump_yaml_when_no_bfabric_instance(self, tmp_path, workunit_data_dict) -> None:
+        with pytest.warns(DeprecationWarning):
+            entity = Entity(workunit_data_dict)
+        with pytest.raises(ValueError, match="bfabric_instance"):
+            entity.dump_yaml(tmp_path / "entity.yml")
+
+    def test_load_yaml_round_trip(self, dump_path, workunit, workunit_data_dict, bfabric_instance) -> None:
+        loaded = Entity.load_yaml(dump_path)
+        assert type(loaded) is Workunit
+        assert loaded.data_dict == workunit_data_dict
+        assert loaded.bfabric_instance == bfabric_instance
+        assert loaded.uri == workunit.uri
+        assert loaded._client is None
+
+    def test_load_yaml_passes_client(self, dump_path, mock_client) -> None:
+        assert Entity.load_yaml(dump_path, client=mock_client)._client == mock_client
+
+    def test_load_yaml_when_subclass_matches(self, dump_path, workunit_data_dict) -> None:
+        loaded = Workunit.load_yaml(dump_path)
+        assert type(loaded) is Workunit
+        assert loaded.data_dict == workunit_data_dict
+
+    def test_load_yaml_when_subclass_mismatch(self, dump_path) -> None:
+        with pytest.raises(TypeError, match="'workunit'.*Resource"):
+            _ = Resource.load_yaml(dump_path)
+
+    def test_load_yaml_when_instance_conflicts(self, dump_path) -> None:
+        with pytest.raises(ValueError, match="was dumped from"):
+            _ = Entity.load_yaml(dump_path, bfabric_instance="https://other.example.org/bfabric/")
+
+    def test_load_yaml_when_data_mismatches_uri(self, tmp_path, dump_path) -> None:
+        document = yaml.safe_load(dump_path.read_text())
+        document["data"]["id"] = 5678
+        path = tmp_path / "tampered.yml"
+        _ = path.write_text(yaml.safe_dump(document))
+        with pytest.raises(ValidationError, match="'id'"):
+            _ = Entity.load_yaml(path)
+
+    def test_load_yaml_when_not_a_mapping(self, tmp_path) -> None:
+        path = tmp_path / "list.yml"
+        _ = path.write_text(yaml.safe_dump([{"id": 1234, "classname": "workunit"}]))
+        with pytest.raises(ValueError, match="found list"):
+            _ = Entity.load_yaml(path)
+
+    def test_load_yaml_when_legacy(self, tmp_path, workunit_data_dict, bfabric_instance) -> None:
+        path = tmp_path / "legacy.yml"
+        _ = path.write_text(yaml.safe_dump(workunit_data_dict))
+
+        with pytest.warns(DeprecationWarning, match="format_version"):
+            loaded = Entity.load_yaml(path, bfabric_instance=bfabric_instance)
+
+        assert type(loaded) is Workunit
+        assert loaded.data_dict == workunit_data_dict
+        assert loaded.bfabric_instance == bfabric_instance
 
 
 def test_getitem(mock_entity) -> None:

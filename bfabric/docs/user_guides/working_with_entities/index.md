@@ -161,6 +161,38 @@ print(f"User ID: {user.id}")
 print(f"User name: {user['name']}")
 ```
 
+## Saving and Loading Entities
+
+Any entity can be written to a YAML file and read back later, e.g. to keep a fixture for offline development.
+
+```python
+from pathlib import Path
+from bfabric.entities.core.entity import Entity
+
+workunit = client.reader.read_id(entity_type="workunit", entity_id=1234)
+workunit.dump_yaml(Path("workunit.yml"))
+
+# Returns a Workunit, and needs no client unless relationships are accessed
+loaded = Entity.load_yaml(Path("workunit.yml"))
+```
+
+Besides the entity's data, the file records the entity's URI, so the instance it came from is never guessed:
+
+```yaml
+format_version: 1
+uri: https://fgcz-bfabric.uzh.ch/bfabric/workunit/show.html?id=1234
+dumped_at: '2026-08-19T09:41:03Z'
+bfabricpy_version: 1.20.0
+data:
+  id: 1234
+  classname: workunit
+  name: Example workunit
+```
+
+`Entity.load_yaml` returns the most specific class for the recorded entity type, while loading through a subclass
+(e.g. `Workunit.load_yaml`) rejects a file holding a different type. Passing a `bfabric_instance` that disagrees
+with the file is an error — entity ids are only unique within one instance, so a mismatch is never intended.
+
 ## Custom Entity Methods
 
 Some entity types provide custom class methods:
