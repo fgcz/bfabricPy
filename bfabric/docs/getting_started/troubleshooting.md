@@ -54,7 +54,7 @@ GENERAL:
 PRODUCTION:
   login: yourBfabricLogin
   password: yourBfabricWebServicePassword
-  base_url: https://fgcz-bfabric.uzh.ch/bfabric/
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric
 ```
 
 ## Query Issues
@@ -148,8 +148,8 @@ print(f"User: {client.auth.login}")
 
 Common URLs:
 
-- **Production**: `https://fgcz-bfabric.uzh.ch/bfabric/`
-- **Test**: `https://fgcz-bfabric-test.uzh.ch/bfabric/`
+- **Production**: `https://fgcz-bfabric.uzh.ch/bfabric`
+- **Test**: `https://fgcz-bfabric-test.uzh.ch/bfabric`
 
 If you're connecting to the wrong instance, update your config file or use a different environment:
 

@@ -7,6 +7,7 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
+from bfabric.config import BaseUrl
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_file import ConfigFile
 from bfabric.config.config_writer import (
@@ -18,6 +19,16 @@ from bfabric.config.config_writer import (
 
 
 class TestWriteEnvironmentToConfig:
+    def test_writes_a_str_subclass_as_a_plain_scalar(self, tmp_path):
+        """A ``BaseUrl`` needs no coercion by the caller, and must not reach the file as an
+        unloadable ``!!python/object/new:`` tag."""
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path, "PROD", {"base_url": BaseUrl("https://example.com/bfabric")}, set_default=True
+        )
+        assert "!!python/object" not in config_path.read_text()
+        assert yaml.safe_load(config_path.read_text())["PROD"]["base_url"] == "https://example.com/bfabric"
+
     def test_creates_new_file(self, tmp_path):
         config_path = tmp_path / "config.yml"
         write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com"}, set_default=True)
@@ -189,7 +200,7 @@ class TestRoundTrip:
         assert env.auth is not None
         assert env.auth.login == OAUTH_LOGIN
         assert env.auth.password.get_secret_value() == "secret-pat"
-        assert env.config.base_url == "https://example.com/"
+        assert env.config.base_url == "https://example.com"
 
     def test_oauth_env_round_trips(self, tmp_path):
         config_path = tmp_path / "config.yml"
@@ -204,7 +215,7 @@ class TestRoundTrip:
         assert env.auth is None
         assert env.auth_method == "oauth"
         assert env.client_id == "cid"
-        assert env.config.base_url == "https://example.com/"
+        assert env.config.base_url == "https://example.com"
 
     def test_rejects_unparseable_env(self, tmp_path):
         # base_url is required by BfabricClientConfig; without it the written file would fail to

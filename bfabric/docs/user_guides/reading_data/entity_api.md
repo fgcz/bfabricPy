@@ -78,7 +78,7 @@ sample = reader.read_id(entity_type="sample", entity_id=123)
 # Entity identifier
 print(sample.id)  # 123
 print(sample.classname)  # "sample"
-print(sample.bfabric_instance)  # "https://fgcz-bfabric.uzh.ch/bfabric/"
+print(sample.bfabric_instance)  # "https://fgcz-bfabric.uzh.ch/bfabric"
 
 # Entity URI
 uri = sample.uri

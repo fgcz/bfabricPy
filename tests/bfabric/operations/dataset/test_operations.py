@@ -15,7 +15,7 @@ from bfabric.operations.dataset import (
 @pytest.fixture
 def mock_client(mocker):
     client = mocker.MagicMock(name="Bfabric")
-    client.config.base_url = "https://test.example.com/bfabric/"
+    client.config.base_url = "https://test.example.com/bfabric"
     return client
 
 

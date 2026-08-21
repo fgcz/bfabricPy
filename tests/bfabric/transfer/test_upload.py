@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from bfabric.config import BaseUrl
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.transfer.errors import BfabricTransferError, ScopeError
 from bfabric.transfer.upload import (
@@ -42,6 +43,9 @@ class TestApiToRestUrl:
 
     def test_no_api_suffix_only_strips_trailing_slash(self):
         assert api_to_rest_url("https://host/bfabric/") == "https://host/bfabric"
+
+    def test_returns_a_base_url(self):
+        assert isinstance(api_to_rest_url("https://host/bfabric/api"), BaseUrl)
 
 
 class TestRequireTus:

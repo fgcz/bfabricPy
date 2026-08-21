@@ -52,7 +52,7 @@ def entity_reader(mocker, entity_reader_constructor):
 @pytest.fixture
 def mock_project(mocker, bfabric_instance):
     project = mocker.MagicMock(name="mock_project")
-    project.uri = f"{bfabric_instance}project/show.html?id=3000"
+    project.uri = f"{bfabric_instance}/project/show.html?id=3000"
     project.data_dict = {"id": 3000, "classname": "project", "name": "Mock Project"}
     return project
 
@@ -60,7 +60,7 @@ def mock_project(mocker, bfabric_instance):
 @pytest.fixture
 def mock_user(mocker, bfabric_instance):
     user = mocker.MagicMock(name="mock_user")
-    user.uri = f"{bfabric_instance}user/show.html?id=1"
+    user.uri = f"{bfabric_instance}/user/show.html?id=1"
     user.data_dict = {"id": 1, "classname": "user", "name": "Test User", "email": "test@bfabric.example.org"}
     return user
 

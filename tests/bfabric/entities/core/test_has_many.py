@@ -75,7 +75,7 @@ class TestFunctionality:
     def test_repr(entity):
         assert (
             repr(entity)
-            == "MockEntity(data_dict={'classname': 'mock', 'id': 1000, 'many': [{'id': 10, 'classname': 'testreferenced', 'name': 'Referenced Entity 10'}, {'id': 20, 'classname': 'testreferenced', 'name': 'Referenced Entity 20'}]}, bfabric_instance='https://bfabric.example.org/bfabric/')"
+            == "MockEntity(data_dict={'classname': 'mock', 'id': 1000, 'many': [{'id': 10, 'classname': 'testreferenced', 'name': 'Referenced Entity 10'}, {'id': 20, 'classname': 'testreferenced', 'name': 'Referenced Entity 20'}]}, bfabric_instance='https://bfabric.example.org/bfabric')"
         )
 
     @staticmethod

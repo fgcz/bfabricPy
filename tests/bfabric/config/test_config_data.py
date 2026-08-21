@@ -54,7 +54,7 @@ class TestLoadConfigData:
         loaded_config = load_config_data(
             config_file_path=example_config_path, config_file_env="default", include_auth=include_auth
         )
-        assert loaded_config.client.base_url == "https://prod-server.example.com/api/"
+        assert loaded_config.client.base_url == "https://prod-server.example.com/api"
         if include_auth:
             assert loaded_config.auth.login == "testuser"
         else:
@@ -68,7 +68,7 @@ class TestLoadConfigData:
         loaded_config = load_config_data(
             config_file_path=example_config_path, config_file_env="default", include_auth=include_auth
         )
-        assert loaded_config.client.base_url == "https://test-server.example.com/api/"
+        assert loaded_config.client.base_url == "https://test-server.example.com/api"
         if include_auth:
             assert loaded_config.auth.login == "testuser"
         else:
@@ -82,7 +82,7 @@ class TestLoadConfigData:
         loaded_config = load_config_data(
             config_file_path=example_config_path, config_file_env="TEST", include_auth=include_auth
         )
-        assert loaded_config.client.base_url == "https://test-server.example.com/api/"
+        assert loaded_config.client.base_url == "https://test-server.example.com/api"
         if include_auth:
             assert loaded_config.auth.login == "testuser"
         else:

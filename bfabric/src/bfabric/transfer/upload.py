@@ -14,6 +14,7 @@ from typing import TYPE_CHECKING, ClassVar, final
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, TypeAdapter
 
+from bfabric.config.base_url import BaseUrl
 from bfabric.transfer.errors import BfabricTransferError
 from bfabric.transfer.tokens import check_upload_scope, require_oauth, token_provider
 from bfabric.transfer._generic.sinks import TransferSinkTus
@@ -27,12 +28,10 @@ if TYPE_CHECKING:
 _TIMEOUT = 60.0
 
 
-def api_to_rest_url(api_base_url: str) -> str:
+def api_to_rest_url(api_base_url: str) -> BaseUrl:
     """Derive the B-Fabric REST base URL (``https://host/bfabric``) from the SOAP API base URL."""
-    base = api_base_url.rstrip("/")
-    if base.endswith("/api"):
-        return base[: -len("/api")]
-    return base
+    base = BaseUrl(api_base_url)
+    return BaseUrl(base[: -len("/api")]) if base.endswith("/api") else base
 
 
 def require_tus() -> None:
@@ -115,7 +114,7 @@ class UploadRestClient:
         # password as a bearer token (all REST calls funnel through this client).
         require_oauth(client)
         self._client = client
-        self._rest_base_url = api_to_rest_url(str(client.config.base_url))
+        self._rest_base_url = api_to_rest_url(client.config.base_url)
         # require_oauth guarantees an OAuth client, so token_provider never returns None here. The
         # provider reads the token fresh per call, so a long batch survives a mid-run token refresh.
         provider = token_provider(client)

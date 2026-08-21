@@ -316,31 +316,6 @@ class TestDeviceCodeLogin:
         captured = capsys.readouterr()
         assert "https://example.com/device?user_code=WXYZ-9876" in captured.err
 
-    def test_strips_trailing_slash(self, mocker):
-        device_response = {
-            "device_code": "dc_456",
-            "user_code": "CODE",
-            "verification_uri": "https://example.com/device",
-            "interval": 5,
-        }
-
-        mock_request = mocker.patch(
-            "bfabric.oauth._device_code._request_device_code",
-            return_value=device_response,
-        )
-        mock_poll = mocker.patch(
-            "bfabric.oauth._device_code._poll_for_token",
-            return_value={"access_token": "at"},
-        )
-        device_code_login("https://example.com/bfabric///", client_id="test-cli", scope="api:read")
-
-        mock_request.assert_called_once_with(
-            "https://example.com/bfabric",
-            client_id="test-cli",
-            scope="api:read",
-        )
-        assert mock_poll.call_args[0][0] == "https://example.com/bfabric"
-
     def test_default_interval_when_missing(self, mocker):
         device_response = {
             "device_code": "dc_456",

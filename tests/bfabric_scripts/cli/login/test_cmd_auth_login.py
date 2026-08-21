@@ -373,5 +373,5 @@ class TestBaseUrl:
         mock_pkce.assert_not_called()
         assert not config_file.exists()
         err = capsys.readouterr().err
-        assert "http or https" in err
+        assert "Not a valid http(s) URL" in err
         assert "Login aborted." in err

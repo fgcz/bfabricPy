@@ -17,7 +17,6 @@ from pydantic import BaseModel, Field, SecretStr, ValidationError, model_validat
 
 from bfabric.config.config_file import EnvironmentConfig
 
-
 # --- Vendored replica of the bfabric 1.19.0 config schema (do not "fix" to match new code) ---
 
 
