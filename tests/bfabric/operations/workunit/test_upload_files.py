@@ -92,7 +92,7 @@ def _params(*files: str | UploadFileParam, on_duplicate: str = "upload", **overr
     entries = [
         f if isinstance(f, UploadFileParam) else UploadFileParam(path=Path(f), on_duplicate=on_duplicate) for f in files
     ]
-    return UploadFilesParams(container_id=100, application_id=5, files=entries, **overrides)
+    return UploadFilesParams(**{"container_id": 100, "application_id": 5, "files": entries, **overrides})
 
 
 def _counts(summary: UploadSummary) -> tuple[int, int, int, int]:
@@ -1039,7 +1039,9 @@ class TestResumeCache:
         """A URL the server has forgotten fails the mover's HEAD; that costs a restart, not a failure."""
         self._setup(rest)
         cache = tmp_path / "resume.json"
-        ResumeCache(cache).store(md5="md5-a.txt", url="https://tus/gone")
+        ResumeCache(cache).store(
+            md5="md5-a.txt", url="https://tus/gone", workunit_id=WORKUNIT_ID, resource_id=10, container_id=100
+        )
         attempts: list[str | None] = []
 
         def _fail_only_when_resuming(*_args, **kwargs):
@@ -1068,7 +1070,9 @@ class TestResumeCache:
         # The endpoint moved; the mover refuses to send its token to the old host, so don't resume.
         self._setup(rest)
         cache = tmp_path / "resume.json"
-        ResumeCache(cache).store(md5="md5-a.txt", url="https://old-host/abc")
+        ResumeCache(cache).store(
+            md5="md5-a.txt", url="https://old-host/abc", workunit_id=WORKUNIT_ID, resource_id=10, container_id=100
+        )
 
         _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
 
@@ -1095,6 +1099,115 @@ class TestResumeCache:
 
         mock_send.assert_not_called()
         assert not cache.exists()
+
+
+class TestResumeAdoptsTheInterruptedWorkunit:
+    """An interrupted upload resumes into its original workunit and resource, not a second pair.
+
+    The motivating case is an unattended instrument upload: a multi-hundred-GB file is interrupted,
+    the driving script re-runs with the same path, and it must continue against the same resource.
+    A tus URL's metadata (resourceId / workunitId / storagePath) is frozen at creation, so bytes
+    pushed to a saved URL land on the ORIGINAL resource no matter what the resuming run created --
+    which makes creating a second workunit both wasteful and a misreport.
+    """
+
+    @staticmethod
+    def _setup(rest):
+        rest.create_resources.return_value = _created("a.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+    def _interrupt(self, mock_client, rest, mock_send, cache):
+        """Run once, reporting a tus URL and then failing, so a resume entry survives."""
+        self._setup(rest)
+
+        def _report_then_fail(*_args, **kwargs):
+            kwargs["on_url"]("https://tus/abc")
+            raise TransferError("power cut")
+
+        mock_send.side_effect = _report_then_fail
+        return upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+    def test_second_run_creates_no_second_workunit(self, tmp_path, mock_client, rest, mock_send):
+        cache = tmp_path / "resume.json"
+        first = self._interrupt(mock_client, rest, mock_send, cache)
+        mock_client.save.reset_mock()
+        rest.create_resources.reset_mock()
+        mock_send.side_effect = None
+
+        second = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+        assert _create_payload(mock_client) is None
+        assert second.workunit_id == first.workunit_id
+
+    def test_second_run_reuses_the_original_resource(self, tmp_path, mock_client, rest, mock_send):
+        # create-resources only ever creates, so an adopted file must skip it entirely and carry the
+        # remembered resource id straight into initiate -- otherwise the summary names a resource the
+        # bytes never reached.
+        cache = tmp_path / "resume.json"
+        first = self._interrupt(mock_client, rest, mock_send, cache)
+        original_resource_id = first.failures[0].resource_id
+        rest.create_resources.reset_mock()
+        mock_send.side_effect = None
+
+        second = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+        rest.create_resources.assert_not_called()
+        assert [u.resource_id for u in second.uploads] == [original_resource_id]
+        assert rest.get_upload_token.call_args.args[1] == [original_resource_id]
+
+    def test_second_run_resumes_from_the_saved_url(self, tmp_path, mock_client, rest, mock_send):
+        cache = tmp_path / "resume.json"
+        _ = self._interrupt(mock_client, rest, mock_send, cache)
+        mock_send.side_effect = None
+
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+        assert mock_send.call_args.kwargs.get("resume_url") == "https://tus/abc"
+
+    def test_interrupted_workunit_is_not_marked_failed(self, tmp_path, mock_client, rest, mock_send):
+        # An interrupted upload is unfinished, not failed: flipping it would leave the resumable
+        # workunit in a dead state that the next run then adopts.
+        cache = tmp_path / "resume.json"
+
+        _ = self._interrupt(mock_client, rest, mock_send, cache)
+
+        assert "failed" not in _status_updates(mock_client)
+
+    def test_the_tracking_job_is_reused_on_adoption(self, tmp_path, mock_client, rest, mock_send):
+        # The tus hooks key status off jobId, and the saved URL's metadata still names the first
+        # run's job. Creating a second one would leave that job hanging with nothing to finish it.
+        cache = tmp_path / "resume.json"
+        _distinct_job_id(mock_client, job_id=4242)
+        params = _params("/src/a.txt", track_job=True)
+        self._setup(rest)
+
+        def _report_then_fail(*_args, **kwargs):
+            kwargs["on_url"]("https://tus/abc")
+            raise TransferError("power cut")
+
+        mock_send.side_effect = _report_then_fail
+        first = upload_files(mock_client, params, resume_cache=cache)
+        mock_send.side_effect = None
+
+        second = upload_files(mock_client, params, resume_cache=cache)
+
+        job_saves = [c for c in mock_client.save.call_args_list if c.args[0] == "job"]
+        assert len(job_saves) == 1
+        assert second.job_id == first.job_id == 4242
+
+    def test_a_different_container_is_not_adopted(self, tmp_path, mock_client, rest, mock_send):
+        # Same bytes may legitimately be destined for another project; only the recorded target may
+        # be resumed into.
+        cache = tmp_path / "resume.json"
+        _ = self._interrupt(mock_client, rest, mock_send, cache)
+        mock_client.save.reset_mock()
+        self._setup(rest)
+        mock_send.side_effect = None
+
+        _ = upload_files(mock_client, _params("/src/a.txt", container_id=999), resume_cache=cache)
+
+        assert _create_payload(mock_client) is not None
+        assert mock_send.call_args.kwargs.get("resume_url") is None
 
 
 class TestReuseExistingWorkunit:

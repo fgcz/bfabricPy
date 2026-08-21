@@ -13,6 +13,7 @@ from bfabric.entities import Job, Workunit
 from bfabric.operations.workunit._common import complete_workunit, mark_workunit_failed
 from bfabric.transfer import (
     BfabricTransferError,
+    CreatedResource,
     Credentials,
     TransferError,
     UploadRestClient,
@@ -22,13 +23,13 @@ from bfabric.transfer import (
     send_to_sink,
     tus_sink_for_resource,
 )
-from bfabric.transfer.resume_cache import ResumeCache
+from bfabric.transfer.resume_cache import ResumeCache, ResumeEntry
 
 if TYPE_CHECKING:
     from collections.abc import Collection
 
     from bfabric import Bfabric
-    from bfabric.transfer import CreatedResource, DuplicateResult, FileInfo, TransferSinkTus, UploadTokenResult
+    from bfabric.transfer import DuplicateResult, FileInfo, TransferSinkTus, UploadTokenResult
 
 
 # --- upload_files: the create-workunit -> dedup -> create-resources -> upload -> register workflow ---
@@ -243,22 +244,41 @@ def upload_files(
     if on_start is not None:
         on_start(len(to_upload), sum(fi.size for fi in to_upload))
 
+    cache = ResumeCache(resume_cache) if resume_cache is not None else None
+    # Decided before anything is created: a tus URL's metadata is fixed at creation, so a file with a
+    # saved URL must continue into its ORIGINAL workunit and resource. Creating a second pair and then
+    # resuming the old URL would send the bytes to the first resource while reporting the second.
+    adopted = _adopted_uploads(cache, to_upload, params, container_id)
+
     # Only own the workunit lifecycle (status transitions, failure cleanup) for workunits we create;
     # a caller-supplied `workunit_id` targets a pre-existing workunit we must not flip or fail.
     if params.workunit_id is not None:
         workunit_id = params.workunit_id
         created = False
+    elif adopted:
+        # Continuing an interrupted run: its workunit already exists and is still 'processing'.
+        workunit_id = next(iter(adopted.values())).workunit_id
+        created = True
+        logger.info("Resuming interrupted upload into workunit {}.", workunit_id)
     else:
         workunit_id = _create_upload_workunit(client=client, params=params, audit_attributes=audit_attributes or {})
         created = True
-    job_id: int | None = None
+    # An adopted run keeps the original job: the hooks key status off jobId, and the saved URL's tus
+    # metadata still names the first run's job, so a second one would leave the first hanging with
+    # nothing to move it to a terminal state.
+    job_id: int | None = _adopted_job_id(adopted)
     try:
         # Create the tracking job before minting the token, so its id is baked into both the token
         # request and every sink's metadata (the server hooks key off that jobId to update status).
-        if params.track_job:
+        if params.track_job and job_id is None:
             job_id = _create_upload_job(client, workunit_id)
-        resources = rest.create_resources(workunit_id, to_upload)
-        resources_by_name = _pair_resources_to_files(resources, to_upload)
+        # create-resources only ever creates, so an adopted file must not go through it: its resource
+        # already exists and is the one its saved tus URL points at.
+        to_create = [fi for fi in to_upload if fi.md5 not in adopted]
+        resources_by_name = _adopted_resources(adopted, to_upload)
+        if to_create:
+            resources = rest.create_resources(workunit_id, to_create)
+            resources_by_name |= _pair_resources_to_files(resources, to_create)
         # A linked resource already points at stored bytes and is created AVAILABLE, so it must be kept
         # out of both the token request and the transfer loop; sending it would push bytes for a
         # resource the server never expects an upload for.
@@ -286,7 +306,9 @@ def upload_files(
                 on_progress=on_progress,
                 on_file_done=on_file_done,
                 on_url=on_url,
-                resume_cache=ResumeCache(resume_cache) if resume_cache is not None else None,
+                resume_cache=cache,
+                container_id_for_cache=container_id,
+                application_id_for_cache=params.application_id,
             )
     except BaseException:
         # Mark the workunit failed (do NOT delete) so the partial state is diagnosable — see the
@@ -295,10 +317,13 @@ def upload_files(
             mark_workunit_failed(client, workunit_id)
         raise
 
-    if not uploads and not links and created:
+    if not uploads and not links and created and not _has_resumable(cache, to_upload, params, container_id):
         # Every transfer failed: the workunit has no usable content, so flip it to failed (kept, not
         # deleted). The per-file errors are returned for the caller to inspect. Linked resources are
         # already AVAILABLE, so a run that only linked has real content despite transferring nothing.
+        # An interrupted transfer that saved a resume URL is exempt: it is unfinished, not failed, and
+        # the next run continues into this very workunit. Its resources stay 'pending' until then, and
+        # B-Fabric's own cleanup reclaims them if that run never comes.
         mark_workunit_failed(client, workunit_id)
     summary = UploadSummary(
         workunit_id=workunit_id,
@@ -321,6 +346,76 @@ def upload_files(
                 summary,
             ) from error
     return summary
+
+
+def _adopted_uploads(
+    cache: ResumeCache | None,
+    to_upload: list[FileInfo],
+    params: UploadFilesParams,
+    container_id: int,
+) -> dict[str, ResumeEntry]:
+    """The saved interrupted uploads to continue, keyed by MD5.
+
+    Only meaningful on the create path: a caller-supplied ``workunit_id`` names the target
+    explicitly, so there is nothing to adopt. All adopted files must share one workunit -- a run
+    writes into a single workunit -- so entries naming any other one are ignored and those files are
+    uploaded afresh.
+    """
+    if cache is None or params.workunit_id is not None:
+        return {}
+    found: dict[str, ResumeEntry] = {}
+    for file_info in to_upload:
+        entry = cache.lookup(
+            md5=file_info.md5,
+            container_id=container_id,
+            application_id=params.application_id,
+        )
+        if entry is not None:
+            found[file_info.md5] = entry
+    if not found:
+        return {}
+    workunit_id = next(iter(found.values())).workunit_id
+    kept = {md5: entry for md5, entry in found.items() if entry.workunit_id == workunit_id}
+    if len(kept) != len(found):
+        logger.info(
+            "Ignoring {} resume entry/entries naming a different workunit; those files upload afresh.",
+            len(found) - len(kept),
+        )
+    return kept
+
+
+def _adopted_job_id(adopted: Mapping[str, ResumeEntry]) -> int | None:
+    """The tracking job the adopted uploads were started under, if they agree on one."""
+    job_ids = {entry.job_id for entry in adopted.values() if entry.job_id is not None}
+    return job_ids.pop() if len(job_ids) == 1 else None
+
+
+def _adopted_resources(adopted: Mapping[str, ResumeEntry], to_upload: list[FileInfo]) -> dict[str, CreatedResource]:
+    """Rebuild the ``CreatedResource`` records for adopted files from their cache entries.
+
+    The originals came from a previous run's ``create-resources``; only the ids and storage path are
+    needed downstream, and the saved tus URL already carries the rest.
+    """
+    return {
+        fi.name: CreatedResource(id=entry.resource_id, name=fi.name, storagePath=entry.storage_path)
+        for fi in to_upload
+        if (entry := adopted.get(fi.md5)) is not None
+    }
+
+
+def _has_resumable(
+    cache: ResumeCache | None,
+    to_upload: list[FileInfo],
+    params: UploadFilesParams,
+    container_id: int,
+) -> bool:
+    """Whether any file left a resume URL behind, making this workunit worth keeping for a retry."""
+    if cache is None:
+        return False
+    return any(
+        cache.lookup(md5=fi.md5, container_id=container_id, application_id=params.application_id) is not None
+        for fi in to_upload
+    )
 
 
 def _collect_entries(
@@ -596,6 +691,8 @@ def _transfer_files(
     on_file_done: FileDoneCallback | None = None,
     on_url: FileUrlCallback | None = None,
     resume_cache: ResumeCache | None = None,
+    container_id_for_cache: int | None = None,
+    application_id_for_cache: int | None = None,
 ) -> tuple[list[FileUpload], list[FileFailure]]:
     """Transfer each file over tus, recording per-file success/failure.
 
@@ -615,9 +712,27 @@ def _transfer_files(
             resource, token_result, workunit_id=workunit_id, container_id=container_id, job_id=job_id
         )
         file_progress = _make_file_progress(on_progress, file_info.name)
-        file_url = _make_resume_url_callback(on_url, file_info, resume_cache)
+        file_url = _make_resume_url_callback(
+            on_url,
+            file_info,
+            resume_cache,
+            workunit_id=workunit_id,
+            resource=resource,
+            container_id=container_id if container_id_for_cache is None else container_id_for_cache,
+            application_id=application_id_for_cache,
+            job_id=job_id,
+        )
         try:
-            _transfer_one(sink, file_info, creds, file_progress, file_url, resume_cache, token_result.tus_endpoint)
+            _transfer_one(
+                sink,
+                file_info,
+                creds,
+                file_progress,
+                file_url,
+                resume_cache,
+                token_result.tus_endpoint,
+                container_id,
+            )
         except TransferError as error:
             logger.warning("Upload failed for {}: {}", file_info.name, error)
             failures.append(FileFailure(filename=file_info.name, resource_id=resource.id, error=str(error)))
@@ -641,6 +756,7 @@ def _transfer_one(
     on_url: Callable[[str], None] | None,
     resume_cache: ResumeCache | None,
     tus_endpoint: str,
+    container_id: int,
 ) -> None:
     """Send one file, resuming from a cached URL when there is a usable one.
 
@@ -648,7 +764,12 @@ def _transfer_one(
     ``HEAD`` the mover issues; that is not a transport problem, so it costs one restart from byte 0
     rather than a recorded failure. A failure without a resume URL is genuine and propagates.
     """
-    resume_url = resume_cache.lookup(md5=file_info.md5, endpoint=tus_endpoint) if resume_cache is not None else None
+    entry = (
+        resume_cache.lookup(md5=file_info.md5, container_id=container_id, endpoint=tus_endpoint)
+        if resume_cache is not None
+        else None
+    )
+    resume_url = entry.url if entry is not None else None
     try:
         _ = send_to_sink(sink, file_info.path, creds, on_progress=on_progress, on_url=on_url, resume_url=resume_url)
     except TransferError:
@@ -664,18 +785,35 @@ def _make_resume_url_callback(
     on_url: FileUrlCallback | None,
     file_info: FileInfo,
     resume_cache: ResumeCache | None,
+    *,
+    workunit_id: int,
+    resource: CreatedResource,
+    container_id: int,
+    application_id: int | None,
+    job_id: int | None,
 ) -> Callable[[str], None] | None:
     """The mover's ``(url)`` callback: saves the URL to the cache and forwards it to ``on_url``.
 
     Saving here rather than after the transfer is the point -- the URL is worth keeping precisely for
-    a file whose transfer then fails, and this fires as soon as the URL exists.
+    a file whose transfer then fails, and this fires as soon as the URL exists. The workunit and
+    resource are stored with it because the URL's tus metadata names them and cannot be repointed:
+    continuing this upload means continuing into these same records.
     """
     forward = _make_file_url(on_url, file_info.name)
     if resume_cache is None:
         return forward
 
     def _report(url: str) -> None:
-        resume_cache.store(md5=file_info.md5, url=url)
+        resume_cache.store(
+            md5=file_info.md5,
+            url=url,
+            workunit_id=workunit_id,
+            resource_id=resource.id,
+            container_id=container_id,
+            application_id=application_id,
+            storage_path=resource.storage_path,
+            job_id=job_id,
+        )
         if forward is not None:
             forward(url)
 
