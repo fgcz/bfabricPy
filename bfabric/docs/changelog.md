@@ -19,6 +19,9 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `on_duplicate="link"` only links to a duplicate the server reports as linkable; one whose resource is still `pending` or `failed` is uploaded instead, so a retry after a failed transfer no longer fails until B-Fabric's orphan cleanup runs.
 - `upload_files` raises `WorkunitCompletionError` when every transfer succeeded but marking the workunit `available` failed. It carries the `UploadSummary`, so a caller can record what landed and retry only the status flip rather than creating a second workunit.
 - `DuplicateResult.action` is a `Literal["upload", "skip", "link", "unsupported"]` instead of a bare `str`. An action the client does not recognise is normalised to `unsupported` (and kept verbatim in the new `raw_action`), so it is still refused per file with a remedy rather than failing the whole response.
+- A `resume_cache` run continues an interrupted upload into its original workunit and resource instead of creating a second pair. A tus URL's metadata is fixed when the upload is created, so bytes sent to a saved URL always land on the first resource; the previous behaviour reported a newly created resource the bytes never reached. A tracked upload (`track_job`) reuses its original job for the same reason.
+- An interrupted upload that saved a resume URL leaves its workunit `processing` rather than flipping it to `failed`, so the next run can continue into it.
+- `upload_files` documents that a successful return means the transfer completed, not that the file is stored: the storage service's post-finish checks run afterwards and report to B-Fabric, so a resource can end up `failed` after being reported in `summary.uploads`. A caller that deletes its local copy must re-read the resource status and require `available` first.
 
 ## \[1.21.0\] - 2026-08-20
 

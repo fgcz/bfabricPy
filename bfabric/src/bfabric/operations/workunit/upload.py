@@ -103,7 +103,17 @@ class UploadFilesParams(BaseModel):
 
 @dataclass
 class FileUpload:
-    """A file successfully transferred during :func:`upload_files`."""
+    """A file whose bytes were transferred during :func:`upload_files`.
+
+    This records a completed *transfer*, not verified storage. The storage service runs its checks
+    (virus scan, checksum verification, disk state) in a post-finish hook once the tus transfer is
+    already complete, and that hook reports back to B-Fabric rather than to the uploading client --
+    it cannot fail the transfer that produced it. A file recorded here may therefore end up with its
+    resource marked ``failed``, holding no usable bytes.
+
+    Re-read ``resource_id``'s status before treating the file as safely stored -- in particular
+    before deleting the local copy. See :func:`upload_files` for the full contract.
+    """
 
     filename: str
     resource_id: int
@@ -137,7 +147,11 @@ class UploadSummary:
 
     workunit_id: int | None
     uploads: list[FileUpload] = field(default_factory=list)
-    """Files whose bytes were transferred."""
+    """Files whose bytes were transferred -- not files confirmed stored.
+
+    Success here means the tus transfer completed, which is everything the client can observe. The
+    storage service's post-finish checks run afterwards and report to B-Fabric, so a file listed here
+    can still end up ``failed``. See :class:`FileUpload`."""
     skips: list[FileSkip] = field(default_factory=list)
     """Duplicates the check reported as already stored; no resource was created for them."""
     failures: list[FileFailure] = field(default_factory=list)
@@ -187,6 +201,20 @@ def upload_files(
     (never deleted, per the operations-module failure-cleanup pattern), so the partial state stays
     diagnosable.
 
+    **A successful return does not mean the files are stored.** It means every transfer completed,
+    which is the last thing this client can observe. The storage service then runs its own checks
+    (virus scan, checksum verification, disk state) in a post-finish hook, and that hook reports to
+    B-Fabric rather than to the uploader: the tus transfer is already complete by then, so there is
+    no channel to fail it through. A resource can therefore be marked ``failed`` after this function
+    has reported it in ``summary.uploads`` -- and the workunit is flipped to ``available`` on the
+    same unverified basis, so its status is not confirmation either.
+
+    A caller that deletes its local copy once B-Fabric holds the data (an instrument feeder, say)
+    must therefore re-read each ``FileUpload.resource_id``'s status and require ``available`` before
+    deleting -- never treat this function's return as that confirmation. The check belongs at
+    deletion time rather than here: verification runs on the server's schedule, and the answer that
+    matters is the resource's state when the delete decision is made, not moments after the upload.
+
     :param client: a connected client; for the tus transfer it must be OAuth-backed with the ``tus``
         scope (a fail-fast :class:`~bfabric.transfer.ScopeError` is raised otherwise).
     :param params: the ``files`` to upload (each with its own ``on_duplicate`` policy; directories
@@ -214,9 +242,11 @@ def upload_files(
     :param exclude_names: basenames to skip at any depth (e.g. a sentinel file the caller drops in
         the folder, or ``.DS_Store``). Filter here rather than pre-filtering ``files`` yourself: a
         flat file list loses the directory that gives nested files their relative resource name.
-    :returns: an :class:`UploadSummary`; its ``workunit_id`` is the created or reused workunit, and is
-        ``None`` only on the create path when every file was skipped as a duplicate (nothing was
-        created). Setup failures raise :class:`~bfabric.transfer.BfabricTransferError`.
+    :returns: an :class:`UploadSummary` recording which files transferred, were linked, were skipped
+        and failed -- transfer outcomes, not storage confirmations (see above). Its ``workunit_id`` is
+        the created or reused workunit, and is ``None`` only on the create path when every file was
+        skipped as a duplicate (nothing was created). Setup failures raise
+        :class:`~bfabric.transfer.BfabricTransferError`.
     :raises WorkunitCompletionError: if every transfer succeeded but marking the created workunit
         ``available`` failed. It carries the ``UploadSummary`` of what landed, so the caller can
         retry only that status flip rather than re-uploading into a second workunit.
