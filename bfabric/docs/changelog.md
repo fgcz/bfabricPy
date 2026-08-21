@@ -18,6 +18,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `DuplicateResult` carries the `check-duplicates` response's `linkable` and `existingResourceStatus`, and `linkable` decides whether a duplicate may be linked. **Breaking:** `on_duplicate="link"` now requires a B-Fabric that reports `linkable`; a response omitting it is refused rather than guessed.
 - `on_duplicate="link"` only links to a duplicate the server reports as linkable; one whose resource is still `pending` or `failed` is uploaded instead, so a retry after a failed transfer no longer fails until B-Fabric's orphan cleanup runs.
 - `upload_files` raises `WorkunitCompletionError` when every transfer succeeded but marking the workunit `available` failed. It carries the `UploadSummary`, so a caller can record what landed and retry only the status flip rather than creating a second workunit.
+- `DuplicateResult.action` is a `Literal["upload", "skip", "link", "unsupported"]` instead of a bare `str`. An action the client does not recognise is normalised to `unsupported` (and kept verbatim in the new `raw_action`), so it is still refused per file with a remedy rather than failing the whole response.
 
 ## \[1.21.0\] - 2026-08-20
 

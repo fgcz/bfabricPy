@@ -52,6 +52,7 @@ from bfabric.transfer.tokens import (
 )
 from bfabric.transfer.upload import (
     CreatedResource,
+    DuplicateAction,
     DuplicateResult,
     UploadRestClient,
     UploadTokenResult,
@@ -65,6 +66,7 @@ __all__ = [
     "BfabricTransferError",
     "CreatedResource",
     "Credentials",
+    "DuplicateAction",
     "DuplicateResult",
     "FileInfo",
     "ResumeCache",
