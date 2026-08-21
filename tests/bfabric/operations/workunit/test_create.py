@@ -152,7 +152,7 @@ def test_create_workunit_returned_entity_has_usable_uri(mock_client, bfabric_ins
 
     workunit = create_workunit(mock_client, _params())
 
-    assert str(workunit.uri) == f"{bfabric_instance}workunit/show.html?id=42"
+    assert str(workunit.uri) == f"{bfabric_instance}/workunit/show.html?id=42"
 
 
 def test_create_workunit_returns_metadata_only_entity(mock_client):

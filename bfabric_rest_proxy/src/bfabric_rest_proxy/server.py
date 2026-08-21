@@ -14,6 +14,7 @@ from loguru import logger
 from pydantic import BaseModel, Field, SecretStr, model_validator
 
 from bfabric import Bfabric, BfabricAuth, BfabricClientConfig
+from bfabric.config.base_url import BaseUrl
 from bfabric_rest_proxy.feeder_operations.create_workunit import CreateWorkunitRequest, create_workunit
 from bfabric_rest_proxy.settings import ServerSettings
 from bfabric_rest_proxy.feeder_operations.is_employee import is_employee
@@ -34,7 +35,7 @@ def get_bfabric_auth(auth: BfabricAuthParam) -> BfabricAuth:
     return BfabricAuth(login=auth.login, password=auth.webservicepassword)
 
 
-def get_bfabric_instance(settings: ServerSettingsDep, bfabric_instance: str | None = None) -> str:
+def get_bfabric_instance(settings: ServerSettingsDep, bfabric_instance: str | None = None) -> BaseUrl:
     """Specify the B-Fabric instance explicitly. Only configured B-Fabric instances are permitted."""
     if bfabric_instance is None:
         # use the default
@@ -42,21 +43,23 @@ def get_bfabric_instance(settings: ServerSettingsDep, bfabric_instance: str | No
             raise ValueError("server is configured to enforce explicit bfabric_instance parameter")
         return settings.default_bfabric_instance
 
-    # check the specified value
-    if bfabric_instance not in settings.supported_bfabric_instances:
+    # Canonicalise before matching, so a caller's trailing slash does not make a configured instance
+    # look unknown.
+    requested = BaseUrl(bfabric_instance)
+    if requested not in settings.supported_bfabric_instances:
         raise ValueError(f"Unknown bfabric instance: {bfabric_instance}")
 
-    return bfabric_instance
+    return requested
 
 
 def get_bfabric_user_client(bfabric_auth: BfabricAuthDep, bfabric_instance: BfabricInstanceDep) -> Bfabric:
-    client_config = BfabricClientConfig.model_validate({"base_url": bfabric_instance})
+    client_config = BfabricClientConfig(base_url=bfabric_instance)
     config_data = ConfigData(client=client_config, auth=bfabric_auth)
     return Bfabric(config_data)
 
 
 def get_bfabric_feeder_client(settings: ServerSettingsDep, bfabric_instance: BfabricInstanceDep) -> Bfabric:
-    client_config = BfabricClientConfig.model_validate({"base_url": bfabric_instance})
+    client_config = BfabricClientConfig(base_url=bfabric_instance)
     config_data = ConfigData(
         client=client_config,
         auth=settings.feeder_user_credentials[bfabric_instance],
@@ -67,7 +70,7 @@ def get_bfabric_feeder_client(settings: ServerSettingsDep, bfabric_instance: Bfa
 
 ServerSettingsDep = Annotated[ServerSettings, Depends(get_server_settings)]
 BfabricAuthDep = Annotated[BfabricAuth, Depends(get_bfabric_auth)]
-BfabricInstanceDep = Annotated[str, Depends(get_bfabric_instance)]
+BfabricInstanceDep = Annotated[BaseUrl, Depends(get_bfabric_instance)]
 BfabricUserClientDep = Annotated[Bfabric, Depends(get_bfabric_user_client)]
 BfabricFeederClientDep = Annotated[Bfabric, Depends(get_bfabric_feeder_client)]
 

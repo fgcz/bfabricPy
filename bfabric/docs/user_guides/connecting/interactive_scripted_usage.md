@@ -113,7 +113,7 @@ An environment can also hold a B-Fabric login and web service password directly:
 PRODUCTION:
   login: yourBfabricLogin
   password: yourBfabricWebServicePassword
-  base_url: https://fgcz-bfabric.uzh.ch/bfabric/
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric
 ```
 
 `Bfabric.connect()` uses these the same way — the auth method is a property of the environment, not of the call.

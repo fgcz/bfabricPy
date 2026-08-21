@@ -19,13 +19,13 @@ GENERAL:
   default_config: PRODUCTION  # Default environment to use
 
 PRODUCTION:
-  base_url: https://fgcz-bfabric.uzh.ch/bfabric/
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric
   auth_method: oauth
   client_id: CLI
   scope: api:read
 
 TEST:
-  base_url: https://fgcz-bfabric-test.uzh.ch/bfabric/
+  base_url: https://fgcz-bfabric-test.uzh.ch/bfabric
   auth_method: oauth
   client_id: CLI
   scope: api:write
@@ -41,7 +41,7 @@ scopes and for managing several environments.
 
 ```yaml
 PRODUCTION:
-  base_url: https://fgcz-bfabric.uzh.ch/bfabric/
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric
   auth_method: pat
   pat: yourPersonalAccessToken
 ```
@@ -58,7 +58,7 @@ An environment can also hold a login and web service password directly:
 PRODUCTION:
   login: yourBfabricLogin
   password: yourBfabricWebServicePassword  # Get from B-Fabric profile
-  base_url: https://fgcz-bfabric.uzh.ch/bfabric/
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric
 ```
 
 The password here is **NOT** your login password. Find your web service password:
@@ -116,7 +116,7 @@ python script.py  # Will use TEST environment
 Complete configuration override (highest priority). Used primarily for integration tests, where it needs to be prevented that the regular config file leads to the wrong B-Fabric instance being modified.
 
 ```bash
-export BFABRICPY_CONFIG_OVERRIDE='{"client": {"base_url": "https://fgcz-bfabric.uzh.ch/bfabric/"}, "auth": {"login": "myuser", "password": "mypass"}}'
+export BFABRICPY_CONFIG_OVERRIDE='{"client": {"base_url": "https://fgcz-bfabric.uzh.ch/bfabric"}, "auth": {"login": "myuser", "password": "mypass"}}'
 python script.py  # Uses this config, ignoring ~/.bfabricpy.yml
 ```
 
@@ -139,7 +139,7 @@ from bfabric.config import BfabricAuth, BfabricClientConfig
 
 # Create config programmatically
 client_config = BfabricClientConfig(
-    base_url="https://fgcz-bfabric.uzh.ch/bfabric/",
+    base_url="https://fgcz-bfabric.uzh.ch/bfabric",
 )
 
 auth = BfabricAuth(

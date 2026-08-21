@@ -35,6 +35,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - `auth register-webapp` prints `Error: ...` and exits 1 when the OAuth session cannot be refreshed, instead of a raw traceback.
 - `auth register` no longer prompts for an *Employee Bearer token* when a login exists; it authenticates as the environment in effect.
+- `auth register` canonicalises its `base_url` argument like the other `auth` commands, so a bare host or a trailing slash works and a non-HTTP URL is rejected with a plain message.
 
 ## \[1.16.0\] - 2026-08-03
 

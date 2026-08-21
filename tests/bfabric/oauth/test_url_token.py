@@ -4,7 +4,8 @@ import time
 
 import pytest
 
-from bfabric.oauth._url_token import _jwks_cache, verify_jwt
+from bfabric.config import BaseUrl
+from bfabric.oauth._url_token import UrlTokenContext, _jwks_cache, verify_jwt
 
 
 @pytest.fixture(autouse=True)
@@ -73,5 +74,20 @@ class TestVerifyJwt:
         assert mock_httpx_get.call_count == 2
 
     def test_normalizes_trailing_slash(self, mock_httpx_get, mock_joserfc):
-        verify_jwt("https://example.com/bfabric/", "token")
+        # The slash is dropped by BaseUrl at the boundary, so no doubled slash reaches the JWKS URL.
+        verify_jwt(BaseUrl("https://example.com/bfabric/"), "token")
         mock_httpx_get.assert_called_once_with("https://example.com/bfabric/rest/oauth/jwks", timeout=30)
+
+
+class TestBaseUrlFromIssuer:
+    @pytest.mark.parametrize("issuer", ["https://example.com/bfabric", "https://example.com/bfabric/"])
+    def test_canonicalises_the_issuer(self, issuer):
+        assert UrlTokenContext(iss=issuer).base_url == "https://example.com/bfabric"
+
+    def test_is_none_without_an_issuer(self):
+        assert UrlTokenContext().base_url is None
+
+    def test_rejects_a_non_http_issuer(self):
+        # A verified token naming itself with something we cannot call back is a server-side defect.
+        with pytest.raises(ValueError, match="Not a valid http"):
+            _ = UrlTokenContext(iss="urn:example:issuer").base_url

@@ -14,15 +14,19 @@ from __future__ import annotations
 
 import sys
 import time
+from typing import TYPE_CHECKING
 
 import httpx
 from loguru import logger
 
 from bfabric.errors import BfabricOAuthError, raise_if_unavailable
 
+if TYPE_CHECKING:
+    from bfabric.config.base_url import BaseUrl
+
 
 def _request_device_code(
-    base_url: str,
+    base_url: BaseUrl,
     *,
     client_id: str,
     scope: str,
@@ -52,7 +56,7 @@ def _request_device_code(
 
 
 def _poll_for_token(
-    base_url: str,
+    base_url: BaseUrl,
     *,
     device_code: str,
     client_id: str,
@@ -142,7 +146,7 @@ def _poll_for_token(
 
 
 def device_code_login(
-    base_url: str,
+    base_url: BaseUrl,
     *,
     client_id: str,
     scope: str,
@@ -153,14 +157,12 @@ def device_code_login(
     Requests a device code, displays the user code and verification URI,
     then polls until the user authorizes or the request times out.
 
-    :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
     :param client_id: OAuth client ID
     :param scope: OAuth scope
     :param timeout: Seconds to wait for the user to authorize
     :returns: Token dict with ``access_token``, ``refresh_token``, etc.
     :raises RuntimeError: On timeout, expired token, or access denied
     """
-    base_url = base_url.rstrip("/")
     logger.debug("Starting device code flow for {}", base_url)
     device_response = _request_device_code(base_url, client_id=client_id, scope=scope)
 

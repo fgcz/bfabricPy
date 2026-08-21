@@ -62,14 +62,14 @@ def test_general_config(data_with_auth):
 
 def test_environment_config_when_auth(data_with_auth):
     config = EnvironmentConfig.model_validate(data_with_auth["PRODUCTION"])
-    assert config.config.base_url == "https://example.com/"
+    assert config.config.base_url == "https://example.com"
     assert config.auth.login == "test-dummy"
     assert config.auth.password.get_secret_value() == "00000000001111111111222222222233"
 
 
 def test_environment_config_when_no_auth(data_no_auth):
     config = EnvironmentConfig.model_validate(data_no_auth["PRODUCTION"])
-    assert config.config.base_url == "https://example.com/"
+    assert config.config.base_url == "https://example.com"
     assert config.auth is None
 
 
@@ -82,7 +82,7 @@ def test_environment_config_when_pat():
             "pat": "short-pat-token",
         }
     )
-    assert config.config.base_url == "https://example.com/"
+    assert config.config.base_url == "https://example.com"
     assert config.auth_method == "pat"
     assert config.auth.login == OAUTH_LOGIN
     assert config.auth.password.get_secret_value() == "short-pat-token"
@@ -105,7 +105,7 @@ def test_config_file_when_auth(data_with_auth):
     config = ConfigFile.model_validate(data_with_auth)
     assert config.general.default_config == "PRODUCTION"
     assert len(config.environments) == 1
-    assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
+    assert config.environments["PRODUCTION"].config.base_url == "https://example.com"
     assert config.environments["PRODUCTION"].auth.login == "test-dummy"
     assert config.environments["PRODUCTION"].auth.password.get_secret_value() == "00000000001111111111222222222233"
 
@@ -114,7 +114,7 @@ def test_config_file_when_no_auth(data_no_auth):
     config = ConfigFile.model_validate(data_no_auth)
     assert config.general.default_config == "PRODUCTION"
     assert len(config.environments) == 1
-    assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
+    assert config.environments["PRODUCTION"].config.base_url == "https://example.com"
     assert config.environments["PRODUCTION"].auth is None
 
 
@@ -122,9 +122,9 @@ def test_config_file_when_multiple(data_multiple):
     config = ConfigFile.model_validate(data_multiple)
     assert config.general.default_config == "PRODUCTION"
     assert len(config.environments) == 2
-    assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
+    assert config.environments["PRODUCTION"].config.base_url == "https://example.com"
     assert config.environments["PRODUCTION"].auth is None
-    assert config.environments["TEST"].config.base_url == "https://test.example.com/"
+    assert config.environments["TEST"].config.base_url == "https://test.example.com"
     assert config.environments["TEST"].auth.login == "test-dummy"
     assert config.environments["TEST"].auth.password.get_secret_value() == "00000000001111111111222222222233"
 
@@ -181,7 +181,7 @@ class TestConfigNoDefault:
     @staticmethod
     def test_validate(config):
         assert config.general.default_config is None
-        assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
+        assert config.environments["PRODUCTION"].config.base_url == "https://example.com"
 
     @staticmethod
     def test_get_selected_config_env(config):
@@ -216,14 +216,14 @@ class TestReadConfig:
 
         assert auth.login == "testuser"
         assert auth.password.get_secret_value() == "012345678901234567890123456789ff"
-        assert config.base_url == "https://test-server.example.com/api/"
+        assert config.base_url == "https://test-server.example.com/api"
         assert config.application_ids == applications_dict_ground_truth
         assert config.job_notification_emails == job_notification_emails_ground_truth
 
     def test_when_empty_optional(self, example_config_path: Path, logot: Logot) -> None:
         config, auth = read_config_file(example_config_path, config_env="STANDBY")
         assert auth is None
-        assert config.base_url == "https://standby-server.example.com/api/"
+        assert config.base_url == "https://standby-server.example.com/api"
         assert config.application_ids == {}
         assert config.job_notification_emails == ""
         logot.assert_logged(
