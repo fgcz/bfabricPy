@@ -242,7 +242,9 @@ def upload_files(
         Not fired for linked or skipped files (nothing is sent).
     :param audit_attributes: written verbatim as workunit custom attributes.
     :param resume_cache: path to a JSON file in which each interrupted transfer's resumable tus URL
-        is kept, keyed by MD5, so a later run continues it instead of re-sending from byte 0. Left
+        is kept, keyed by the file's MD5 and source path, so a later run continues it instead of
+        re-sending from byte 0. Both halves matter: a failed acquisition writes the same bytes every
+        time, so MD5 alone would collapse two distinct measurements onto one resource. Left
         unset, a per-server path under ``~/.bfabric/resume`` is used, so an interrupted upload is
         resumable without the caller arranging anything; ``None`` keeps no state and never resumes.
         A resumed file continues into its original workunit and resource -- a tus URL's metadata is
@@ -413,6 +415,7 @@ def _adopted_uploads(
     for file_info in to_upload:
         entry = cache.lookup(
             md5=file_info.md5,
+            path=str(file_info.path),
             container_id=container_id,
             application_id=params.application_id,
         )
@@ -459,7 +462,8 @@ def _has_resumable(
     if cache is None:
         return False
     return any(
-        cache.lookup(md5=fi.md5, container_id=container_id, application_id=params.application_id) is not None
+        cache.lookup(md5=fi.md5, path=str(fi.path), container_id=container_id, application_id=params.application_id)
+        is not None
         for fi in to_upload
     )
 
@@ -787,7 +791,7 @@ def _transfer_files(
             continue
         if resume_cache is not None:
             # The bytes are stored; a kept URL would only resume an upload that is already complete.
-            resume_cache.discard(md5=file_info.md5)
+            resume_cache.discard(md5=file_info.md5, path=str(file_info.path))
         uploads.append(_as_file_upload(file_info.name, resource))
         if on_file_done is not None:
             on_file_done(file_info.name, True)
@@ -811,7 +815,9 @@ def _transfer_one(
     rather than a recorded failure. A failure without a resume URL is genuine and propagates.
     """
     entry = (
-        resume_cache.lookup(md5=file_info.md5, container_id=container_id, endpoint=tus_endpoint)
+        resume_cache.lookup(
+            md5=file_info.md5, path=str(file_info.path), container_id=container_id, endpoint=tus_endpoint
+        )
         if resume_cache is not None
         else None
     )
@@ -823,7 +829,7 @@ def _transfer_one(
             raise
         logger.info("Resume URL for {} is no longer usable; restarting the upload.", file_info.name)
         assert resume_cache is not None
-        resume_cache.discard(md5=file_info.md5)
+        resume_cache.discard(md5=file_info.md5, path=str(file_info.path))
         _ = send_to_sink(sink, file_info.path, creds, on_progress=on_progress, on_url=on_url, resume_url=None)
 
 
@@ -852,6 +858,7 @@ def _make_resume_url_callback(
     def _report(url: str) -> None:
         resume_cache.store(
             md5=file_info.md5,
+            path=str(file_info.path),
             url=url,
             workunit_id=workunit_id,
             resource_id=resource.id,

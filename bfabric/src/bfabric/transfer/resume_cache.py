@@ -8,10 +8,13 @@ creating a fresh one -- a run that creates a new resource and then resumes an ol
 resource the bytes never reached. The offset is not stored; it is a plain tus ``HEAD`` the mover
 already issues when handed a ``resume_url``.
 
-Entries are keyed by the file's MD5 -- already computed for every upload, and the honest identity of
-the bytes (it detects a file rewritten in place, which path+size+mtime does not). The recorded
-container and application scope the entry: the same bytes may legitimately be uploaded to a
-different project, so an entry is only reused for the target it was created under.
+Entries are keyed by the file's MD5 *and* its source path. The MD5 is the honest identity of the
+bytes and catches a file rewritten in place, which path+size+mtime does not; the path keeps
+byte-identical files apart, which matters because a failed acquisition writes the same bytes every
+time (an empty file, or a bare header) and MD5 alone would collapse two distinct measurements onto
+one resource. The recorded container and application scope the entry further: the same bytes may
+legitimately be uploaded to a different project, so an entry is only reused for the target it was
+created under.
 
 The cache is an optimisation, never a source of truth: a miss, a corrupt file, or a failed write
 costs a fresh upload and nothing more, so every failure here is swallowed rather than raised.
@@ -47,6 +50,15 @@ to a fresh upload -- but pruning keeps the file from growing without bound.
 _FORMAT_VERSION = 2
 
 
+def _entry_key(md5: str, path: str) -> str:
+    """The cache key for one file: its content hash and where it was read from.
+
+    Both halves are needed -- see the module docstring. Hashed rather than concatenated so the key
+    stays a fixed-width JSON object key regardless of how long the source path is.
+    """
+    return hashlib.sha256(f"{md5}\0{path}".encode()).hexdigest()[:32]
+
+
 def compute_resume_cache_path(base_url: str) -> Path:
     """The default resume-cache path for a B-Fabric server: ``~/.bfabric/resume/{hash}.json``.
 
@@ -67,6 +79,8 @@ class ResumeEntry:
     workunit_id: int
     resource_id: int
     container_id: int
+    path: str = ""
+    """The source file this upload was started from; part of the key, kept for diagnostics."""
     application_id: int | None = None
     storage_path: str | None = None
     job_id: int | None = None
@@ -99,9 +113,18 @@ class ResumeCache:
         self._now: Callable[[], float] = now if now is not None else _default_now
 
     def lookup(
-        self, *, md5: str, container_id: int, application_id: int | None = None, endpoint: str | None = None
+        self,
+        *,
+        md5: str,
+        path: str,
+        container_id: int,
+        application_id: int | None = None,
+        endpoint: str | None = None,
     ) -> ResumeEntry | None:
-        """The interrupted upload to continue for ``md5``, or ``None`` if there is no usable one.
+        """The interrupted upload to continue for ``md5`` read from ``path``, or ``None``.
+
+        Both identify the entry: the same bytes at a different path are a different upload (a failed
+        acquisition repeats byte-for-byte), and different bytes at the same path are a re-acquisition.
 
         ``container_id``/``application_id`` must match what the entry was stored under: the same
         bytes may legitimately be uploaded to a different project, and adopting the old workunit
@@ -111,7 +134,7 @@ class ResumeCache:
         only minted later, after the workunit to adopt has been chosen. A saved URL that turns out
         cross-origin is then dropped at transfer time instead, costing a fresh upload.
         """
-        entry = self._load().get(md5)
+        entry = self._load().get(_entry_key(md5, path))
         if entry is None:
             return None
         if self._expired(entry.stored_at):
@@ -131,6 +154,7 @@ class ResumeCache:
         self,
         *,
         md5: str,
+        path: str,
         url: str,
         workunit_id: int,
         resource_id: int,
@@ -145,8 +169,9 @@ class ResumeCache:
         against the endpoint actually in play rather than the one it was saved under.
         """
         entries = {key: value for key, value in self._load().items() if not self._expired(value.stored_at)}
-        entries[md5] = ResumeEntry(
+        entries[_entry_key(md5, path)] = ResumeEntry(
             url=url,
+            path=path,
             workunit_id=workunit_id,
             resource_id=resource_id,
             container_id=container_id,
@@ -157,10 +182,10 @@ class ResumeCache:
         )
         self._write(entries)
 
-    def discard(self, *, md5: str) -> None:
-        """Forget ``md5``'s entry, e.g. once its file has transferred successfully."""
+    def discard(self, *, md5: str, path: str) -> None:
+        """Forget this file's entry, e.g. once it has transferred successfully."""
         entries = self._load()
-        if entries.pop(md5, None) is None:
+        if entries.pop(_entry_key(md5, path), None) is None:
             return
         self._write(entries)
 
@@ -187,11 +212,12 @@ class ResumeCache:
             return {}
         stored: dict[str, object] = entries  # pyright: ignore[reportUnknownVariableType]
         parsed: dict[str, ResumeEntry] = {}
-        for md5, entry in stored.items():
+        for key, entry in stored.items():
             if not isinstance(entry, dict):
                 continue
             fields: dict[str, object] = entry  # pyright: ignore[reportUnknownVariableType]
             url = fields.get("url")
+            entry_path = fields.get("path")
             stored_at = fields.get("stored_at")
             workunit_id = fields.get("workunit_id")
             resource_id = fields.get("resource_id")
@@ -206,8 +232,9 @@ class ResumeCache:
                 and isinstance(resource_id, int)
                 and isinstance(container_id, int)
             ):
-                parsed[md5] = ResumeEntry(
+                parsed[key] = ResumeEntry(
                     url=url,
+                    path=entry_path if isinstance(entry_path, str) else "",
                     workunit_id=workunit_id,
                     resource_id=resource_id,
                     container_id=container_id,
@@ -225,6 +252,7 @@ class ResumeCache:
             "entries": {
                 md5: {
                     "url": entry.url,
+                    "path": entry.path,
                     "workunit_id": entry.workunit_id,
                     "resource_id": entry.resource_id,
                     "container_id": entry.container_id,

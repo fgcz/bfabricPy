@@ -1056,7 +1056,12 @@ class TestResumeCache:
         self._setup(rest)
         cache = tmp_path / "resume.json"
         ResumeCache(cache).store(
-            md5="md5-a.txt", url="https://tus/gone", workunit_id=WORKUNIT_ID, resource_id=10, container_id=100
+            md5="md5-a.txt",
+            path="/src/a.txt",
+            url="https://tus/gone",
+            workunit_id=WORKUNIT_ID,
+            resource_id=10,
+            container_id=100,
         )
         attempts: list[str | None] = []
 
@@ -1087,7 +1092,12 @@ class TestResumeCache:
         self._setup(rest)
         cache = tmp_path / "resume.json"
         ResumeCache(cache).store(
-            md5="md5-a.txt", url="https://old-host/abc", workunit_id=WORKUNIT_ID, resource_id=10, container_id=100
+            md5="md5-a.txt",
+            path="/src/a.txt",
+            url="https://old-host/abc",
+            workunit_id=WORKUNIT_ID,
+            resource_id=10,
+            container_id=100,
         )
 
         _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)

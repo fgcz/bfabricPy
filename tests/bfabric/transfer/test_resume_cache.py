@@ -16,12 +16,14 @@ ENDPOINT = "https://tus.example/files/"
 URL = "https://tus.example/files/abc123"
 CONTAINER_ID = 100
 APPLICATION_ID = 5
+PATH = "/data/probe.raw"
 
 
-def _store(cache, *, md5, url=URL, workunit_id=900, resource_id=700, container_id=CONTAINER_ID):
+def _store(cache, *, md5, url=URL, workunit_id=900, resource_id=700, container_id=CONTAINER_ID, path=PATH):
     """Store an entry, defaulting the records a resumed upload must continue into."""
     cache.store(
         md5=md5,
+        path=path,
         url=url,
         workunit_id=workunit_id,
         resource_id=resource_id,
@@ -30,9 +32,14 @@ def _store(cache, *, md5, url=URL, workunit_id=900, resource_id=700, container_i
     )
 
 
-def _url(cache, *, md5, endpoint=ENDPOINT, container_id=CONTAINER_ID):
+def _lookup(cache, *, md5, path=PATH, endpoint=None, container_id=CONTAINER_ID):
+    """The entry for ``md5`` at ``path``, or None."""
+    return cache.lookup(md5=md5, path=path, container_id=container_id, application_id=APPLICATION_ID, endpoint=endpoint)
+
+
+def _url(cache, *, md5, endpoint=ENDPOINT, container_id=CONTAINER_ID, path=PATH):
     """The saved URL for ``md5``, or None -- the shape most of these tests assert on."""
-    entry = cache.lookup(md5=md5, container_id=container_id, application_id=APPLICATION_ID, endpoint=endpoint)
+    entry = _lookup(cache, md5=md5, path=path, endpoint=endpoint, container_id=container_id)
     return entry.url if entry is not None else None
 
 
@@ -132,7 +139,7 @@ class TestInvalidation:
         _store(cache, md5="aaa", url=URL)
         _store(cache, md5="bbb", url=URL + "-2")
 
-        cache.discard(md5="aaa")
+        cache.discard(md5="aaa", path=PATH)
 
         assert _url(cache, md5="aaa", endpoint=ENDPOINT) is None
         assert _url(cache, md5="bbb", endpoint=ENDPOINT) == URL + "-2"
@@ -140,7 +147,7 @@ class TestInvalidation:
     def test_discarding_an_absent_entry_is_a_no_op(self, cache_path, clock):
         cache = ResumeCache(cache_path, now=clock)
 
-        cache.discard(md5="nope")
+        cache.discard(md5="nope", path=PATH)
 
         assert not cache_path.exists() or json.loads(cache_path.read_text())["entries"] == {}
 
@@ -150,7 +157,9 @@ class TestInvalidation:
         clock.now += 101
         _store(cache, md5="new", url=URL + "-2")
 
-        assert set(json.loads(cache_path.read_text())["entries"]) == {"new"}
+        # Keys are hashed, so count entries rather than naming them; only the fresh one survives.
+        assert len(json.loads(cache_path.read_text())["entries"]) == 1
+        assert _url(cache, md5="new", endpoint=ENDPOINT) == URL + "-2"
 
 
 class TestDefaultPath:
@@ -181,6 +190,48 @@ class TestDefaultPath:
         )
 
 
+class TestSourcePathScoping:
+    """The source path is part of the key, so byte-identical files stay separate uploads.
+
+    A failed acquisition writes the same bytes every time -- an empty file, or a bare header -- so
+    MD5 alone would collapse two distinct measurements onto one resource within the TTL.
+    """
+
+    def test_same_bytes_at_a_different_path_is_a_miss(self, cache_path, clock):
+        cache = ResumeCache(cache_path, now=clock)
+        _store(cache, md5="empty", path="/data/run1/probe.raw")
+
+        assert _lookup(cache, md5="empty", path="/data/run2/probe.raw") is None
+
+    def test_same_bytes_at_the_same_path_resumes(self, cache_path, clock):
+        # The interrupted-then-retried case: same file, same place, continue it.
+        cache = ResumeCache(cache_path, now=clock)
+        _store(cache, md5="empty", path="/data/run1/probe.raw", workunit_id=109)
+
+        entry = _lookup(cache, md5="empty", path="/data/run1/probe.raw")
+
+        assert entry is not None
+        assert entry.workunit_id == 109
+
+    def test_a_rewritten_file_at_the_same_path_is_a_miss(self, cache_path, clock):
+        # Path alone is not enough either: re-acquiring to the same filename is new content.
+        cache = ResumeCache(cache_path, now=clock)
+        _store(cache, md5="first", path="/data/run1/probe.raw")
+
+        assert _lookup(cache, md5="second", path="/data/run1/probe.raw") is None
+
+    def test_two_failed_acquisitions_keep_separate_entries(self, cache_path, clock):
+        cache = ResumeCache(cache_path, now=clock)
+        _store(cache, md5="empty", path="/data/run1/probe.raw", workunit_id=109, resource_id=633)
+        _store(cache, md5="empty", path="/data/run2/probe.raw", workunit_id=110, resource_id=634)
+
+        first = _lookup(cache, md5="empty", path="/data/run1/probe.raw")
+        second = _lookup(cache, md5="empty", path="/data/run2/probe.raw")
+
+        assert (first.workunit_id, first.resource_id) == (109, 633)
+        assert (second.workunit_id, second.resource_id) == (110, 634)
+
+
 class TestTargetScoping:
     """An entry names the records its URL's tus metadata is bound to, and is only reused for them."""
 
@@ -188,7 +239,7 @@ class TestTargetScoping:
         cache = ResumeCache(cache_path, now=clock)
         _store(cache, md5="aaa", workunit_id=109, resource_id=633)
 
-        entry = cache.lookup(md5="aaa", container_id=CONTAINER_ID, application_id=APPLICATION_ID)
+        entry = _lookup(cache, md5="aaa")
 
         assert (entry.workunit_id, entry.resource_id) == (109, 633)
 
@@ -198,13 +249,13 @@ class TestTargetScoping:
         cache = ResumeCache(cache_path, now=clock)
         _store(cache, md5="aaa", container_id=100)
 
-        assert cache.lookup(md5="aaa", container_id=999, application_id=APPLICATION_ID) is None
+        assert _lookup(cache, md5="aaa", container_id=999) is None
 
     def test_a_different_application_is_a_miss(self, cache_path, clock):
         cache = ResumeCache(cache_path, now=clock)
         _store(cache, md5="aaa")
 
-        assert cache.lookup(md5="aaa", container_id=CONTAINER_ID, application_id=999) is None
+        assert cache.lookup(md5="aaa", path=PATH, container_id=CONTAINER_ID, application_id=999) is None
 
     def test_lookup_without_an_endpoint_skips_the_origin_check(self, cache_path, clock):
         # Adoption happens before the tus endpoint is minted, so the origin cannot be compared yet;
@@ -212,7 +263,7 @@ class TestTargetScoping:
         cache = ResumeCache(cache_path, now=clock)
         _store(cache, md5="aaa")
 
-        assert cache.lookup(md5="aaa", container_id=CONTAINER_ID, application_id=APPLICATION_ID) is not None
+        assert _lookup(cache, md5="aaa") is not None
 
     def test_a_v1_entry_is_ignored(self, cache_path, clock):
         # v1 stored a bare URL with no workunit/resource, so it cannot say what to resume into.
@@ -220,14 +271,14 @@ class TestTargetScoping:
             json.dumps({"version": 1, "entries": {"aaa": {"url": URL, "stored_at": clock.now}}}),
         )
 
-        assert ResumeCache(cache_path, now=clock).lookup(md5="aaa", container_id=CONTAINER_ID) is None
+        assert _lookup(ResumeCache(cache_path, now=clock), md5="aaa") is None
 
     def test_an_entry_missing_its_records_is_ignored(self, cache_path, clock):
         cache_path.write_text(
             json.dumps({"version": 2, "entries": {"aaa": {"url": URL, "stored_at": clock.now}}}),
         )
 
-        assert ResumeCache(cache_path, now=clock).lookup(md5="aaa", container_id=CONTAINER_ID) is None
+        assert _lookup(ResumeCache(cache_path, now=clock), md5="aaa") is None
 
 
 class TestOnDisk:
