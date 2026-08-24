@@ -27,23 +27,10 @@ from bfabric.transfer._generic._upload_types import (
     UrlCallback,
 )
 from bfabric.transfer._generic.errors import TransferError
+from bfabric.transfer._generic.origin import same_origin as _same_origin
 
 if TYPE_CHECKING:
     from pathlib import Path
-
-
-# RFC 6454 defines an origin using the scheme's default port when the URL omits one, so
-# https://h and https://h:443 are the same origin. urlsplit().port is None in the implicit
-# case, so compare an *effective* port to avoid spuriously rejecting a legitimate resume URL.
-_DEFAULT_PORTS = {"http": 80, "https": 443}
-
-
-def _same_origin(a: str, b: str) -> bool:
-    """True if two URLs share scheme, host, and effective port (the scheme default if unspecified)."""
-    ua, ub = urlsplit(a), urlsplit(b)
-    pa = ua.port or _DEFAULT_PORTS.get(ua.scheme)
-    pb = ub.port or _DEFAULT_PORTS.get(ub.scheme)
-    return (ua.scheme, ua.hostname, pa) == (ub.scheme, ub.hostname, pb)
 
 
 def upload_file(

@@ -11,6 +11,7 @@ from bfabric.operations.workunit.upload import (
     UploadFilesParams,
     UploadStartCallback,
     UploadSummary,
+    WorkunitCompletionError,
     upload_files,
 )
 
@@ -27,6 +28,7 @@ __all__ = [
     "UploadFilesParams",
     "UploadStartCallback",
     "UploadSummary",
+    "WorkunitCompletionError",
     "WorkunitDataset",
     "create_workunit",
     "upload_files",
