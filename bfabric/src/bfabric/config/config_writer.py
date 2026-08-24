@@ -183,7 +183,8 @@ def set_default_config(config_path: Path, env_name: str) -> None:
 def clear_environment_credentials(config_path: Path, env_name: str) -> tuple[str, ...]:
     """Strip :data:`_INLINE_SECRET_KEYS` from *env_name*, keeping it configured for a later re-login.
 
-    OAuth environments hold no inline secret — theirs is in the token cache.
+    Interactive OAuth environments hold no inline secret — theirs is in the token cache. A
+    ``client_credentials`` service account's secret is inline and is removed.
 
     :returns: The keys actually removed, so the caller can report what happened.
     :raises FileNotFoundError: If the config file does not exist.
