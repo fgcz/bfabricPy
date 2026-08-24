@@ -2170,56 +2170,6 @@
                 }
             }
         ],
-        "./bfabric_scripts/src/bfabric_scripts/cli/api/create.py": [
-            {
-                "code": "reportUnknownParameterType",
-                "range": {
-                    "startColumn": 8,
-                    "endColumn": 28,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownParameterType",
-                "range": {
-                    "startColumn": 34,
-                    "endColumn": 39,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportMissingParameterType",
-                "range": {
-                    "startColumn": 34,
-                    "endColumn": 39,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 16,
-                    "endColumn": 25,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 27,
-                    "endColumn": 28,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownVariableType",
-                "range": {
-                    "startColumn": 15,
-                    "endColumn": 20,
-                    "lineCount": 1
-                }
-            }
-        ],
         "./bfabric_scripts/src/bfabric_scripts/cli/api/delete.py": [
             {
                 "code": "reportUnusedCallResult",
@@ -2320,22 +2270,6 @@
                 }
             },
             {
-                "code": "reportUnknownMemberType",
-                "range": {
-                    "startColumn": 29,
-                    "endColumn": 60,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportUnknownArgumentType",
-                "range": {
-                    "startColumn": 61,
-                    "endColumn": 74,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportUnknownVariableType",
                 "range": {
                     "startColumn": 15,
@@ -2350,16 +2284,6 @@
                 "range": {
                     "startColumn": 8,
                     "endColumn": 38,
-                    "lineCount": 1
-                }
-            }
-        ],
-        "./bfabric_scripts/src/bfabric_scripts/cli/api/update.py": [
-            {
-                "code": "reportUnnecessaryComparison",
-                "range": {
-                    "startColumn": 11,
-                    "endColumn": 44,
                     "lineCount": 1
                 }
             }

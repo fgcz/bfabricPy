@@ -10,6 +10,14 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+### Added
+
+- `api read`, `api create` and `api update` accept `--json` and `--json-file`, which is the only way to pass nested or non-string attribute values. Both are merged with any key-value pairs, and a key given in both is an error.
+
+### Fixed
+
+- `api create` now rejects an `id` attribute as documented; the check never fired before.
+
 ## \[1.17.0\] - 2026-08-20
 
 ### Added

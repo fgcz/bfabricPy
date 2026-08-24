@@ -94,3 +94,20 @@ class TestUpdateOutputFormat:
         cmd_api_update(params, client=mock_client)
 
         mock_client.save.assert_called_once_with("workunit", {"id": 42, "status": "available"})
+
+    def test_update_passes_json_attributes_to_save(self, mock_client, save_result):
+        mock_client.save.return_value = save_result
+        params = Params(
+            endpoint="workunit",
+            entity_id=42,
+            attributes={"json_input": '{"parameter": {"id": 7}}'},
+            no_confirm=True,
+        )
+
+        cmd_api_update(params, client=mock_client)
+
+        mock_client.save.assert_called_once_with("workunit", {"id": 42, "parameter": {"id": 7}})
+
+    def test_update_rejects_json_id_that_contradicts_entity_id(self):
+        with pytest.raises(ValueError, match="does not match the entity_id"):
+            Params(endpoint="workunit", entity_id=42, attributes={"json_input": '{"id": 99}'})
