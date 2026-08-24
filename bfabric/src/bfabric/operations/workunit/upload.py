@@ -357,8 +357,7 @@ def upload_files(
                 on_file_done=on_file_done,
                 on_url=on_url,
                 resume_cache=cache,
-                container_id_for_cache=container_id,
-                application_id_for_cache=params.application_id,
+                application_id=params.application_id,
             )
     except BaseException:
         # Mark the workunit failed (do NOT delete) so the partial state is diagnosable — see the
@@ -749,8 +748,7 @@ def _transfer_files(
     on_file_done: FileDoneCallback | None = None,
     on_url: FileUrlCallback | None = None,
     resume_cache: ResumeCache | None = None,
-    container_id_for_cache: int | None = None,
-    application_id_for_cache: int | None = None,
+    application_id: int | None = None,
 ) -> tuple[list[FileUpload], list[FileFailure]]:
     """Transfer each file over tus, recording per-file success/failure.
 
@@ -778,8 +776,8 @@ def _transfer_files(
             resume_cache,
             workunit_id=workunit_id,
             resource=resource,
-            container_id=container_id if container_id_for_cache is None else container_id_for_cache,
-            application_id=application_id_for_cache,
+            container_id=container_id,
+            application_id=application_id,
             job_id=job_id,
         )
         try:
