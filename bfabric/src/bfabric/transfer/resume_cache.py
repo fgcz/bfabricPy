@@ -19,10 +19,12 @@ costs a fresh upload and nothing more, so every failure here is swallowed rather
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, final
 
 from loguru import logger
@@ -31,7 +33,6 @@ from bfabric.transfer._generic.origin import same_origin
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-    from pathlib import Path
 
 DEFAULT_RESUME_TTL_SECONDS = 2 * 24 * 60 * 60
 """How long a saved URL is considered usable, matching a typical tusd upload-expiry configuration.
@@ -44,6 +45,17 @@ to a fresh upload -- but pruning keeps the file from growing without bound.
 # A v1 file is simply ignored (see _load), costing one fresh upload rather than resuming a URL whose
 # target we cannot know.
 _FORMAT_VERSION = 2
+
+
+def compute_resume_cache_path(base_url: str) -> Path:
+    """The default resume-cache path for a B-Fabric server: ``~/.bfabric/resume/{hash}.json``.
+
+    Mirrors the OAuth token cache's layout (see ``bfabric.oauth._token_cache``). Keyed by server so
+    one machine feeding several B-Fabric instances keeps their in-flight uploads apart, and stable
+    across runs so a later run finds what an interrupted one wrote.
+    """
+    url_hash = hashlib.sha256(base_url.rstrip("/").encode()).hexdigest()[:16]
+    return Path("~/.bfabric/resume") / f"{url_hash}.json"
 
 
 @final

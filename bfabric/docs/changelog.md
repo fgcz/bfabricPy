@@ -11,7 +11,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
-- `upload_files` accepts a `resume_cache` path, keeping each file's tus URL keyed by MD5 so an interrupted transfer resumes instead of restarting from byte 0. `None` (the default) keeps no state and never resumes.
+- `upload_files` resumes interrupted transfers by default, keeping each file's tus URL keyed by MD5 under `~/.bfabric/resume` (per server). Pass `resume_cache` to choose another path, or `resume_cache=None` to keep no state and never resume.
 
 ### Changed
 

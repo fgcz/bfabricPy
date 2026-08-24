@@ -62,6 +62,19 @@ def mock_collect(mocker):
     return mock
 
 
+@pytest.fixture(autouse=True)
+def isolate_resume_cache(mocker, tmp_path):
+    """Keep the default resume cache out of the real ``~/.bfabric``.
+
+    Autouse because resuming is on by default: any test that transfers a file would otherwise write
+    to the developer's home directory and leak state between runs.
+    """
+    return mocker.patch(
+        "bfabric.operations.workunit.upload.compute_resume_cache_path",
+        return_value=tmp_path / "default-resume.json",
+    )
+
+
 @pytest.fixture
 def mock_send(mocker):
     return mocker.patch("bfabric.operations.workunit.upload.send_to_sink")
@@ -727,12 +740,15 @@ class TestUrlCallback:
         on_url.assert_called_once_with("a.txt", "https://tus/a.txt")
         assert _counts(summary) == (0, 0, 0, 1)
 
-    def test_no_on_url_passes_none_to_the_mover(self, mock_client, rest, mock_send):
-        """Omitting the callback must not hand the mover a do-nothing wrapper to call per file."""
+    def test_no_on_url_and_no_cache_passes_none_to_the_mover(self, mock_client, rest, mock_send):
+        """Omitting the callback must not hand the mover a do-nothing wrapper to call per file.
+
+        Only with resuming off: the default cache needs the callback to capture the resume URL.
+        """
         rest.create_resources.return_value = _created("a.txt")
         rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
 
-        upload_files(mock_client, _params("/src/a.txt"))
+        upload_files(mock_client, _params("/src/a.txt"), resume_cache=None)
 
         assert mock_send.call_args.kwargs["on_url"] is None
 
@@ -1172,6 +1188,39 @@ class TestResumeAdoptsTheInterruptedWorkunit:
         _ = self._interrupt(mock_client, rest, mock_send, cache)
 
         assert "failed" not in _status_updates(mock_client)
+
+    def test_resuming_is_on_by_default(self, tmp_path, mocker, mock_client, rest, mock_send):
+        # Resumability that must be asked for is resumability an unattended feeder does not get, so
+        # the cache defaults to a per-server path under ~/.bfabric rather than to off.
+        default = tmp_path / "default-resume.json"
+        mocker.patch("bfabric.operations.workunit.upload.compute_resume_cache_path", return_value=default)
+        self._setup(rest)
+
+        def _report_then_fail(*_args, **kwargs):
+            kwargs["on_url"]("https://tus/abc")
+            raise TransferError("power cut")
+
+        mock_send.side_effect = _report_then_fail
+        _ = upload_files(mock_client, _params("/src/a.txt"))
+        mock_send.side_effect = None
+        rest.create_resources.reset_mock()
+
+        second = upload_files(mock_client, _params("/src/a.txt"))
+
+        assert default.exists()
+        rest.create_resources.assert_not_called()
+        assert second.workunit_id == WORKUNIT_ID
+
+    def test_resuming_can_be_turned_off(self, tmp_path, mocker, mock_client, rest, mock_send):
+        default = tmp_path / "default-resume.json"
+        mocker.patch("bfabric.operations.workunit.upload.compute_resume_cache_path", return_value=default)
+        self._setup(rest)
+
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=None)
+
+        # No cache, so the mover is given no url callback to report through and nothing is written.
+        assert mock_send.call_args.kwargs.get("on_url") is None
+        assert not default.exists()
 
     def test_the_tracking_job_is_reused_on_adoption(self, tmp_path, mock_client, rest, mock_send):
         # The tus hooks key status off jobId, and the saved URL's metadata still names the first

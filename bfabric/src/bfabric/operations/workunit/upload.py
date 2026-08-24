@@ -4,7 +4,7 @@ from collections import Counter
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Final, Literal
 
 from loguru import logger
 from pydantic import BaseModel, model_validator
@@ -23,7 +23,7 @@ from bfabric.transfer import (
     send_to_sink,
     tus_sink_for_resource,
 )
-from bfabric.transfer.resume_cache import ResumeCache, ResumeEntry
+from bfabric.transfer.resume_cache import ResumeCache, ResumeEntry, compute_resume_cache_path
 
 if TYPE_CHECKING:
     from collections.abc import Collection
@@ -45,6 +45,13 @@ FileDoneCallback = Callable[[str, bool], None]
 
 FileUrlCallback = Callable[[str, str], None]
 """Called with (filename, upload_url) as soon as a file's resumable tus URL is known."""
+
+_USE_DEFAULT_RESUME_CACHE: Final = Path("<default>")
+"""Sentinel for ``resume_cache``: resume via the per-server default path.
+
+A plain ``None`` default cannot express this -- ``None`` already means "keep no state", which a
+caller must still be able to ask for.
+"""
 
 OnDuplicate = Literal["upload", "skip", "link"]
 """What to do with a file whose content the target container already stores.
@@ -185,7 +192,7 @@ def upload_files(
     on_url: FileUrlCallback | None = None,
     audit_attributes: dict[str, str] | None = None,
     exclude_names: Collection[str] | None = None,
-    resume_cache: Path | None = None,
+    resume_cache: Path | None = _USE_DEFAULT_RESUME_CACHE,
 ) -> UploadSummary:
     """Upload files to a B-Fabric workunit over tus, end to end.
 
@@ -234,11 +241,15 @@ def upload_files(
         persist and reuse these itself; this callback is for a caller keeping its own ledger besides.
         Not fired for linked or skipped files (nothing is sent).
     :param audit_attributes: written verbatim as workunit custom attributes.
-    :param resume_cache: path to a JSON file in which each transferred file's resumable tus URL is
-        kept, keyed by MD5, so a later run resumes an interrupted transfer instead of re-sending it
-        from byte 0. An entry is dropped once its file transfers, and ignored when it is stale, past
-        its TTL, or no longer same-origin with the tus endpoint -- in each of those cases the file is
-        uploaded afresh. ``None`` keeps no state and never resumes.
+    :param resume_cache: path to a JSON file in which each interrupted transfer's resumable tus URL
+        is kept, keyed by MD5, so a later run continues it instead of re-sending from byte 0. Left
+        unset, a per-server path under ``~/.bfabric/resume`` is used, so an interrupted upload is
+        resumable without the caller arranging anything; ``None`` keeps no state and never resumes.
+        A resumed file continues into its original workunit and resource -- a tus URL's metadata is
+        fixed when the upload is created, so its bytes cannot be redirected to a new one. An entry is
+        dropped once its file transfers, and ignored when it is stale, past its TTL, no longer
+        same-origin with the tus endpoint, or was stored for a different container/application -- in
+        each of those cases the file is uploaded afresh.
     :param exclude_names: basenames to skip at any depth (e.g. a sentinel file the caller drops in
         the folder, or ``.DS_Store``). Filter here rather than pre-filtering ``files`` yourself: a
         flat file list loses the directory that gives nested files their relative resource name.
@@ -274,7 +285,12 @@ def upload_files(
     if on_start is not None:
         on_start(len(to_upload), sum(fi.size for fi in to_upload))
 
-    cache = ResumeCache(resume_cache) if resume_cache is not None else None
+    resume_path = (
+        compute_resume_cache_path(str(client.config.base_url)).expanduser()
+        if resume_cache is _USE_DEFAULT_RESUME_CACHE
+        else resume_cache
+    )
+    cache = ResumeCache(resume_path) if resume_path is not None else None
     # Decided before anything is created: a tus URL's metadata is fixed at creation, so a file with a
     # saved URL must continue into its ORIGINAL workunit and resource. Creating a second pair and then
     # resuming the old URL would send the bytes to the first resource while reporting the second.

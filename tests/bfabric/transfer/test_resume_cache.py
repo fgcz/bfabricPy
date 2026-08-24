@@ -6,7 +6,11 @@ import json
 
 import pytest
 
-from bfabric.transfer.resume_cache import DEFAULT_RESUME_TTL_SECONDS, ResumeCache
+from bfabric.transfer.resume_cache import (
+    DEFAULT_RESUME_TTL_SECONDS,
+    ResumeCache,
+    compute_resume_cache_path,
+)
 
 ENDPOINT = "https://tus.example/files/"
 URL = "https://tus.example/files/abc123"
@@ -147,6 +151,34 @@ class TestInvalidation:
         _store(cache, md5="new", url=URL + "-2")
 
         assert set(json.loads(cache_path.read_text())["entries"]) == {"new"}
+
+
+class TestDefaultPath:
+    """Resuming is on by default, so an interrupted upload is not silently unresumable."""
+
+    def test_is_under_the_bfabric_directory(self):
+        path = compute_resume_cache_path("https://bfabric.example/api")
+
+        assert path.parts[:2] == ("~", ".bfabric")
+        assert path.suffix == ".json"
+
+    def test_differs_per_server(self):
+        # One machine may feed several B-Fabric instances; their in-flight uploads must not collide.
+        a = compute_resume_cache_path("https://one.example/api")
+        b = compute_resume_cache_path("https://two.example/api")
+
+        assert a != b
+
+    def test_is_stable_for_one_server(self):
+        # A later run has to find the entry the interrupted run wrote.
+        assert compute_resume_cache_path("https://one.example/api") == compute_resume_cache_path(
+            "https://one.example/api"
+        )
+
+    def test_ignores_a_trailing_slash(self):
+        assert compute_resume_cache_path("https://one.example/api/") == compute_resume_cache_path(
+            "https://one.example/api"
+        )
 
 
 class TestTargetScoping:
