@@ -11,6 +11,7 @@ import cyclopts
 
 from bfabric.oauth import register_client
 from bfabric.config import DEFAULT_CONFIG_FILE
+from bfabric_scripts.cli.login._common import FORCE_HELP, SAVE_ENV_HELP, save_registration
 from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
 from bfabric_scripts.cli.login._urls import normalize_base_url
 
@@ -62,8 +63,14 @@ def cmd_login_register(
         list[str] | None,
         cyclopts.Parameter(help="Grant types to request (overrides default webapp grants)."),
     ] = None,
+    save_env: Annotated[str | None, cyclopts.Parameter(help=SAVE_ENV_HELP)] = None,
+    force: Annotated[bool, cyclopts.Parameter(help=FORCE_HELP, negative=())] = False,
 ) -> None:
-    """Register a new OAuth client with the B-Fabric server."""
+    """Register a new OAuth client with the B-Fabric server.
+
+    :param save_env: Save the new client to this config environment, including its RFC 7591
+        registration credentials so it can be edited later. Omit to only print the response.
+    """
     if service_user is not None and no_service_user:
         print("Error: --service-user and --no-service-user are mutually exclusive.", file=sys.stderr)
         raise SystemExit(1)
@@ -107,3 +114,13 @@ def cmd_login_register(
         print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
     print(json.dumps(result, indent=2))
+
+    if save_env is not None:
+        save_registration(
+            result,
+            base_url=resolved_base_url,
+            config_file=config_file,
+            env_name=save_env,
+            is_service_account=service_user is not None,
+            force=force,
+        )

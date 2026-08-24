@@ -7,15 +7,21 @@ zero-argument re-login possible: the recorded environment *is* the login recipe.
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import yaml
 
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
+from bfabric.config.config_writer import read_environment_auth_keys, write_environment_to_config
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice, select_or_input, text_input
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS, SCOPE_PRESETS_BY_NAME
 from bfabric.config import BaseUrl
 from bfabric_scripts.cli.login._urls import KNOWN_INSTANCES, normalize_base_url
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 # Interactive-only sentinel: choosing it opens a free-text prompt.
 _CUSTOM = "custom"
@@ -131,3 +137,57 @@ def describe_active_reason(env_name: str, default_config: str | None) -> str:
     if from_env_var:
         return f"  (active via {CONFIG_ENV_VAR})" if from_env_var == env_name else ""
     return "  (default)" if env_name == default_config else ""
+
+
+SAVE_ENV_HELP = "Save the new client to this config environment (keeps its registration credentials)."
+FORCE_HELP = "Overwrite the --save-env environment even if it is already configured."
+
+
+def save_registration(
+    result: Mapping[str, object],
+    *,
+    base_url: str,
+    config_file: Path,
+    env_name: str,
+    is_service_account: bool,
+    force: bool = False,
+) -> None:
+    """Persist a registration response to *env_name* so the client is usable and editable.
+
+    Refuses an environment that already exists unless *force*: the write replaces every auth-owned
+    key at once, so saving into a working login would strip the credentials it authenticates with.
+
+    :param is_service_account: Whether this client is meant to authenticate as a service account.
+        Only then is ``auth_method: client_credentials`` recorded — it reroutes every later
+        ``connect()`` through the stored secret, which is wrong for a client whose users log in
+        interactively even when it *has* the grant.
+    :raises SystemExit: *env_name* already exists and *force* is false.
+    """
+    loaded = load_config_file(config_file)
+    if not force and loaded is not None and env_name in loaded.environments:
+        print(
+            f"Error: environment '{env_name}' already exists in {config_file}. Saving into it would "
+            f"replace its stored credentials. Pass a new --save-env name, or --force to overwrite.",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+
+    env_data: dict[str, object] = {"base_url": normalize_base_url(base_url)}
+    for key in ("client_id", "client_secret", "registration_access_token", "registration_client_uri"):
+        value = result.get(key)
+        if value is not None:
+            env_data[key] = value
+    if is_service_account and result.get("client_secret"):
+        env_data["auth_method"] = "client_credentials"
+    write_environment_to_config(config_file, env_name, env_data, auth="merge", set_default=False)
+    merged = read_environment_auth_keys(config_file, env_name)
+    print(f"Saved to environment '{env_name}' in {config_file}", file=sys.stderr)
+    if not (merged.get("registration_access_token") and merged.get("registration_client_uri")):
+        # Say it now: otherwise this surfaces only when someone tries to fix a wrong redirect URI,
+        # by which time the one-time token is unrecoverable.
+        print(
+            f"Warning: the server returned no registration credentials, so this client cannot be "
+            f"edited later with 'bfabric-cli auth client-update' or removed with 'auth "
+            f"client-delete'. Re-register it to change its settings.",
+            file=sys.stderr,
+        )

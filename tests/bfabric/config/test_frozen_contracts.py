@@ -27,6 +27,8 @@ class TestExportCoversEveryField:
             "auth",
             "auth_method",
             "client_id",
+            "client_secret",
+            "scope",
             "env_name",
         }
 

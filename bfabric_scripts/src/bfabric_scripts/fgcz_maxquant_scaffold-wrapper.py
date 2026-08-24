@@ -160,6 +160,6 @@ if __name__ == "__main__":
         help="config file.yaml",
     )
 
-    (options, args) = parser.parse_args()
+    options, args = parser.parse_args()
     driver = FgczMaxQuantScaffold(yamlfilename=options.yaml_filename, zipfilename=options.zip_filename)
     driver.run()

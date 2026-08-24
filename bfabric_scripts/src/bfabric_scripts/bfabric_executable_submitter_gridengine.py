@@ -49,7 +49,7 @@ def main() -> None:
         help="external job id is required.",
     )
 
-    (options, args) = parser.parse_args()
+    options, args = parser.parse_args()
 
     if not options.externaljobid:
         parser.error("option '-j' is required.")
