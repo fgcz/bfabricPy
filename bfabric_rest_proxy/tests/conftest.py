@@ -27,11 +27,11 @@ from bfabric_rest_proxy.settings import ServerSettings
 def mock_settings(mocker):
     """Mock ServerSettings for testing."""
     settings = mocker.MagicMock(spec=ServerSettings)
-    settings.default_bfabric_instance = "https://test.bfabric.example.com/"
-    settings.supported_bfabric_instances = ["https://test.bfabric.example.com/"]
+    settings.default_bfabric_instance = "https://test.bfabric.example.com/bfabric"
+    settings.supported_bfabric_instances = ["https://test.bfabric.example.com/bfabric"]
     # BfabricAuth requires passwords of at least 32 characters
     settings.feeder_user_credentials = {
-        "https://test.bfabric.example.com/": BfabricAuth(login="feeder_user", password=SecretStr("x" * 32))
+        "https://test.bfabric.example.com/bfabric": BfabricAuth(login="feeder_user", password=SecretStr("x" * 32))
     }
     return settings
 
@@ -46,7 +46,7 @@ def mock_bfabric_user_client(mocker):
     client = mocker.MagicMock(spec=Bfabric)
     # BfabricAuth requires passwords of at least 32 characters
     client.auth = BfabricAuth(login="test_user", password=SecretStr("y" * 32))
-    client.config.base_url = "https://test.bfabric.example.com/"
+    client.config.base_url = "https://test.bfabric.example.com/bfabric"
 
     # Mock read() to return a ResultContainer with empty results by default
     client.read.return_value = ResultContainer([], total_pages_api=0, errors=[])
@@ -64,7 +64,7 @@ def mock_bfabric_feeder_client(mocker):
     client = mocker.MagicMock(spec=Bfabric)
     # BfabricAuth requires passwords of at least 32 characters
     client.auth = BfabricAuth(login="feeder_user", password=SecretStr("z" * 32))
-    client.config.base_url = "https://test.bfabric.example.com/"
+    client.config.base_url = "https://test.bfabric.example.com/bfabric"
 
     # Mock save() to return a ResultContainer with mock data by default
     client.save.return_value = ResultContainer([{"id": 1}], total_pages_api=1, errors=[])
@@ -84,7 +84,7 @@ def client(mock_settings, mock_bfabric_user_client, mock_bfabric_feeder_client):
     """
     # Override all dependencies
     app.dependency_overrides[get_server_settings] = lambda: mock_settings
-    app.dependency_overrides[get_bfabric_instance] = lambda: "https://test.bfabric.example.com/"
+    app.dependency_overrides[get_bfabric_instance] = lambda: "https://test.bfabric.example.com/bfabric"
     app.dependency_overrides[get_bfabric_user_client] = lambda: mock_bfabric_user_client
     app.dependency_overrides[get_bfabric_feeder_client] = lambda: mock_bfabric_feeder_client
 
@@ -109,6 +109,6 @@ def mock_token_data():
         user_ws_password=SecretStr("a" * 32),
         token_expires="2025-12-31T23:59:59Z",
         web_service_user="true",
-        caller="https://test.bfabric.example.com/",
+        caller="https://test.bfabric.example.com/bfabric",
         environment="test",
     )

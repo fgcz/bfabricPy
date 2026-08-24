@@ -73,7 +73,7 @@ def test_pat_env_is_parseable_by_legacy_client():
     """A file with a current-shape PAT env plus a normal password env loads on a 1.19.0 client."""
     config = {
         "GENERAL": {"default_config": "PROD"},
-        "PROD": {"base_url": "https://prod.example.com", "login": "user", "password": "x" * 32},
+        "PROD": {"base_url": "https://prod.example.com/bfabric", "login": "user", "password": "x" * 32},
         "OAUTH": _pat_env_shape(),
     }
     legacy = LegacyConfigFile.model_validate(config)
@@ -88,7 +88,7 @@ def test_legacy_client_rejects_old_rc1_pat_shape():
     """Negative control: the rc1 shape (login + inline short password) DID poison the file."""
     config = {
         "GENERAL": {"default_config": "PROD"},
-        "PROD": {"base_url": "https://prod.example.com", "login": "user", "password": "x" * 32},
+        "PROD": {"base_url": "https://prod.example.com/bfabric", "login": "user", "password": "x" * 32},
         "OAUTH": {"base_url": "https://example.com/bfabric", "login": "__oauth__", "password": "short-pat-token"},
     }
     with pytest.raises(ValidationError):

@@ -56,7 +56,6 @@ from bfabric.transfer.upload import (
     DuplicateResult,
     UploadRestClient,
     UploadTokenResult,
-    api_to_rest_url,
     require_tus,
     tus_sink_for_resource,
 )
@@ -83,7 +82,6 @@ __all__ = [
     "UploadOutcome",
     "UploadRestClient",
     "UploadTokenResult",
-    "api_to_rest_url",
     "check_download_scope",
     "check_upload_scope",
     "collect_file_infos",

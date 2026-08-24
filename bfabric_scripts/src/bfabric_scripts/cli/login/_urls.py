@@ -25,16 +25,21 @@ _BY_HOST: dict[str, tuple[str, BaseUrl]] = {instance_host(url): (name, url) for 
 
 
 def normalize_base_url(raw: str) -> BaseUrl:
-    """Canonicalise a base URL, defaulting the scheme to https and expanding a bare known host.
+    """Canonicalise a base URL, defaulting the scheme to https and completing a bare host with ``/bfabric``.
 
-    :raises ValueError: If *raw* is not an http(s) URL — rejected here, not minutes later inside the
-        browser flow as an opaque ``httpx.InvalidURL``.
+    :raises ValueError: If *raw* is not a usable instance URL — rejected here, not minutes later
+        inside the browser flow as an opaque ``httpx.InvalidURL``.
     """
     candidate = raw.strip()
-    url = BaseUrl(candidate if "//" in candidate else f"https://{candidate}")
-    host = instance_host(url)
-    # Only expand a bare host: rewriting an explicit path would break an unusual deployment.
-    return _BY_HOST[host][1] if not urlsplit(url).path and host in _BY_HOST else url
+    if "//" not in candidate:
+        candidate = f"https://{candidate}"
+    # A bare host is what someone types (`auth login fgcz-bfabric.uzh.ch`), so complete it rather
+    # than making BaseUrl reject it. An explicit path is left for BaseUrl to accept or refuse:
+    # overwriting one would silently point the login at a different instance than the user named.
+    parts = urlsplit(candidate)
+    if parts.netloc and not parts.path.strip("/"):
+        candidate = f"{parts.scheme}://{parts.netloc}/bfabric"
+    return BaseUrl(candidate)
 
 
 def suggest_env_name(base_url: str) -> str:

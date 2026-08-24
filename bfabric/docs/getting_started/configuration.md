@@ -35,6 +35,13 @@ The token itself is not stored here — it lives in a separate cache under `~/.b
 `Bfabric.connect()` refreshes it as needed. See [CLI Authentication](../user_guides/bfabric-cli/authentication.md) for
 scopes and for managing several environments.
 
+### base_url
+
+`base_url` is the instance's servlet root and must end in `/bfabric` — everything else is derived from
+it, so a host on its own (`https://fgcz-bfabric.uzh.ch`) or a URL reaching further in
+(`https://fgcz-bfabric.uzh.ch/bfabric/api`) is rejected when the config loads. A trailing slash is
+accepted and dropped. `bfabric-cli login fgcz-bfabric.uzh.ch` completes a bare host for you.
+
 ### Personal Access Tokens
 
 `bfabric-cli auth pat` stores a token inline instead, for non-interactive logins:

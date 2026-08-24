@@ -19,7 +19,7 @@ _TEST_SCOPE = "api:read api:write"
 
 @pytest.fixture
 def mock_config():
-    return BfabricClientConfig(engine=BfabricAPIEngineType.SUDS, base_url="https://example.com/api")
+    return BfabricClientConfig(engine=BfabricAPIEngineType.SUDS, base_url="https://example.com/bfabric")
 
 
 @pytest.fixture
@@ -95,18 +95,22 @@ def test_connect_pat_env_from_config_file(mocker, tmp_path):
 def test_connect_webapp(mocker, mock_config):
     mock_get_token_data = mocker.patch(
         "bfabric.bfabric.get_token_data",
-        return_value=mocker.MagicMock(user="test_user", user_ws_password="x" * 32, caller="https://example.com/api"),
+        return_value=mocker.MagicMock(
+            user="test_user", user_ws_password="x" * 32, caller="https://example.com/bfabric"
+        ),
     )
     mocker.patch.object(Bfabric, "_log_version_message")
 
-    client, data = Bfabric.connect_webapp(token="test_token", validation_instance_url="https://example.com/validation/")
+    client, data = Bfabric.connect_webapp(
+        token="test_token", validation_instance_url="https://validation.example.com/bfabric"
+    )
 
     assert client.auth.login == "test_user"
     assert client.auth.password == SecretStr("x" * 32)
-    assert client.config.base_url == "https://example.com/api"
+    assert client.config.base_url == "https://example.com/bfabric"
     assert data == mock_get_token_data.return_value
 
-    mock_get_token_data.assert_called_once_with(base_url="https://example.com/validation/", token="test_token")
+    mock_get_token_data.assert_called_once_with(base_url="https://validation.example.com/bfabric", token="test_token")
 
 
 @pytest.fixture
@@ -459,7 +463,7 @@ def test_log_version_message(mocker, bfabric_instance):
 def test_repr(bfabric_instance, variant):
     assert (
         variant(bfabric_instance) == "Bfabric(config_data=ConfigData("
-        "client=BfabricClientConfig(base_url='https://example.com/api', application_ids={}, "
+        "client=BfabricClientConfig(base_url='https://example.com/bfabric', application_ids={}, "
         "job_notification_emails='', engine=BfabricAPIEngineType.SUDS), auth=None, "
         "auth_method=None, client_id=None, env_name=None))"
     )

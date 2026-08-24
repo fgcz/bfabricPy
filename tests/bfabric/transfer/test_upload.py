@@ -5,7 +5,6 @@ from pathlib import Path
 import pytest
 from logot import logged
 
-from bfabric.config import BaseUrl
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.transfer.errors import BfabricTransferError, ScopeError
 from bfabric.transfer.upload import (
@@ -13,7 +12,6 @@ from bfabric.transfer.upload import (
     DuplicateResult,
     UploadRestClient,
     UploadTokenResult,
-    api_to_rest_url,
     require_tus,
     tus_sink_for_resource,
 )
@@ -22,7 +20,7 @@ from bfabric.transfer import FileInfo, TransferSinkTus
 
 def _rest_client(mocker, make_jwt, *, scope: str = "api:read tus containers"):
     client = mocker.MagicMock()
-    client.config.base_url = "https://host/bfabric/api/"
+    client.config.base_url = "https://host/bfabric"
     client.auth = mocker.MagicMock(login=OAUTH_LOGIN, password=mocker.MagicMock())
     client.auth.password.get_secret_value.return_value = make_jwt({"scope": scope})
     return UploadRestClient(client)
@@ -38,15 +36,10 @@ def _mock_post(mocker, *, is_success: bool, payload=None, status_code: int = 200
     return mocker.patch("bfabric.transfer.upload.httpx.post", return_value=response)
 
 
-class TestApiToRestUrl:
-    def test_strips_api_suffix_and_trailing_slash(self):
-        assert api_to_rest_url("https://host/bfabric/api/") == "https://host/bfabric"
-
-    def test_no_api_suffix_only_strips_trailing_slash(self):
-        assert api_to_rest_url("https://host/bfabric/") == "https://host/bfabric"
-
-    def test_returns_a_base_url(self):
-        assert isinstance(api_to_rest_url("https://host/bfabric/api"), BaseUrl)
+class TestRestBaseUrl:
+    def test_is_the_configured_instance_url(self, mocker, make_jwt):
+        # The REST endpoints hang off the servlet root, which is what base_url is required to be.
+        assert _rest_client(mocker, make_jwt).rest_base_url == "https://host/bfabric"
 
 
 class TestRequireTus:

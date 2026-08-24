@@ -17,8 +17,9 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 - **Breaking: `BfabricClientConfig.base_url` is canonicalised *without* a trailing slash**, reversing 1.15.0. Config files and `connect_*` arguments still accept one, and `EntityUri` strings are unchanged.
 - **Breaking: new `bfabric.BaseUrl`**, a `str` subclass holding a validated slash-free instance URL. It is now the type of `BfabricClientConfig.base_url`, `Entity.bfabric_instance` and `EntityUriComponents.bfabric_instance` (was a pydantic `HttpUrl`), and is required by `EntityReader`'s `bfabric_instance` arguments. A plain string still validates; only a type checker asks for `BaseUrl(...)`.
+- **Breaking: a `BaseUrl` must end in a `/bfabric` path segment**, so a bare host or a URL reaching past the servlet root is refused where it is configured rather than as a later 404 or instance mismatch. The error names the URL it was given and the one it takes to be meant. `bfabric-cli login`/`auth pat` complete a bare host, so `bfabric-cli login my-instance.example.com` still works.
 - `connect_oauth` / `connect_pkce` / `connect_device_code` / `connect_pat` and `WebappClient.create` also normalise host case and a default port, and reject a non-HTTP URL with a `ValueError`.
-- `UrlTokenContext.base_url` and `bfabric.transfer.api_to_rest_url` return a `BaseUrl`.
+- `UrlTokenContext.base_url` returns a `BaseUrl`.
 - `TokenValidationSettings` / `WebappIntegrationSettings` hold their instance URLs as `BaseUrl`, so a non-http one is rejected on parse and a trailing slash no longer has to match exactly.
 - `DuplicateResult` carries the `check-duplicates` response's `linkable` and `existingResourceStatus`, and `linkable` decides whether a duplicate may be linked. **Breaking:** `on_duplicate="link"` now requires a B-Fabric that reports `linkable`; a response omitting it is refused rather than guessed.
 - `on_duplicate="link"` only links to a duplicate the server reports as linkable; one whose resource is still `pending` or `failed` is uploaded instead, so a retry after a failed transfer no longer fails until B-Fabric's orphan cleanup runs.
@@ -31,6 +32,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Fixed
 
 - The SUDS WSDL URL, and the `show.html` links printed by `bfabric_read` and `bfabric-cli api read`, no longer contain a doubled slash.
+
+### Removed
+
+- **Breaking:** `bfabric.transfer.api_to_rest_url`. The REST endpoints hang off the instance URL, which `base_url` now always is, so it had become the identity function — use `client.config.base_url`.
 
 ## \[1.21.0\] - 2026-08-20
 

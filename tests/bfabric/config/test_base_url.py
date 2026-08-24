@@ -19,10 +19,6 @@ class TestCanonicalisation:
     def test_drops_trailing_slashes(self, raw):
         assert BaseUrl(raw) == "https://example.com/bfabric"
 
-    def test_host_only_url_keeps_no_slash(self):
-        # AnyHttpUrl re-adds the slash for an empty path, so the strip has to happen after validation.
-        assert BaseUrl("https://example.com") == "https://example.com"
-
     def test_normalizes_host_case_and_default_port(self):
         assert BaseUrl("https://EXAMPLE.com:443/bfabric") == "https://example.com/bfabric"
 
@@ -40,6 +36,58 @@ class TestCanonicalisation:
         # Pydantic wraps a validator's ValueError, so model errors keep their usual shape.
         with pytest.raises(ValidationError):
             BfabricClientConfig.model_validate({"base_url": "not a url"})
+
+
+class TestInstancePath:
+    """The URL has to name the B-Fabric servlet, not just its host.
+
+    Everything downstream already assumes it: the WSDL is ``{base_url}/{endpoint}?wsdl`` and
+    ``EntityUri`` insists on a ``/bfabric`` first path segment, so a host-only URL is a config
+    mistake that used to surface much later as a 404 or an instance mismatch.
+    """
+
+    @pytest.mark.parametrize(
+        "raw",
+        [
+            "https://example.com/bfabric",
+            "https://example.com/lims/bfabric",  # a deployment behind a path prefix
+            "http://localhost:8080/bfabric",
+        ],
+    )
+    def test_accepts_an_instance_url(self, raw):
+        assert BaseUrl(raw).endswith("/bfabric")
+
+    @pytest.mark.parametrize(
+        "raw",
+        [
+            "https://example.com",
+            "https://example.com/",
+            "https://example.com/bfabric/api",
+            "https://example.com/bfabric/rest/upload",
+            "https://example.com/bfabri",
+            "https://example.com/BFabric",  # a servlet context path is case-sensitive
+            "https://example.com/bfabric?env=prod",
+            "https://example.com/bfabric#frag",
+            "https://bfabric",  # a host named bfabric is still missing the servlet path
+        ],
+    )
+    def test_rejects_anything_else(self, raw):
+        with pytest.raises(ValueError, match="not a B-Fabric instance URL"):
+            BaseUrl(raw)
+
+    @pytest.mark.parametrize(
+        ("raw", "suggestion"),
+        [
+            # The two mistakes worth naming a fix for: a bare host, and a URL reaching past the
+            # servlet root (someone pasting a REST endpoint they saw in a log).
+            ("https://example.com", "https://example.com/bfabric"),
+            ("https://example.com/bfabric/api", "https://example.com/bfabric"),
+            ("https://example.com/lims/bfabric/rest/upload", "https://example.com/lims/bfabric"),
+        ],
+    )
+    def test_names_the_corrected_url(self, raw, suggestion):
+        with pytest.raises(ValueError, match=f"did you mean {suggestion!r}"):
+            BaseUrl(raw)
 
 
 class TestBehavesLikeStr:
