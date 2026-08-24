@@ -103,15 +103,17 @@ class Bfabric:
         config_data = load_config_data(
             config_file_path=config_file_path, include_auth=include_auth, config_file_env=config_file_env
         )
-        if config_data.auth_method == "oauth":
+        if config_data.auth_method in ("oauth", "client_credentials"):
             return cls._connect_oauth_from_config(config_data)
         return cls(config_data=config_data)
 
     @classmethod
     def _connect_oauth_from_config(cls, config_data: ConfigData) -> Bfabric:
-        """Create a Bfabric instance from a config with ``auth_method: oauth``.
+        """Create a Bfabric instance from a config with ``auth_method: oauth`` or ``client_credentials``.
 
-        Loads tokens from the disk cache keyed on ``base_url`` + ``client_id`` + ``env_name``.
+        The interactive ``oauth`` method loads tokens from the disk cache keyed on ``base_url`` +
+        ``client_id`` + ``env_name``. A ``client_credentials`` service account instead authenticates
+        from its inline ``client_secret``, so it needs no cached token and works unattended.
         """
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
         from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
@@ -123,6 +125,23 @@ class Bfabric:
                 "(e.g. re-run 'bfabric-cli auth login' or 'bfabric-cli auth device-code')."
             )
         client_id = config_data.client_id
+
+        if config_data.auth_method == "client_credentials":
+            if config_data.client_secret is None:
+                raise ValueError(
+                    "OAuth config is missing 'client_secret'. Set it in the config environment "
+                    "(e.g. re-run 'bfabric-cli auth service-account')."
+                )
+            provider = OAuthCredentialProvider(
+                client_id=client_id,
+                client_secret=config_data.client_secret.get_secret_value(),
+                token_url=f"{base_url}/rest/oauth/token",
+                scope="",
+                grant_type="client_credentials",
+                token_cache_path=None,
+            )
+            return cls(config_data=config_data, _credential_provider=provider)
+
         if not config_data.env_name:
             # The cache key includes the environment name, and "default" (the old fallback here) is a
             # name the config layer forbids outright — so it could never match a CLI-written cache.

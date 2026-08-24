@@ -62,13 +62,19 @@ Use this to see which scopes an instance offers before requesting them. `token_e
 
 | Method | Grant | Identity | When |
 |--------|-------|----------|------|
-| `Bfabric.connect_oauth(client_id, client_secret, base_url, scope=…)` | client_credentials | **service** (no user `sub`) | background jobs, servers |
+| `Bfabric.connect_oauth(client_id, client_secret, base_url, scope=…)` | client_credentials | **service user** the client is registered to | background jobs, servers |
 | `Bfabric.connect_pkce(base_url, client_id=…, scope=…, port=…)` | authorization_code + PKCE | **user** | interactive, local machine |
 | `Bfabric.connect_device_code(base_url, client_id=…, scope=…)` | device_code | **user** | headless / remote / notebooks |
 
-Key identity difference: **client_credentials tokens carry no user `sub` and no user-scoped claims
-like `containers`.** If a resource server authorizes by *your* container membership, a service
-token won't do — you need a user flow (PKCE or device code).
+A `client_credentials` client can also be recorded in the config file, so the `bfabric-cli` commands
+use it without any Python — see
+[Authentication](../user_guides/bfabric-cli/authentication.md#unattended-scripts-and-cron-jobs).
+
+Key identity difference: a `client_credentials` token acts as the **service user the client was
+registered with** (`--service-user` at registration), not as whoever runs the script. So its reach is
+that account's permissions: to widen what a background job can do, grant the access to the service
+user in B-Fabric rather than to yourself. A user flow (PKCE or device code) is what you want when the
+job should act as the *calling* user instead.
 
 The core `Bfabric` OAuth methods take `client_id` and `scope` as **required** arguments — there is
 no baked-in default. The `bfabric-cli` login commands (`auth login` / `auth device-code`) likewise
@@ -234,6 +240,11 @@ private and may change.
 - **Need specific containers as a non-employee?** You need the **`containers` claim**, which isn't
   PKCE-requestable — it must come from a client with "Always Include Claims: containers".
 - **On a remote host / notebook?** `connect_device_code`, not `connect_pkce`.
+- **A cron job or shell script with nobody watching?** A service account
+  (`bfabric-cli auth service-account`), not a user flow — there is no one to re-login when a token
+  expires.
+- **Registered a client with the wrong redirect URI?** `bfabric-cli auth client-update` fixes it in
+  place, if the client was saved with `auth register --save-env`.
 - **Getting HTTP 401 at `/rest/oauth/token` after login?** Check the client's grant types
   (`authorization_code` + `refresh_token` enabled?) and whether it's confidential (has a secret →
   `connect_pkce` can't authenticate it). Capture the OAuth `error` body to be sure.

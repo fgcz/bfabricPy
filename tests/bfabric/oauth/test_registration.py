@@ -2,7 +2,13 @@ from __future__ import annotations
 
 import pytest
 
-from bfabric.oauth._registration import register_client, register_webapp
+from bfabric.oauth._registration import (
+    delete_client,
+    read_client,
+    register_client,
+    register_webapp,
+    update_client,
+)
 
 # register_client/register_webapp now require an explicit scope; tests pass this.
 _TEST_SCOPE = "api:read api:write"
@@ -264,3 +270,70 @@ class TestRegisterWebapp:
         assert "id" not in save_obj
         assert "technologyid" not in save_obj
         assert "description" not in save_obj
+
+
+class TestUpdateClient:
+    """RFC 7592 client management: read and update a registration with its access token."""
+
+    @pytest.fixture
+    def mock_httpx_request(self, mocker):
+        mock_request = mocker.patch("bfabric.oauth._registration.httpx.request")
+        mock_response = mocker.MagicMock()
+        mock_response.json.return_value = {"client_id": "cron", "redirect_uris": ["https://new/callback"]}
+        mock_response.raise_for_status.return_value = None
+        mock_request.return_value = mock_response
+        return mock_request
+
+    def test_read_client_gets_registration_uri(self, mock_httpx_request):
+        result = read_client(
+            registration_client_uri="https://example.com/bfabric/rest/oauth/register/cron",
+            registration_access_token="reg-tok",
+        )
+        assert result["client_id"] == "cron"
+        args, kwargs = mock_httpx_request.call_args
+        assert args[0] == "GET"
+        assert args[1] == "https://example.com/bfabric/rest/oauth/register/cron"
+        assert kwargs["headers"]["Authorization"] == "Bearer reg-tok"
+
+    def test_update_client_puts_merged_metadata(self, mock_httpx_request):
+        _ = update_client(
+            registration_client_uri="https://example.com/bfabric/rest/oauth/register/cron",
+            registration_access_token="reg-tok",
+            metadata={"redirect_uris": ["https://new/callback"]},
+        )
+        args, kwargs = mock_httpx_request.call_args
+        assert args[0] == "PUT"
+        assert kwargs["json"] == {"redirect_uris": ["https://new/callback"]}
+        assert kwargs["headers"]["Authorization"] == "Bearer reg-tok"
+
+
+class TestDeleteClient:
+    """RFC 7592 client deletion: a 204 with an empty body is success, not a parse error."""
+
+    @pytest.fixture
+    def mock_httpx_request(self, mocker):
+        mock_request = mocker.patch("bfabric.oauth._registration.httpx.request")
+        mock_response = mocker.MagicMock()
+        mock_response.status_code = 204
+        mock_response.text = ""
+        mock_response.raise_for_status.return_value = None
+        mock_request.return_value = mock_response
+        return mock_request
+
+    def test_sends_delete_with_registration_token(self, mock_httpx_request):
+        delete_client(
+            registration_client_uri="https://example.com/bfabric/rest/oauth/register/cron",
+            registration_access_token="reg-tok",
+        )
+        args, kwargs = mock_httpx_request.call_args
+        assert args[0] == "DELETE"
+        assert args[1] == "https://example.com/bfabric/rest/oauth/register/cron"
+        assert kwargs["headers"]["Authorization"] == "Bearer reg-tok"
+
+    def test_does_not_parse_the_empty_body(self, mock_httpx_request):
+        # A 204 carries no JSON; calling .json() on it would raise.
+        delete_client(
+            registration_client_uri="https://example.com/bfabric/rest/oauth/register/cron",
+            registration_access_token="reg-tok",
+        )
+        mock_httpx_request.return_value.json.assert_not_called()

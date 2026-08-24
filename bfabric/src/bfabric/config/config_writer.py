@@ -20,11 +20,41 @@ if TYPE_CHECKING:
 
 # Keys an auth command owns outright; replaced wholesale on merge so a stale secret can't be
 # resurrected by ``gather_auth`` after re-login via a different method.
-_AUTH_OWNED_KEYS = frozenset({"login", "password", "pat", "auth_method", "client_id", "scope"})
+_AUTH_OWNED_KEYS = frozenset(
+    {
+        "login",
+        "password",
+        "pat",
+        "auth_method",
+        "client_id",
+        "client_secret",
+        "scope",
+        "registration_access_token",
+        "registration_client_uri",
+    }
+)
 
-# Inline secrets cleared by :func:`clear_environment_credentials`. OAuth is absent: its token lives in
-# the file cache, so clearing here would report success while leaving the credential in place.
-_INLINE_SECRET_KEYS: tuple[str, ...] = ("login", "password", "pat")
+# Inline secrets cleared by :func:`clear_environment_credentials`. Interactive OAuth is absent: its
+# token lives in the file cache, so clearing here would report success while leaving the credential in
+# place. A ``client_credentials`` secret *is* inline, so it belongs here.
+_INLINE_SECRET_KEYS: tuple[str, ...] = ("login", "password", "pat", "client_secret")
+"""``registration_access_token`` is deliberately absent: it authenticates *managing* the client, not
+calling the API, so a logout that dropped it would strand a misconfigured client with no way to fix it."""
+
+
+def merge_auth_owned_keys(config_path: Path, env_name: str, env_data: Mapping[str, object]) -> dict[str, object]:
+    """Overlay *env_data* on the auth-owned keys *env_name* already has, ready for a partial update.
+
+    :func:`write_environment_to_config` replaces :data:`_AUTH_OWNED_KEYS` wholesale, so writing a
+    subset of them silently drops the rest. Callers that mean to change only some (a rotated secret,
+    say) route through here so the untouched ones are carried along.
+    """
+    existing = _read_config_file(config_path)
+    previous = existing.get(env_name)
+    kept: dict[str, object] = {}
+    if isinstance(previous, dict):
+        kept = {key: value for key, value in cast("dict[str, object]", previous).items() if key in _AUTH_OWNED_KEYS}
+    return kept | dict(env_data)
 
 
 def _read_config_file(config_path: Path) -> dict[str, object]:
@@ -123,7 +153,8 @@ def set_default_config(config_path: Path, env_name: str) -> None:
 def clear_environment_credentials(config_path: Path, env_name: str) -> tuple[str, ...]:
     """Strip :data:`_INLINE_SECRET_KEYS` from *env_name*, keeping it configured for a later re-login.
 
-    OAuth environments hold no inline secret — theirs is in the token cache.
+    Interactive OAuth environments hold no inline secret — theirs is in the token cache. A
+    ``client_credentials`` service account's secret is inline and is removed.
 
     :returns: The keys actually removed, so the caller can report what happened.
     :raises FileNotFoundError: If the config file does not exist.

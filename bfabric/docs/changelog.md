@@ -9,6 +9,12 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- An environment with `auth_method: client_credentials` authenticates a service account from its inline `client_secret`, so `Bfabric.connect()` works unattended without a browser or a cached token.
+- `read_client`, `update_client` and `delete_client` read, correct and revoke an OAuth client's own registration (RFC 7592) using its registration access token.
+- Config environments record `registration_access_token` and `registration_client_uri`, so a client registered through the CLI can be edited later.
+
 ## \[1.21.0\] - 2026-08-20
 
 ### Added

@@ -7,7 +7,7 @@ from typing import Literal
 
 import yaml
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 
 from bfabric.config import BfabricClientConfig, BfabricAuth
 from bfabric.config.config_file import ConfigFile
@@ -16,8 +16,9 @@ from bfabric.config.config_file import ConfigFile
 class ConfigData(BaseModel):
     client: BfabricClientConfig
     auth: BfabricAuth | None
-    auth_method: Literal["password", "oauth", "pat"] | None = None
+    auth_method: Literal["password", "oauth", "pat", "client_credentials"] | None = None
     client_id: str | None = None
+    client_secret: SecretStr | None = None
     env_name: str | None = None
 
     def with_auth(self, auth: BfabricAuth | None) -> ConfigData:
@@ -27,6 +28,7 @@ class ConfigData(BaseModel):
             auth=auth,
             auth_method=self.auth_method,
             client_id=self.client_id,
+            client_secret=self.client_secret,
             env_name=self.env_name,
         )
 
@@ -48,6 +50,7 @@ def _read_config_file(config_path: Path | str, force_config_env: str | None) -> 
         auth=env_config.auth,
         auth_method=env_config.auth_method,
         client_id=env_config.client_id,
+        client_secret=env_config.client_secret,
         env_name=resolved_env,
     )
 
@@ -79,6 +82,9 @@ def export_config_data(config_data: ConfigData) -> str:
         "auth": auth_data,
         "auth_method": config_data.auth_method,
         "client_id": config_data.client_id,
+        "client_secret": (
+            config_data.client_secret.get_secret_value() if config_data.client_secret is not None else None
+        ),
         "env_name": config_data.env_name,
     }
     return json.dumps(data)

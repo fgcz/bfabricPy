@@ -446,3 +446,46 @@ class TestClearEnvironmentCredentials:
         config_path.chmod(0o644)
         _ = clear_environment_credentials(config_path, "PROD")
         assert stat.S_IMODE(os.stat(config_path).st_mode) == 0o600
+
+
+class TestClientCredentialsSecretOwnership:
+    """``client_secret`` is auth-owned: replaced on re-login, and cleared as an inline secret."""
+
+    def test_switching_auth_method_drops_stale_client_secret(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {
+                "base_url": "https://example.com",
+                "auth_method": "client_credentials",
+                "client_id": "cron",
+                "client_secret": "s3cret",
+            },
+            set_default=True,
+        )
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {"base_url": "https://example.com", "auth_method": "pat", "pat": "tok"},
+            set_default=False,
+        )
+        data = yaml.safe_load(config_path.read_text())
+        assert "client_secret" not in data["PROD"]
+
+    def test_clear_credentials_removes_client_secret(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path,
+            "PROD",
+            {
+                "base_url": "https://example.com",
+                "auth_method": "client_credentials",
+                "client_id": "cron",
+                "client_secret": "s3cret",
+            },
+            set_default=True,
+        )
+        removed = clear_environment_credentials(config_path, "PROD")
+        assert "client_secret" in removed
+        assert "client_secret" not in yaml.safe_load(config_path.read_text())["PROD"]

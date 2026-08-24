@@ -218,3 +218,24 @@ class TestStatusDisplay:
         monkeypatch.setenv("BFABRICPY_CONFIG_ENV", "TEST")
         cmd_auth_status(config_file=config_file)
         assert "test.example.com" in capsys.readouterr().out
+
+
+class TestClientCredentialsStatus:
+    """A service-account environment reports its own method, not a fallback."""
+
+    def test_status_reports_client_credentials(self, tmp_path, capsys):
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            "GENERAL:\n"
+            "  default_config: PROD\n"
+            "PROD:\n"
+            "  base_url: https://example.com/bfabric\n"
+            "  auth_method: client_credentials\n"
+            "  client_id: cron\n"
+            "  client_secret: s3cret\n"
+        )
+        cmd_auth_status(config_env="PROD", config_file=config_file)
+        out = capsys.readouterr().out
+        assert "Auth method:  client_credentials" in out
+        assert "Client ID:    cron" in out
+        assert "s3cret" not in out

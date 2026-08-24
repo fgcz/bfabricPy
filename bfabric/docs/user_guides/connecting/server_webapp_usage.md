@@ -32,8 +32,9 @@ client = Bfabric.connect_oauth(
 Tokens are fetched and refreshed automatically. Pass `token_cache_path` to keep them across restarts.
 
 ```{important}
-A client credentials token carries no user identity. Anything authorized by the *caller's* container membership — file
-downloads, for instance — needs a token from a user flow instead. See
+A client credentials token acts as the service user the client was registered with, not as whoever
+called your server. Anything that has to be authorized by the *caller's* own container membership — file
+downloads on their behalf, for instance — needs a token from a user flow instead. See
 [OAuth Usage & Troubleshooting](../../design/oauth_usage_and_troubleshooting.md).
 ```
 

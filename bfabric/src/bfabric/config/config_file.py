@@ -6,7 +6,7 @@ from typing import Annotated, Any, Literal
 
 import yaml
 from loguru import logger
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
 from pydantic_core import PydanticCustomError
 
 from bfabric.config import BfabricAuth, BfabricClientConfig
@@ -24,10 +24,16 @@ class GeneralConfig(BaseModel):
 class EnvironmentConfig(BaseModel):
     config: BfabricClientConfig
     auth: BfabricAuth | None = None
-    auth_method: Literal["password", "oauth", "pat"] | None = None
+    auth_method: Literal["password", "oauth", "pat", "client_credentials"] | None = None
     client_id: str | None = None
+    client_secret: SecretStr | None = None
+    """Service-account secret for the ``client_credentials`` grant, stored inline in the 0o600 config."""
     scope: str | None = None
     """OAuth scope *requested* at login so a re-login can be replayed without retyping it."""
+    registration_access_token: SecretStr | None = None
+    """RFC 7591 credential for editing this client's own registration (e.g. fixing a wrong redirect URI)."""
+    registration_client_uri: str | None = None
+    """RFC 7591 endpoint of this client's registration, paired with ``registration_access_token``."""
 
     @model_validator(mode="before")
     @classmethod
@@ -37,7 +43,18 @@ class EnvironmentConfig(BaseModel):
         values["config"] = {
             key: value
             for key, value in values.items()  # pyright: ignore[reportAny]
-            if key not in ["login", "password", "auth_method", "client_id", "pat", "scope"]
+            if key
+            not in [
+                "login",
+                "password",
+                "auth_method",
+                "client_id",
+                "client_secret",
+                "pat",
+                "scope",
+                "registration_access_token",
+                "registration_client_uri",
+            ]
         }
         return values
 

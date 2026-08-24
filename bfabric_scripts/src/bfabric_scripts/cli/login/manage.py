@@ -61,7 +61,7 @@ def _load_config(config_file: Path, *, require_environments: bool = False, mutat
 
 def _auth_method(env: EnvironmentConfig) -> str:
     """Effective auth method; legacy envs without ``auth_method`` fall back to ``auth``'s presence."""
-    if env.auth_method in ("oauth", "pat"):
+    if env.auth_method in ("oauth", "pat", "client_credentials"):
         return env.auth_method
     return "password" if env.auth is not None else "none"
 
@@ -212,6 +212,10 @@ def cmd_auth_status(
         cache_path = _oauth_cache_path(env, resolved_env)
         print(f"Client ID:    {env.client_id or DEFAULT_CLIENT_ID}")
         print(f"Token cache:  {cache_path} ({describe_token_cache(TokenCache(cache_path).load(), now=time.time())})")
+        print(f"Scope:        {describe_scope(env.scope)}")
+    elif method == "client_credentials":
+        print(f"Client ID:    {env.client_id or DEFAULT_CLIENT_ID}")
+        print(f"Secret:       {'stored in config file' if env.client_secret else 'missing'}")
         print(f"Scope:        {describe_scope(env.scope)}")
     elif method == "pat":
         print("Token:        stored in config file")
