@@ -1,11 +1,12 @@
+from collections.abc import Mapping
+
 import rich
 import rich.prompt
-from bfabric_scripts.cli.api.output_format import OutputFormat, render_output
+from bfabric_scripts.cli.api.output_format import OutputFormat, render_saved
 from bfabric_scripts.cli.api.query_repr import Query
 from cyclopts import Parameter
 from loguru import logger
 from pydantic import BaseModel, model_validator
-from rich.console import Console
 from rich.panel import Panel
 from rich.pretty import Pretty
 
@@ -52,16 +53,10 @@ def cmd_api_update(params: Params, *, client: Bfabric) -> None:
 
     result = client.save(params.endpoint, {"id": params.entity_id, **attributes_dict})
     logger.info(f"Entity with ID {params.entity_id} updated successfully.")
-    _ = render_output(
-        result.to_list_dict(),
-        output_format=params.format,
-        endpoint=params.endpoint,
-        client=client,
-        console=Console(),
-    )
+    render_saved(result, output_format=params.format, endpoint=params.endpoint, client=client)
 
 
-def _confirm_action(attributes_dict: dict[str, str], client: Bfabric, endpoint: str, entity_id: int) -> bool:
+def _confirm_action(attributes_dict: Mapping[str, object], client: Bfabric, endpoint: str, entity_id: int) -> bool:
     logger.info(f"Updating {endpoint} entity with ID {entity_id} with attributes {attributes_dict}")
     result_read = client.read(endpoint, {"id": entity_id}, max_results=1)
     if not result_read:

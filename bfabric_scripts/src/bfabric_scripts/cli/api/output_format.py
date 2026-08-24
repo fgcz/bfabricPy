@@ -7,6 +7,7 @@ from rich.console import Console
 from rich.table import Table
 
 from bfabric import Bfabric, BfabricClientConfig
+from bfabric.results.result_container import ResultContainer
 from bfabric.typing import ApiResponseObjectType
 from bfabric.utils.polars_utils import flatten_relations
 
@@ -58,6 +59,13 @@ def render_output(
 
     print(result)
     return result
+
+
+def render_saved(result: ResultContainer, *, output_format: OutputFormat, endpoint: str, client: Bfabric) -> None:
+    """Renders the entity returned by ``client.save``."""
+    _ = render_output(
+        result.to_list_dict(), output_format=output_format, endpoint=endpoint, client=client, console=Console()
+    )
 
 
 def _determine_output_columns(

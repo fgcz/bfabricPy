@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Any, Literal, overload
+from typing import Any, Literal
 
 from pydantic import BaseModel, model_validator
 
@@ -35,25 +35,15 @@ class Query(BaseModel):
         """Remove all instances of the specified key."""
         self.pairs = [(k, v) for k, v in self.pairs if k != key]
 
-    @overload
-    def to_dict(self, duplicates: Literal["drop"]) -> dict[str, str]: ...
+    def to_dict(self, duplicates: Literal["error", "collect"]) -> dict[str, str | list[str]]:
+        """Converts the query to a dictionary, mapping a repeated key to the list of its values.
 
-    @overload
-    def to_dict(self, duplicates: Literal["collect"]) -> dict[str, str | list[str]]: ...
-
-    @overload
-    def to_dict(self, duplicates: Literal["error"]) -> dict[str, str]: ...
-
-    def to_dict(self, duplicates: Literal["drop", "error", "collect"]) -> dict[str, str] | dict[str, str | list[str]]:
-        """Convert the query to a dictionary."""
-        if duplicates == "collect" or duplicates == "error":
-            collect: dict[str, list[str]] = defaultdict(list)
-            for key, value in self.pairs:
-                collect[key].append(value)
-            if duplicates == "collect":
-                return {key: (values[0] if len(values) == 1 else values) for key, values in collect.items()}
-            if duplicates == "error" and len(collect) != len(self.pairs):
-                duplicate_keys = [key for key, values in collect.items() if len(values) > 1]
-                msg = f"Duplicate keys found in query: {duplicate_keys}"
-                raise ValueError(msg)
-        return dict(self.pairs)
+        :param duplicates: ``"error"`` rejects a repeated key instead of collecting it.
+        """
+        collect: dict[str, list[str]] = defaultdict(list)
+        for key, value in self.pairs:
+            collect[key].append(value)
+        if duplicates == "error" and (repeated := [key for key, values in collect.items() if len(values) > 1]):
+            msg = f"Duplicate keys found in query: {repeated}"
+            raise ValueError(msg)
+        return {key: (values[0] if len(values) == 1 else values) for key, values in collect.items()}
