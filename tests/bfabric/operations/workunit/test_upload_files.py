@@ -1269,6 +1269,96 @@ class TestResumeAdoptsTheInterruptedWorkunit:
         assert mock_send.call_args.kwargs.get("resume_url") is None
 
 
+class TestResumeTargetsTheRecordedResource:
+    """A saved URL is only resumed for the file whose resource was actually adopted.
+
+    A tus URL's metadata is frozen at creation, so the two halves of a resume -- adopting the
+    remembered resource, and sending to the remembered URL -- have to agree per file. Where they
+    disagree the bytes land on the remembered resource while the summary names the newly created
+    one, and the storage service's post-finish hook (which validates the slot's resourceId against
+    the token's claims) then fails closed after the client has already seen the transfer complete.
+    """
+
+    @staticmethod
+    def _names_created(rest) -> list[str]:
+        """Names submitted to ``create-resources`` across every call; empty if it was never called.
+
+        Local rather than the module-level ``_created_names`` because these tests need the
+        never-called case to read as a missing name, not an ``AttributeError`` on ``call_args``.
+        """
+        return [fi.name for call in rest.create_resources.call_args_list for fi in call.args[1]]
+
+    @staticmethod
+    def _resume_urls(mock_send) -> dict[str, str | None]:
+        """The ``resume_url`` each transferred file was sent with, keyed by filename."""
+        return {call.args[1].name: call.kwargs.get("resume_url") for call in mock_send.call_args_list}
+
+    @staticmethod
+    def _store(cache: Path, *, name: str, url: str, workunit_id: int, resource_id: int, md5: str | None = None) -> None:
+        ResumeCache(cache).store(
+            md5=md5 or f"md5-{name}",
+            path=f"/src/{name}",
+            url=url,
+            workunit_id=workunit_id,
+            resource_id=resource_id,
+            container_id=100,
+            application_id=5,
+            storage_path=f"/store/{name}",
+        )
+
+    def test_two_files_with_identical_bytes_keep_their_own_resources(
+        self, tmp_path, mock_client, rest, mock_collect, mock_send
+    ):
+        # A failed acquisition writes the same bytes every time, so two distinct measurements can
+        # share an MD5. They are separate uploads -- the cache keys them apart by source path, and
+        # adoption has to as well, or one file's bytes go to the other's resource.
+        cache = tmp_path / "resume.json"
+        shared = [
+            FileInfo(name="a.txt", md5="same-md5", size=1, path=Path("/src/a.txt")),
+            FileInfo(name="b.txt", md5="same-md5", size=1, path=Path("/src/b.txt")),
+        ]
+        mock_collect.side_effect = [[shared[0]], [shared[1]]]
+        rest.create_resources.side_effect = lambda _wu, files: _created(*(fi.name for fi in files))
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+        # Only a.txt was interrupted; b.txt has never been sent. Its remembered resource id is chosen
+        # outside the range `_created` hands out, so a collision here means a real one.
+        self._store(cache, name="a.txt", url="https://tus/a", workunit_id=WORKUNIT_ID, resource_id=77, md5="same-md5")
+
+        summary = upload_files(mock_client, _params("/src/a.txt", "/src/b.txt"), resume_cache=cache)
+
+        assert "b.txt" in self._names_created(rest)
+        resource_ids = {u.filename: u.resource_id for u in summary.uploads}
+        assert resource_ids["a.txt"] != resource_ids["b.txt"]
+
+    def test_reuse_path_does_not_resume_into_a_freshly_created_resource(self, tmp_path, mock_client, rest, mock_send):
+        # An explicit workunit_id adopts nothing, so create-resources hands back a NEW resource. The
+        # saved URL belongs to the old one and must not be sent to.
+        cache = tmp_path / "resume.json"
+        mock_client.read.return_value = [{"id": 777, "container": {"id": 100}}]
+        rest.create_resources.return_value = _created("a.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+        self._store(cache, name="a.txt", url="https://tus/old", workunit_id=WORKUNIT_ID, resource_id=99)
+
+        _ = upload_files(mock_client, _params("/src/a.txt", workunit_id=777), resume_cache=cache)
+
+        assert mock_send.call_args.kwargs.get("resume_url") is None
+
+    def test_entry_naming_another_workunit_is_not_resumed(self, tmp_path, mock_client, rest, mock_collect, mock_send):
+        # Two files interrupted in two separate runs, then re-run together: only one workunit can be
+        # adopted, and the file that lost out is uploaded afresh into it -- so its old URL is dead.
+        cache = tmp_path / "resume.json"
+        mock_collect.side_effect = [_file_infos("a.txt"), _file_infos("b.txt")]
+        rest.create_resources.side_effect = lambda _wu, files: _created(*(fi.name for fi in files))
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+        self._store(cache, name="a.txt", url="https://tus/a-in-901", workunit_id=901, resource_id=11)
+        self._store(cache, name="b.txt", url="https://tus/b-in-902", workunit_id=902, resource_id=12)
+
+        summary = upload_files(mock_client, _params("/src/a.txt", "/src/b.txt"), resume_cache=cache)
+
+        assert summary.workunit_id == 901
+        assert self._resume_urls(mock_send)["b.txt"] is None
+
+
 class TestReuseExistingWorkunit:
     def test_does_not_create_workunit(self, mock_client, rest, mock_send):
         # The reused workunit lives in container 777; params still carry the (ignored) create-path 100.

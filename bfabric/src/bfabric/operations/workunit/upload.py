@@ -23,6 +23,7 @@ from bfabric.transfer import (
     send_to_sink,
     tus_sink_for_resource,
 )
+from bfabric.transfer._generic.origin import same_origin
 from bfabric.transfer.resume_cache import ResumeCache, ResumeEntry, compute_resume_cache_path
 
 if TYPE_CHECKING:
@@ -322,7 +323,7 @@ def upload_files(
             job_id = _create_upload_job(client, workunit_id)
         # create-resources only ever creates, so an adopted file must not go through it: its resource
         # already exists and is the one its saved tus URL points at.
-        to_create = [fi for fi in to_upload if fi.md5 not in adopted]
+        to_create = [fi for fi in to_upload if fi.name not in adopted]
         resources_by_name = _adopted_resources(adopted, to_upload)
         if to_create:
             resources = rest.create_resources(workunit_id, to_create)
@@ -348,6 +349,7 @@ def upload_files(
                 transferable,
                 resources_by_name,
                 token_result,
+                adopted=adopted,
                 workunit_id=workunit_id,
                 container_id=container_id,
                 job_id=job_id,
@@ -402,7 +404,12 @@ def _adopted_uploads(
     params: UploadFilesParams,
     container_id: int,
 ) -> dict[str, ResumeEntry]:
-    """The saved interrupted uploads to continue, keyed by MD5.
+    """The saved interrupted uploads to continue, keyed by resource name.
+
+    Keyed by name rather than MD5 because MD5 is not unique within a run -- a failed acquisition
+    writes the same bytes every time, which is why the cache itself keys on ``(md5, path)`` -- and
+    two files sharing one would otherwise collapse onto a single resource. Names are already
+    guaranteed unique by ``_reject_duplicate_names``.
 
     Only meaningful on the create path: a caller-supplied ``workunit_id`` names the target
     explicitly, so there is nothing to adopt. All adopted files must share one workunit -- a run
@@ -420,11 +427,11 @@ def _adopted_uploads(
             application_id=params.application_id,
         )
         if entry is not None:
-            found[file_info.md5] = entry
+            found[file_info.name] = entry
     if not found:
         return {}
     workunit_id = next(iter(found.values())).workunit_id
-    kept = {md5: entry for md5, entry in found.items() if entry.workunit_id == workunit_id}
+    kept = {name: entry for name, entry in found.items() if entry.workunit_id == workunit_id}
     if len(kept) != len(found):
         logger.info(
             "Ignoring {} resume entry/entries naming a different workunit; those files upload afresh.",
@@ -448,7 +455,7 @@ def _adopted_resources(adopted: Mapping[str, ResumeEntry], to_upload: list[FileI
     return {
         fi.name: CreatedResource(id=entry.resource_id, name=fi.name, storagePath=entry.storage_path)
         for fi in to_upload
-        if (entry := adopted.get(fi.md5)) is not None
+        if (entry := adopted.get(fi.name)) is not None
     }
 
 
@@ -734,6 +741,7 @@ def _transfer_files(
     resources_by_name: dict[str, CreatedResource],
     token_result: UploadTokenResult,
     *,
+    adopted: Mapping[str, ResumeEntry],
     workunit_id: int,
     container_id: int,
     job_id: int | None = None,
@@ -750,8 +758,10 @@ def _transfer_files(
     propagates so a genuine bug is not silently logged as a flaky upload. ``on_file_done`` fires once
     per file either way, so a caller-side progress counter still reaches the total when files fail.
 
-    With a ``resume_cache``, a file that has a saved URL is resumed from it, and a URL that turns out
-    to be stale costs one retry from byte 0 rather than a failure.
+    A file resumes only from the URL of an entry that was actually ``adopted`` -- the adoption
+    decision and the resume have to agree, or the bytes land on the remembered resource while the
+    summary names the freshly created one. A URL that turns out to be stale costs one retry from
+    byte 0 rather than a failure.
     """
     uploads: list[FileUpload] = []
     failures: list[FileFailure] = []
@@ -780,8 +790,7 @@ def _transfer_files(
                 file_progress,
                 file_url,
                 resume_cache,
-                token_result.tus_endpoint,
-                container_id,
+                _resume_url_for(adopted.get(file_info.name), file_info.name, token_result.tus_endpoint),
             )
         except TransferError as error:
             logger.warning("Upload failed for {}: {}", file_info.name, error)
@@ -805,23 +814,14 @@ def _transfer_one(
     on_progress: Callable[[int, int], None] | None,
     on_url: Callable[[str], None] | None,
     resume_cache: ResumeCache | None,
-    tus_endpoint: str,
-    container_id: int,
+    resume_url: str | None,
 ) -> None:
-    """Send one file, resuming from a cached URL when there is a usable one.
+    """Send one file, resuming from ``resume_url`` when the caller supplied one.
 
     A saved URL the server no longer knows about (tusd expired it, or it was never created) fails the
     ``HEAD`` the mover issues; that is not a transport problem, so it costs one restart from byte 0
     rather than a recorded failure. A failure without a resume URL is genuine and propagates.
     """
-    entry = (
-        resume_cache.lookup(
-            md5=file_info.md5, path=str(file_info.path), container_id=container_id, endpoint=tus_endpoint
-        )
-        if resume_cache is not None
-        else None
-    )
-    resume_url = entry.url if entry is not None else None
     try:
         _ = send_to_sink(sink, file_info.path, creds, on_progress=on_progress, on_url=on_url, resume_url=resume_url)
     except TransferError:
@@ -831,6 +831,20 @@ def _transfer_one(
         assert resume_cache is not None
         resume_cache.discard(md5=file_info.md5, path=str(file_info.path))
         _ = send_to_sink(sink, file_info.path, creds, on_progress=on_progress, on_url=on_url, resume_url=None)
+
+
+def _resume_url_for(entry: ResumeEntry | None, filename: str, tus_endpoint: str) -> str | None:
+    """The adopted URL to continue from, once it is known which endpoint the bytes will go to.
+
+    The same-origin check lives here rather than in the adoption lookup because the tus endpoint is
+    only minted after the workunit to adopt has been chosen; a cross-origin URL costs a fresh upload.
+    """
+    if entry is None:
+        return None
+    if not same_origin(entry.url, tus_endpoint):
+        logger.info("Saved URL for {} is cross-origin with {}; starting afresh.", filename, tus_endpoint)
+        return None
+    return entry.url
 
 
 def _make_resume_url_callback(
