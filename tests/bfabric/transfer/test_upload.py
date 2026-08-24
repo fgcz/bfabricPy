@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from logot import logged
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.transfer.errors import BfabricTransferError, ScopeError
@@ -84,7 +85,7 @@ class TestCheckDuplicates:
             {"name": "b.txt", "md5": "abc123", "size": 42},
         ]
 
-    def test_an_unrecognised_action_becomes_the_unsupported_sentinel(self, mocker, make_jwt):
+    def test_an_unrecognised_action_becomes_the_unsupported_sentinel(self, mocker, make_jwt, logot):
         # ``action`` is a strict Literal so the type checker verifies the branches that switch on it.
         # An action this client does not know must still parse -- upload_files rejects it per file
         # with a remedy naming the file, which a parse-time failure of the whole batch would replace
@@ -96,8 +97,10 @@ class TestCheckDuplicates:
         result = rest.check_duplicates(container_id=4, files=[_file_info("a.txt")])
 
         assert result[0].action == "unsupported"
-        # The server's own word is kept for diagnostics rather than discarded.
-        assert result[0].raw_action == "quarantine"
+        # The server's own word is logged rather than silently dropped.
+        logot.assert_logged(
+            logged.info("check-duplicates returned the unrecognised action 'quarantine'; treating it as unsupported.")
+        )
 
     @pytest.mark.parametrize("action", ["upload", "skip", "link"])
     def test_a_known_action_passes_through_unchanged(self, mocker, make_jwt, action):
@@ -108,7 +111,6 @@ class TestCheckDuplicates:
         result = rest.check_duplicates(container_id=4, files=[_file_info("a.txt")])
 
         assert result[0].action == action
-        assert result[0].raw_action == action
 
     def test_failure_raises_transfer_error(self, mocker, make_jwt):
         _mock_post(mocker, is_success=False, status_code=500, text="boom")

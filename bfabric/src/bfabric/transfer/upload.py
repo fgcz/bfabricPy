@@ -12,7 +12,8 @@ import importlib
 from typing import TYPE_CHECKING, ClassVar, Literal, final, get_args
 
 import httpx
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, TypeAdapter, model_validator
+from loguru import logger
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, TypeAdapter, field_validator
 
 from bfabric.transfer.errors import BfabricTransferError
 from bfabric.transfer.tokens import check_upload_scope, require_oauth, token_provider
@@ -59,8 +60,9 @@ The first three are the server's verdicts this client acts on. ``unsupported`` i
 any other verdict is normalised to it on parse, so this stays a closed set a type checker can verify
 the branches against, while an unrecognised action still reaches
 :func:`~bfabric.operations.workunit.upload_files`'s per-file guard -- which refuses it naming the file
-and a way forward, rather than failing the whole batch with a generic ``ValidationError``.
-``DuplicateResult.raw_action`` keeps whatever the server actually said.
+and a way forward, rather than failing the whole batch with a generic ``ValidationError``. Keeping
+the set open this way is what lets a server add an action without breaking older clients; the one the
+server actually sent is logged.
 """
 
 _KNOWN_ACTIONS = frozenset(get_args(DuplicateAction)) - {"unsupported"}
@@ -74,8 +76,6 @@ class DuplicateResult(BaseModel):
     filename: str = Field(alias="name")
     category: str  # new | exact_duplicate | renamed_duplicate | content_conflict | batch_duplicate
     action: DuplicateAction
-    raw_action: str = ""
-    """The verdict as the server spelled it; differs from ``action`` only when it was unrecognised."""
     resource_id: int | None = Field(default=None, alias="existingResourceId")
     resource_status: str | None = Field(default=None, alias="existingResourceStatus")
     """Status of the matched resource, when the server reports it (e.g. ``available``, ``pending``)."""
@@ -87,21 +87,18 @@ class DuplicateResult(BaseModel):
     lacks it is refused (see ``operations.workunit.upload._select_linkable_targets``).
     """
 
-    @model_validator(mode="before")
+    @field_validator("action", mode="before")
     @classmethod
-    def _normalise_action(cls, data: object) -> object:
-        """Record the server's action verbatim and map an unrecognised one to ``unsupported``.
+    def _normalise_action(cls, value: object) -> object:
+        """Map an action this client does not know to ``unsupported``, logging what the server said.
 
-        Keeps ``action`` a closed set for the type checker without letting an action this client does
-        not know fail the whole response -- ``upload_files`` refuses it per file instead.
+        Keeps ``action`` a closed set for the type checker without letting a newly added server
+        action fail the whole response -- ``upload_files`` refuses it per file instead.
         """
-        if not isinstance(data, dict):
-            return data
-        values: dict[str, object] = data  # pyright: ignore[reportUnknownVariableType]
-        action = values.get("action")
-        if not isinstance(action, str):
-            return values
-        return {**values, "raw_action": action, "action": action if action in _KNOWN_ACTIONS else "unsupported"}
+        if isinstance(value, str) and value not in _KNOWN_ACTIONS:
+            logger.info("check-duplicates returned the unrecognised action {!r}; treating it as unsupported.", value)
+            return "unsupported"
+        return value
 
 
 class CreatedResource(BaseModel):
