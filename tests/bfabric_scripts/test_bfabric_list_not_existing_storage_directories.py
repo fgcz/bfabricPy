@@ -36,12 +36,10 @@ def test_list_not_existing_storage_directories(
 
     # check output
     out, err = capfd.readouterr()
-    assert err == snapshot(
-        """\
+    assert err == snapshot("""\
 INFO Checking containers modified after cutoff date: 2025-07-11
 INFO Found 2 containers with not existing storage directories.
-"""
-    )
+""")
     # assert err == ""
     assert out == "3050\n3300\n"
 

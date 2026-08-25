@@ -12,6 +12,13 @@ import cyclopts
 
 from bfabric.oauth import TokenCache, compute_token_cache_path
 from bfabric.config import DEFAULT_CONFIG_FILE
+from bfabric.config.auth_methods import (
+    ClientCredentialsAuth,
+    InteractiveOAuthAuth,
+    PasswordAuth,
+    PatAuth,
+    UnknownAuth,
+)
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
 from bfabric.config.config_writer import (
     clear_environment_credentials,
@@ -60,10 +67,15 @@ def _load_config(config_file: Path, *, require_environments: bool = False, mutat
 
 
 def _auth_method(env: EnvironmentConfig) -> str:
-    """Effective auth method; legacy envs without ``auth_method`` fall back to ``auth``'s presence."""
-    if env.auth_method in ("oauth", "pat"):
-        return env.auth_method
-    return "password" if env.auth is not None else "none"
+    """How the environment authenticates, whether or not it declared an ``auth_method``."""
+    if isinstance(env.auth_config, UnknownAuth):
+        return f"{env.auth_config.method_name} (unsupported)"
+    return env.auth_config.kind
+
+
+def _uses_token_cache(env: EnvironmentConfig) -> bool:
+    """Whether the environment's credentials live in the token cache rather than the config file."""
+    return isinstance(env.auth_config, InteractiveOAuthAuth)
 
 
 def _oauth_cache_path(env: EnvironmentConfig, env_name: str) -> Path:
@@ -80,7 +92,7 @@ def environment_summary(env: EnvironmentConfig) -> str:
 def _environment_detail(env: EnvironmentConfig, env_name: str, *, now: float) -> str:
     """The scope and token state of one environment, for a listing row."""
     method = _auth_method(env)
-    if method != "oauth":
+    if not _uses_token_cache(env):
         return method
     cached = TokenCache(_oauth_cache_path(env, env_name)).load()
     if cached is None:
@@ -208,22 +220,34 @@ def cmd_auth_status(
     print(f"Base URL:     {env.config.base_url}")
     print(f"Auth method:  {method}")
 
-    if method == "oauth":
-        cache_path = _oauth_cache_path(env, resolved_env)
-        print(f"Client ID:    {env.client_id or DEFAULT_CLIENT_ID}")
-        print(f"Token cache:  {cache_path} ({describe_token_cache(TokenCache(cache_path).load(), now=time.time())})")
-        print(f"Scope:        {describe_scope(env.scope)}")
-    elif method == "pat":
-        print("Token:        stored in config file")
-    elif env.auth is not None:
-        print(f"Login:        {env.auth.login}")
+    match env.auth_config:
+        case InteractiveOAuthAuth():
+            cache_path = _oauth_cache_path(env, resolved_env)
+            print(f"Client ID:    {env.client_id or DEFAULT_CLIENT_ID}")
+            print(
+                f"Token cache:  {cache_path} "
+                f"({describe_token_cache(TokenCache(cache_path).load(), now=time.time())})"
+            )
+            print(f"Scope:        {describe_scope(env.scope)}")
+        case ClientCredentialsAuth():
+            print(f"Client ID:    {env.client_id or '(not recorded)'}")
+            print(f"Secret:       {'stored in config file' if env.client_secret else 'missing'}")
+            print(f"Scope:        {describe_scope(env.scope)}")
+        case PatAuth():
+            print("Token:        stored in config file")
+        case PasswordAuth(login=login):
+            print(f"Login:        {login}")
+        case UnknownAuth(method_name=name):
+            print(f"Unsupported:  '{name}' is not a known auth method; upgrade bfabricPy to use it.")
+        case _:
+            pass
 
 
 def _logout_environment(env: EnvironmentConfig, env_name: str, config_file: Path) -> bool:
     """Remove *env_name*'s credentials — token cache *and* inline YAML secrets — keeping it configured."""
     cleared_keys = clear_environment_credentials(config_file, env_name)
     cache_cleared = False
-    if env.auth_method == "oauth":
+    if _uses_token_cache(env):
         cache_path = _oauth_cache_path(env, env_name)
         cache_cleared = cache_path.is_file()
         TokenCache(cache_path).clear()
@@ -328,7 +352,7 @@ def cmd_auth_remove(
 
     # Config entry first: if that write fails the token stays intact, rather than half-removed.
     remove_environment_from_config(config_file, config_env)
-    if env.auth_method == "oauth":
+    if _uses_token_cache(env):
         TokenCache(_oauth_cache_path(env, config_env)).clear()
 
     print(f"Removed environment '{config_env}'.")
