@@ -13,6 +13,8 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 ### Changed
 
 - `auth login` / `auth pat` complete a bare host with `/bfabric` for any instance, not just the four known ones, so `bfabric-cli login my-instance.example.com` works. A URL whose path is something else is now refused instead of used as given.
+- `auth status`, `auth logout` and `auth remove` decide what an environment is from its auth method rather than from the `auth_method` string, so a legacy password environment is no longer classified one way for display and another for clearing the token cache.
+- `auth status` and `auth list` name an `auth_method` this version does not support and say to upgrade, instead of showing the environment as having none.
 
 ### Fixed
 

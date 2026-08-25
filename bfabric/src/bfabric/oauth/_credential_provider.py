@@ -35,6 +35,11 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
+def oauth_token_url(base_url: BaseUrl) -> str:
+    """The OAuth token endpoint of a B-Fabric instance."""
+    return f"{base_url}/rest/oauth/token"
+
+
 def _canonical_token(token: dict[str, object]) -> dict[str, object]:
     """The canonical on-disk form of an OAuth *token*.
 
@@ -119,6 +124,60 @@ class OAuthCredentialProvider:
         if initial is not None:
             self._session.token = initial
             self._persist()
+
+    @classmethod
+    def for_client_credentials(
+        cls,
+        *,
+        base_url: BaseUrl,
+        client_id: str,
+        client_secret: str,
+        scope: str = "",
+        token_cache_path: Path | None = None,
+    ) -> OAuthCredentialProvider:
+        """Provider for the client-credentials grant."""
+        return cls(
+            client_id=client_id,
+            client_secret=client_secret,
+            token_url=oauth_token_url(base_url),
+            scope=scope,
+            grant_type="client_credentials",
+            token_cache_path=token_cache_path,
+        )
+
+    @classmethod
+    def for_refresh(
+        cls,
+        *,
+        base_url: BaseUrl,
+        client_id: str,
+        token: dict[str, object] | None = None,
+        client_secret: str = "",
+        scope: str = "",
+        token_cache_path: Path | None = None,
+        require_cached_token: bool = False,
+    ) -> OAuthCredentialProvider:
+        """Provider for the refresh-token grant, optionally requiring a token to already exist."""
+        provider = cls(
+            client_id=client_id,
+            client_secret=client_secret,
+            token_url=oauth_token_url(base_url),
+            scope=scope,
+            token=token,
+            grant_type="refresh_token",
+            token_cache_path=token_cache_path,
+        )
+        if require_cached_token and not provider.has_token():
+            raise ValueError(
+                "No OAuth tokens found. Please login first "
+                "(e.g. re-run 'bfabric-cli auth login' or 'bfabric-cli auth device-code')."
+            )
+        return provider
+
+    def has_token(self) -> bool:
+        """Whether a token is already loaded, without re-reading the cache."""
+        with self._lock:
+            return bool(self._session.token)  # pyright: ignore[reportUnknownMemberType, reportUnknownArgumentType]
 
     @classmethod
     def cache_login_token(cls, base_url: BaseUrl, *, client_id: str, token: dict[str, object], env_name: str) -> Path:

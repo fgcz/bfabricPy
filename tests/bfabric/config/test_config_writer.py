@@ -12,6 +12,7 @@ from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_file import ConfigFile
 from bfabric.config.config_writer import (
     clear_environment_credentials,
+    read_environment_auth_keys,
     remove_environment_from_config,
     set_default_config,
     write_environment_to_config,
@@ -24,21 +25,29 @@ class TestWriteEnvironmentToConfig:
         unloadable ``!!python/object/new:`` tag."""
         config_path = tmp_path / "config.yml"
         write_environment_to_config(
-            config_path, "PROD", {"base_url": BaseUrl("https://example.com/bfabric")}, set_default=True
+            config_path,
+            "PROD",
+            {"base_url": BaseUrl("https://example.com/bfabric")},
+            auth="replace",
+            set_default=True,
         )
         assert "!!python/object" not in config_path.read_text()
         assert yaml.safe_load(config_path.read_text())["PROD"]["base_url"] == "https://example.com/bfabric"
 
     def test_creates_new_file(self, tmp_path):
         config_path = tmp_path / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
+        write_environment_to_config(
+            config_path, "PROD", {"base_url": "https://example.com/bfabric"}, auth="replace", set_default=True
+        )
         data = yaml.safe_load(config_path.read_text())
         assert data["GENERAL"]["default_config"] == "PROD"
         assert data["PROD"]["base_url"] == "https://example.com/bfabric"
 
     def test_sets_permissions(self, tmp_path):
         config_path = tmp_path / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
+        write_environment_to_config(
+            config_path, "PROD", {"base_url": "https://example.com/bfabric"}, auth="replace", set_default=True
+        )
         mode = stat.S_IMODE(os.stat(config_path).st_mode)
         assert mode == 0o600
 
@@ -54,6 +63,7 @@ class TestWriteEnvironmentToConfig:
             config_path,
             "PROD",
             {"base_url": "https://example.com/bfabric", "login": "__oauth__", "password": "secret-pat"},
+            auth="replace",
             set_default=True,
         )
         mode = stat.S_IMODE(os.stat(config_path).st_mode)
@@ -70,7 +80,7 @@ class TestWriteEnvironmentToConfig:
             )
         )
         write_environment_to_config(
-            config_path, "NEW", {"base_url": "https://new.example.com/bfabric"}, set_default=True
+            config_path, "NEW", {"base_url": "https://new.example.com/bfabric"}, auth="replace", set_default=True
         )
         data = yaml.safe_load(config_path.read_text())
         assert data["GENERAL"]["default_config"] == "NEW"
@@ -80,10 +90,10 @@ class TestWriteEnvironmentToConfig:
     def test_overwrites_supplied_keys_of_existing_env(self, tmp_path):
         config_path = tmp_path / "config.yml"
         write_environment_to_config(
-            config_path, "PROD", {"base_url": "https://v1.example.com/bfabric"}, set_default=True
+            config_path, "PROD", {"base_url": "https://v1.example.com/bfabric"}, auth="replace", set_default=True
         )
         write_environment_to_config(
-            config_path, "PROD", {"base_url": "https://v2.example.com/bfabric"}, set_default=True
+            config_path, "PROD", {"base_url": "https://v2.example.com/bfabric"}, auth="replace", set_default=True
         )
         data = yaml.safe_load(config_path.read_text())
         assert data["PROD"]["base_url"] == "https://v2.example.com/bfabric"
@@ -107,6 +117,7 @@ class TestWriteEnvironmentToConfig:
             config_path,
             "PROD",
             {"base_url": "https://v2.example.com/bfabric", "auth_method": "oauth", "client_id": "CLI"},
+            auth="replace",
             set_default=True,
         )
         env = yaml.safe_load(config_path.read_text())["PROD"]
@@ -122,6 +133,7 @@ class TestWriteEnvironmentToConfig:
             config_path,
             "PROD",
             {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "secret-pat"},
+            auth="replace",
             set_default=True,
         )
         write_environment_to_config(
@@ -133,6 +145,7 @@ class TestWriteEnvironmentToConfig:
                 "client_id": "CLI",
                 "scope": "api:read",
             },
+            auth="replace",
             set_default=True,
         )
         env = yaml.safe_load(config_path.read_text())["PROD"]
@@ -158,6 +171,7 @@ class TestWriteEnvironmentToConfig:
             config_path,
             "PROD",
             {"base_url": "https://example.com/bfabric", "auth_method": "oauth", "client_id": "CLI"},
+            auth="replace",
             set_default=False,
         )
         env = yaml.safe_load(config_path.read_text())["PROD"]
@@ -177,15 +191,18 @@ class TestWriteEnvironmentToConfig:
                 config_path,
                 "PROD",
                 {"base_url": "https://example.com/bfabric", "auth_method": "oauth", "client_id": "CLI"},
+                auth="replace",
                 set_default=False,
             )
         assert config_path.read_text() == before
 
     def test_set_default_false(self, tmp_path):
         config_path = tmp_path / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
         write_environment_to_config(
-            config_path, "TEST", {"base_url": "https://test.example.com/bfabric"}, set_default=False
+            config_path, "PROD", {"base_url": "https://example.com/bfabric"}, auth="replace", set_default=True
+        )
+        write_environment_to_config(
+            config_path, "TEST", {"base_url": "https://test.example.com/bfabric"}, auth="replace", set_default=False
         )
         data = yaml.safe_load(config_path.read_text())
         assert data["GENERAL"]["default_config"] == "PROD"
@@ -193,7 +210,9 @@ class TestWriteEnvironmentToConfig:
 
     def test_creates_parent_dirs(self, tmp_path):
         config_path = tmp_path / "sub" / "dir" / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
+        write_environment_to_config(
+            config_path, "PROD", {"base_url": "https://example.com/bfabric"}, auth="replace", set_default=True
+        )
         assert config_path.is_file()
 
 
@@ -206,6 +225,7 @@ class TestRoundTrip:
             config_path,
             "PROD",
             {"base_url": "https://example.com/bfabric", "login": OAUTH_LOGIN, "password": "secret-pat"},
+            auth="replace",
             set_default=True,
         )
         config_file = ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
@@ -221,6 +241,7 @@ class TestRoundTrip:
             config_path,
             "PROD",
             {"base_url": "https://example.com/bfabric", "auth_method": "oauth", "client_id": "cid"},
+            auth="replace",
             set_default=True,
         )
         config_file = ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
@@ -237,19 +258,19 @@ class TestRoundTrip:
         config_path = tmp_path / "config.yml"
         with pytest.raises((ValueError, TypeError)):
             write_environment_to_config(
-                config_path, "PROD", {"login": OAUTH_LOGIN, "password": "secret-pat"}, set_default=True
+                config_path, "PROD", {"login": OAUTH_LOGIN, "password": "secret-pat"}, auth="replace", set_default=True
             )
 
     def test_does_not_corrupt_existing_file_on_invalid_env(self, tmp_path):
         # A rejected write must leave any pre-existing config untouched.
         config_path = tmp_path / "config.yml"
         write_environment_to_config(
-            config_path, "GOOD", {"base_url": "https://good.example.com/bfabric"}, set_default=True
+            config_path, "GOOD", {"base_url": "https://good.example.com/bfabric"}, auth="replace", set_default=True
         )
         before = config_path.read_text()
         with pytest.raises((ValueError, TypeError)):
             write_environment_to_config(
-                config_path, "BAD", {"login": OAUTH_LOGIN, "password": "secret-pat"}, set_default=True
+                config_path, "BAD", {"login": OAUTH_LOGIN, "password": "secret-pat"}, auth="replace", set_default=True
             )
         assert config_path.read_text() == before
 
@@ -260,7 +281,7 @@ class TestRoundTrip:
         config_path = tmp_path / "config.yml"
         with pytest.raises(ValueError):
             write_environment_to_config(
-                config_path, reserved, {"base_url": "https://example.com/bfabric"}, set_default=True
+                config_path, reserved, {"base_url": "https://example.com/bfabric"}, auth="replace", set_default=True
             )
         assert not config_path.exists()
 
@@ -384,6 +405,7 @@ class TestClearEnvironmentCredentials:
             config_path,
             "PROD",
             {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "secret-pat"},
+            auth="replace",
             set_default=True,
         )
         removed = clear_environment_credentials(config_path, "PROD")
@@ -399,6 +421,7 @@ class TestClearEnvironmentCredentials:
             config_path,
             "PROD",
             {"base_url": "https://example.com/bfabric", "login": "someone", "password": "x" * 32},
+            auth="replace",
             set_default=True,
         )
         removed = clear_environment_credentials(config_path, "PROD")
@@ -419,6 +442,7 @@ class TestClearEnvironmentCredentials:
                 "client_id": "CLI",
                 "scope": "api:write tus",
             },
+            auth="replace",
             set_default=True,
         )
         assert clear_environment_credentials(config_path, "PROD") == ()
@@ -433,6 +457,7 @@ class TestClearEnvironmentCredentials:
             config_path,
             "PROD",
             {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "secret-pat"},
+            auth="replace",
             set_default=True,
         )
         _ = clear_environment_credentials(config_path, "PROD")
@@ -445,12 +470,14 @@ class TestClearEnvironmentCredentials:
             config_path,
             "PROD",
             {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "p"},
+            auth="replace",
             set_default=True,
         )
         write_environment_to_config(
             config_path,
             "TEST",
             {"base_url": "https://test.example.com/bfabric", "auth_method": "pat", "pat": "t"},
+            auth="replace",
             set_default=False,
         )
         _ = clear_environment_credentials(config_path, "PROD")
@@ -459,7 +486,9 @@ class TestClearEnvironmentCredentials:
 
     def test_raises_on_unknown_env_and_leaves_file_unchanged(self, tmp_path):
         config_path = tmp_path / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
+        write_environment_to_config(
+            config_path, "PROD", {"base_url": "https://example.com/bfabric"}, auth="replace", set_default=True
+        )
         before = config_path.read_text()
         with pytest.raises(ValueError):
             clear_environment_credentials(config_path, "NOPE")
@@ -475,8 +504,296 @@ class TestClearEnvironmentCredentials:
             config_path,
             "PROD",
             {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "p"},
+            auth="replace",
             set_default=True,
         )
         config_path.chmod(0o644)
         _ = clear_environment_credentials(config_path, "PROD")
         assert stat.S_IMODE(os.stat(config_path).st_mode) == 0o600
+
+
+class TestAuthMode:
+    """The two modes corrupt in opposite directions, so the caller must say which it means."""
+
+    def _write_oauth_env(self, config_file):
+        write_environment_to_config(
+            config_file,
+            "PROD",
+            {
+                "base_url": "https://example.com/bfabric",
+                "auth_method": "oauth",
+                "client_id": "CLI",
+                "scope": "api:read",
+            },
+            auth="replace",
+            set_default=True,
+        )
+
+    def test_mode_is_required(self, tmp_path):
+        with pytest.raises(TypeError):
+            write_environment_to_config(  # pyright: ignore[reportCallIssue]
+                tmp_path / "config.yml",
+                "PROD",
+                {"base_url": "https://example.com/bfabric"},
+                set_default=True,
+            )
+
+    def test_replace_drops_unmentioned_auth_keys(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        self._write_oauth_env(config_file)
+        write_environment_to_config(
+            config_file,
+            "PROD",
+            {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "token"},
+            auth="replace",
+            set_default=False,
+        )
+        env = yaml.safe_load(config_file.read_text())["PROD"]
+        assert env["auth_method"] == "pat"
+        assert "client_id" not in env
+        assert "scope" not in env
+
+    def test_merge_keeps_unmentioned_auth_keys(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        self._write_oauth_env(config_file)
+        write_environment_to_config(
+            config_file,
+            "PROD",
+            {"client_id": "other-client"},
+            auth="merge",
+            set_default=False,
+        )
+        env = yaml.safe_load(config_file.read_text())["PROD"]
+        assert env["client_id"] == "other-client"
+        assert env["scope"] == "api:read"
+        assert env["auth_method"] == "oauth"
+
+    def test_merge_deletes_keys_set_to_none(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        self._write_oauth_env(config_file)
+        write_environment_to_config(config_file, "PROD", {"scope": None}, auth="merge", set_default=False)
+        env = yaml.safe_load(config_file.read_text())["PROD"]
+        assert "scope" not in env
+        assert env["client_id"] == "CLI"
+
+    def test_non_auth_keys_survive_both_modes(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_file,
+            "PROD",
+            {"base_url": "https://example.com/bfabric", "application_ids": {"app": 1}},
+            auth="replace",
+            set_default=True,
+        )
+        write_environment_to_config(
+            config_file,
+            "PROD",
+            {"auth_method": "pat", "pat": "token"},
+            auth="merge",
+            set_default=False,
+        )
+        env = yaml.safe_load(config_file.read_text())["PROD"]
+        assert env["application_ids"] == {"app": 1}
+        assert env["base_url"] == "https://example.com/bfabric"
+
+
+class TestReadEnvironmentAuthKeys:
+    def test_missing_file(self, tmp_path):
+        assert read_environment_auth_keys(tmp_path / "nope.yml", "PROD") == {}
+
+    def test_missing_environment(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_file, "PROD", {"base_url": "https://example.com/bfabric"}, auth="replace", set_default=True
+        )
+        assert read_environment_auth_keys(config_file, "OTHER") == {}
+
+    def test_returns_only_auth_keys(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_file,
+            "PROD",
+            {
+                "base_url": "https://example.com/bfabric",
+                "application_ids": {"app": 1},
+                "auth_method": "oauth",
+                "client_id": "CLI",
+            },
+            auth="replace",
+            set_default=True,
+        )
+        assert read_environment_auth_keys(config_file, "PROD") == {"auth_method": "oauth", "client_id": "CLI"}
+
+
+class TestValidateWritableEnvironment:
+    @pytest.mark.parametrize(
+        ("env_data", "match"),
+        [
+            ({"auth_method": "client_credentials", "client_id": "svc"}, "client_secret"),
+            ({"auth_method": "pat"}, "pat"),
+            ({"auth_method": "pat", "pat": "t", "client_secret": "s"}, "client_secret"),
+            ({"auth_method": "oauth", "client_id": "CLI", "pat": "t"}, "pat"),
+            ({"auth_method": "oauth", "client_id": "CLI", "client_secret": "s"}, "client_secret"),
+            ({"auth_method": "password"}, "login"),
+            ({"registration_access_token": "tok"}, "registration"),
+            ({"registration_client_uri": "https://x.test"}, "registration"),
+        ],
+    )
+    def test_rejects_incoherent_combination(self, tmp_path, env_data, match):
+        config_file = tmp_path / "config.yml"
+        with pytest.raises(ValueError, match=match):
+            write_environment_to_config(
+                config_file,
+                "PROD",
+                {"base_url": "https://example.com/bfabric"} | env_data,
+                auth="replace",
+                set_default=True,
+            )
+        assert not config_file.exists()
+
+    @pytest.mark.parametrize(
+        "env_data",
+        [
+            {"auth_method": "oauth", "client_id": "CLI", "scope": "api:read"},
+            {"auth_method": "pat", "pat": "token"},
+            {"auth_method": "client_credentials", "client_id": "svc", "client_secret": "s"},
+            {"auth_method": "password", "login": "user", "password": "p" * 32},
+            {"login": "user", "password": "p" * 32},
+            {"scope": "api:read"},
+            {"registration_access_token": "tok", "registration_client_uri": "https://x.test/reg"},
+        ],
+        ids=["oauth", "pat", "svcacct", "password", "legacy", "scope-only", "registration-pair"],
+    )
+    def test_accepts_coherent_combination(self, tmp_path, env_data):
+        config_file = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_file,
+            "PROD",
+            {"base_url": "https://example.com/bfabric"} | env_data,
+            auth="replace",
+            set_default=True,
+        )
+        assert yaml.safe_load(config_file.read_text())["PROD"]
+
+
+class TestAtomicWrite:
+    """The config file holds the user's only credentials, so a partial write must not be possible."""
+
+    def _write(self, config_file, **kwargs):
+        write_environment_to_config(
+            config_file,
+            "PROD",
+            {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "token"},
+            auth="replace",
+            **kwargs,
+        )
+
+    def test_leaves_no_temp_file_behind(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, set_default=True)
+        assert [path.name for path in tmp_path.iterdir()] == ["config.yml"]
+
+    def test_no_temp_file_left_when_serialization_fails(self, tmp_path, mocker):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, set_default=True)
+        mocker.patch("bfabric.config.config_writer.yaml.safe_dump", side_effect=RuntimeError("boom"))
+
+        with pytest.raises(RuntimeError, match="boom"):
+            self._write(config_file, set_default=False)
+
+        assert [path.name for path in tmp_path.iterdir()] == ["config.yml"]
+        assert yaml.safe_load(config_file.read_text())["PROD"]["pat"] == "token"
+
+    def test_a_failed_write_leaves_the_previous_config_intact(self, tmp_path, mocker):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, set_default=True)
+        before = config_file.read_text()
+
+        real_write = os.write
+
+        def partial_then_fail(fd, data):
+            _ = real_write(fd, data[:20])
+            raise OSError("disk full")
+
+        mocker.patch("bfabric.config.config_writer.os.write", side_effect=partial_then_fail)
+        with pytest.raises(OSError, match="disk full"):
+            write_environment_to_config(
+                config_file,
+                "PROD",
+                {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "rotated"},
+                auth="replace",
+                set_default=False,
+            )
+
+        assert config_file.read_text() == before
+        assert [path.name for path in tmp_path.iterdir()] == ["config.yml"]
+
+    def test_mode_is_600_for_a_new_file(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, set_default=True)
+        assert stat.S_IMODE(config_file.stat().st_mode) == 0o600
+
+    def test_mode_is_tightened_on_an_existing_loose_file(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, set_default=True)
+        config_file.chmod(0o644)
+        self._write(config_file, set_default=False)
+        assert stat.S_IMODE(config_file.stat().st_mode) == 0o600
+
+
+class TestPreservesUnwrittenKeys:
+    """Keys the payload never mentions must survive, whatever the environment looks like."""
+
+    def test_legacy_env_does_not_gain_an_auth_method(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_file,
+            "LEGACY",
+            {"base_url": "https://example.com/bfabric", "login": "user", "password": "p" * 32},
+            auth="replace",
+            set_default=True,
+        )
+        set_default_config(config_file, "LEGACY")
+        assert "auth_method" not in yaml.safe_load(config_file.read_text())["LEGACY"]
+
+    def test_an_unrelated_write_leaves_other_environments_byte_identical(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_file,
+            "LEGACY",
+            {"base_url": "https://example.com/bfabric", "login": "user", "password": "p" * 32},
+            auth="replace",
+            set_default=True,
+        )
+        before = yaml.safe_load(config_file.read_text())["LEGACY"]
+
+        write_environment_to_config(
+            config_file,
+            "OTHER",
+            {"base_url": "https://other.example.com/bfabric", "auth_method": "pat", "pat": "token"},
+            auth="replace",
+            set_default=False,
+        )
+        assert yaml.safe_load(config_file.read_text())["LEGACY"] == before
+
+    def test_an_unsupported_auth_method_keeps_its_sibling_keys(self, tmp_path):
+        """A write must not strip keys belonging to a method this version cannot parse."""
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "FUTURE"},
+                    "FUTURE": {
+                        "base_url": "https://example.com/bfabric",
+                        "auth_method": "some_future_method",
+                        "client_id": "CLI",
+                        "scope": "api:read",
+                    },
+                }
+            )
+        )
+        before = yaml.safe_load(config_file.read_text())["FUTURE"]
+
+        set_default_config(config_file, "FUTURE")
+
+        assert yaml.safe_load(config_file.read_text())["FUTURE"] == before

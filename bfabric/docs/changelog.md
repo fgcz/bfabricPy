@@ -19,6 +19,11 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `connect_oauth` / `connect_pkce` / `connect_device_code` / `connect_pat` and `WebappClient.create` also normalise host case and a default port, and reject a non-HTTP URL with a `ValueError`.
 - `UrlTokenContext.base_url` returns a `BaseUrl`.
 - `TokenValidationSettings` / `WebappIntegrationSettings` hold their instance URLs as `BaseUrl`, so a non-http one is rejected on parse and a trailing slash no longer has to match exactly.
+- An environment's authentication is modelled as a discriminated union (`config/auth_methods.py`), and each auth method builds its own credentials. `EnvironmentConfig.auth`, `auth_method`, `client_id`, `client_secret` and `scope` are now read-only properties over it; the config file format is unchanged.
+- `write_environment_to_config` takes a required `auth="merge"|"replace"` mode. `replace` keeps the previous behaviour of replacing every auth-owned key; `merge` keeps the ones the payload does not mention, and a key set to `None` is removed.
+- An `auth_method` the client does not recognise is preserved and reported rather than silently discarded along with its sibling keys, and it only fails when that environment is used.
+- `Bfabric.connect()` and the `connect_*` methods share one credential-provider seam, so loading an OAuth environment reads the token cache once instead of twice.
+- New `validate_writable_environment` refuses to write an environment whose auth keys contradict each other (for example `auth_method: client_credentials` without a `client_secret`). Reading stays tolerant, so existing config files keep loading.
 - `DuplicateResult` carries the `check-duplicates` response's `linkable` and `existingResourceStatus`, and `linkable` decides whether a duplicate may be linked. **Breaking:** `on_duplicate="link"` now requires a B-Fabric that reports `linkable`; a response omitting it is refused rather than guessed.
 - `on_duplicate="link"` only links to a duplicate the server reports as linkable; one whose resource is still `pending` or `failed` is uploaded instead, so a retry after a failed transfer no longer fails until B-Fabric's orphan cleanup runs.
 - `upload_files` raises `WorkunitCompletionError` when every transfer succeeded but marking the workunit `available` failed. It carries the `UploadSummary`, so a caller can record what landed and retry only the status flip rather than creating a second workunit.
@@ -30,6 +35,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Fixed
 
 - The SUDS WSDL URL, and the `show.html` links printed by `bfabric_read` and `bfabric-cli api read`, no longer contain a doubled slash.
+- Parsing an environment whose secret is already a `SecretStr` keeps the secret instead of replacing it with the masked `**********`.
 
 ### Removed
 
@@ -64,6 +70,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - **Breaking:** the `engine` parameter of `Bfabric.from_config` (which never applied it) and of `BfabricClientConfig.copy_with`.
 
 ### Fixed
+
+- `Bfabric.config_data` no longer drops `auth_method`, `client_id` and `env_name`, which silently degraded an OAuth client's config to no-auth when it was round-tripped (for example through `BFABRICPY_CONFIG_OVERRIDE`).
+- The config file is written atomically, so an interrupted write can no longer truncate it. Note the inode changes, which matters when the file itself rather than its directory is bind-mounted.
+- `ConfigFile.model_validate` no longer mutates the mapping passed to it; it was inserting an `environments` key that callers then persisted to YAML.
 
 - An unreachable B-Fabric instance raises `BfabricUnavailableError` (a `BfabricRequestError`) naming the instance and the transport failure, instead of leaking `suds.transport.TransportError`, `urllib.error.URLError` or `httpx.TransportError`. Covers the SOAP engine and the OAuth/REST calls (JWKS, device code, registration, token exchange, introspection, PKCE).
 - `ResultContainer.assert_success` raises `BfabricRequestError` instead of a bare `RuntimeError`; it remains a `RuntimeError` subclass, so existing `except RuntimeError` handlers keep working.

@@ -134,7 +134,7 @@ def _persist(token: dict[str, object], params: _LoginParams, config_file: Path) 
         params.base_url, client_id=params.client_id, token=token, env_name=params.config_env
     )
     data = {"base_url": params.base_url, "auth_method": "oauth", "client_id": params.client_id, "scope": params.scope}
-    write_environment_to_config(config_file, params.config_env, data, set_default=params.set_default)
+    write_environment_to_config(config_file, params.config_env, data, auth="replace", set_default=params.set_default)
     print("Authenticated successfully.")
     print(f"Config saved to environment '{params.config_env}' in {config_file}")
 
