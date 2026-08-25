@@ -14,7 +14,6 @@ from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
 from bfabric_scripts.feeder.report import report_resource
 
-
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
 # Authors:

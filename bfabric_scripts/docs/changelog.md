@@ -15,6 +15,21 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - `auth login` / `auth pat` complete a bare host with `/bfabric` for any instance, not just the four known ones, so `bfabric-cli login my-instance.example.com` works. A URL whose path is something else is now refused instead of used as given.
 - `auth status`, `auth logout` and `auth remove` decide what an environment is from its auth method rather than from the `auth_method` string, so a legacy password environment is no longer classified one way for display and another for clearing the token cache.
 - `auth status` and `auth list` name an `auth_method` this version does not support and say to upgrade, instead of showing the environment as having none.
+### Added
+
+- `bfabric-cli auth service-account` records a `client_credentials` OAuth client, so cron jobs and shell scripts authenticate without a browser or a cached token. Every command then works unattended, picking the instance with `--config-env`. `--scope` narrows the token the service account receives; omit it to accept the client's default. Re-run it to store a secret rotated in the B-Fabric UI; the environment's other recorded values are kept. Converting an environment that already uses another auth method asks first, and refuses outright without a terminal, since it repoints every later connection at the service account; the superseded login is dropped rather than left unreachable in the file.
+- `bfabric-cli auth register --save-env NAME` and `auth register-webapp --save-env NAME` save a newly registered client to a config environment, including the credentials needed to edit it later. A save that returns no registration credentials warns that the client cannot be edited or removed afterwards.
+- `bfabric-cli auth client-delete` revokes a registered OAuth client on the server, after a confirmation prompt.
+- `bfabric-cli auth client-show` and `auth client-update` inspect and correct a registered client (for example a wrong redirect URI) without re-registering it. `auth client-update` re-saves the registration token and client secret that B-Fabric rotates on each update, so the client stays manageable across repeated edits. It changes the OAuth client only: a webapp's application `weburl` holds the same URL and needs `api update application`.
+
+### Fixed
+
+- `auth register-webapp --save-env` no longer records `auth_method: client_credentials` for a webapp registered with `--service-user`, which made later `connect()` calls on that environment authenticate as the service account instead of the browser flow.
+- `bfabric-cli api update` and `api delete` explain that there is no terminal to confirm on, and name `--no-confirm`, instead of failing with an `EOFError` traceback when run from a script or cron job.
+
+### Changed
+
+- `bfabric-cli auth status` and `auth list` report `client_credentials` environments as such instead of labelling them `password` or `none`. `auth logout` clears the stored client secret.
 
 ### Fixed
 

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Literal, cast
 
 import yaml
 from loguru import logger
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, SecretStr, model_validator
 
 from bfabric.config import BfabricClientConfig, BfabricAuth
 from bfabric.config.auth_methods import AuthMethod, AuthMethodName, NoAuth, auth_method_from_flat
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from bfabric.oauth._credential_provider import OAuthCredentialProvider
 
 # The flat auth keys accepted by the constructor and carried in the override JSON.
-_FLAT_AUTH_KEYS = ("auth_method", "client_id")
+_FLAT_AUTH_KEYS = ("auth_method", "client_id", "client_secret", "scope")
 
 
 class ConfigData(BaseModel):
@@ -30,7 +30,7 @@ class ConfigData(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _gather_auth_config(cls, values: object) -> object:
-        """Accept the flat ``auth_method``/``client_id`` kwargs the override JSON carries."""
+        """Accept the flat ``auth_method``/``client_id``/... kwargs the override JSON carries."""
         if not isinstance(values, dict):
             return values
         raw = cast("dict[str, object]", values)
@@ -46,6 +46,19 @@ class ConfigData(BaseModel):
     @property
     def client_id(self) -> str | None:
         return getattr(self.auth_config, "client_id", None)
+
+    @property
+    def client_secret(self) -> SecretStr | None:
+        return getattr(self.auth_config, "client_secret", None)
+
+    @property
+    def scope(self) -> str | None:
+        """Scope requested by a ``client_credentials`` token request; ``None`` lets the server decide.
+
+        Only that grant reads it. Interactive OAuth fixes its scope at authorization time and the
+        refresh inherits it, so re-requesting one there could only narrow the granted token.
+        """
+        return getattr(self.auth_config, "scope", None)
 
     def credential_provider(self) -> OAuthCredentialProvider | None:
         """A token-refreshing provider, for the auth methods that need one.
@@ -106,6 +119,10 @@ def export_config_data(config_data: ConfigData) -> str:
         "auth": auth_data,
         "auth_method": config_data.auth_method,
         "client_id": config_data.client_id,
+        "client_secret": (
+            config_data.client_secret.get_secret_value() if config_data.client_secret is not None else None
+        ),
+        "scope": config_data.scope,
         "env_name": config_data.env_name,
     }
     return json.dumps(data)

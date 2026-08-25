@@ -10,12 +10,13 @@ from typing import Annotated
 import cyclopts
 
 from bfabric.oauth import register_client
-from bfabric.config import DEFAULT_CONFIG_FILE
+from bfabric.config import DEFAULT_CONFIG_FILE, BaseUrl
+from bfabric_scripts.cli.login._common import FORCE_HELP, SAVE_ENV_HELP, save_registration
 from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
 from bfabric_scripts.cli.login._urls import normalize_base_url
 
 
-def _resolve_token_from_config(config_env: str | None, config_file: Path) -> tuple[str, str]:
+def _resolve_token_from_config(config_env: str | None, config_file: Path) -> tuple[str, BaseUrl]:
     """The bearer token and base URL of the environment in effect, as ``(token, base_url)``.
 
     Registration authenticates with a bare bearer token rather than a client, but the token is the one
@@ -28,7 +29,7 @@ def _resolve_token_from_config(config_env: str | None, config_file: Path) -> tup
 
     try:
         client = Bfabric.connect(config_file_path=config_file, config_file_env=config_env or "default")
-        return client.auth.password.get_secret_value(), str(client.config.base_url)
+        return client.auth.password.get_secret_value(), client.config.base_url
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
@@ -62,8 +63,14 @@ def cmd_login_register(
         list[str] | None,
         cyclopts.Parameter(help="Grant types to request (overrides default webapp grants)."),
     ] = None,
+    save_env: Annotated[str | None, cyclopts.Parameter(help=SAVE_ENV_HELP)] = None,
+    force: Annotated[bool, cyclopts.Parameter(help=FORCE_HELP, negative=())] = False,
 ) -> None:
-    """Register a new OAuth client with the B-Fabric server."""
+    """Register a new OAuth client with the B-Fabric server.
+
+    :param save_env: Save the new client to this config environment, including its RFC 7591
+        registration credentials so it can be edited later. Omit to only print the response.
+    """
     if service_user is not None and no_service_user:
         print("Error: --service-user and --no-service-user are mutually exclusive.", file=sys.stderr)
         raise SystemExit(1)
@@ -75,7 +82,7 @@ def cmd_login_register(
         )
         raise SystemExit(1)
 
-    resolved_base_url = base_url
+    resolved_base_url = normalize_base_url(base_url) if base_url is not None else None
     resolved_token = token
 
     if token is not None:
@@ -95,7 +102,7 @@ def cmd_login_register(
 
     try:
         result = register_client(
-            base_url=normalize_base_url(resolved_base_url),
+            base_url=resolved_base_url,
             token=resolved_token,
             client_name=client_name,
             redirect_uri=redirect_uri,
@@ -107,3 +114,13 @@ def cmd_login_register(
         print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
     print(json.dumps(result, indent=2))
+
+    if save_env is not None:
+        save_registration(
+            result,
+            base_url=resolved_base_url,
+            config_file=config_file,
+            env_name=save_env,
+            is_service_account=service_user is not None,
+            force=force,
+        )

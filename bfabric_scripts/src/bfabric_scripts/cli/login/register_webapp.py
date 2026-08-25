@@ -10,6 +10,7 @@ from typing import Annotated
 import cyclopts
 
 from bfabric.config import DEFAULT_CONFIG_FILE
+from bfabric_scripts.cli.login._common import FORCE_HELP, SAVE_ENV_HELP, save_registration
 from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
 
 
@@ -35,10 +36,15 @@ def cmd_login_register_webapp(
     ] = None,
     technology_id: Annotated[int | None, cyclopts.Parameter(help="Technology ID for the application.")] = None,
     description: Annotated[str | None, cyclopts.Parameter(help="Application description.")] = None,
+    save_env: Annotated[str | None, cyclopts.Parameter(help=SAVE_ENV_HELP)] = None,
+    force: Annotated[bool, cyclopts.Parameter(help=FORCE_HELP, negative=())] = False,
 ) -> None:
     """Register a new OAuth webapp: create the OAuth client and the B-Fabric application.
 
     Uses the config environment's credentials for both the registration endpoint and the SOAP save.
+
+    :param save_env: Save the new client to this config environment, including its RFC 7591
+        registration credentials so its redirect URI can be corrected later. Omit to only print it.
     """
     from bfabric import Bfabric
     from bfabric.oauth import register_webapp
@@ -91,3 +97,15 @@ def cmd_login_register_webapp(
         f"\nApplication saved. OAuth client id={oauth_info['id']}, client_id={oauth_info['client_id']}",
         file=sys.stderr,
     )
+
+    if save_env is not None:
+        save_registration(
+            oauth_info,
+            base_url=client.config.base_url,
+            config_file=config_file,
+            env_name=save_env,
+            # A webapp's users authenticate in the browser, so its environment must not be stamped
+            # as a service account even when --service-user gave it the client_credentials grant.
+            is_service_account=False,
+            force=force,
+        )
