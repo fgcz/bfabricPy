@@ -10,13 +10,13 @@ from typing import Annotated
 import cyclopts
 
 from bfabric.oauth import register_client
-from bfabric.config import DEFAULT_CONFIG_FILE
+from bfabric.config import DEFAULT_CONFIG_FILE, BaseUrl
 from bfabric_scripts.cli.login._common import FORCE_HELP, SAVE_ENV_HELP, save_registration
 from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
 from bfabric_scripts.cli.login._urls import normalize_base_url
 
 
-def _resolve_token_from_config(config_env: str | None, config_file: Path) -> tuple[str, str]:
+def _resolve_token_from_config(config_env: str | None, config_file: Path) -> tuple[str, BaseUrl]:
     """The bearer token and base URL of the environment in effect, as ``(token, base_url)``.
 
     Registration authenticates with a bare bearer token rather than a client, but the token is the one
@@ -29,7 +29,7 @@ def _resolve_token_from_config(config_env: str | None, config_file: Path) -> tup
 
     try:
         client = Bfabric.connect(config_file_path=config_file, config_file_env=config_env or "default")
-        return client.auth.password.get_secret_value(), str(client.config.base_url)
+        return client.auth.password.get_secret_value(), client.config.base_url
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
@@ -82,7 +82,7 @@ def cmd_login_register(
         )
         raise SystemExit(1)
 
-    resolved_base_url = base_url
+    resolved_base_url = normalize_base_url(base_url) if base_url is not None else None
     resolved_token = token
 
     if token is not None:
@@ -102,7 +102,7 @@ def cmd_login_register(
 
     try:
         result = register_client(
-            base_url=normalize_base_url(resolved_base_url),
+            base_url=resolved_base_url,
             token=resolved_token,
             client_name=client_name,
             redirect_uri=redirect_uri,

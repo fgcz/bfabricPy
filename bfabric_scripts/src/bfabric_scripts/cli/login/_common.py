@@ -146,7 +146,7 @@ FORCE_HELP = "Overwrite the --save-env environment even if it is already configu
 def save_registration(
     result: Mapping[str, object],
     *,
-    base_url: str,
+    base_url: BaseUrl,
     config_file: Path,
     env_name: str,
     is_service_account: bool,
@@ -172,7 +172,7 @@ def save_registration(
         )
         raise SystemExit(1)
 
-    env_data: dict[str, object] = {"base_url": normalize_base_url(base_url)}
+    env_data: dict[str, object] = {"base_url": base_url}
     for key in ("client_id", "client_secret", "registration_access_token", "registration_client_uri"):
         value = result.get(key)
         if value is not None:
