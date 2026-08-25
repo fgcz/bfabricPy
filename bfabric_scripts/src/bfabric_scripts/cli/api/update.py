@@ -50,8 +50,6 @@ def cmd_api_update(params: Params, *, client: Bfabric) -> None:
         return
 
     if not params.no_confirm:
-        # Checked before the read: rich would raise EOFError on the prompt, and the round-trip is
-        # wasted either way.
         if not is_interactive():
             print(
                 f"Refusing to update {params.endpoint} {params.entity_id} without confirmation: "
