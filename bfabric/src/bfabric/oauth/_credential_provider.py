@@ -28,16 +28,12 @@ from loguru import logger
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN, BfabricAuth
 from bfabric.errors import BfabricOAuthError
+from bfabric.oauth._endpoints import token_url as _token_url
 from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
 
 if TYPE_CHECKING:
     from bfabric.config.base_url import BaseUrl
     from pathlib import Path
-
-
-def oauth_token_url(base_url: BaseUrl) -> str:
-    """The OAuth token endpoint of a B-Fabric instance."""
-    return f"{base_url}/rest/oauth/token"
 
 
 def _canonical_token(token: dict[str, object]) -> dict[str, object]:
@@ -139,7 +135,7 @@ class OAuthCredentialProvider:
         return cls(
             client_id=client_id,
             client_secret=client_secret,
-            token_url=oauth_token_url(base_url),
+            token_url=_token_url(base_url),
             scope=scope,
             grant_type="client_credentials",
             token_cache_path=token_cache_path,
@@ -161,7 +157,7 @@ class OAuthCredentialProvider:
         provider = cls(
             client_id=client_id,
             client_secret=client_secret,
-            token_url=oauth_token_url(base_url),
+            token_url=_token_url(base_url),
             scope=scope,
             token=token,
             grant_type="refresh_token",
