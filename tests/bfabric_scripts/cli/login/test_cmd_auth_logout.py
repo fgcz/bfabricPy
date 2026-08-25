@@ -188,7 +188,7 @@ class TestLogoutTargeting:
     def test_refuses_under_a_config_override(self, tmp_path, monkeypatch, capsys, cache_path):
         config_file = tmp_path / "config.yml"
         _write_oauth_config(config_file)
-        monkeypatch.setenv("BFABRICPY_CONFIG_OVERRIDE", '{"base_url": "https://example.com"}')
+        monkeypatch.setenv("BFABRICPY_CONFIG_OVERRIDE", '{"base_url": "https://example.com/bfabric"}')
         cmd_auth_logout(config_file=config_file)
         assert cache_path.exists()
         assert "BFABRICPY_CONFIG_OVERRIDE" in capsys.readouterr().out

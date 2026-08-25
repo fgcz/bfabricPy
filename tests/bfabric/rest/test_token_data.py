@@ -5,8 +5,8 @@ import pytest
 import httpx
 from pydantic import SecretStr, ValidationError
 
-from bfabric.errors import BfabricTokenExpiredError, BfabricTokenInvalidError
-from bfabric.rest.token_data import TokenData, get_token_data, get_token_data_async
+from bfabric.errors import BfabricInstanceNotConfiguredError, BfabricTokenExpiredError, BfabricTokenInvalidError
+from bfabric.rest.token_data import TokenData, get_token_data, get_token_data_async, validate_token
 
 
 @pytest.fixture
@@ -174,3 +174,39 @@ def test_get_token_data(mocker, token_data, base_url):
     call_args = mock_get_token_data_async.call_args
     assert call_args.kwargs["base_url"] == base_url
     assert call_args.kwargs["token"] == "mock-token"
+
+
+class TestValidateToken:
+    """The instance allow-list check.
+
+    The server picks the form of ``caller`` and the operator picks the form of the configured
+    instances, so a trailing slash must not decide whether a token is accepted.
+    """
+
+    @pytest.fixture
+    def settings(self):
+        class MockSettings:
+            validation_bfabric_instance = "https://example.com/bfabric"
+            supported_bfabric_instances = ["https://example.com/bfabric"]
+
+        return MockSettings()
+
+    @pytest.fixture
+    def patched_get(self, mocker, token_data):
+        return mocker.patch("bfabric.rest.token_data.get_token_data_async", return_value=token_data)
+
+    @pytest.mark.parametrize("caller", ["https://example.com/bfabric", "https://example.com/bfabric/"])
+    async def test_accepts_either_caller_form(self, settings, patched_get, token_data, caller):
+        token_data.caller = caller
+        assert await validate_token(token="mock-token", settings=settings) is token_data
+
+    @pytest.mark.parametrize("configured", ["https://example.com/bfabric", "https://example.com/bfabric/"])
+    async def test_accepts_either_configured_form(self, settings, patched_get, token_data, configured):
+        settings.supported_bfabric_instances = [configured]
+        token_data.caller = "https://example.com/bfabric/"
+        assert await validate_token(token="mock-token", settings=settings) is token_data
+
+    async def test_rejects_a_genuinely_different_instance(self, settings, patched_get, token_data):
+        token_data.caller = "https://other.example.com/bfabric"
+        with pytest.raises(BfabricInstanceNotConfiguredError):
+            await validate_token(token="mock-token", settings=settings)

@@ -14,7 +14,7 @@ from bfabric.config.config_file import read_config_file
 @pytest.fixture
 def mock_config() -> BfabricClientConfig:
     return BfabricClientConfig(
-        base_url="https://example.com",
+        base_url="https://example.com/bfabric",
         application_ids={"app": 1},
     )
 
@@ -30,7 +30,7 @@ class TestEngine:
 
     def test_unknown_engine_is_rejected(self):
         with pytest.raises(ValidationError):
-            BfabricClientConfig(base_url="https://example.com", engine="ZEEP")
+            BfabricClientConfig(base_url="https://example.com/bfabric", engine="ZEEP")
 
 
 class TestDefaultParams:
@@ -58,17 +58,22 @@ class TestBaseUrl:
     )
     def test_normalizes_slash(self, base_url):
         config = BfabricClientConfig(base_url=base_url)
-        assert config.base_url == "https://example.com/bfabric/"
+        assert config.base_url == "https://example.com/bfabric"
+
+    def test_normalizes_host_only_url(self):
+        # AnyHttpUrl re-adds the slash for an empty path, so the strip has to happen after validation.
+        config = BfabricClientConfig(base_url="https://example.com/bfabric")
+        assert config.base_url == "https://example.com/bfabric"
 
 
 def test_bfabric_config_copy_with_overrides(mock_config: BfabricClientConfig) -> None:
     new_config = mock_config.copy_with(
-        base_url="https://example.com/new-url",
+        base_url="https://other.example.com/bfabric",
         application_ids={"new": 2},
     )
-    assert new_config.base_url == "https://example.com/new-url/"
+    assert new_config.base_url == "https://other.example.com/bfabric"
     assert new_config.application_ids == {"new": 2}
-    assert mock_config.base_url == "https://example.com/"
+    assert mock_config.base_url == "https://example.com/bfabric"
     assert mock_config.application_ids == {"app": 1}
 
 
@@ -76,9 +81,9 @@ def test_bfabric_config_copy_with_replaced_when_none(
     mock_config: BfabricClientConfig,
 ) -> None:
     new_config = mock_config.copy_with(base_url=None, application_ids=None)
-    assert new_config.base_url == "https://example.com/"
+    assert new_config.base_url == "https://example.com/bfabric"
     assert new_config.application_ids == {"app": 1}
-    assert mock_config.base_url == "https://example.com/"
+    assert mock_config.base_url == "https://example.com/bfabric"
     assert mock_config.application_ids == {"app": 1}
 
 
@@ -96,7 +101,7 @@ def test_bfabric_config_read_yml_bypath_default(mocker: MockerFixture, example_c
     config, auth = read_config_file(example_config_path)
     assert auth.login == "testuser"
     assert auth.password.get_secret_value() == "01234567890123456789012345678901"
-    assert config.base_url == "https://prod-server.example.com/api/"
+    assert config.base_url == "https://prod-server.example.com/bfabric"
 
     logot.assert_logged(
         logged.debug(f"Reading configuration from: {str(example_config_path.absolute())} config_env=None")
@@ -113,7 +118,7 @@ def test_bfabric_config_read_yml_bypath_environment_variable(
     config, auth = read_config_file(example_config_path)
     assert auth.login == "testuser"
     assert auth.password.get_secret_value() == "012345678901234567890123456789ff"
-    assert config.base_url == "https://test-server.example.com/api/"
+    assert config.base_url == "https://test-server.example.com/bfabric"
 
     logot.assert_logged(
         logged.debug(f"Reading configuration from: {str(example_config_path.absolute())} config_env=None")
@@ -125,7 +130,7 @@ def test_bfabric_config_read_yml_bypath_environment_variable(
 def test_repr(mock_config: BfabricClientConfig, variant) -> None:
     rep = variant(mock_config)
     assert rep == (
-        "BfabricClientConfig(base_url='https://example.com/', application_ids={'app': 1}, job_notification_emails='',"
+        "BfabricClientConfig(base_url='https://example.com/bfabric', application_ids={'app': 1}, job_notification_emails='',"
         " engine=BfabricAPIEngineType.SUDS)"
     )
 

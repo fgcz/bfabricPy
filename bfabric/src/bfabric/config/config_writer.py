@@ -1,6 +1,6 @@
 """Write environment entries to the bfabricpy YAML config file.
 
-Note: rewriting the file drops any YAML comments in it (``yaml.dump`` doesn't preserve them).
+Note: rewriting the file drops any YAML comments in it (``yaml.safe_dump`` doesn't preserve them).
 """
 
 from __future__ import annotations
@@ -27,6 +27,13 @@ _AUTH_OWNED_KEYS = frozenset({"login", "password", "pat", "auth_method", "client
 _INLINE_SECRET_KEYS: tuple[str, ...] = ("login", "password", "pat")
 
 
+def _plain(value: object) -> object:
+    """*value* with ``str`` subclasses (e.g. ``BaseUrl``) unwrapped, which ``safe_dump`` rejects."""
+    if isinstance(value, dict):
+        return {key: _plain(item) for key, item in cast("dict[object, object]", value).items()}
+    return str(value) if isinstance(value, str) else value
+
+
 def _read_config_file(config_path: Path) -> dict[str, object]:
     """Raw YAML mapping at *config_path*, empty if it is absent or not a mapping."""
     config_path = Path(config_path).expanduser()
@@ -40,7 +47,7 @@ def _write_config_file(config_path: Path, data: Mapping[str, object]) -> None:
     """Serialize *data* to *config_path* as YAML, mode ``0o600`` (fchmod forces it on existing files)."""
     config_path = Path(config_path).expanduser()
     config_path.parent.mkdir(parents=True, exist_ok=True)
-    serialized = yaml.dump(data, default_flow_style=False, sort_keys=False).encode()
+    serialized = yaml.safe_dump(_plain(data), default_flow_style=False, sort_keys=False).encode()
     fd = os.open(str(config_path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     try:
         os.fchmod(fd, 0o600)

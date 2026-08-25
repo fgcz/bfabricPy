@@ -20,8 +20,8 @@ def _write_config(config_file, default="PROD"):
         yaml.dump(
             {
                 "GENERAL": general,
-                "PROD": {"base_url": "https://prod.example.com", "auth_method": "oauth"},
-                "TEST": {"base_url": "https://test.example.com", "auth_method": "oauth"},
+                "PROD": {"base_url": "https://prod.example.com/bfabric", "auth_method": "oauth"},
+                "TEST": {"base_url": "https://test.example.com/bfabric", "auth_method": "oauth"},
             }
         )
     )
@@ -202,23 +202,23 @@ class TestResolveBaseUrl:
 
 class TestResolveScopeFromEnvironment:
     def test_recorded_scope_is_replayed(self):
-        env = EnvironmentConfig.model_validate({"base_url": "https://example.com", "scope": "api:write tus"})
+        env = EnvironmentConfig.model_validate({"base_url": "https://example.com/bfabric", "scope": "api:write tus"})
         assert resolve_scope(None, env) == "api:write tus"
 
     def test_explicit_scope_wins_over_the_recorded_one(self):
-        env = EnvironmentConfig.model_validate({"base_url": "https://example.com", "scope": "api:read"})
+        env = EnvironmentConfig.model_validate({"base_url": "https://example.com/bfabric", "scope": "api:read"})
         assert resolve_scope("upload", env) == "api:write tus"
 
     def test_env_without_scope_still_prompts(self, mocker):
         """A 1.16.0-era environment has no ``scope``; it prompts once rather than reusing the cached
         *granted* scope, which would bake in a silent server-side drop."""
-        env = EnvironmentConfig.model_validate({"base_url": "https://example.com", "auth_method": "oauth"})
+        env = EnvironmentConfig.model_validate({"base_url": "https://example.com/bfabric", "auth_method": "oauth"})
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=True)
         mocker.patch("bfabric_scripts.cli.login._common.select_choice", return_value="read-only")
         assert resolve_scope(None, env) == "api:read"
 
     def test_env_without_scope_headless_returns_none(self, mocker):
-        env = EnvironmentConfig.model_validate({"base_url": "https://example.com", "auth_method": "oauth"})
+        env = EnvironmentConfig.model_validate({"base_url": "https://example.com/bfabric", "auth_method": "oauth"})
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=False)
         assert resolve_scope(None, env) is None
 
@@ -229,7 +229,7 @@ class TestRequireMutableConfig:
         assert require_mutable_config() is True
 
     def test_refuses_and_names_the_variable(self, monkeypatch, capsys):
-        monkeypatch.setenv("BFABRICPY_CONFIG_OVERRIDE", '{"base_url": "https://example.com"}')
+        monkeypatch.setenv("BFABRICPY_CONFIG_OVERRIDE", '{"base_url": "https://example.com/bfabric"}')
         assert require_mutable_config() is False
         assert "BFABRICPY_CONFIG_OVERRIDE" in capsys.readouterr().out
 
@@ -248,5 +248,5 @@ class TestDescribeActiveReason:
         assert describe_active_reason("PROD", "PROD") == ""
 
     def test_override_pins_everything(self, monkeypatch):
-        monkeypatch.setenv("BFABRICPY_CONFIG_OVERRIDE", '{"base_url": "https://example.com"}')
+        monkeypatch.setenv("BFABRICPY_CONFIG_OVERRIDE", '{"base_url": "https://example.com/bfabric"}')
         assert describe_active_reason("PROD", "PROD") == "  (config pinned by BFABRICPY_CONFIG_OVERRIDE)"
