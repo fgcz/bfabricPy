@@ -23,7 +23,7 @@ from datetime import datetime
 from functools import cached_property
 from pathlib import Path
 from pprint import pprint
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from loguru import logger
 from rich.console import Console
@@ -56,6 +56,7 @@ class Bfabric:
     """
 
     _credential_provider: OAuthCredentialProvider | None
+    _config_data: ConfigData
 
     def __init__(
         self,
@@ -64,6 +65,7 @@ class Bfabric:
         _credential_provider: OAuthCredentialProvider | None = None,
     ) -> None:
         self.query_counter = 0
+        self._config_data = config_data
         self._config = config_data.client
         self._auth = config_data.auth
         self._credential_provider = _credential_provider
@@ -371,8 +373,8 @@ class Bfabric:
 
     @property
     def config_data(self) -> ConfigData:
-        """Returns the config data object."""
-        return ConfigData(client=self._config, auth=self._auth)
+        """Returns the config data object, reflecting the auth currently in effect."""
+        return self._config_data.with_auth(self._auth)
 
     @contextmanager
     def with_auth(self, auth: BfabricAuth) -> Generator[None, None, None]:
@@ -584,16 +586,21 @@ class Bfabric:
         return {
             "config": self._config,
             "auth": self._auth,
+            "config_data": self._config_data,
             "query_counter": self.query_counter,
             "credential_provider": self._credential_provider,
         }
 
     def __setstate__(self, state: dict[str, Any]) -> None:
-        self._config = state["config"]
-        self._auth = state["auth"]
+        config = cast("BfabricClientConfig", state["config"])
+        auth = cast("BfabricAuth | None", state["auth"])
+        self._config = config
+        self._auth = auth
         self.query_counter = state["query_counter"]
-        # .get for backward compatibility with pickles created before the provider was retained.
+        # .get for backward compatibility with pickles created before these were retained.
         self._credential_provider = state.get("credential_provider")
+        stored = cast("ConfigData | None", state.get("config_data"))
+        self._config_data = stored if stored is not None else ConfigData(client=config, auth=auth)
 
 
 def get_system_auth(

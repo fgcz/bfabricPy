@@ -9,7 +9,7 @@ from bfabric import Bfabric, BfabricAPIEngineType, BfabricClientConfig, BfabricA
 from bfabric.config import BaseUrl
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
-from bfabric.config.config_data import ConfigData
+from bfabric.config.config_data import ConfigData, export_config_data
 from bfabric.engine.engine_suds import EngineSUDS
 from bfabric.entities.core.entity_reader import EntityReader
 
@@ -855,3 +855,42 @@ class TestPickling:
         restored = pickle.loads(pickle.dumps(config))  # noqa: S301
         assert restored.base_url == "https://example.com/bfabric"
         assert isinstance(restored.base_url, BaseUrl)
+
+
+class TestConfigDataRoundTrip:
+    """A client must not silently downgrade the config it was built from."""
+
+    @pytest.fixture
+    def oauth_config_data(self):
+        return ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=None,
+            auth_method="oauth",
+            client_id="CLI",
+            env_name="PROD",
+        )
+
+    def test_oauth_fields_survive(self, mocker, oauth_config_data):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        client = Bfabric(config_data=oauth_config_data)
+        assert client.config_data == oauth_config_data
+
+    def test_export_round_trip(self, mocker, oauth_config_data):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        client = Bfabric(config_data=oauth_config_data)
+        exported = export_config_data(client.config_data)
+        assert ConfigData.model_validate_json(exported) == oauth_config_data
+
+    def test_with_auth_is_reflected(self, mocker, oauth_config_data):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        client = Bfabric(config_data=oauth_config_data)
+        replacement = BfabricAuth(login="user", password="p" * 32)
+        with client.with_auth(replacement):
+            assert client.config_data.auth == replacement
+            assert client.config_data.client_id == "CLI"
+        assert client.config_data.auth is None
+
+    def test_pickle_keeps_config_data(self, mocker, oauth_config_data):
+        mocker.patch.object(Bfabric, "_log_version_message")
+        client = Bfabric(config_data=oauth_config_data)
+        assert pickle.loads(pickle.dumps(client)).config_data == oauth_config_data

@@ -36,16 +36,10 @@ class ConfigData(BaseModel):
 
     def with_auth(self, auth: BfabricAuth | None) -> ConfigData:
         """Returns a shallow copy of self with the auth field set to the specified value."""
-        return ConfigData(
-            client=self.client,
-            auth=auth,
-            auth_method=self.auth_method,
-            client_id=self.client_id,
-            env_name=self.env_name,
-        )
+        return self.model_copy(update={"auth": auth})
 
 
-def _read_config_file(config_path: Path | str, force_config_env: str | None) -> ConfigData:
+def _load_environment_config_data(config_path: Path | str, force_config_env: str | None) -> ConfigData:
     """Reads the config file and returns the config data."""
     config_file_path = Path(config_path).expanduser()
     if not config_file_path.is_file():
@@ -76,7 +70,7 @@ def load_config_data(
         config_data = ConfigData.model_validate_json(os.environ["BFABRICPY_CONFIG_OVERRIDE"])
     elif config_file_env is not None:
         config_file_env = os.environ.get("BFABRICPY_CONFIG_ENV") if config_file_env == "default" else config_file_env
-        config_data = _read_config_file(config_path=config_file_path, force_config_env=config_file_env)
+        config_data = _load_environment_config_data(config_path=config_file_path, force_config_env=config_file_env)
     else:
         msg = "No configuration was found and config_file_env is set to None."
         raise ValueError(msg)
