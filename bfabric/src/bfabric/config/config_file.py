@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Annotated, Literal, cast
+from typing import Annotated, cast
 
 import yaml
 from loguru import logger
@@ -11,12 +11,12 @@ from pydantic_core import PydanticCustomError
 
 from bfabric.config import BfabricAuth, BfabricClientConfig
 from bfabric.config.auth_methods import (
+    AuthMethodName,
     AuthMethod,
     ClientCredentialsAuth,
     ClientRegistration,
     InteractiveOAuthAuth,
     NoAuth,
-    UnknownAuth,
     auth_method_from_flat,
     auth_owned_keys,
     registration_from_flat,
@@ -57,10 +57,8 @@ class EnvironmentConfig(BaseModel):
         return self.auth_config.static_auth()
 
     @property
-    def auth_method(self) -> Literal["password", "oauth", "pat", "client_credentials"] | None:
-        if isinstance(self.auth_config, NoAuth | UnknownAuth):
-            return None
-        return self.auth_config.declared_name  # pyright: ignore[reportReturnType]
+    def auth_method(self) -> AuthMethodName | None:
+        return self.auth_config.declared_name
 
     @property
     def client_id(self) -> str | None:

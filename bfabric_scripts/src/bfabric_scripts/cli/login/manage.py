@@ -69,7 +69,7 @@ def _load_config(config_file: Path, *, require_environments: bool = False, mutat
 def _auth_method(env: EnvironmentConfig) -> str:
     """How the environment authenticates, whether or not it declared an ``auth_method``."""
     if isinstance(env.auth_config, UnknownAuth):
-        return f"{env.auth_config.declared_name} (unsupported)"
+        return f"{env.auth_config.unknown_name} (unsupported)"
     return env.auth_config.kind
 
 
@@ -237,7 +237,7 @@ def cmd_auth_status(
             print("Token:        stored in config file")
         case PasswordAuth(login=login):
             print(f"Login:        {login}")
-        case UnknownAuth(declared_name=name):
+        case UnknownAuth(unknown_name=name):
             print(f"Unsupported:  '{name}' is not a known auth method; upgrade bfabricPy to use it.")
         case _:
             pass
