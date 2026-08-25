@@ -20,7 +20,6 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 ### Fixed
 
 - `auth register-webapp --save-env` no longer records `auth_method: client_credentials` for a webapp registered with `--service-user`, which made later `connect()` calls on that environment authenticate as the service account instead of the browser flow.
-- `bfabric-cli api update` and `api delete` explain that there is no terminal to confirm on, and name `--no-confirm`, instead of failing with an `EOFError` traceback when run from a script or cron job.
 
 ### Changed
 

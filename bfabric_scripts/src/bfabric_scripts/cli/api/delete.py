@@ -1,5 +1,3 @@
-import sys
-
 import cyclopts
 import rich
 from loguru import logger
@@ -10,7 +8,6 @@ from rich.prompt import Confirm
 
 from bfabric import Bfabric
 from bfabric.utils.cli_integration import use_client
-from bfabric_scripts.cli.interactive import is_interactive
 
 
 @cyclopts.Parameter(name="*")
@@ -37,13 +34,6 @@ def cmd_api_delete(params: Params, *, client: Bfabric) -> None:
     if params.no_confirm:
         _perform_delete(client=client, endpoint=params.endpoint, id=params.id)
     else:
-        if not is_interactive():
-            print(
-                f"Refusing to delete from {params.endpoint} without confirmation: there is no "
-                f"terminal to confirm on. Pass --no-confirm to proceed.",
-                file=sys.stderr,
-            )
-            return
         existing_entities = client.read(params.endpoint, {"id": params.id})
 
         for id in params.id:
