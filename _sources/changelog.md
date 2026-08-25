@@ -9,6 +9,30 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.22.0\] - 2026-08-25
+
+### Added
+
+- `upload_files` resumes interrupted transfers by default, keeping each file's tus URL under `~/.bfabric/resume` per server, keyed by the file's MD5 and source path. Pass `resume_cache` to choose another path, or `resume_cache=None` to keep no state and never resume.
+
+### Changed
+
+- **Breaking: new `bfabric.BaseUrl`**, a `str` subclass replacing the pydantic `HttpUrl` on `BfabricClientConfig.base_url`, `Entity.bfabric_instance` and `EntityUriComponents.bfabric_instance`, which always ends with `/bfabric`. `UrlTokenContext.base_url`, `TokenValidationSettings` and `WebappIntegrationSettings` hold their instance URLs as `BaseUrl` too.
+- `connect_oauth` / `connect_pkce` / `connect_device_code` / `connect_pat` and `WebappClient.create` normalise host case and a default port, and reject a non-HTTP URL with a `ValueError`.
+- **Breaking:** `on_duplicate="link"` requires a B-Fabric that reports `linkable` and only links a duplicate reported as linkable; one whose resource is still `pending` or `failed` is uploaded instead. `DuplicateResult` carries `linkable` and `existingResourceStatus`.
+- `DuplicateResult.action` is a `Literal["upload", "skip", "link", "unsupported"]`; an action the client does not recognise is normalised to `unsupported` and refused per file.
+- `upload_files` raises `WorkunitCompletionError`, carrying the `UploadSummary`, when every transfer succeeded but marking the workunit `available` failed.
+- A resumed upload continues into its original workunit, resource and tracked job instead of creating a second one, and an interrupted upload that saved a resume URL leaves its workunit `processing` rather than `failed`.
+- `upload_files` documents that a successful return means the transfer completed, not that the file is stored — a caller that deletes its local copy must re-read the resource status and require `available` first.
+
+### Fixed
+
+- The SUDS WSDL URL, and the `show.html` links printed by `bfabric_read` and `bfabric-cli api read`, no longer contain a doubled slash.
+
+### Removed
+
+- **Breaking:** `bfabric.transfer.api_to_rest_url` — use `client.config.base_url`.
+
 ## \[1.21.0\] - 2026-08-20
 
 ### Added

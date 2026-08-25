@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Troubleshooting &#8212; bfabricPy 1.21.0 documentation</title>
+    <title>Troubleshooting &#8212; bfabricPy 1.22.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=73822e2a"></script>
+    <script src="../_static/documentation_options.js?v=ad9d765f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="Configuration" href="configuration.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.21.0" />
+  <meta name="docsearch:version" content="1.22.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.21.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.22.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -409,6 +409,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-issues">Configuration Issues</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-file-not-found">“Configuration file not found”</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-login-or-password">“Invalid login or password”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#is-not-a-b-fabric-instance-url">“is not a B-Fabric instance URL”</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#no-default-config-found">“No default_config found”</a></li>
 </ul>
 </li>
@@ -490,6 +491,17 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from b
 <li><p>Check that password doesn’t contain special characters that need escaping in YAML</p></li>
 </ul>
 </section>
+<section id="is-not-a-b-fabric-instance-url">
+<h3>“is not a B-Fabric instance URL”<a class="headerlink" href="#is-not-a-b-fabric-instance-url" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">base_url</span></code> has to name the instance’s servlet root, which ends in <code class="docutils literal notranslate"><span class="pre">/bfabric</span></code>. The error quotes the URL
+it got and the one you probably meant:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>'https://fgcz-bfabric.uzh.ch' is not a B-Fabric instance URL: it must end in '/bfabric' --
+did you mean 'https://fgcz-bfabric.uzh.ch/bfabric'?
+</pre></div>
+</div>
+<p>Fix <code class="docutils literal notranslate"><span class="pre">base_url</span></code> in <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> (or the <code class="docutils literal notranslate"><span class="pre">connect_*</span></code> argument) to the suggested value. The same
+applies to a URL that reaches past the servlet root, such as one ending in <code class="docutils literal notranslate"><span class="pre">/bfabric/api</span></code>.</p>
+</section>
 <section id="no-default-config-found">
 <h3>“No default_config found”<a class="headerlink" href="#no-default-config-found" title="Link to this heading">#</a></h3>
 <p>Add a <code class="docutils literal notranslate"><span class="pre">default_config</span></code> field under the <code class="docutils literal notranslate"><span class="pre">GENERAL</span></code> section in your config file:</p>
@@ -501,7 +513,7 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from b
 <span class="nt">PRODUCTION</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">login</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricLogin</span>
 <span class="w">  </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourBfabricWebServicePassword</span>
-<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric.uzh.ch/bfabric/</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric.uzh.ch/bfabric</span>
 </pre></div>
 </div>
 </section>
@@ -594,8 +606,8 @@ bfabric-cli<span class="w"> </span>--help
 </div>
 <p>Common URLs:</p>
 <ul class="simple">
-<li><p><strong>Production</strong>: <code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric.uzh.ch/bfabric/</span></code></p></li>
-<li><p><strong>Test</strong>: <code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric-test.uzh.ch/bfabric/</span></code></p></li>
+<li><p><strong>Production</strong>: <code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric.uzh.ch/bfabric</span></code></p></li>
+<li><p><strong>Test</strong>: <code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric-test.uzh.ch/bfabric</span></code></p></li>
 </ul>
 <p>If you’re connecting to the wrong instance, update your config file or use a different environment:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">BFABRICPY_CONFIG_ENV</span><span class="o">=</span>TEST<span class="w">  </span><span class="c1"># or PRODUCTION</span>
@@ -645,7 +657,11 @@ bfabric-cli<span class="w"> </span>--help
 <td><p>“No default_config found”</p></td>
 <td><p>Add <code class="docutils literal notranslate"><span class="pre">default_config</span></code> field under <code class="docutils literal notranslate"><span class="pre">GENERAL</span></code> section</p></td>
 </tr>
-<tr class="row-even"><td><p>Typos in filter names</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">base_url</span></code> without the <code class="docutils literal notranslate"><span class="pre">/bfabric</span></code> path</p></td>
+<td><p>“is not a B-Fabric instance URL”</p></td>
+<td><p>Use the URL the error suggests</p></td>
+</tr>
+<tr class="row-odd"><td><p>Typos in filter names</p></td>
 <td><p>No results or errors</p></td>
 <td><p>Use <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">inspect</span></code> to check valid parameter names</p></td>
 </tr>
@@ -732,6 +748,7 @@ bfabric-cli<span class="w"> </span>--help
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-issues">Configuration Issues</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-file-not-found">“Configuration file not found”</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#invalid-login-or-password">“Invalid login or password”</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#is-not-a-b-fabric-instance-url">“is not a B-Fabric instance URL”</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#no-default-config-found">“No default_config found”</a></li>
 </ul>
 </li>
