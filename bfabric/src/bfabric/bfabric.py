@@ -103,46 +103,20 @@ class Bfabric:
         config_data = load_config_data(
             config_file_path=config_file_path, include_auth=include_auth, config_file_env=config_file_env
         )
-        if config_data.auth_method == "oauth":
-            return cls._connect_oauth_from_config(config_data)
-        return cls(config_data=config_data)
+        return cls.from_config_data(config_data)
+
+    @classmethod
+    def from_config_data(cls, config_data: ConfigData) -> Bfabric:
+        """Build a client from *config_data*, wiring a credential provider if its auth method needs one."""
+        provider = config_data.auth_config().credential_provider(
+            base_url=config_data.client.base_url, env_name=config_data.env_name
+        )
+        return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
     def _connect_oauth_from_config(cls, config_data: ConfigData) -> Bfabric:
-        """Create a Bfabric instance from a config with ``auth_method: oauth``.
-
-        Loads tokens from the disk cache keyed on ``base_url`` + ``client_id`` + ``env_name``.
-        """
-        from bfabric.oauth._credential_provider import OAuthCredentialProvider
-        from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
-
-        base_url = config_data.client.base_url
-        if not config_data.client_id:
-            raise ValueError(
-                "OAuth config is missing 'client_id'. Set it in the config environment "
-                "(e.g. re-run 'bfabric-cli auth login' or 'bfabric-cli auth device-code')."
-            )
-        client_id = config_data.client_id
-        if not config_data.env_name:
-            # The cache key includes the environment name, and "default" (the old fallback here) is a
-            # name the config layer forbids outright — so it could never match a CLI-written cache.
-            raise ValueError(
-                "OAuth config is missing 'env_name', so the token cache cannot be located. When "
-                "configuring via BFABRICPY_CONFIG_OVERRIDE, include 'env_name' naming the "
-                "environment whose cached token should be used."
-            )
-        cache_path = compute_token_cache_path(base_url, client_id, config_data.env_name).expanduser()
-        if not TokenCache(cache_path).load():
-            raise ValueError("No OAuth tokens found. Run 'bfabric-cli auth login' or 'bfabric-cli auth device-code'.")
-        provider = OAuthCredentialProvider(
-            client_id=client_id,
-            client_secret="",
-            token_url=f"{base_url}/rest/oauth/token",
-            scope="",
-            grant_type="refresh_token",
-            token_cache_path=cache_path,
-        )
-        return cls(config_data=config_data, _credential_provider=provider)
+        """Deprecated alias of :meth:`from_config_data`."""
+        return cls.from_config_data(config_data)
 
     @classmethod
     def from_config(
@@ -247,13 +221,11 @@ class Bfabric:
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
 
         base_url = BaseUrl(base_url)
-        token_url = f"{base_url}/rest/oauth/token"
-        provider = OAuthCredentialProvider(
+        provider = OAuthCredentialProvider.for_client_credentials(
+            base_url=base_url,
             client_id=client_id,
             client_secret=client_secret,
-            token_url=token_url,
             scope=scope,
-            grant_type="client_credentials",
             token_cache_path=token_cache_path,
         )
         config_data = ConfigData(client=BfabricClientConfig(base_url=base_url), auth=None)
@@ -296,13 +268,10 @@ class Bfabric:
             open_browser=open_browser,
             timeout=timeout,
         )
-        token_url = f"{base_url}/rest/oauth/token"
-        provider = OAuthCredentialProvider(
+        provider = OAuthCredentialProvider.for_refresh(
+            base_url=base_url,
             client_id=client_id,
-            client_secret="",
-            token_url=token_url,
             token=token,
-            grant_type="refresh_token",
             scope=scope,
             token_cache_path=token_cache_path,
         )
@@ -344,13 +313,10 @@ class Bfabric:
             scope=scope,
             timeout=timeout,
         )
-        token_url = f"{base_url}/rest/oauth/token"
-        provider = OAuthCredentialProvider(
+        provider = OAuthCredentialProvider.for_refresh(
+            base_url=base_url,
             client_id=client_id,
-            client_secret="",
-            token_url=token_url,
             token=token,
-            grant_type="refresh_token",
             scope=scope,
             token_cache_path=token_cache_path,
         )

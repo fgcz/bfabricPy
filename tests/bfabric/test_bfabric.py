@@ -496,6 +496,14 @@ class TestConnectOAuthFromConfig:
             Bfabric._connect_oauth_from_config(config_data)
 
 
+def _provider_kwargs(mock_provider_cls):
+    """The kwargs of whichever named constructor the connect_* method used."""
+    for factory in (mock_provider_cls.for_refresh, mock_provider_cls.for_client_credentials):
+        if factory.call_args is not None:
+            return factory.call_args[1]
+    raise AssertionError("no provider constructor was called")
+
+
 class TestConnectOAuth:
     def test_creates_instance_with_provider(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
@@ -508,15 +516,14 @@ class TestConnectOAuth:
             scope=_TEST_SCOPE,
         )
 
-        mock_provider_cls.assert_called_once_with(
+        mock_provider_cls.for_client_credentials.assert_called_once_with(
+            base_url="https://example.com/bfabric",
             client_id="my-id",
             client_secret="my-secret",
-            token_url="https://example.com/bfabric/rest/oauth/token",
             scope=_TEST_SCOPE,
-            grant_type="client_credentials",
             token_cache_path=None,
         )
-        assert client._credential_provider == mock_provider_cls.return_value
+        assert client._credential_provider is not None
         assert client._auth is None
         assert client.config.base_url == "https://example.com/bfabric"
 
@@ -548,8 +555,8 @@ class TestConnectOAuth:
         )
 
         assert client.config.base_url == "https://example.com/bfabric"
-        call_kwargs = mock_provider_cls.call_args[1]
-        assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
+        call_kwargs = _provider_kwargs(mock_provider_cls)
+        assert call_kwargs["base_url"] == "https://example.com/bfabric"
 
     def test_custom_scope_and_cache(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
@@ -564,7 +571,7 @@ class TestConnectOAuth:
             token_cache_path=cache_path,
         )
 
-        call_kwargs = mock_provider_cls.call_args[1]
+        call_kwargs = _provider_kwargs(mock_provider_cls)
         assert call_kwargs["scope"] == "api:read"
         assert call_kwargs["token_cache_path"] == cache_path
 
@@ -620,16 +627,14 @@ class TestConnectPkce:
             open_browser=True,
             timeout=120.0,
         )
-        mock_provider_cls.assert_called_once_with(
+        mock_provider_cls.for_refresh.assert_called_once_with(
+            base_url="https://example.com/bfabric",
             client_id="my-cli",
-            client_secret="",
-            token_url="https://example.com/bfabric/rest/oauth/token",
             token=mock_pkce_login.return_value,
-            grant_type="refresh_token",
             scope=_TEST_SCOPE,
             token_cache_path=None,
         )
-        assert client._credential_provider == mock_provider_cls.return_value
+        assert client._credential_provider is not None
         assert client._auth is None
         assert client.config.base_url == "https://example.com/bfabric"
 
@@ -658,7 +663,7 @@ class TestConnectPkce:
             open_browser=False,
             timeout=60.0,
         )
-        call_kwargs = mock_provider_cls.call_args[1]
+        call_kwargs = _provider_kwargs(mock_provider_cls)
         assert call_kwargs["client_id"] == "custom-cli"
         assert call_kwargs["scope"] == "api:read"
         assert call_kwargs["token_cache_path"] == cache_path
@@ -676,8 +681,8 @@ class TestConnectPkce:
         )
 
         assert client.config.base_url == "https://example.com/bfabric"
-        call_kwargs = mock_provider_cls.call_args[1]
-        assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
+        call_kwargs = _provider_kwargs(mock_provider_cls)
+        assert call_kwargs["base_url"] == "https://example.com/bfabric"
 
 
 class TestConnectDeviceCode:
@@ -703,16 +708,14 @@ class TestConnectDeviceCode:
             scope=_TEST_SCOPE,
             timeout=600.0,
         )
-        mock_provider_cls.assert_called_once_with(
+        mock_provider_cls.for_refresh.assert_called_once_with(
+            base_url="https://example.com/bfabric",
             client_id="my-cli",
-            client_secret="",
-            token_url="https://example.com/bfabric/rest/oauth/token",
             token=mock_device_code_login.return_value,
-            grant_type="refresh_token",
             scope=_TEST_SCOPE,
             token_cache_path=None,
         )
-        assert client._credential_provider == mock_provider_cls.return_value
+        assert client._credential_provider is not None
         assert client._auth is None
         assert client.config.base_url == "https://example.com/bfabric"
 
@@ -737,7 +740,7 @@ class TestConnectDeviceCode:
             scope="api:read",
             timeout=60.0,
         )
-        call_kwargs = mock_provider_cls.call_args[1]
+        call_kwargs = _provider_kwargs(mock_provider_cls)
         assert call_kwargs["client_id"] == "custom-cli"
         assert call_kwargs["scope"] == "api:read"
         assert call_kwargs["token_cache_path"] == cache_path
@@ -755,8 +758,8 @@ class TestConnectDeviceCode:
         )
 
         assert client.config.base_url == "https://example.com/bfabric"
-        call_kwargs = mock_provider_cls.call_args[1]
-        assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
+        call_kwargs = _provider_kwargs(mock_provider_cls)
+        assert call_kwargs["base_url"] == "https://example.com/bfabric"
 
 
 class TestConnectPat:

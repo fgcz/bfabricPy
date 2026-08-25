@@ -58,8 +58,6 @@ class WebappClient:
         from bfabric.config.config_data import ConfigData
 
         base_url = BaseUrl(base_url)
-        token_url = f"{base_url}/rest/oauth/token"
-
         # 1. Exchange the short-lived launch token for access + refresh tokens
         token_dict = exchange_token(
             base_url,
@@ -73,13 +71,11 @@ class WebappClient:
         context = UrlTokenContext.model_validate(claims)
 
         # 3. Create user client with OAuthCredentialProvider (refresh_token grant)
-        user_provider = OAuthCredentialProvider(
+        user_provider = OAuthCredentialProvider.for_refresh(
+            base_url=base_url,
             client_id=client_id,
             client_secret=client_secret,
-            token_url=token_url,
-            scope="",
             token=token_dict,
-            grant_type="refresh_token",
             token_cache_path=user_token_cache_path,
         )
         config = BfabricClientConfig(base_url=base_url)
