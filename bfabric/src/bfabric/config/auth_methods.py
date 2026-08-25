@@ -27,10 +27,18 @@ class AuthMethodBase(BaseModel):
     """Base for the auth-method variants."""
 
     owned_keys: ClassVar[frozenset[str]] = frozenset()
+    declared_method: ClassVar[str | None] = None
 
     def to_flat(self) -> dict[str, object]:
-        """The flat YAML fragment for this method."""
-        return {}
+        """The flat YAML fragment for this method, built from the keys it owns."""
+        flat: dict[str, object] = {}
+        if self.declared_method is not None and getattr(self, "auth_method_written", True):
+            flat["auth_method"] = self.declared_method
+        for key in sorted(self.owned_keys, key=_FLAT_KEY_ORDER.index):
+            value = getattr(self, key, None)
+            if value is not None:
+                flat[key] = value.get_secret_value() if isinstance(value, SecretStr) else value
+        return flat
 
     def static_auth(self) -> BfabricAuth | None:
         """Credentials available without a network round trip."""
@@ -48,16 +56,8 @@ class PasswordAuth(AuthMethodBase):
     password: SecretStr
     auth_method_written: bool = Field(default=False, exclude=True)
 
+    declared_method: ClassVar[str | None] = "password"
     owned_keys: ClassVar[frozenset[str]] = frozenset({"login", "password"})
-
-    @override
-    def to_flat(self) -> dict[str, object]:
-        flat: dict[str, object] = {}
-        if self.auth_method_written:
-            flat["auth_method"] = "password"
-        flat["login"] = self.login
-        flat["password"] = self.password.get_secret_value()
-        return flat
 
     @override
     def static_auth(self) -> BfabricAuth:
@@ -68,6 +68,7 @@ class PatAuth(AuthMethodBase):
     kind: Literal["pat"] = "pat"
     pat: SecretStr
 
+    declared_method: ClassVar[str | None] = "pat"
     owned_keys: ClassVar[frozenset[str]] = frozenset({"pat"})
 
     @override
@@ -85,16 +86,8 @@ class InteractiveOAuthAuth(AuthMethodBase):
     scope: str | None = None
     auth_method_written: bool = Field(default=True, exclude=True)
 
+    declared_method: ClassVar[str | None] = "oauth"
     owned_keys: ClassVar[frozenset[str]] = frozenset({"client_id", "scope"})
-
-    @override
-    def to_flat(self) -> dict[str, object]:
-        flat: dict[str, object] = {"auth_method": "oauth"} if self.auth_method_written else {}
-        if self.client_id is not None:
-            flat["client_id"] = self.client_id
-        if self.scope is not None:
-            flat["scope"] = self.scope
-        return flat
 
     @override
     def credential_provider(self, *, base_url: BaseUrl, env_name: str | None) -> OAuthCredentialProvider:
@@ -126,18 +119,8 @@ class ClientCredentialsAuth(AuthMethodBase):
     client_secret: SecretStr | None = None
     scope: str | None = None
 
+    declared_method: ClassVar[str | None] = "client_credentials"
     owned_keys: ClassVar[frozenset[str]] = frozenset({"client_id", "client_secret", "scope"})
-
-    @override
-    def to_flat(self) -> dict[str, object]:
-        flat: dict[str, object] = {"auth_method": "client_credentials"}
-        if self.client_id is not None:
-            flat["client_id"] = self.client_id
-        if self.client_secret is not None:
-            flat["client_secret"] = self.client_secret.get_secret_value()
-        if self.scope is not None:
-            flat["scope"] = self.scope
-        return flat
 
     @override
     def credential_provider(self, *, base_url: BaseUrl, env_name: str | None) -> OAuthCredentialProvider:
@@ -214,6 +197,9 @@ AUTH_METHOD_CLASSES: tuple[type[AuthMethodBase], ...] = (
 )
 
 _KNOWN_METHODS = frozenset({"password", "pat", "oauth", "client_credentials"})
+
+# Emission order, so a rewritten environment keeps the layout the CLI has always produced.
+_FLAT_KEY_ORDER = ["login", "password", "pat", "client_id", "client_secret", "scope"]
 
 
 def auth_owned_keys() -> frozenset[str]:
