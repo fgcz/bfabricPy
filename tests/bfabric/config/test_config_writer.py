@@ -139,7 +139,12 @@ class TestWriteEnvironmentToConfig:
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://example.com/bfabric", "auth_method": "oauth", "client_id": "CLI", "scope": "api:read"},
+            {
+                "base_url": "https://example.com/bfabric",
+                "auth_method": "oauth",
+                "client_id": "CLI",
+                "scope": "api:read",
+            },
             auth="replace",
             set_default=True,
         )
@@ -691,7 +696,7 @@ class TestAtomicWrite:
     def test_no_temp_file_left_when_serialization_fails(self, tmp_path, mocker):
         config_file = tmp_path / "config.yml"
         self._write(config_file, set_default=True)
-        mocker.patch("bfabric.config.config_writer.yaml.dump", side_effect=RuntimeError("boom"))
+        mocker.patch("bfabric.config.config_writer.yaml.safe_dump", side_effect=RuntimeError("boom"))
 
         with pytest.raises(RuntimeError, match="boom"):
             self._write(config_file, set_default=False)
