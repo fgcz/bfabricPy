@@ -5,7 +5,6 @@ Note: rewriting the file drops any YAML comments in it (``yaml.safe_dump`` doesn
 
 from __future__ import annotations
 
-import copy
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
@@ -59,9 +58,6 @@ def _write_config_file(config_path: Path, data: Mapping[str, object]) -> None:
 def _load_for_edit(config_path: Path, env_name: str) -> dict[str, object]:
     """Raw YAML mapping for an in-place edit of *env_name*.
 
-    Membership is checked through the reader, on a deep copy since ``ConfigFile``'s "before"
-    validators mutate their input, so the returned mapping stays pristine for the write.
-
     :raises FileNotFoundError: If the config file does not exist.
     :raises ValueError: If *env_name* is not among the configured environments.
     """
@@ -69,7 +65,7 @@ def _load_for_edit(config_path: Path, env_name: str) -> dict[str, object]:
     if not config_path.is_file():
         raise FileNotFoundError(f"Config file not found: {config_path}")
     existing = _read_config_file(config_path)
-    environments = ConfigFile.model_validate(copy.deepcopy(existing)).environments
+    environments = ConfigFile.model_validate(existing).environments
     if env_name not in environments:
         available = ", ".join(sorted(environments)) or "(none)"
         raise ValueError(f"Environment {env_name!r} is not defined. Available environments: {available}")
@@ -99,8 +95,7 @@ def write_environment_to_config(
     kept: dict[str, object] = {}
     if isinstance(previous, dict):
         kept = {k: v for k, v in cast("dict[str, object]", previous).items() if k not in _AUTH_OWNED_KEYS}
-    # Validate the *merged* environment, not just env_data: the merge is what gets persisted. Validate
-    # a copy — the reader's "before" validators mutate their input, which would corrupt the write.
+    # Validate the *merged* environment, not just env_data: the merge is what gets persisted.
     merged = kept | dict(env_data)
     _ = EnvironmentConfig.model_validate(dict(merged))
 

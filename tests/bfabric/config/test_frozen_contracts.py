@@ -6,6 +6,7 @@ verified as behaviour-preserving. They pass unchanged against the pre-refactor c
 
 from __future__ import annotations
 
+import copy
 import json
 
 import pytest
@@ -14,7 +15,7 @@ from pydantic import SecretStr
 
 from bfabric.config import BfabricAuth, BfabricClientConfig
 from bfabric.config.config_data import ConfigData, export_config_data
-from bfabric.config.config_file import ConfigFile
+from bfabric.config.config_file import ConfigFile, EnvironmentConfig
 from bfabric.config.config_writer import _AUTH_OWNED_KEYS, _INLINE_SECRET_KEYS, write_environment_to_config
 
 
@@ -39,6 +40,37 @@ class TestAuthOwnedKeys:
         )
         dumped = config.environments["PROD"].config.model_dump()
         assert not _AUTH_OWNED_KEYS & set(dumped)
+
+
+class TestAuthMethodPropertyMatchesLegacyReader:
+    """``auth_method`` reports only what the file actually declared."""
+
+    @pytest.mark.parametrize(
+        ("flat", "expected"),
+        [
+            ({"base_url": "https://example.com/bfabric", "scope": "api:write"}, None),
+            ({"base_url": "https://example.com/bfabric", "client_id": "CLI"}, None),
+            ({"base_url": "https://example.com/bfabric", "login": "u", "password": "p" * 32}, None),
+            ({"base_url": "https://example.com/bfabric", "auth_method": "oauth", "client_id": "CLI"}, "oauth"),
+            ({"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "t"}, "pat"),
+            (
+                {
+                    "base_url": "https://example.com/bfabric",
+                    "auth_method": "password",
+                    "login": "u",
+                    "password": "p" * 32,
+                },
+                "password",
+            ),
+        ],
+    )
+    def test_reported_auth_method(self, flat, expected):
+        assert (
+            ConfigFile.model_validate({"GENERAL": {"default_config": "PROD"}, "PROD": flat})
+            .environments["PROD"]
+            .auth_method
+            == expected
+        )
 
 
 class TestConfigDataFrozenShape:
@@ -126,3 +158,22 @@ class TestWriteSiteYamlKeys:
         config_file = tmp_path / "config.yml"
         write_environment_to_config(config_file, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
         assert config_file.stat().st_mode & 0o777 == 0o600
+
+
+class TestReaderDoesNotMutateInput:
+    """The writers pass the mapping they are about to persist through the reader to validate it."""
+
+    def test_config_file_validate_leaves_input_untouched(self):
+        raw = {
+            "GENERAL": {"default_config": "PROD"},
+            "PROD": {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "token"},
+        }
+        before = copy.deepcopy(raw)
+        _ = ConfigFile.model_validate(raw)
+        assert raw == before
+
+    def test_environment_config_validate_leaves_input_untouched(self):
+        raw = {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "token"}
+        before = copy.deepcopy(raw)
+        _ = EnvironmentConfig.model_validate(raw)
+        assert raw == before

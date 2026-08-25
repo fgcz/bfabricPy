@@ -2,15 +2,25 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Annotated, Any, Literal
+from typing import Annotated, Literal, cast
 
 import yaml
 from loguru import logger
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
 from pydantic_core import PydanticCustomError
 
 from bfabric.config import BfabricAuth, BfabricClientConfig
-from bfabric.config.bfabric_auth import OAUTH_LOGIN
+from bfabric.config.auth_methods import (
+    AuthMethod,
+    ClientCredentialsAuth,
+    ClientRegistration,
+    InteractiveOAuthAuth,
+    NoAuth,
+    UnknownAuth,
+    auth_method_from_flat,
+    auth_owned_keys,
+    registration_from_flat,
+)
 
 # Canonical default location of the bfabricPy config file. The tilde is kept unexpanded here;
 # callers expand it via Path.expanduser() at the point of use.
@@ -23,36 +33,67 @@ class GeneralConfig(BaseModel):
 
 class EnvironmentConfig(BaseModel):
     config: BfabricClientConfig
-    auth: BfabricAuth | None = None
-    auth_method: Literal["password", "oauth", "pat"] | None = None
-    client_id: str | None = None
-    scope: str | None = None
-    """OAuth scope *requested* at login so a re-login can be replayed without retyping it."""
+    auth_config: AuthMethod = Field(default_factory=NoAuth)
+    registration: ClientRegistration | None = None
 
     @model_validator(mode="before")
     @classmethod
-    def gather_config(cls, values: dict[str, Any]) -> dict[str, Any]:
+    def split_flat_environment(cls, values: object) -> object:
+        """Split a flat YAML environment into client config, auth method and registration."""
         if not isinstance(values, dict):
             return values
-        values["config"] = {
-            key: value
-            for key, value in values.items()  # pyright: ignore[reportAny]
-            if key not in ["login", "password", "auth_method", "client_id", "pat", "scope"]
+        flat = cast("dict[str, object]", values)
+        if "auth_config" in flat:
+            return flat
+        owned = auth_owned_keys()
+        return {
+            "config": {key: value for key, value in flat.items() if key not in owned},
+            "auth_config": auth_method_from_flat(flat),
+            "registration": registration_from_flat(flat),
         }
-        return values
 
-    @model_validator(mode="before")
-    @classmethod
-    def gather_auth(cls, values: dict[str, Any]) -> dict[str, Any]:
-        if isinstance(values, dict):
-            if "login" in values:
-                values["auth"] = BfabricAuth.model_validate(values)
-            elif values.get("pat"):
-                # PAT lives under ``pat`` (not ``login``/``password``) so an unmodified <=1.19.0 client
-                # ignores it; shape an OAuth-style auth for the token.
-                values["auth"] = BfabricAuth.model_validate({"login": OAUTH_LOGIN, "password": values["pat"]})
-            values.pop("pat", None)
-        return values
+    @property
+    def auth(self) -> BfabricAuth | None:
+        return self.auth_config.static_auth()
+
+    @property
+    def auth_method(self) -> Literal["password", "oauth", "pat", "client_credentials"] | None:
+        if isinstance(self.auth_config, NoAuth | UnknownAuth):
+            return None
+        if not getattr(self.auth_config, "auth_method_written", True):
+            return None
+        return self.auth_config.kind
+
+    @property
+    def client_id(self) -> str | None:
+        return getattr(self.auth_config, "client_id", None)
+
+    @property
+    def client_secret(self) -> SecretStr | None:
+        return getattr(self.auth_config, "client_secret", None)
+
+    @property
+    def scope(self) -> str | None:
+        return getattr(self.auth_config, "scope", None)
+
+    @property
+    def registration_access_token(self) -> SecretStr | None:
+        return self.registration.registration_access_token if self.registration else None
+
+    @property
+    def registration_client_uri(self) -> str | None:
+        return self.registration.registration_client_uri if self.registration else None
+
+    def needs_credential_provider(self) -> bool:
+        return isinstance(self.auth_config, InteractiveOAuthAuth | ClientCredentialsAuth)
+
+    def to_flat(self) -> dict[str, object]:
+        """The flat YAML mapping for this environment."""
+        flat = self.config.model_dump(mode="json", exclude_defaults=True)
+        flat |= self.auth_config.to_flat()
+        if self.registration is not None:
+            flat |= self.registration.to_flat()
+        return flat
 
 
 class ConfigFile(BaseModel):
@@ -61,13 +102,17 @@ class ConfigFile(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def gather_configs(cls, values: dict[str, Any]) -> dict[str, Any]:
-        configs = {}
-        for key, value in values.items():
-            if key != "GENERAL":
-                configs[key] = value
-        values["environments"] = configs
-        return values
+    def gather_configs(cls, values: object) -> object:
+        """Group every non-GENERAL section into ``environments``, without mutating *values*."""
+        if not isinstance(values, dict):
+            return values
+        raw = cast("dict[str, object]", values)
+        if "environments" in raw:
+            return raw
+        return {
+            "GENERAL": raw.get("GENERAL", {}),
+            "environments": {key: value for key, value in raw.items() if key != "GENERAL"},
+        }
 
     @model_validator(mode="after")
     def validate_default_config(self) -> ConfigFile:
