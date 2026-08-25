@@ -7,7 +7,7 @@ import time
 import yaml
 
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
-from bfabric_scripts.cli.login.manage import cmd_auth_status, describe_scope, describe_token_cache
+from bfabric_scripts.cli.login.manage import cmd_auth_list, cmd_auth_status, describe_scope, describe_token_cache
 
 
 class TestCmdAuthStatus:
@@ -218,3 +218,46 @@ class TestStatusDisplay:
         monkeypatch.setenv("BFABRICPY_CONFIG_ENV", "TEST")
         cmd_auth_status(config_file=config_file)
         assert "test.example.com" in capsys.readouterr().out
+
+
+class TestUnsupportedAuthMethod:
+    """An auth_method this version does not know is reported, not silently discarded."""
+
+    def _write(self, config_file):
+        config_file.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "PROD"},
+                    "PROD": {
+                        "base_url": "https://example.com/bfabric",
+                        "auth_method": "some_future_method",
+                        "client_id": "CLI",
+                    },
+                    "OTHER": {
+                        "base_url": "https://other.example.com/bfabric",
+                        "login": "testuser",
+                        "password": "x" * 32,
+                    },
+                }
+            )
+        )
+
+    def test_status_names_the_method_and_says_to_upgrade(self, tmp_path, capsys):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file)
+
+        cmd_auth_status(config_file=config_file)
+
+        output = capsys.readouterr().out
+        assert "some_future_method" in output
+        assert "upgrade" in output.lower()
+
+    def test_unrelated_environment_is_still_listed(self, tmp_path, capsys):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file)
+
+        cmd_auth_list(config_file=config_file)
+
+        output = capsys.readouterr().out
+        assert "OTHER" in output
+        assert "password" in output
