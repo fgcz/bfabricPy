@@ -8,7 +8,10 @@ models are parse-only and never serialise themselves back.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, ClassVar, Literal, get_args, override
+from typing import TYPE_CHECKING, Annotated, ClassVar, Literal, get_args
+
+# typing.override is 3.12+, and this package supports 3.11.
+from typing_extensions import override
 
 from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
