@@ -7,23 +7,57 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Literal, cast
 
 import yaml
 
+from bfabric.config.auth_methods import auth_owned_keys
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
 
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
 
-# Keys an auth command owns outright; replaced wholesale on merge so a stale secret can't be
-# resurrected by ``gather_auth`` after re-login via a different method.
-_AUTH_OWNED_KEYS = frozenset({"login", "password", "pat", "auth_method", "client_id", "scope"})
-
 # Inline secrets cleared by :func:`clear_environment_credentials`. OAuth is absent: its token lives in
 # the file cache, so clearing here would report success while leaving the credential in place.
-_INLINE_SECRET_KEYS: tuple[str, ...] = ("login", "password", "pat")
+_INLINE_SECRET_KEYS: tuple[str, ...] = ("login", "password", "pat", "client_secret")
+
+
+def validate_writable_environment(env_data: Mapping[str, object]) -> None:
+    """Reject an environment whose auth keys contradict each other, before it reaches disk.
+
+    Reading stays tolerant, because 1.21.0 wrote files without these checks and a user must not be
+    locked out of their own config; only newly written environments have to be coherent.
+
+    :raises ValueError: With a message naming the offending combination.
+    """
+    present = {key for key, value in env_data.items() if value is not None}
+    method = env_data.get("auth_method")
+
+    if method == "client_credentials" and "client_secret" not in present:
+        raise ValueError("auth_method 'client_credentials' requires a 'client_secret'.")
+    if method == "pat" and "pat" not in present:
+        raise ValueError("auth_method 'pat' requires a 'pat'.")
+    if method == "password" and "login" not in present:
+        raise ValueError("auth_method 'password' requires a 'login'.")
+    if method in ("oauth", "pat") and "client_secret" in present:
+        raise ValueError(f"auth_method {method!r} cannot be combined with a 'client_secret'.")
+    if method in ("oauth", "client_credentials", "password") and "pat" in present:
+        raise ValueError(f"auth_method {method!r} cannot be combined with a 'pat'.")
+    if ("registration_access_token" in present) != ("registration_client_uri" in present):
+        raise ValueError(
+            "registration_access_token and registration_client_uri must be set together; "
+            "either alone cannot manage a client registration."
+        )
+
+
+def read_environment_auth_keys(config_path: Path, env_name: str) -> dict[str, object]:
+    """The auth-owned keys currently recorded for *env_name*, empty if it or the file is absent."""
+    env = _read_config_file(config_path).get(env_name)
+    if not isinstance(env, dict):
+        return {}
+    owned = auth_owned_keys()
+    return {key: value for key, value in cast("dict[str, object]", env).items() if key in owned}
 
 
 def _plain(value: object) -> object:
@@ -77,26 +111,39 @@ def write_environment_to_config(
     env_name: str,
     env_data: Mapping[str, object],
     *,
+    auth: Literal["merge", "replace"],
     set_default: bool,
 ) -> None:
     """Write or update the environment *env_name*, creating the config file (``0o600``) if needed.
 
-    Existing keys survive except :data:`_AUTH_OWNED_KEYS`, which *env_data* replaces wholesale so a
-    stale secret can't outlive the auth method that wrote it.
+    Keys outside the auth group always survive. *auth* decides the rest: ``"replace"`` treats
+    *env_data* as the complete auth state, so anything it omits is dropped and a stale secret cannot
+    outlive the method that wrote it; ``"merge"`` keeps auth keys *env_data* does not mention, for a
+    partial update such as a rotated secret. A key mapped to ``None`` is removed either way.
+
+    It has no default because the two modes corrupt in opposite directions: ``replace`` can strand a
+    client by dropping its registration credentials, ``merge`` can resurrect a superseded one.
 
     :raises pydantic.ValidationError: If the merged environment would not parse back through the
         reader. Checked before any filesystem change.
+    :raises ValueError: If *env_name* is reserved, or the merged environment is incoherent.
     """
     if env_name in ("GENERAL", "default"):
         raise ValueError(f"Environment name {env_name!r} is reserved and cannot be used.")
     existing = _read_config_file(config_path)
 
+    owned = auth_owned_keys()
     previous = existing.get(env_name)
     kept: dict[str, object] = {}
     if isinstance(previous, dict):
-        kept = {k: v for k, v in cast("dict[str, object]", previous).items() if k not in _AUTH_OWNED_KEYS}
+        kept = {
+            key: value
+            for key, value in cast("dict[str, object]", previous).items()
+            if key not in owned or auth == "merge"
+        }
     # Validate the *merged* environment, not just env_data: the merge is what gets persisted.
-    merged = kept | dict(env_data)
+    merged = {key: value for key, value in (kept | dict(env_data)).items() if value is not None}
+    validate_writable_environment(merged)
     _ = EnvironmentConfig.model_validate(dict(merged))
 
     general = existing.setdefault("GENERAL", {})

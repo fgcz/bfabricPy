@@ -16,15 +16,13 @@ from pydantic import SecretStr
 from bfabric.config import BfabricAuth, BfabricClientConfig
 from bfabric.config.config_data import ConfigData, export_config_data
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
-from bfabric.config.config_writer import _AUTH_OWNED_KEYS, _INLINE_SECRET_KEYS, write_environment_to_config
+from bfabric.config.auth_methods import auth_owned_keys
+from bfabric.config.config_writer import _INLINE_SECRET_KEYS, write_environment_to_config
 
 
 class TestAuthOwnedKeys:
-    def test_exact_key_set(self):
-        assert _AUTH_OWNED_KEYS == frozenset({"login", "password", "pat", "auth_method", "client_id", "scope"})
-
     def test_inline_secrets_are_auth_owned(self):
-        assert set(_INLINE_SECRET_KEYS) <= _AUTH_OWNED_KEYS
+        assert set(_INLINE_SECRET_KEYS) <= auth_owned_keys()
 
     def test_reader_excludes_auth_keys_from_client_config(self):
         config = ConfigFile.model_validate(
@@ -39,7 +37,7 @@ class TestAuthOwnedKeys:
             }
         )
         dumped = config.environments["PROD"].config.model_dump()
-        assert not _AUTH_OWNED_KEYS & set(dumped)
+        assert not auth_owned_keys() & set(dumped)
 
 
 class TestAuthMethodPropertyMatchesLegacyReader:
@@ -140,7 +138,7 @@ class TestWriteSiteYamlKeys:
     )
     def test_written_keys(self, tmp_path, env_data, expected):
         config_file = tmp_path / "config.yml"
-        write_environment_to_config(config_file, "PROD", env_data, set_default=True)
+        write_environment_to_config(config_file, "PROD", env_data, auth="replace", set_default=True)
         assert set(yaml.safe_load(config_file.read_text())["PROD"]) == expected
 
     def test_legacy_env_keeps_no_auth_method_key(self, tmp_path):
@@ -150,13 +148,16 @@ class TestWriteSiteYamlKeys:
             config_file,
             "PROD",
             {"base_url": "https://example.com/bfabric", "login": "user", "password": "p" * 32},
+            auth="replace",
             set_default=True,
         )
         assert "auth_method" not in yaml.safe_load(config_file.read_text())["PROD"]
 
     def test_mode_is_600(self, tmp_path):
         config_file = tmp_path / "config.yml"
-        write_environment_to_config(config_file, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
+        write_environment_to_config(
+            config_file, "PROD", {"base_url": "https://example.com/bfabric"}, auth="replace", set_default=True
+        )
         assert config_file.stat().st_mode & 0o777 == 0o600
 
 
