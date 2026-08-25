@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
-    from bfabric import Bfabric
+    from bfabric import BaseUrl, Bfabric
     from bfabric.entities.core.references import References
     from bfabric.typing import ApiResponseDataType, ApiResponseObjectType
 
@@ -25,7 +25,7 @@ class Entity(FindMixin):
         self,
         data_dict: ApiResponseObjectType,
         client: Bfabric | None = None,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
     ) -> None:
         # note: client may be removed completely in the future,
         #       as I think it is a design mistake to have put them into these classes
@@ -51,7 +51,7 @@ class Entity(FindMixin):
         return value
 
     @property
-    def bfabric_instance(self) -> str:
+    def bfabric_instance(self) -> BaseUrl:
         """The bfabric instance URL associated with the entity."""
         return self.__bfabric_instance
 
@@ -148,7 +148,7 @@ class Entity(FindMixin):
             yaml.safe_dump(self.__data_dict, file)
 
     @classmethod
-    def load_yaml(cls, path: Path, client: Bfabric | None = None, bfabric_instance: str | None = None) -> Self:
+    def load_yaml(cls, path: Path, client: Bfabric | None = None, bfabric_instance: BaseUrl | None = None) -> Self:
         """Loads an entity from a YAML file."""
         # TODO (#351): to be extended
         import yaml

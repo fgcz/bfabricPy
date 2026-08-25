@@ -32,7 +32,7 @@ WORKUNIT_ID = 555
 @pytest.fixture
 def mock_client(mocker):
     client = mocker.MagicMock(name="Bfabric")
-    client.config.base_url = "https://bfabric.example/"
+    client.config.base_url = "https://bfabric.example/bfabric"
     # Every workunit save (create, complete, mark-failed) returns an indexable [dict]; only
     # create/complete consume result[0] (via Workunit(...).id).
     client.save.return_value = [{"id": WORKUNIT_ID}]

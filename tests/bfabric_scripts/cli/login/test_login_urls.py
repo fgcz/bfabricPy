@@ -32,12 +32,17 @@ class TestNormalizeBaseUrl:
         ["fgcz-bfabric-demo.uzh.ch", "FGCZ-BFABRIC-DEMO.uzh.ch", "https://fgcz-bfabric-demo.uzh.ch"],
     )
     def test_expands_a_bare_known_host(self, raw):
-        """Host-only matching is what lets a bare host expand to a full base URL."""
         assert normalize_base_url(raw) == "https://fgcz-bfabric-demo.uzh.ch/bfabric"
 
-    def test_keeps_an_explicit_path_on_a_known_host(self):
-        """Canonicalisation may add information, never overwrite a path the user typed."""
-        assert normalize_base_url("https://fgcz-bfabric-demo.uzh.ch/other") == "https://fgcz-bfabric-demo.uzh.ch/other"
+    @pytest.mark.parametrize("raw", ["my-instance.example.com", "https://my-instance.example.com/"])
+    def test_expands_a_bare_unknown_host(self, raw):
+        """Completing a typed host is what the servlet path being fixed buys us; it needn't be a known one."""
+        assert normalize_base_url(raw) == "https://my-instance.example.com/bfabric"
+
+    def test_rejects_an_explicit_non_instance_path(self):
+        """Canonicalisation may add information, never overwrite a path the user typed -- so this is an error."""
+        with pytest.raises(ValueError, match="not a B-Fabric instance URL"):
+            normalize_base_url("https://fgcz-bfabric-demo.uzh.ch/other")
 
     @pytest.mark.parametrize("raw", ["", "   ", "ftp://example.com", "https://"])
     def test_rejects_unusable_input(self, raw):

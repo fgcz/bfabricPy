@@ -16,8 +16,8 @@ class TestCmdAuthList:
             yaml.dump(
                 {
                     "GENERAL": {"default_config": "TEST"},
-                    "PROD": {"base_url": "https://prod.example.com", "auth_method": "oauth"},
-                    "TEST": {"base_url": "https://test.example.com", "auth_method": "pat", "pat": "tok"},
+                    "PROD": {"base_url": "https://prod.example.com/bfabric", "auth_method": "oauth"},
+                    "TEST": {"base_url": "https://test.example.com/bfabric", "auth_method": "pat", "pat": "tok"},
                 }
             )
         )

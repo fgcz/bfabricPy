@@ -28,14 +28,6 @@ if TYPE_CHECKING:
 _TIMEOUT = 60.0
 
 
-def api_to_rest_url(api_base_url: str) -> str:
-    """Derive the B-Fabric REST base URL (``https://host/bfabric``) from the SOAP API base URL."""
-    base = api_base_url.rstrip("/")
-    if base.endswith("/api"):
-        return base[: -len("/api")]
-    return base
-
-
 def require_tus() -> None:
     """Raise :class:`~bfabric.transfer.BfabricTransferError` if the tus mover (the ``[transfer]`` extra) is missing.
 
@@ -153,7 +145,8 @@ class UploadRestClient:
         # password as a bearer token (all REST calls funnel through this client).
         require_oauth(client)
         self._client = client
-        self._rest_base_url = api_to_rest_url(str(client.config.base_url))
+        # The REST endpoints hang off the servlet root, which is what base_url already is.
+        self._rest_base_url = client.config.base_url
         # require_oauth guarantees an OAuth client, so token_provider never returns None here. The
         # provider reads the token fresh per call, so a long batch survives a mid-run token refresh.
         provider = token_provider(client)

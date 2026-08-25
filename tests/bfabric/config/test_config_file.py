@@ -20,7 +20,7 @@ def data_with_auth():
         "PRODUCTION": {
             "login": "test-dummy",
             "password": "00000000001111111111222222222233",
-            "base_url": "https://example.com",
+            "base_url": "https://example.com/bfabric",
         },
     }
 
@@ -30,7 +30,7 @@ def data_no_auth():
     return {
         "GENERAL": {"default_config": "PRODUCTION"},
         "PRODUCTION": {
-            "base_url": "https://example.com",
+            "base_url": "https://example.com/bfabric",
         },
     }
 
@@ -40,10 +40,10 @@ def data_multiple():
     return {
         "GENERAL": {"default_config": "PRODUCTION"},
         "PRODUCTION": {
-            "base_url": "https://example.com",
+            "base_url": "https://example.com/bfabric",
         },
         "TEST": {
-            "base_url": "https://test.example.com",
+            "base_url": "https://test.example.com/bfabric",
             "login": "test-dummy",
             "password": "00000000001111111111222222222233",
         },
@@ -62,14 +62,14 @@ def test_general_config(data_with_auth):
 
 def test_environment_config_when_auth(data_with_auth):
     config = EnvironmentConfig.model_validate(data_with_auth["PRODUCTION"])
-    assert config.config.base_url == "https://example.com/"
+    assert config.config.base_url == "https://example.com/bfabric"
     assert config.auth.login == "test-dummy"
     assert config.auth.password.get_secret_value() == "00000000001111111111222222222233"
 
 
 def test_environment_config_when_no_auth(data_no_auth):
     config = EnvironmentConfig.model_validate(data_no_auth["PRODUCTION"])
-    assert config.config.base_url == "https://example.com/"
+    assert config.config.base_url == "https://example.com/bfabric"
     assert config.auth is None
 
 
@@ -77,12 +77,12 @@ def test_environment_config_when_pat():
     """A PAT env (``auth_method: pat`` + inline ``pat``) builds an OAuth-style auth."""
     config = EnvironmentConfig.model_validate(
         {
-            "base_url": "https://example.com",
+            "base_url": "https://example.com/bfabric",
             "auth_method": "pat",
             "pat": "short-pat-token",
         }
     )
-    assert config.config.base_url == "https://example.com/"
+    assert config.config.base_url == "https://example.com/bfabric"
     assert config.auth_method == "pat"
     assert config.auth.login == OAUTH_LOGIN
     assert config.auth.password.get_secret_value() == "short-pat-token"
@@ -92,7 +92,7 @@ def test_environment_config_when_legacy_oauth_login():
     """The legacy 1.20.0rc1 PAT shape (``login: __oauth__`` + inline ``password``) still reads."""
     config = EnvironmentConfig.model_validate(
         {
-            "base_url": "https://example.com",
+            "base_url": "https://example.com/bfabric",
             "login": OAUTH_LOGIN,
             "password": "short-pat-token",
         }
@@ -105,7 +105,7 @@ def test_config_file_when_auth(data_with_auth):
     config = ConfigFile.model_validate(data_with_auth)
     assert config.general.default_config == "PRODUCTION"
     assert len(config.environments) == 1
-    assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
+    assert config.environments["PRODUCTION"].config.base_url == "https://example.com/bfabric"
     assert config.environments["PRODUCTION"].auth.login == "test-dummy"
     assert config.environments["PRODUCTION"].auth.password.get_secret_value() == "00000000001111111111222222222233"
 
@@ -114,7 +114,7 @@ def test_config_file_when_no_auth(data_no_auth):
     config = ConfigFile.model_validate(data_no_auth)
     assert config.general.default_config == "PRODUCTION"
     assert len(config.environments) == 1
-    assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
+    assert config.environments["PRODUCTION"].config.base_url == "https://example.com/bfabric"
     assert config.environments["PRODUCTION"].auth is None
 
 
@@ -122,9 +122,9 @@ def test_config_file_when_multiple(data_multiple):
     config = ConfigFile.model_validate(data_multiple)
     assert config.general.default_config == "PRODUCTION"
     assert len(config.environments) == 2
-    assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
+    assert config.environments["PRODUCTION"].config.base_url == "https://example.com/bfabric"
     assert config.environments["PRODUCTION"].auth is None
-    assert config.environments["TEST"].config.base_url == "https://test.example.com/"
+    assert config.environments["TEST"].config.base_url == "https://test.example.com/bfabric"
     assert config.environments["TEST"].auth.login == "test-dummy"
     assert config.environments["TEST"].auth.password.get_secret_value() == "00000000001111111111222222222233"
 
@@ -156,7 +156,7 @@ def test_get_selected_config(config_with_auth, mocker):
 
 
 def test_reject_env_name_default(mocker, data_no_auth):
-    data_no_auth["default"] = {"base_url": "https://example.com"}
+    data_no_auth["default"] = {"base_url": "https://example.com/bfabric"}
     with pytest.raises(ValueError) as error:
         ConfigFile.model_validate(data_no_auth)
     assert "Environment name 'default' is reserved." in str(error.value)
@@ -169,7 +169,7 @@ class TestConfigNoDefault:
         return {
             "GENERAL": {},
             "PRODUCTION": {
-                "base_url": "https://example.com",
+                "base_url": "https://example.com/bfabric",
             },
         }
 
@@ -181,7 +181,7 @@ class TestConfigNoDefault:
     @staticmethod
     def test_validate(config):
         assert config.general.default_config is None
-        assert config.environments["PRODUCTION"].config.base_url == "https://example.com/"
+        assert config.environments["PRODUCTION"].config.base_url == "https://example.com/bfabric"
 
     @staticmethod
     def test_get_selected_config_env(config):
@@ -216,14 +216,14 @@ class TestReadConfig:
 
         assert auth.login == "testuser"
         assert auth.password.get_secret_value() == "012345678901234567890123456789ff"
-        assert config.base_url == "https://test-server.example.com/api/"
+        assert config.base_url == "https://test-server.example.com/bfabric"
         assert config.application_ids == applications_dict_ground_truth
         assert config.job_notification_emails == job_notification_emails_ground_truth
 
     def test_when_empty_optional(self, example_config_path: Path, logot: Logot) -> None:
         config, auth = read_config_file(example_config_path, config_env="STANDBY")
         assert auth is None
-        assert config.base_url == "https://standby-server.example.com/api/"
+        assert config.base_url == "https://standby-server.example.com/bfabric"
         assert config.application_ids == {}
         assert config.job_notification_emails == ""
         logot.assert_logged(
@@ -235,7 +235,7 @@ class TestEnvironmentConfigOAuth:
     def test_auth_method_oauth(self):
         config = EnvironmentConfig.model_validate(
             {
-                "base_url": "https://example.com",
+                "base_url": "https://example.com/bfabric",
                 "auth_method": "oauth",
                 "client_id": "my-app",
             }
@@ -248,7 +248,7 @@ class TestEnvironmentConfigOAuth:
         """auth_method and client_id should not leak into BfabricClientConfig."""
         config = EnvironmentConfig.model_validate(
             {
-                "base_url": "https://example.com",
+                "base_url": "https://example.com/bfabric",
                 "auth_method": "oauth",
                 "client_id": "my-app",
             }
@@ -259,7 +259,7 @@ class TestEnvironmentConfigOAuth:
     def test_scope_binds(self):
         config = EnvironmentConfig.model_validate(
             {
-                "base_url": "https://example.com",
+                "base_url": "https://example.com/bfabric",
                 "auth_method": "oauth",
                 "client_id": "my-app",
                 "scope": "api:write tus",
@@ -269,19 +269,19 @@ class TestEnvironmentConfigOAuth:
 
     def test_scope_not_in_client_config(self):
         config = EnvironmentConfig.model_validate(
-            {"base_url": "https://example.com", "auth_method": "oauth", "scope": "api:read"}
+            {"base_url": "https://example.com/bfabric", "auth_method": "oauth", "scope": "api:read"}
         )
         assert not hasattr(config.config, "scope")
 
     def test_scope_absent_defaults_to_none(self):
         """An environment written by 1.16.0 has no ``scope`` key; it must still load."""
-        config = EnvironmentConfig.model_validate({"base_url": "https://example.com", "auth_method": "oauth"})
+        config = EnvironmentConfig.model_validate({"base_url": "https://example.com/bfabric", "auth_method": "oauth"})
         assert config.scope is None
 
     def test_backward_compat_without_oauth_fields(self):
         config = EnvironmentConfig.model_validate(
             {
-                "base_url": "https://example.com",
+                "base_url": "https://example.com/bfabric",
                 "login": "user",
                 "password": "x" * 32,
             }

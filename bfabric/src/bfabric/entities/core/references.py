@@ -11,7 +11,7 @@ from bfabric.entities.core.import_entity import instantiate_entity
 from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
+    from bfabric import BaseUrl, Bfabric
     from bfabric.entities.core.entity import Entity
     from bfabric.typing import ApiResponseDataType, ApiResponseObjectType
 
@@ -34,9 +34,9 @@ class References:
     This class receives a reference to the entity's data dictionary, updating it in-place when references are loaded.
     """
 
-    def __init__(self, client: Bfabric, bfabric_instance: str, data_ref: ApiResponseObjectType) -> None:
+    def __init__(self, client: Bfabric, bfabric_instance: BaseUrl, data_ref: ApiResponseObjectType) -> None:
         self._client: Bfabric = client
-        self._bfabric_instance: str = bfabric_instance
+        self._bfabric_instance: BaseUrl = bfabric_instance
         self._data_ref: ApiResponseObjectType = data_ref
 
         # Retrieve information about all reference fields
@@ -122,7 +122,7 @@ class References:
 
     @classmethod
     def __extract_reference_info(
-        cls, data_ref: ApiResponseObjectType, bfabric_instance: str
+        cls, data_ref: ApiResponseObjectType, bfabric_instance: BaseUrl
     ) -> dict[str, _ReferenceInformation]:
         references: dict[str, _ReferenceInformation] = {}
         for name, value in data_ref.items():
@@ -133,7 +133,7 @@ class References:
 
     @classmethod
     def __extract_reference_info_item(
-        cls, name: str, value: ApiResponseDataType, bfabric_instance: str
+        cls, name: str, value: ApiResponseDataType, bfabric_instance: BaseUrl
     ) -> _ReferenceInformation | None:
         if isinstance(value, dict) and "classname" in value and "id" in value:
             info = cls.__extract_reference_info_item_dict(value, bfabric_instance)
@@ -156,7 +156,7 @@ class References:
 
     @classmethod
     def __extract_reference_info_item_dict(
-        cls, value: ApiResponseDataType, bfabric_instance: str
+        cls, value: ApiResponseDataType, bfabric_instance: BaseUrl
     ) -> dict[str, EntityUri | bool]:
         # value is guaranteed to be a dict by the caller's isinstance check
         value_dict = cast("dict[str, ApiResponseDataType]", value)

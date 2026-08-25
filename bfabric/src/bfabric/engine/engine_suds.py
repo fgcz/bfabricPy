@@ -17,14 +17,14 @@ from bfabric.results.result_container import ResultContainer
 if TYPE_CHECKING:
     from suds.serviceproxy import ServiceProxy
 
-    from bfabric.config import BfabricAuth
+    from bfabric.config import BaseUrl, BfabricAuth
     from bfabric.typing import ApiRequestObjectType
 
 
 class EngineSUDS:
     """B-Fabric API SUDS Engine."""
 
-    def __init__(self, base_url: str, drop_underscores: bool = True) -> None:
+    def __init__(self, base_url: BaseUrl, drop_underscores: bool = True) -> None:
         self._cl = {}
         self._base_url = base_url
         self._drop_underscores = drop_underscores
