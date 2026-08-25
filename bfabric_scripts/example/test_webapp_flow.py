@@ -41,7 +41,7 @@ def main() -> None:
     # Connect to B-Fabric
     print("Connecting to B-Fabric...")
     client = Bfabric.connect(config_file_env=config_env)
-    base_url = client.config.base_url.rstrip("/")
+    base_url = client.config.base_url
     bearer_token = client.auth.password.get_secret_value()
     print(f"  base_url: {base_url}")
 

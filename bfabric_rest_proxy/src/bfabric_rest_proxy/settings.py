@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from bfabric.config.base_url import BaseUrl
 from bfabric.experimental.webapp_integration_settings import WebappIntegrationSettings
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -12,10 +13,13 @@ class ServerSettings(BaseSettings, WebappIntegrationSettings):  # pyright: ignor
     )
 
     # specific to the proxy:
-    default_bfabric_instance: str | None = None
+    default_bfabric_instance: BaseUrl | None = None
+    """``None`` makes the ``bfabric_instance`` request parameter mandatory."""
 
     @model_validator(mode="after")
     def _valid_default_instance(self) -> ServerSettings:
-        if self.default_bfabric_instance not in self.supported_bfabric_instances:
+        if self.default_bfabric_instance is not None and (
+            self.default_bfabric_instance not in self.supported_bfabric_instances
+        ):
             raise ValueError("default_bfabric_instance must be one of supported_bfabric_instances")
         return self

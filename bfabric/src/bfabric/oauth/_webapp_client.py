@@ -43,7 +43,6 @@ class WebappClient:
         (from the URL) into long-lived access + refresh tokens, then decodes
         the access token JWT locally to extract entity context.
 
-        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
         :param launch_token: The short-lived JWT from the URL ``jwt`` parameter
         :param client_id: OAuth client ID for the webapp
         :param client_secret: OAuth client secret for the webapp
@@ -55,10 +54,10 @@ class WebappClient:
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
         from bfabric.oauth._token_exchange import exchange_token
         from bfabric.oauth._url_token import UrlTokenContext, verify_jwt
-        from bfabric.config import BfabricClientConfig
+        from bfabric.config import BfabricClientConfig, BaseUrl
         from bfabric.config.config_data import ConfigData
 
-        base_url = base_url.rstrip("/")
+        base_url = BaseUrl(base_url)
         token_url = f"{base_url}/rest/oauth/token"
 
         # 1. Exchange the short-lived launch token for access + refresh tokens
@@ -83,7 +82,7 @@ class WebappClient:
             grant_type="refresh_token",
             token_cache_path=user_token_cache_path,
         )
-        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
+        config = BfabricClientConfig(base_url=base_url)
         user_client = Bfabric(
             config_data=ConfigData(client=config, auth=None),
             _credential_provider=user_provider,

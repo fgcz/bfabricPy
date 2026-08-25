@@ -21,3 +21,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - `/validate_token` uses the server-configured `validation_bfabric_instance` instead of the client-provided instance.
 - An empty list `[]` query parameter from R clients is handled (converted to an empty dict `{}`).
+- A `bfabric_instance` request parameter is canonicalised before it is matched against `supported_bfabric_instances`, so a trailing slash no longer makes a configured instance look unknown. `default_bfabric_instance` and the `feeder_user_credentials` keys are canonicalised the same way at startup.
+- `default_bfabric_instance: null`, documented as making the `bfabric_instance` parameter mandatory, no longer fails settings validation.

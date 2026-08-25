@@ -16,7 +16,7 @@ from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import BfabricAnnot
 
 @pytest.fixture
 def bfabric_instance():
-    return "https://bfabric.example.org/bfabric/"
+    return "https://bfabric.example.org/bfabric"
 
 
 @pytest.fixture

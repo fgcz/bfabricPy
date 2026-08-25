@@ -41,6 +41,19 @@ Check that you haven't named it incorrectly (e.g., `.bfabric.yml` instead of `.b
 - Ensure you're using your **web service password**, not your login password
 - Check that password doesn't contain special characters that need escaping in YAML
 
+### "is not a B-Fabric instance URL"
+
+`base_url` has to name the instance's servlet root, which ends in `/bfabric`. The error quotes the URL
+it got and the one you probably meant:
+
+```
+'https://fgcz-bfabric.uzh.ch' is not a B-Fabric instance URL: it must end in '/bfabric' --
+did you mean 'https://fgcz-bfabric.uzh.ch/bfabric'?
+```
+
+Fix `base_url` in `~/.bfabricpy.yml` (or the `connect_*` argument) to the suggested value. The same
+applies to a URL that reaches past the servlet root, such as one ending in `/bfabric/api`.
+
 ### "No default_config found"
 
 Add a `default_config` field under the `GENERAL` section in your config file:
@@ -54,7 +67,7 @@ GENERAL:
 PRODUCTION:
   login: yourBfabricLogin
   password: yourBfabricWebServicePassword
-  base_url: https://fgcz-bfabric.uzh.ch/bfabric/
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric
 ```
 
 ## Query Issues
@@ -148,8 +161,8 @@ print(f"User: {client.auth.login}")
 
 Common URLs:
 
-- **Production**: `https://fgcz-bfabric.uzh.ch/bfabric/`
-- **Test**: `https://fgcz-bfabric-test.uzh.ch/bfabric/`
+- **Production**: `https://fgcz-bfabric.uzh.ch/bfabric`
+- **Test**: `https://fgcz-bfabric-test.uzh.ch/bfabric`
 
 If you're connecting to the wrong instance, update your config file or use a different environment:
 
@@ -177,6 +190,7 @@ Still stuck?
 | Config file in wrong location | "Configuration file not found" | Ensure `~/.bfabricpy.yml` (not `.bfabric.yml`) |
 | Wrong environment variable | Querying wrong instance | Check `BFABRICPY_CONFIG_ENV` value |
 | Missing default_config | "No default_config found" | Add `default_config` field under `GENERAL` section |
+| `base_url` without the `/bfabric` path | "is not a B-Fabric instance URL" | Use the URL the error suggests |
 | Typos in filter names | No results or errors | Use `bfabric-cli api inspect` to check valid parameter names |
 
 ## Next Steps
