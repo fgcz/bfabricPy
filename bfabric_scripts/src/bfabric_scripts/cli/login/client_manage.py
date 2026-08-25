@@ -164,7 +164,9 @@ def cmd_auth_client_delete(
     # command fail with a confusing 401 instead of "not configured".
     # auth_method goes too: a client_credentials environment without its secret cannot authenticate,
     # and leaving it would claim an auth method the environment can no longer perform.
-    dead: dict[str, object] = dict.fromkeys(("client_secret", "registration_access_token", "registration_client_uri"))
+    dead: dict[str, object] = {
+        key: None for key in ("client_secret", "registration_access_token", "registration_client_uri")
+    }
     if read_environment_auth_keys(config_file, env_name).get("auth_method") == "client_credentials":
         dead["auth_method"] = None
     write_environment_to_config(config_file, env_name, dead, auth="merge", set_default=False)
