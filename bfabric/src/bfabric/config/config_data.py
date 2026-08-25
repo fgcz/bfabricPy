@@ -10,14 +10,14 @@ from loguru import logger
 from pydantic import BaseModel
 
 from bfabric.config import BfabricClientConfig, BfabricAuth
-from bfabric.config.auth_methods import AuthMethodBase, auth_method_from_flat
+from bfabric.config.auth_methods import AuthMethodBase, AuthMethodName, auth_method_from_flat
 from bfabric.config.config_file import ConfigFile
 
 
 class ConfigData(BaseModel):
     client: BfabricClientConfig
     auth: BfabricAuth | None
-    auth_method: Literal["password", "oauth", "pat", "client_credentials"] | None = None
+    auth_method: AuthMethodName | None = None
     client_id: str | None = None
     env_name: str | None = None
 

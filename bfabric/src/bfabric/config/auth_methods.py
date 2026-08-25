@@ -8,7 +8,7 @@ models are parse-only and never serialise themselves back.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, ClassVar, Literal, override
+from typing import TYPE_CHECKING, Annotated, ClassVar, Literal, get_args, override
 
 from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
@@ -23,12 +23,16 @@ if TYPE_CHECKING:
     from bfabric.oauth._credential_provider import OAuthCredentialProvider
 
 
+AuthMethodName = Literal["password", "oauth", "pat", "client_credentials"]
+"""The ``auth_method`` values this version understands."""
+
+
 class AuthMethodBase(BaseModel):
     """Base for the auth-method variants."""
 
     owned_keys: ClassVar[frozenset[str]] = frozenset()
 
-    declared_name: str | None = None
+    declared_name: AuthMethodName | None = None
     """The ``auth_method`` value the file carried, or ``None`` if it declared none."""
 
     def static_auth(self) -> BfabricAuth | None:
@@ -133,11 +137,12 @@ class UnknownAuth(AuthMethodBase):
     """An ``auth_method`` this version does not know; usable for display, not for connecting."""
 
     kind: Literal["unknown"] = "unknown"
+    unknown_name: str
 
     @override
     def credential_provider(self, *, base_url: BaseUrl, env_name: str | None) -> OAuthCredentialProvider:
         raise ValueError(
-            f"Unknown auth_method {self.declared_name!r} in the config environment. Upgrade bfabricPy "
+            f"Unknown auth_method {self.unknown_name!r} in the config environment. Upgrade bfabricPy "
             f"or set a supported auth_method."
         )
 
@@ -165,7 +170,7 @@ AUTH_METHOD_CLASSES: tuple[type[AuthMethodBase], ...] = (
     UnknownAuth,
 )
 
-_KNOWN_METHODS = frozenset({"password", "pat", "oauth", "client_credentials"})
+_KNOWN_METHODS: frozenset[str] = frozenset(get_args(AuthMethodName))
 
 
 def auth_owned_keys() -> frozenset[str]:
@@ -193,11 +198,11 @@ def auth_method_from_flat(values: Mapping[str, object]) -> AuthMethodBase:
     declared_name = str(declared) if declared is not None else None
 
     if declared_name is not None and declared_name not in _KNOWN_METHODS:
-        return UnknownAuth(declared_name=declared_name)
+        return UnknownAuth(unknown_name=declared_name)
 
     if declared_name in (None, "password") and values.get("login") is not None:
         return PasswordAuth(
-            declared_name=declared_name,
+            declared_name="password" if declared_name == "password" else None,
             login=str(values["login"]),
             password=SecretStr(str(values.get("password", ""))),
         )
@@ -223,7 +228,7 @@ def auth_method_from_flat(values: Mapping[str, object]) -> AuthMethodBase:
         )
 
     if values.get("pat"):
-        return PatAuth(declared_name=declared_name, pat=SecretStr(str(values["pat"])))
+        return PatAuth(declared_name="pat" if declared_name == "pat" else None, pat=SecretStr(str(values["pat"])))
 
     if declared_name is None and (values.get("client_id") is not None or values.get("scope") is not None):
         client_id = values.get("client_id")
