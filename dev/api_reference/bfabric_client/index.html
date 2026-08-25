@@ -569,7 +569,6 @@ credential provider.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>client_id</strong> – OAuth client ID (from <code class="docutils literal notranslate"><span class="pre">register_client</span></code> or admin setup)</p></li>
 <li><p><strong>client_secret</strong> – OAuth client secret</p></li>
-<li><p><strong>base_url</strong> – B-Fabric instance URL (e.g. <code class="docutils literal notranslate"><span class="pre">https://bfabric.example.com/bfabric</span></code>)</p></li>
 <li><p><strong>scope</strong> – OAuth scope</p></li>
 <li><p><strong>token_cache_path</strong> – Optional path to cache tokens on disk (survives restarts)</p></li>
 </ul>
@@ -587,7 +586,6 @@ client uses <code class="xref py py-class docutils literal notranslate"><span cl
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>base_url</strong> – B-Fabric instance URL (e.g. <code class="docutils literal notranslate"><span class="pre">https://bfabric.example.com/bfabric</span></code>)</p></li>
 <li><p><strong>client_id</strong> – OAuth client ID</p></li>
 <li><p><strong>scope</strong> – OAuth scope</p></li>
 <li><p><strong>port</strong> – Local port for the callback server (<code class="docutils literal notranslate"><span class="pre">0</span></code> = auto-assign)</p></li>
@@ -612,7 +610,6 @@ where a localhost redirect is not feasible.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>base_url</strong> – B-Fabric instance URL (e.g. <code class="docutils literal notranslate"><span class="pre">https://bfabric.example.com/bfabric</span></code>)</p></li>
 <li><p><strong>client_id</strong> – OAuth client ID</p></li>
 <li><p><strong>scope</strong> – OAuth scope</p></li>
 <li><p><strong>timeout</strong> – Seconds to wait for the user to authorize</p></li>
@@ -632,10 +629,7 @@ API accepts them directly. There is no automatic refresh; if the token
 expires a new one must be obtained.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>base_url</strong> – B-Fabric instance URL (e.g. <code class="docutils literal notranslate"><span class="pre">https://bfabric.example.com/bfabric</span></code>)</p></li>
-<li><p><strong>pat</strong> – Personal Access Token (string or <code class="docutils literal notranslate"><span class="pre">SecretStr</span></code>)</p></li>
-</ul>
+<dd class="field-odd"><p><strong>pat</strong> – Personal Access Token (string or <code class="docutils literal notranslate"><span class="pre">SecretStr</span></code>)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -665,7 +659,7 @@ If it is set to None, no authentication will be used.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bfabric.Bfabric.connect_webapp">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">connect_webapp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_instance_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://fgcz-bfabric.uzh.ch/bfabric/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../token_data/index.html#bfabric.rest.token_data.TokenData" title="bfabric.rest.token_data.TokenData"><span class="pre">TokenData</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_webapp" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">connect_webapp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_instance_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'https://fgcz-bfabric.uzh.ch/bfabric'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file_env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../token_data/index.html#bfabric.rest.token_data.TokenData" title="bfabric.rest.token_data.TokenData"><span class="pre">TokenData</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_webapp" title="Link to this definition">#</a></dt>
 <dd><p>Returns a new Bfabric instance, configured with the user configuration file and the provided token.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>

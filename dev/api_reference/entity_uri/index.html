@@ -481,10 +481,10 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bfabric.entities.core.uri.EntityUri.from_components">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bfabric_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.entities.core.uri.EntityUri" title="bfabric.entities.core.uri.EntityUri"><span class="pre">EntityUri</span></a></span></span><a class="headerlink" href="#bfabric.entities.core.uri.EntityUri.from_components" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bfabric_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseUrl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.entities.core.uri.EntityUri" title="bfabric.entities.core.uri.EntityUri"><span class="pre">EntityUri</span></a></span></span><a class="headerlink" href="#bfabric.entities.core.uri.EntityUri.from_components" title="Link to this definition">#</a></dt>
 <dd><p>Create EntityUri from individual components.</p>
 <dl class="simple">
-<dt>Args:</dt><dd><p>bfabric_instance: B-Fabric instance URL (e.g., “<a class="reference external" href="https://fgcz-bfabric.uzh.ch/bfabric/">https://fgcz-bfabric.uzh.ch/bfabric/</a>”)
+<dt>Args:</dt><dd><p>bfabric_instance: B-Fabric instance URL (e.g., “<a class="reference external" href="https://fgcz-bfabric.uzh.ch/bfabric">https://fgcz-bfabric.uzh.ch/bfabric</a>”)
 entity_type: Entity type name (e.g., “sample”, “project”)
 entity_id: Numeric ID of the entity</p>
 </dd>
@@ -505,7 +505,7 @@ entity_id: Numeric ID of the entity</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bfabric.entities.core.uri.EntityUriComponents">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.entities.core.uri.</span></span><span class="sig-name descname"><span class="pre">EntityUriComponents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*,</span> <span class="pre">bfabric_instance:</span> <span class="pre">~pydantic.networks.HttpUrl,</span> <span class="pre">entity_type:</span> <span class="pre">~typing.Annotated[str,</span> <span class="pre">~pydantic.types.StringConstraints(strip_whitespace=None,</span> <span class="pre">to_upper=None,</span> <span class="pre">to_lower=None,</span> <span class="pre">strict=None,</span> <span class="pre">min_length=None,</span> <span class="pre">max_length=None,</span> <span class="pre">pattern=^[a-z]+$,</span> <span class="pre">ascii_only=None)],</span> <span class="pre">entity_id:</span> <span class="pre">~typing.Annotated[int,</span> <span class="pre">~annotated_types.Gt(gt=0)]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.entities.core.uri.EntityUriComponents" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">bfabric.entities.core.uri.</span></span><span class="sig-name descname"><span class="pre">EntityUriComponents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">*,</span> <span class="pre">bfabric_instance:</span> <span class="pre">~bfabric.config.base_url.BaseUrl,</span> <span class="pre">entity_type:</span> <span class="pre">~typing.Annotated[str,</span> <span class="pre">~pydantic.types.StringConstraints(strip_whitespace=None,</span> <span class="pre">to_upper=None,</span> <span class="pre">to_lower=None,</span> <span class="pre">strict=None,</span> <span class="pre">min_length=None,</span> <span class="pre">max_length=None,</span> <span class="pre">pattern=^[a-z]+$,</span> <span class="pre">ascii_only=None)],</span> <span class="pre">entity_id:</span> <span class="pre">~typing.Annotated[int,</span> <span class="pre">~annotated_types.Gt(gt=0)]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.entities.core.uri.EntityUriComponents" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
 <p>Parsed components of an EntityUri.</p>
 <dl class="simple">
@@ -536,7 +536,7 @@ entity_id: Numeric entity ID (must be positive)</p>
 <p>Used internally by EntityReader to batch API calls efficiently.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bfabric.entities.core.uri.GroupedUris.GroupKey">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">GroupKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bfabric_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.entities.core.uri.GroupedUris.GroupKey" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">GroupKey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">bfabric_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseUrl</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bfabric.entities.core.uri.GroupedUris.GroupKey" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
 <p>Grouping key for EntityUris.</p>
 <dl class="py attribute">
@@ -609,7 +609,7 @@ it out of the browser, use <a class="reference internal" href="#normalize-a-web-
 <span class="n">uri</span> <span class="o">=</span> <span class="n">EntityUri</span><span class="p">(</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123"</span><span class="p">)</span>
 
 <span class="c1"># Access components</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">bfabric_instance</span><span class="p">)</span>  <span class="c1"># "https://fgcz-bfabric.uzh.ch/bfabric/"</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">bfabric_instance</span><span class="p">)</span>  <span class="c1"># "https://fgcz-bfabric.uzh.ch/bfabric"</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">entity_type</span><span class="p">)</span>  <span class="c1"># "sample"</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">components</span><span class="o">.</span><span class="n">entity_id</span><span class="p">)</span>  <span class="c1"># 123</span>
 </pre></div>
@@ -640,7 +640,7 @@ pasted URL can be used as an <code class="docutils literal notranslate"><span cl
 
 <span class="c1"># Build URI from parts</span>
 <span class="n">uri</span> <span class="o">=</span> <span class="n">EntityUri</span><span class="o">.</span><span class="n">from_components</span><span class="p">(</span>
-    <span class="n">bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
+    <span class="n">bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
     <span class="n">entity_type</span><span class="o">=</span><span class="s2">"sample"</span><span class="p">,</span>
     <span class="n">entity_id</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span>
 <span class="p">)</span>
@@ -689,7 +689,7 @@ pasted URL can be used as an <code class="docutils literal notranslate"><span cl
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bfabric_instance</span></code></p></td>
 <td><p>Base URL of B-Fabric instance</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric.uzh.ch/bfabric/</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">https://fgcz-bfabric.uzh.ch/bfabric</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">entity_type</span></code></p></td>
 <td><p>Entity name (lowercase)</p></td>

@@ -519,10 +519,10 @@ expiry.</p>
 
 <span class="c1"># Configure which B-Fabric instances are allowed</span>
 <span class="n">settings</span> <span class="o">=</span> <span class="n">TokenValidationSettings</span><span class="p">(</span>
-    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
+    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
     <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
-        <span class="s2">"https://fgcz-bfabric-test.uzh.ch/bfabric/"</span><span class="p">,</span>
+        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
+        <span class="s2">"https://fgcz-bfabric-test.uzh.ch/bfabric"</span><span class="p">,</span>
     <span class="p">],</span>
 <span class="p">)</span>
 
@@ -550,12 +550,12 @@ expiry.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.rest.token_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_token_data</span>
 
 <span class="c1"># Validate token first</span>
-<span class="n">base_url</span> <span class="o">=</span> <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span>
+<span class="n">base_url</span> <span class="o">=</span> <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span>
 <span class="n">token</span> <span class="o">=</span> <span class="s2">"your_token_here"</span>
 <span class="n">token_data</span> <span class="o">=</span> <span class="n">get_token_data</span><span class="p">(</span><span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
 
 <span class="c1"># Check if the token is from an allowed instance</span>
-<span class="n">allowed_instances</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">]</span>
+<span class="n">allowed_instances</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">]</span>
 <span class="k">if</span> <span class="n">token_data</span><span class="o">.</span><span class="n">caller</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_instances</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Token from </span><span class="si">{</span><span class="n">token_data</span><span class="o">.</span><span class="n">caller</span><span class="si">}</span><span class="s2"> is not allowed"</span><span class="p">)</span>
 
@@ -573,10 +573,10 @@ expiry.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.experimental.webapp_integration_settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenValidationSettings</span>
 
 <span class="n">settings</span> <span class="o">=</span> <span class="n">TokenValidationSettings</span><span class="p">(</span>
-    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
+    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
     <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
-        <span class="s2">"https://fgcz-bfabric-test.uzh.ch/bfabric/"</span><span class="p">,</span>
+        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
+        <span class="s2">"https://fgcz-bfabric-test.uzh.ch/bfabric"</span><span class="p">,</span>
     <span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
@@ -598,10 +598,10 @@ expiry.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bfabric.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">BfabricAuth</span>
 
 <span class="n">settings</span> <span class="o">=</span> <span class="n">WebappIntegrationSettings</span><span class="p">(</span>
-    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
-    <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">],</span>
+    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
+    <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">],</span>
     <span class="n">feeder_user_credentials</span><span class="o">=</span><span class="p">{</span>
-        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">:</span> <span class="n">BfabricAuth</span><span class="p">(</span>
+        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">:</span> <span class="n">BfabricAuth</span><span class="p">(</span>
             <span class="n">login</span><span class="o">=</span><span class="s2">"feeder_user"</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s2">"feeder_user_password"</span>
         <span class="p">),</span>
     <span class="p">},</span>
@@ -625,10 +625,10 @@ expiry.</p>
 <h3>Restrict Token Instances<a class="headerlink" href="#restrict-token-instances" title="Link to this heading">#</a></h3>
 <p>Always restrict <code class="docutils literal notranslate"><span class="pre">supported_bfabric_instances</span></code> to only the instances you trust:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">settings</span> <span class="o">=</span> <span class="n">TokenValidationSettings</span><span class="p">(</span>
-    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>
+    <span class="n">validation_bfabric_instance</span><span class="o">=</span><span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>
     <span class="n">supported_bfabric_instances</span><span class="o">=</span><span class="p">[</span>
-        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric/"</span><span class="p">,</span>  <span class="c1"># Only allow production</span>
-        <span class="c1"># "https://fgcz-bfabric-test.uzh.ch/bfabric/",  # Commented out to prevent test tokens</span>
+        <span class="s2">"https://fgcz-bfabric.uzh.ch/bfabric"</span><span class="p">,</span>  <span class="c1"># Only allow production</span>
+        <span class="c1"># "https://fgcz-bfabric-test.uzh.ch/bfabric",  # Commented out to prevent test tokens</span>
     <span class="p">],</span>
 <span class="p">)</span>
 </pre></div>

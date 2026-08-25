@@ -36,8 +36,8 @@ from bfabric import Bfabric
 from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
 
 settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
-    supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric/"],
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
+    supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric"],
 )
 
 client, token_data = Bfabric.connect_token(token=token, settings=settings)
