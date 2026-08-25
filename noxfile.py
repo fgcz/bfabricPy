@@ -39,15 +39,21 @@ def _collect_test_deps(package_dirs):
     Collect test dependencies from package pyproject.toml files.
 
     Filters out self-references to avoid trying to install packages
-    that aren't on PyPI yet or that we're installing from wheels.
+    that aren't on PyPI yet or that we're installing from wheels. The extras
+    such a self-reference asks for (`bfabric[transfer]`) are returned
+    separately, so the caller can install them from the wheel instead of
+    dropping them: without that, a release of only `bfabric` leaves `tuspy`
+    uninstalled and the tus tests fail on import.
 
     Args:
         package_dirs: Iterable of package directory names
 
     Returns:
-        List of test dependency strings
+        (deps, extras_by_package): test dependency strings, and the extras
+        requested on self-references keyed by package directory name.
     """
     all_deps = []
+    extras_by_package = {}
     package_names = set(package_dirs)  # e.g., {"bfabric", "bfabric_scripts"}
 
     for pkg in package_dirs:
@@ -75,8 +81,12 @@ def _collect_test_deps(package_dirs):
 
                     if dep_name not in package_names:
                         all_deps.append(dep)
+                    elif "[" in dep and "]" in dep:
+                        extras = dep.split("[", 1)[1].split("]", 1)[0]
+                        requested = {e.strip() for e in extras.split(",") if e.strip()}
+                        extras_by_package.setdefault(dep_name, set()).update(requested)
 
-    return all_deps
+    return all_deps, extras_by_package
 
 
 def _get_python_version_tuple(python_string):
@@ -539,14 +549,22 @@ def test_distributions(session):
     session.log("")
 
     # Collect test dependencies from compatible packages only
-    test_deps = _collect_test_deps(compatible_packages.keys())
+    test_deps, extras_by_package = _collect_test_deps(compatible_packages.keys())
     if test_deps:
         session.log(f"Installing test dependencies: {len(test_deps)} packages")
         session.install("--resolution", resolution, *test_deps)
 
-    # Install all compatible wheels at once so uv can resolve dependencies
+    # Install all compatible wheels at once so uv can resolve dependencies,
+    # requesting the extras the test suites need (e.g. bfabric[transfer]).
+    wheel_specs = []
+    for wheel in compatible_wheels:
+        extras = extras_by_package.get(wheel_package_map[wheel])
+        wheel_specs.append(f"{wheel}[{','.join(sorted(extras))}]" if extras else wheel)
+
     session.log("Installing wheels...")
-    session.install(*compatible_wheels)
+    for spec in wheel_specs:
+        session.log(f"   - {spec}")
+    session.install(*wheel_specs)
 
     # Run tests for each compatible package
     for package, test_paths in compatible_packages.items():
