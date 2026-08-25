@@ -35,6 +35,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Fixed
 
 - The SUDS WSDL URL, and the `show.html` links printed by `bfabric_read` and `bfabric-cli api read`, no longer contain a doubled slash.
+- Parsing an environment whose secret is already a `SecretStr` keeps the secret instead of replacing it with the masked `**********`.
 
 ### Removed
 

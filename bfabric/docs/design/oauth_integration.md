@@ -181,7 +181,7 @@ the 1.19.0 schema, so the boundary is executable rather than folklore.
 
 ### `ConfigData` / `EnvironmentConfig`
 
-Both models gained `auth_method` (`"password"` | `"oauth"` | `"pat"`) and `client_id` fields. `Bfabric.connect()` checks `auth_method == "oauth"` to route to `_connect_oauth_from_config()` (token loaded from the disk cache); `"pat"` and `"password"` environments carry their credential in the config and use the normal auth path.
+Both hold the auth-method union described above as `auth_config`, and expose `auth_method`, `client_id`, `client_secret` and `scope` as read-only properties derived from it. `Bfabric.connect()` asks the method for a credential provider rather than switching on a string: `"oauth"` returns one backed by the disk token cache, `"client_credentials"` one backed by the inline secret, and `"pat"` / `"password"` return none, carrying their credential in the config and using the normal auth path.
 
 ---
 
