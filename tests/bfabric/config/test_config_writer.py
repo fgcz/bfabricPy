@@ -669,3 +669,68 @@ class TestValidateWritableEnvironment:
             set_default=True,
         )
         assert yaml.safe_load(config_file.read_text())["PROD"]
+
+
+class TestAtomicWrite:
+    """The config file holds the user's only credentials, so a partial write must not be possible."""
+
+    def _write(self, config_file, **kwargs):
+        write_environment_to_config(
+            config_file,
+            "PROD",
+            {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "token"},
+            auth="replace",
+            **kwargs,
+        )
+
+    def test_leaves_no_temp_file_behind(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, set_default=True)
+        assert [path.name for path in tmp_path.iterdir()] == ["config.yml"]
+
+    def test_no_temp_file_left_when_serialization_fails(self, tmp_path, mocker):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, set_default=True)
+        mocker.patch("bfabric.config.config_writer.yaml.dump", side_effect=RuntimeError("boom"))
+
+        with pytest.raises(RuntimeError, match="boom"):
+            self._write(config_file, set_default=False)
+
+        assert [path.name for path in tmp_path.iterdir()] == ["config.yml"]
+        assert yaml.safe_load(config_file.read_text())["PROD"]["pat"] == "token"
+
+    def test_a_failed_write_leaves_the_previous_config_intact(self, tmp_path, mocker):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, set_default=True)
+        before = config_file.read_text()
+
+        real_write = os.write
+
+        def partial_then_fail(fd, data):
+            _ = real_write(fd, data[:20])
+            raise OSError("disk full")
+
+        mocker.patch("bfabric.config.config_writer.os.write", side_effect=partial_then_fail)
+        with pytest.raises(OSError, match="disk full"):
+            write_environment_to_config(
+                config_file,
+                "PROD",
+                {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "rotated"},
+                auth="replace",
+                set_default=False,
+            )
+
+        assert config_file.read_text() == before
+        assert [path.name for path in tmp_path.iterdir()] == ["config.yml"]
+
+    def test_mode_is_600_for_a_new_file(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, set_default=True)
+        assert stat.S_IMODE(config_file.stat().st_mode) == 0o600
+
+    def test_mode_is_tightened_on_an_existing_loose_file(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        self._write(config_file, set_default=True)
+        config_file.chmod(0o644)
+        self._write(config_file, set_default=False)
+        assert stat.S_IMODE(config_file.stat().st_mode) == 0o600
