@@ -60,9 +60,7 @@ class EnvironmentConfig(BaseModel):
     def auth_method(self) -> Literal["password", "oauth", "pat", "client_credentials"] | None:
         if isinstance(self.auth_config, NoAuth | UnknownAuth):
             return None
-        if not getattr(self.auth_config, "auth_method_written", True):
-            return None
-        return self.auth_config.kind
+        return self.auth_config.declared_name  # pyright: ignore[reportReturnType]
 
     @property
     def client_id(self) -> str | None:
@@ -86,14 +84,6 @@ class EnvironmentConfig(BaseModel):
 
     def needs_credential_provider(self) -> bool:
         return isinstance(self.auth_config, InteractiveOAuthAuth | ClientCredentialsAuth)
-
-    def to_flat(self) -> dict[str, object]:
-        """The flat YAML mapping for this environment."""
-        flat = self.config.model_dump(mode="json", exclude_defaults=True)
-        flat |= self.auth_config.to_flat()
-        if self.registration is not None:
-            flat |= self.registration.to_flat()
-        return flat
 
 
 class ConfigFile(BaseModel):

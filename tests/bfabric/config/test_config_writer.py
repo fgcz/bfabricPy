@@ -734,3 +734,61 @@ class TestAtomicWrite:
         config_file.chmod(0o644)
         self._write(config_file, set_default=False)
         assert stat.S_IMODE(config_file.stat().st_mode) == 0o600
+
+
+class TestPreservesUnwrittenKeys:
+    """Keys the payload never mentions must survive, whatever the environment looks like."""
+
+    def test_legacy_env_does_not_gain_an_auth_method(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_file,
+            "LEGACY",
+            {"base_url": "https://example.com/bfabric", "login": "user", "password": "p" * 32},
+            auth="replace",
+            set_default=True,
+        )
+        set_default_config(config_file, "LEGACY")
+        assert "auth_method" not in yaml.safe_load(config_file.read_text())["LEGACY"]
+
+    def test_an_unrelated_write_leaves_other_environments_byte_identical(self, tmp_path):
+        config_file = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_file,
+            "LEGACY",
+            {"base_url": "https://example.com/bfabric", "login": "user", "password": "p" * 32},
+            auth="replace",
+            set_default=True,
+        )
+        before = yaml.safe_load(config_file.read_text())["LEGACY"]
+
+        write_environment_to_config(
+            config_file,
+            "OTHER",
+            {"base_url": "https://other.example.com/bfabric", "auth_method": "pat", "pat": "token"},
+            auth="replace",
+            set_default=False,
+        )
+        assert yaml.safe_load(config_file.read_text())["LEGACY"] == before
+
+    def test_an_unsupported_auth_method_keeps_its_sibling_keys(self, tmp_path):
+        """A write must not strip keys belonging to a method this version cannot parse."""
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            yaml.dump(
+                {
+                    "GENERAL": {"default_config": "FUTURE"},
+                    "FUTURE": {
+                        "base_url": "https://example.com/bfabric",
+                        "auth_method": "some_future_method",
+                        "client_id": "CLI",
+                        "scope": "api:read",
+                    },
+                }
+            )
+        )
+        before = yaml.safe_load(config_file.read_text())["FUTURE"]
+
+        set_default_config(config_file, "FUTURE")
+
+        assert yaml.safe_load(config_file.read_text())["FUTURE"] == before

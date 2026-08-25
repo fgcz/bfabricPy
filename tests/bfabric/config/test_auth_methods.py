@@ -79,16 +79,14 @@ class TestParsing:
     def test_undeclared_login_is_a_password_env(self):
         assert isinstance(auth_method_from_flat(LEGACY_ENV), PasswordAuth)
 
-    def test_undeclared_oauth_keys_are_preserved(self):
+    def test_undeclared_oauth_keys_are_read(self):
         """The CLI records client_id/scope for a replayable re-login without declaring a method."""
         parsed = auth_method_from_flat({"scope": "api:write"})
         assert isinstance(parsed, InteractiveOAuthAuth)
         assert parsed.scope == "api:write"
-        assert parsed.to_flat() == {"scope": "api:write"}
 
-    def test_undeclared_client_id_is_preserved(self):
-        parsed = auth_method_from_flat({"client_id": "CLI"})
-        assert parsed.to_flat() == {"client_id": "CLI"}
+    def test_undeclared_client_id_is_read(self):
+        assert auth_method_from_flat({"client_id": "CLI"}).client_id == "CLI"
 
     def test_undeclared_pat_is_honoured(self):
         assert isinstance(auth_method_from_flat({"pat": "token"}), PatAuth)
@@ -114,30 +112,6 @@ class TestParsing:
 
     def test_password_declared_but_missing_login_falls_back(self):
         assert isinstance(auth_method_from_flat({"auth_method": "password"}), NoAuth)
-
-
-class TestRoundTrip:
-    @pytest.mark.parametrize(
-        "flat",
-        [OAUTH_ENV, PAT_ENV, SVCACCT_ENV, PASSWORD_ENV, LEGACY_ENV],
-        ids=["oauth", "pat", "svcacct", "password", "legacy"],
-    )
-    def test_flat_to_flat_is_identity(self, flat):
-        assert auth_method_from_flat(flat).to_flat() == flat
-
-    def test_legacy_env_does_not_gain_auth_method(self):
-        assert "auth_method" not in auth_method_from_flat(LEGACY_ENV).to_flat()
-
-    def test_declared_password_keeps_auth_method(self):
-        assert auth_method_from_flat(PASSWORD_ENV).to_flat()["auth_method"] == "password"
-
-    def test_no_auth_emits_nothing(self):
-        assert NoAuth().to_flat() == {}
-
-    def test_unknown_method_preserves_sibling_keys(self):
-        """Dropping them would delete data belonging to a method this version cannot parse."""
-        flat = {"auth_method": "device_code", "client_id": "CLI", "scope": "api:read"}
-        assert auth_method_from_flat(flat).to_flat() == flat
 
 
 class TestStaticAuth:
@@ -192,10 +166,6 @@ class TestRegistration:
     )
     def test_half_a_pair_is_tolerated_as_none(self, flat):
         assert registration_from_flat(flat) is None
-
-    def test_round_trip(self):
-        flat = {"registration_access_token": "tok", "registration_client_uri": "https://x.test/reg"}
-        assert registration_from_flat(flat).to_flat() == flat
 
     def test_secret_not_in_repr(self):
         registration = ClientRegistration(
