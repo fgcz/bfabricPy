@@ -114,18 +114,20 @@ set itself is derived from the auth-method variants in `config/auth_methods.py`.
 
 ## In-memory model: the auth-method union
 
-The flat YAML above is the frozen wire format; in memory each auth method is its own model
+The flat YAML above is the wire format (see the compatibility rules below for what may be added to
+it); in memory each auth method is its own model
 (`PasswordAuth`, `PatAuth`, `InteractiveOAuthAuth`, `ClientCredentialsAuth`, `NoAuth`,
 `UnknownAuth`), discriminated on `kind` and exposed as `EnvironmentConfig.auth_config`. Each variant
 declares the flat keys it owns and knows how to produce its own credentials — a static `BfabricAuth`
 or a refreshing `OAuthCredentialProvider` — so `Bfabric.connect()` and the `auth` CLI ask the method
 instead of switching on a string.
 
-`config/auth_methods.py` is the **only** place the flat and structured shapes are translated
-(`auth_method_from_flat` and `to_flat`). Adding an auth method means adding a variant there; do not
-reintroduce a parallel list of auth keys elsewhere. `EnvironmentConfig` keeps `auth`, `auth_method`,
-`client_id`, `client_secret` and `scope` as read-only properties over the union, so existing readers
-are unaffected.
+The translation is one-way: `auth_method_from_flat` in `config/auth_methods.py` is the only place the
+flat keys are interpreted, and the variants never serialise themselves back — writers pass the flat
+keys to `write_environment_to_config` directly. Adding an auth method means adding a variant there;
+do not reintroduce a parallel list of auth keys elsewhere. `EnvironmentConfig` keeps `auth`,
+`auth_method`, `client_id`, `client_secret` and `scope` as read-only properties over the union, so
+existing readers are unaffected.
 
 Reading is deliberately tolerant and writing is strict: 1.21.0 wrote environments without any
 cross-field validation, so a config already on disk must keep loading even if its keys contradict
@@ -150,6 +152,28 @@ inline `login: __oauth__` / `password: <PAT>` environment would poison the whole
 means old clients silently ignore it and keep reading the rest of the file; no fleet-wide
 upgrade is required. The reader still accepts the legacy `login: __oauth__` shape written by
 `1.20.0rc1`.
+
+Generalised, since this is narrower than "the format is frozen" and it is easy to be too cautious:
+**new config options are free; the envelope is not.** app_runner bind-mounts the host's
+`~/.bfabricpy.yml` into containers whose image may ship an older bfabric, so old readers are live,
+not hypothetical — and a version field cannot help, because those readers are already deployed and
+will never look for one.
+
+Safe to add:
+
+- any new key **inside** an environment — old readers sweep unknown keys into their client config and ignore them
+- a whole new environment using a new `auth_method` — old readers see it as unauthenticated
+- a new key inside `GENERAL`
+
+Breaks every old client on the machine, for the whole file:
+
+- a new **top-level** key (`version:` at the root) — anything outside `GENERAL` is read as an environment name and must parse as one
+- nesting credentials under `auth` — that is the old reader's own field name
+- an environment with no `base_url`
+- a `login` paired with a non-32-character `password`
+
+`tests/bfabric/config/test_backward_compat.py` asserts each of these against a vendored replica of
+the 1.19.0 schema, so the boundary is executable rather than folklore.
 
 ### New: `config_writer.py`
 

@@ -140,3 +140,73 @@ def test_every_written_env_shape_is_parseable_by_legacy_client(env_shape):
     legacy = LegacyConfigFile.model_validate(config)
     assert legacy.environments["PROD"].auth.login == "user"
     assert legacy.environments["OTHER"].auth is None
+
+
+def _shared_file(**environments: dict[str, object]) -> dict[str, object]:
+    """A config file with a normal password environment plus whatever is under test."""
+    return {
+        "GENERAL": {"default_config": "PROD"},
+        "PROD": {"base_url": "https://prod.example.com", "login": "user", "password": "x" * 32},
+        **environments,
+    }
+
+
+class TestWhatIsSafeToAdd:
+    """What a new bfabricPy may put in a shared config file without breaking a 1.19.0 client.
+
+    These bound the format together with TestWhatBreaksOldClients: a new config option belongs in
+    the first group, and nothing may land in the second.
+    """
+
+    def test_a_new_key_inside_an_environment(self):
+        config = _shared_file(OTHER={"base_url": "https://y.example.com", "brand_new_option": "x"})
+        assert LegacyConfigFile.model_validate(config).environments["PROD"].auth.login == "user"
+
+    def test_a_new_key_alongside_an_existing_login(self):
+        config = _shared_file(
+            PROD={"base_url": "https://prod.example.com", "login": "user", "password": "x" * 32, "new_option": 1}
+        )
+        assert LegacyConfigFile.model_validate(config).environments["PROD"].auth.login == "user"
+
+    def test_a_whole_environment_using_a_future_auth_method(self):
+        config = _shared_file(OTHER={"base_url": "https://y.example.com", "auth_method": "future", "token": "t"})
+        legacy = LegacyConfigFile.model_validate(config)
+        assert legacy.environments["PROD"].auth.login == "user"
+        assert legacy.environments["OTHER"].auth is None
+
+    def test_a_new_key_inside_general(self):
+        config = _shared_file()
+        config["GENERAL"] = {"default_config": "PROD", "version": 2}
+        assert LegacyConfigFile.model_validate(config).environments["PROD"].auth.login == "user"
+
+
+class TestWhatBreaksOldClients:
+    """Changes that poison a shared config file for every 1.19.0 client on the machine.
+
+    app_runner bind-mounts the host's ``~/.bfabricpy.yml`` into containers whose image may ship an
+    older bfabric, so these are not hypothetical, and no version field can rescue them: the old
+    reader is already deployed and will never learn to look for one.
+    """
+
+    def test_a_new_top_level_key(self):
+        """Anything outside GENERAL is read as an environment name, so it must parse as one."""
+        config = _shared_file()
+        config["version"] = 2
+        with pytest.raises(ValidationError):
+            LegacyConfigFile.model_validate(config)
+
+    def test_nesting_credentials_under_auth(self):
+        """``auth`` is the old reader's own field, so a mapping there collides with it."""
+        config = _shared_file(OTHER={"base_url": "https://y.example.com", "auth": {"kind": "pat", "pat": "t"}})
+        with pytest.raises(ValidationError):
+            LegacyConfigFile.model_validate(config)
+
+    def test_an_environment_without_a_base_url(self):
+        config = _shared_file(OTHER={"auth_method": "pat", "pat": "t"})
+        with pytest.raises(ValidationError):
+            LegacyConfigFile.model_validate(config)
+
+    def test_a_login_with_a_non_32_char_password(self):
+        config = _shared_file(OTHER={"base_url": "https://y.example.com", "login": "__oauth__", "password": "short"})
+        with pytest.raises(ValidationError):
+            LegacyConfigFile.model_validate(config)
