@@ -6,6 +6,7 @@ Note: rewriting the file drops any YAML comments in it (``yaml.safe_dump`` doesn
 from __future__ import annotations
 
 import os
+import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, cast
 
@@ -77,16 +78,26 @@ def _read_config_file(config_path: Path) -> dict[str, object]:
 
 
 def _write_config_file(config_path: Path, data: Mapping[str, object]) -> None:
-    """Serialize *data* to *config_path* as YAML, mode ``0o600`` (fchmod forces it on existing files)."""
+    """Serialize *data* to *config_path* as YAML, mode ``0o600``, replacing it atomically.
+
+    Written to a sibling temp file and renamed, so an interrupted write cannot truncate the file
+    holding the user's credentials. Note the inode changes, which matters to anything bind-mounting
+    the file itself rather than its directory.
+    """
     config_path = Path(config_path).expanduser()
     config_path.parent.mkdir(parents=True, exist_ok=True)
     serialized = yaml.safe_dump(_plain(data), default_flow_style=False, sort_keys=False).encode()
-    fd = os.open(str(config_path), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    fd, tmp_name = tempfile.mkstemp(dir=str(config_path.parent), prefix=f".{config_path.name}.", suffix=".tmp")
     try:
         os.fchmod(fd, 0o600)
         _ = os.write(fd, serialized)
-    finally:
+        os.fsync(fd)
+    except BaseException:
         os.close(fd)
+        Path(tmp_name).unlink(missing_ok=True)
+        raise
+    os.close(fd)
+    _ = Path(tmp_name).replace(config_path)
 
 
 def _load_for_edit(config_path: Path, env_name: str) -> dict[str, object]:
