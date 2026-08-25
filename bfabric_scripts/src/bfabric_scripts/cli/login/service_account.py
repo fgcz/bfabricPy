@@ -27,7 +27,7 @@ _CLIENT_ID_HELP = "OAuth client ID of the service account (from 'bfabric-cli aut
 _CLIENT_SECRET_HELP = "OAuth client secret (prompted if omitted)."
 _CONFIG_ENV_HELP = "Environment name (defaults to BFABRICPY_CONFIG_ENV or the default)."
 _SET_DEFAULT_HELP = "Set this environment as the default in the config file (prompted if omitted)."
-_SCOPE_HELP = "OAuth scope to record for this environment (informational; the server grants the scope)."
+_SCOPE_HELP = "OAuth scope requested on every token request. Omit to accept the client's default scope."
 
 
 def cmd_auth_service_account(

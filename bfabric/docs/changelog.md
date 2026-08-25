@@ -15,7 +15,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `bfabric.oauth.AuthorizationRequest.create` starts an authorization-code login, returning the URL to redirect a user to along with the CSRF state and PKCE verifier to keep until they return. A web app can now run the flow without deriving a code challenge itself.
 - `bfabric.oauth.exchange_code` redeems the returned code for tokens. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
 - `bfabric.oauth.token_url` builds the token endpoint URL for an instance.
-- An environment with `auth_method: client_credentials` authenticates a service account from its inline `client_secret`, so `Bfabric.connect()` works unattended without a browser or a cached token.
+- An environment with `auth_method: client_credentials` authenticates a service account from its inline `client_secret`, so `Bfabric.connect()` works unattended without a browser or a cached token. Its recorded `scope` is requested on every token request, narrowing the service account's token; without one the server applies the client's default. Interactive OAuth is unaffected — its scope is fixed at authorization time and the refresh inherits it.
 - `read_client`, `update_client` and `delete_client` read, correct and revoke an OAuth client's own registration (RFC 7592) using its registration access token.
 - Config environments record `registration_access_token` and `registration_client_uri`, so a client registered through the CLI can be edited later.
 

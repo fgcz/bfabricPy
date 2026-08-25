@@ -495,6 +495,26 @@ class TestConnectOAuthFromConfig:
         with pytest.raises(ValueError, match="missing 'env_name'"):
             Bfabric.from_config_data(config_data)
 
+    def test_ignores_the_recorded_scope(self, mocker):
+        """A refresh inherits the scope fixed at authorization time, so re-requesting one here could
+        only narrow the token below what the user consented to."""
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_provider_cls = mocker.patch("bfabric.oauth._credential_provider.OAuthCredentialProvider")
+        mock_cache_cls = mocker.patch("bfabric.oauth._token_cache.TokenCache")
+        mock_cache_cls.return_value.load.return_value = {"access_token": "tok"}
+        config_data = ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=None,
+            auth_method="oauth",
+            client_id="CLI",
+            scope="api:read",
+            env_name="PROD",
+        )
+
+        _ = Bfabric._connect_oauth_from_config(config_data)
+
+        assert mock_provider_cls.call_args.kwargs["scope"] == ""
+
 
 def _provider_kwargs(mock_provider_cls):
     """The kwargs of whichever named constructor the connect_* method used."""
@@ -528,6 +548,25 @@ class TestConnectClientCredentialsFromConfig:
             scope="",
         )
         assert client._credential_provider is mock_provider_cls.for_client_credentials.return_value
+
+    def test_requests_the_recorded_scope(self, mocker):
+        """The token request is the only place a client_credentials grant can narrow its scope:
+        there is no prior authorization step to inherit one from."""
+        mocker.patch.object(Bfabric, "_log_version_message")
+        mock_provider_cls = mocker.patch("bfabric.oauth._credential_provider.OAuthCredentialProvider")
+        config_data = ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=None,
+            auth_method="client_credentials",
+            client_id="cron",
+            client_secret=SecretStr("s3cret"),
+            scope="api:read",
+            env_name="PROD",
+        )
+
+        _ = Bfabric._connect_oauth_from_config(config_data)
+
+        assert mock_provider_cls.call_args.kwargs["scope"] == "api:read"
 
     def test_does_not_require_a_cached_token(self, mocker):
         """A service account authenticates from its secret, so an empty token cache is not an error."""
