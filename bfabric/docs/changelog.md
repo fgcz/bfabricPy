@@ -11,6 +11,9 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
+- An environment with `auth_method: client_credentials` authenticates a service account from its inline `client_secret`, so `Bfabric.connect()` works unattended without a browser or a cached token. Its recorded `scope` is requested on every token request, narrowing the service account's token; without one the server applies the client's default. Interactive OAuth is unaffected — its scope is fixed at authorization time and the refresh inherits it.
+- `read_client`, `update_client` and `delete_client` read, correct and revoke an OAuth client's own registration (RFC 7592) using its registration access token.
+- Config environments record `registration_access_token` and `registration_client_uri`, so a client registered through the CLI can be edited later.
 - `upload_files` resumes interrupted transfers by default, keeping each file's tus URL under `~/.bfabric/resume` (per server), keyed by the file's MD5 and source path so byte-identical files from separate runs stay separate uploads. Pass `resume_cache` to choose another path, or `resume_cache=None` to keep no state and never resume.
 
 ### Changed

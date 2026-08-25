@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 
 import pytest
+from pydantic import SecretStr
+
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_data import ConfigData, export_config_data, load_config_data
 
@@ -120,6 +122,22 @@ def test_export_roundtrip_preserves_oauth_fields(client_config):
     )
     exported = export_config_data(config_data)
     loaded_config = ConfigData.model_validate_json(exported)
+    assert loaded_config == config_data
+
+
+def test_export_roundtrip_preserves_scope(client_config):
+    """A dropped scope would silently widen a service account's token across the override var."""
+    config_data = ConfigData(
+        client=client_config,
+        auth=None,
+        auth_method="client_credentials",
+        client_id="cron",
+        client_secret=SecretStr("s3cret"),
+        scope="api:read",
+        env_name="PRODUCTION",
+    )
+    loaded_config = ConfigData.model_validate_json(export_config_data(config_data))
+    assert loaded_config.scope == "api:read"
     assert loaded_config == config_data
 
 
