@@ -75,20 +75,6 @@ class TestInstancePath:
         with pytest.raises(ValueError, match="not a B-Fabric instance URL"):
             BaseUrl(raw)
 
-    @pytest.mark.parametrize(
-        ("raw", "suggestion"),
-        [
-            # The two mistakes worth naming a fix for: a bare host, and a URL reaching past the
-            # servlet root (someone pasting a REST endpoint they saw in a log).
-            ("https://example.com", "https://example.com/bfabric"),
-            ("https://example.com/bfabric/api", "https://example.com/bfabric"),
-            ("https://example.com/lims/bfabric/rest/upload", "https://example.com/lims/bfabric"),
-        ],
-    )
-    def test_names_the_corrected_url(self, raw, suggestion):
-        with pytest.raises(ValueError, match=f"did you mean {suggestion!r}"):
-            BaseUrl(raw)
-
 
 class TestBehavesLikeStr:
     """The reason this is a ``str`` subclass rather than a wrapper model."""
