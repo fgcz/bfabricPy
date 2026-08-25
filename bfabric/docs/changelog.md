@@ -15,9 +15,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Changed
 
-- **Breaking: `BfabricClientConfig.base_url` is canonicalised *without* a trailing slash**, reversing 1.15.0. Config files and `connect_*` arguments still accept one, and `EntityUri` strings are unchanged.
-- **Breaking: new `bfabric.BaseUrl`**, a `str` subclass holding a validated slash-free instance URL. It is now the type of `BfabricClientConfig.base_url`, `Entity.bfabric_instance` and `EntityUriComponents.bfabric_instance` (was a pydantic `HttpUrl`), and is required by `EntityReader`'s `bfabric_instance` arguments. A plain string still validates; only a type checker asks for `BaseUrl(...)`.
-- **Breaking: a `BaseUrl` must end in a `/bfabric` path segment**, so a bare host or a URL reaching past the servlet root is refused where it is configured rather than as a later 404 or instance mismatch. The error names the URL it was given and the one it takes to be meant. `bfabric-cli login`/`auth pat` complete a bare host, so `bfabric-cli login my-instance.example.com` still works.
+- **Breaking: new `bfabric.BaseUrl`**, a `str` subclass replacing the pydantic `HttpUrl` on `BfabricClientConfig.base_url`, `Entity.bfabric_instance` and `EntityUriComponents.bfabric_instance` it ensures the base_url always ends with `/bfabric`.
 - `connect_oauth` / `connect_pkce` / `connect_device_code` / `connect_pat` and `WebappClient.create` also normalise host case and a default port, and reject a non-HTTP URL with a `ValueError`.
 - `UrlTokenContext.base_url` returns a `BaseUrl`.
 - `TokenValidationSettings` / `WebappIntegrationSettings` hold their instance URLs as `BaseUrl`, so a non-http one is rejected on parse and a trailing slash no longer has to match exactly.
