@@ -7,6 +7,9 @@ the resulting access token to extract entity context.
 
 from __future__ import annotations
 
+
+from typing import TYPE_CHECKING
+
 import httpx
 from loguru import logger
 
@@ -14,9 +17,12 @@ from bfabric.errors import raise_if_unavailable
 
 from bfabric.oauth._url_token import UrlTokenContext
 
+if TYPE_CHECKING:
+    from bfabric.config.base_url import BaseUrl
+
 
 def exchange_token(
-    base_url: str,
+    base_url: BaseUrl,
     launch_token: str,
     *,
     client_id: str,
@@ -27,14 +33,13 @@ def exchange_token(
     POSTs to ``{base_url}/rest/oauth/token`` with
     ``grant_type=urn:ietf:params:oauth:grant-type:token-exchange``.
 
-    :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
     :param launch_token: The short-lived JWT from the launch URL
     :param client_id: OAuth client ID for the webapp
     :param client_secret: OAuth client secret for the webapp
     :returns: Token response dict with ``access_token``, ``refresh_token``, etc.
     :raises httpx.HTTPStatusError: On non-2xx responses
     """
-    url = f"{base_url.rstrip('/')}/rest/oauth/token"
+    url = f"{base_url}/rest/oauth/token"
     logger.debug("Exchanging launch token at {}", url)
     with raise_if_unavailable(base_url):
         response = httpx.post(
@@ -55,7 +60,7 @@ def exchange_token(
 
 
 def introspect_token(
-    base_url: str,
+    base_url: BaseUrl,
     access_token: str,
     *,
     client_id: str,
@@ -66,14 +71,13 @@ def introspect_token(
     POSTs to ``{base_url}/rest/oauth/introspect`` using ``client_secret_basic``
     auth and returns a :class:`UrlTokenContext` with the extracted claims.
 
-    :param base_url: B-Fabric instance URL
     :param access_token: The access token to introspect
     :param client_id: OAuth client ID for the webapp
     :param client_secret: OAuth client secret for the webapp
     :returns: :class:`UrlTokenContext` with entity claims
     :raises httpx.HTTPStatusError: On non-2xx responses
     """
-    url = f"{base_url.rstrip('/')}/rest/oauth/introspect"
+    url = f"{base_url}/rest/oauth/introspect"
     logger.debug("Introspecting token at {}", url)
     with raise_if_unavailable(base_url):
         response = httpx.post(

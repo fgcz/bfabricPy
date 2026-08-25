@@ -14,6 +14,7 @@ import threading
 import webbrowser
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import TYPE_CHECKING
 from urllib.parse import parse_qs, urlencode, urlparse
 
 import httpx
@@ -21,6 +22,8 @@ from loguru import logger
 
 from bfabric.errors import BfabricOAuthError, raise_if_unavailable
 
+if TYPE_CHECKING:
+    from bfabric.config.base_url import BaseUrl
 
 _REMOTE_HOST_CAVEAT = "On a remote host, use 'bfabric-cli auth device-code' instead."
 
@@ -167,7 +170,7 @@ def _exchange_code(
 
 
 def pkce_login(
-    base_url: str,
+    base_url: BaseUrl,
     *,
     client_id: str,
     scope: str,
@@ -177,14 +180,12 @@ def pkce_login(
 ) -> dict[str, object]:
     """Perform an OAuth 2.0 Authorization Code flow with PKCE.
 
-    :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
     :param port: Local port for the callback server (``0`` = auto-assign)
     :param open_browser: If ``False``, or if the browser fails to open, the URL is printed to stderr
     :param timeout: Seconds to wait for the user to complete login
     :returns: Token dict with ``access_token``, ``refresh_token``, etc.
     :raises RuntimeError: On timeout, CSRF state mismatch, or authorization error
     """
-    base_url = base_url.rstrip("/")
     logger.debug("Starting PKCE login flow for {}", base_url)
     verifier = _generate_verifier()
     challenge = _generate_challenge(verifier)

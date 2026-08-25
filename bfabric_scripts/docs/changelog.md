@@ -10,6 +10,14 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+### Changed
+
+- `auth login` / `auth pat` complete a bare host with `/bfabric` for any instance, not just the four known ones, so `bfabric-cli login my-instance.example.com` works. A URL whose path is something else is now refused instead of used as given.
+
+### Fixed
+
+- `bfabric-cli api update` and `api delete` explain that there is no terminal to confirm on, and name `--no-confirm`, instead of failing with an `EOFError` traceback when run from a script or cron job.
+
 ## \[1.17.0\] - 2026-08-20
 
 ### Added
@@ -35,6 +43,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - `auth register-webapp` prints `Error: ...` and exits 1 when the OAuth session cannot be refreshed, instead of a raw traceback.
 - `auth register` no longer prompts for an *Employee Bearer token* when a login exists; it authenticates as the environment in effect.
+- `auth register` canonicalises its `base_url` argument like the other `auth` commands, so a bare host or a trailing slash works and a non-HTTP URL is rejected with a plain message.
 
 ## \[1.16.0\] - 2026-08-03
 

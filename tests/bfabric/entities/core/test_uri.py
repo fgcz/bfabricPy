@@ -1,5 +1,5 @@
 import pytest
-from pydantic import HttpUrl, BaseModel
+from pydantic import BaseModel
 
 from bfabric.entities.core.uri import EntityUri, EntityUriComponents, GroupedUris
 from bfabric.entities.core.uri import _parse_uri_components
@@ -43,12 +43,12 @@ class TestEntityUri:
         uri = "https://fgcz-bfabric.uzh.ch/bfabric/project/show.html?id=3000"
         entity_uri = EntityUri(uri)
         components = entity_uri.components
-        assert components.bfabric_instance == HttpUrl("https://fgcz-bfabric.uzh.ch/bfabric/")
+        assert components.bfabric_instance == "https://fgcz-bfabric.uzh.ch/bfabric"
         assert components.entity_type == "project"
         assert components.entity_id == 3000
 
     @pytest.mark.parametrize(
-        "bfabric_instance", ["https://bfabric.example.com/bfabric/", "https://bfabric.example.com/bfabric"]
+        "bfabric_instance", ["https://bfabric.example.com/bfabric", "https://bfabric.example.com/bfabric"]
     )
     def test_from_components(self, bfabric_instance: str):
         entity_uri = EntityUri.from_components(bfabric_instance, "dataset", 1234)
@@ -84,7 +84,7 @@ class TestNormalize:
 
     def test_components(self):
         components = EntityUri.normalize(f"{CANONICAL_URI}&tab=details").components
-        assert components.bfabric_instance == HttpUrl("https://fgcz-bfabric.uzh.ch/bfabric/")
+        assert components.bfabric_instance == "https://fgcz-bfabric.uzh.ch/bfabric"
         assert components.entity_type == "workunit"
         assert components.entity_id == 346001
 
@@ -122,15 +122,15 @@ class TestEntityUriComponents:
     @pytest.mark.parametrize(
         "bfabric_instance",
         [
-            "https://fgcz-bfabric.uzh.ch/bfabric/",
-            "https://bfabric.example.com/bfabric/",
-            "http://localhost:8080/bfabric/",
+            "https://fgcz-bfabric.uzh.ch/bfabric",
+            "https://bfabric.example.com/bfabric",
+            "http://localhost:8080/bfabric",
         ],
     )
     def test_valid(self, bfabric_instance):
-        uri = f"{bfabric_instance}project/show.html?id=3000"
+        uri = f"{bfabric_instance}/project/show.html?id=3000"
         parsed = _parse_uri_components(uri)
-        assert parsed.bfabric_instance == HttpUrl(bfabric_instance)
+        assert parsed.bfabric_instance == bfabric_instance
         assert parsed.entity_type == "project"
         assert parsed.entity_id == 3000
 
@@ -148,7 +148,7 @@ class TestEntityUriComponents:
             _parse_uri_components(uri)
 
     @pytest.mark.parametrize(
-        "bfabric_instance", ["https://bfabric.example.com/bfabric/", "https://bfabric.example.com/bfabric"]
+        "bfabric_instance", ["https://bfabric.example.com/bfabric", "https://bfabric.example.com/bfabric"]
     )
     def test_as_uri(self, bfabric_instance):
         components = EntityUriComponents(bfabric_instance=bfabric_instance, entity_type="project", entity_id=3000)
@@ -192,7 +192,7 @@ class TestGroupedUris:
         # Verify groups contain correct URIs
         groups_dict = {(key.bfabric_instance, key.entity_type): uris for key, uris in grouped.items()}
 
-        assert groups_dict[("https://instance1.example.org/bfabric/", "project")] == [uri1, uri2]
-        assert groups_dict[("https://instance1.example.org/bfabric/", "user")] == [uri3]
-        assert groups_dict[("https://instance2.example.org/bfabric/", "project")] == [uri4]
-        assert groups_dict[("https://instance2.example.org/bfabric/", "user")] == [uri5]
+        assert groups_dict[("https://instance1.example.org/bfabric", "project")] == [uri1, uri2]
+        assert groups_dict[("https://instance1.example.org/bfabric", "user")] == [uri3]
+        assert groups_dict[("https://instance2.example.org/bfabric", "project")] == [uri4]
+        assert groups_dict[("https://instance2.example.org/bfabric", "user")] == [uri5]

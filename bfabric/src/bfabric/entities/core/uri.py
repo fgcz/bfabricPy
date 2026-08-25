@@ -9,11 +9,12 @@ from pydantic import (
     AfterValidator,
     BaseModel,
     ConfigDict,
-    HttpUrl,
     StringConstraints,
     TypeAdapter,
 )
 from pydantic_core import core_schema
+
+from bfabric.config.base_url import BaseUrl
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -60,7 +61,7 @@ def _parse_uri_components(uri: str, *, allow_extra_query: bool = False) -> Entit
         raise invalid(f"expected query exactly 'id=<entity_id>' and no fragment; {_NORMALIZE_HINT}")
 
     return EntityUriComponents(
-        bfabric_instance=HttpUrl(f"{parsed.scheme}://{parsed.netloc.lower()}/bfabric/"),
+        bfabric_instance=BaseUrl(f"{parsed.scheme}://{parsed.netloc.lower()}/bfabric"),
         entity_type=segments[1],
         entity_id=int(entity_id),
     )
@@ -98,11 +99,11 @@ class EntityUri(str):
         return instance
 
     @classmethod
-    def from_components(cls, bfabric_instance: str, entity_type: str, entity_id: int) -> EntityUri:
+    def from_components(cls, bfabric_instance: BaseUrl, entity_type: str, entity_id: int) -> EntityUri:
         """Create EntityUri from individual components.
 
         Args:
-            bfabric_instance: B-Fabric instance URL (e.g., "https://fgcz-bfabric.uzh.ch/bfabric/")
+            bfabric_instance: B-Fabric instance URL (e.g., "https://fgcz-bfabric.uzh.ch/bfabric")
             entity_type: Entity type name (e.g., "sample", "project")
             entity_id: Numeric ID of the entity
 
@@ -150,7 +151,7 @@ class EntityUriComponents(BaseModel):
         entity_id: Numeric entity ID (must be positive)
     """
 
-    bfabric_instance: HttpUrl
+    bfabric_instance: BaseUrl
     entity_type: Annotated[str, StringConstraints(pattern=r"^[a-z]+$")]
     entity_id: Annotated[int, annotated_types.Gt(0)]
 
@@ -170,7 +171,7 @@ class GroupedUris(BaseModel):
         """Grouping key for EntityUris."""
 
         model_config = ConfigDict(frozen=True)
-        bfabric_instance: str
+        bfabric_instance: BaseUrl
         entity_type: str
 
     groups: dict[GroupKey, list[EntityUri]] = {}
@@ -191,8 +192,6 @@ class GroupedUris(BaseModel):
         """
         groups = defaultdict(list)
         for uri in uris:
-            key = cls.GroupKey(
-                bfabric_instance=str(uri.components.bfabric_instance), entity_type=uri.components.entity_type
-            )
+            key = cls.GroupKey(bfabric_instance=uri.components.bfabric_instance, entity_type=uri.components.entity_type)
             groups[key].append(uri)
         return cls(groups=dict(groups))

@@ -12,7 +12,7 @@ from bfabric_scripts.cli.api.read import Params, cmd_api_read, perform_query
 @pytest.fixture
 def mock_client(mocker):
     client = mocker.Mock(spec=Bfabric)
-    client.config.base_url = "http://test-bfabric.com"
+    client.config.base_url = "http://test-bfabric.com/bfabric"
     return client
 
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import override
 
 from bfabric import Bfabric, BfabricClientConfig
-from bfabric.config import BfabricAuth
+from bfabric.config import BaseUrl, BfabricAuth
 from bfabric.config.config_data import ConfigData
 from pydantic import SecretStr
 from starlette.authentication import BaseUser
@@ -39,7 +39,7 @@ class BfabricUser(BaseUser):
         return self._session_data.bfabric_auth_login
 
     @property
-    def instance(self) -> str:
+    def instance(self) -> BaseUrl:
         return self._session_data.bfabric_instance
 
     @property
@@ -61,7 +61,7 @@ class BfabricUser(BaseUser):
     def get_bfabric_client(self) -> Bfabric:
         """Create a Bfabric client authenticated as this user."""
         config = ConfigData(
-            client=BfabricClientConfig.model_validate({"base_url": self._session_data.bfabric_instance}),
+            client=BfabricClientConfig(base_url=self._session_data.bfabric_instance),
             auth=BfabricAuth(
                 login=self._session_data.bfabric_auth_login,
                 password=SecretStr(self._session_data.bfabric_auth_password),

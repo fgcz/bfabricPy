@@ -3,15 +3,15 @@ GENERAL:
 PRODUCTION:
   login: testuser
   password: 01234567890123456789012345678901
-  base_url: https://prod-server.example.com/api
+  base_url: https://prod-server.example.com/bfabric
 TEST:
   login: testuser
   password: 012345678901234567890123456789ff
-  base_url: https://test-server.example.com/api
+  base_url: https://test-server.example.com/bfabric
   application_ids:
     Proteomics/CAT_123: 7
     Proteomics/DOG_552: 6
     Proteomics/DUCK_666: 12
   job_notification_emails: user1@example.com user2@example.com
 STANDBY:
-  base_url: https://standby-server.example.com/api
+  base_url: https://standby-server.example.com/bfabric

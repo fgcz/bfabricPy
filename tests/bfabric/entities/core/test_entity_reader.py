@@ -35,22 +35,22 @@ def mock_instantiate_entity(mocker):
 
 @pytest.fixture
 def uri_project_1(bfabric_instance):
-    return EntityUri(f"{bfabric_instance}project/show.html?id=100")
+    return EntityUri(f"{bfabric_instance}/project/show.html?id=100")
 
 
 @pytest.fixture
 def uri_project_2(bfabric_instance):
-    return EntityUri(f"{bfabric_instance}project/show.html?id=200")
+    return EntityUri(f"{bfabric_instance}/project/show.html?id=200")
 
 
 @pytest.fixture
 def uri_user_1(bfabric_instance):
-    return EntityUri(f"{bfabric_instance}user/show.html?id=1")
+    return EntityUri(f"{bfabric_instance}/user/show.html?id=1")
 
 
 @pytest.fixture
 def uri_user_2(bfabric_instance):
-    return EntityUri(f"{bfabric_instance}user/show.html?id=2")
+    return EntityUri(f"{bfabric_instance}/user/show.html?id=2")
 
 
 @pytest.fixture
@@ -262,7 +262,7 @@ class TestReadUris:
             entity_reader.read_uris([uri_project_1, uri_wrong_instance])
 
         assert "Unsupported B-Fabric instances" in str(exc_info.value)
-        assert "https://other-instance.example.org/bfabric/" in str(exc_info.value)
+        assert "https://other-instance.example.org/bfabric" in str(exc_info.value)
 
 
 class TestReadId:
@@ -307,7 +307,7 @@ class TestReadId:
         mock_entity_project_1,
     ):
         """Test reading with a custom bfabric_instance."""
-        custom_instance = "https://bfabric.example.org/bfabric/"
+        custom_instance = "https://bfabric.example.org/bfabric"
         mock_cache_stack.item_get_all.return_value = {}
         mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
         mock_instantiate_entity.return_value = mock_entity_project_1
@@ -391,7 +391,7 @@ class TestReadIds:
 
         result = entity_reader.read_ids(entity_type="project", entity_ids=[100, 999])
 
-        expected_uri_999 = EntityUri(f"{bfabric_instance}project/show.html?id=999")
+        expected_uri_999 = EntityUri(f"{bfabric_instance}/project/show.html?id=999")
         assert result == {uri_project_1: mock_entity_project_1, expected_uri_999: None}
 
     def test_all_missing_entities(self, entity_reader, mock_cache_stack, mock_multi_query, bfabric_instance):
@@ -401,8 +401,8 @@ class TestReadIds:
 
         result = entity_reader.read_ids(entity_type="project", entity_ids=[999, 888])
 
-        expected_uri_999 = EntityUri(f"{bfabric_instance}project/show.html?id=999")
-        expected_uri_888 = EntityUri(f"{bfabric_instance}project/show.html?id=888")
+        expected_uri_999 = EntityUri(f"{bfabric_instance}/project/show.html?id=999")
+        expected_uri_888 = EntityUri(f"{bfabric_instance}/project/show.html?id=888")
         assert result == {expected_uri_999: None, expected_uri_888: None}
 
     def test_empty_list(self, entity_reader, mock_cache_stack):
@@ -423,7 +423,7 @@ class TestReadIds:
         bfabric_instance,
     ):
         """Test reading with a custom bfabric_instance."""
-        custom_instance = "https://bfabric.example.org/bfabric/"
+        custom_instance = "https://bfabric.example.org/bfabric"
         mock_cache_stack.item_get_all.return_value = {}
         mock_multi_query.read_multi.return_value = [{"id": 100, "classname": "project", "name": "Project 1"}]
         mock_instantiate_entity.return_value = mock_entity_project_1
@@ -431,7 +431,7 @@ class TestReadIds:
         result = entity_reader.read_ids(entity_type="project", entity_ids=[100], bfabric_instance=custom_instance)
 
         # Verify URI was constructed with custom instance
-        expected_uri = EntityUri(f"{custom_instance}project/show.html?id=100")
+        expected_uri = EntityUri(f"{custom_instance}/project/show.html?id=100")
         assert expected_uri in result
 
 
@@ -481,7 +481,7 @@ class TestQuery:
 
     def test_instance_mismatch_raises_error(self, entity_reader, mock_client, bfabric_instance):
         """Test that querying a different instance raises ValueError."""
-        different_instance = "https://other-instance.example.org/bfabric/"
+        different_instance = "https://other-instance.example.org/bfabric"
 
         with pytest.raises(ValueError) as exc_info:
             entity_reader.query(entity_type="project", obj={}, bfabric_instance=different_instance, max_results=100)
@@ -621,7 +621,7 @@ class TestEntityResult:
     @pytest.fixture
     def uri(self, bfabric_instance):
         def _make(entity_id: int, entity_type: str = "resource") -> EntityUri:
-            return EntityUri(f"{bfabric_instance}{entity_type}/show.html?id={entity_id}")
+            return EntityUri(f"{bfabric_instance}/{entity_type}/show.html?id={entity_id}")
 
         return _make
 

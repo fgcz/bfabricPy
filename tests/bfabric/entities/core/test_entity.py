@@ -36,7 +36,7 @@ def test_classname(mock_entity) -> None:
 
 @pytest.mark.parametrize("mock_entity_has_client", [True, False], indirect=True)
 def test_uri(mock_entity, bfabric_instance) -> None:
-    assert mock_entity.uri == f"{bfabric_instance}testendpoint/show.html?id=1"
+    assert mock_entity.uri == f"{bfabric_instance}/testendpoint/show.html?id=1"
 
 
 def test_data_dict(mock_entity, mock_data_dict) -> None:
@@ -225,7 +225,7 @@ def test_repr(mock_entity) -> None:
     assert repr(mock_entity) == (
         "Entity("
         "data_dict={'id': 1, 'name': 'Test Entity', 'classname': 'testendpoint'}, "
-        "bfabric_instance='https://bfabric.example.org/bfabric/'"
+        "bfabric_instance='https://bfabric.example.org/bfabric'"
         ")"
     )
 

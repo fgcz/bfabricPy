@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from bfabric import Bfabric
+    from bfabric.config.base_url import BaseUrl
     from bfabric.entities import User
     from bfabric.entities.core.users import Users
     from bfabric.typing import ApiResponseObjectType
@@ -18,7 +19,7 @@ class UserCreatedMixin:
         @property
         def data_dict(self) -> ApiResponseObjectType: ...
         @property
-        def bfabric_instance(self) -> str: ...
+        def bfabric_instance(self) -> BaseUrl: ...
         @property
         def _client(self) -> Bfabric | None: ...
 

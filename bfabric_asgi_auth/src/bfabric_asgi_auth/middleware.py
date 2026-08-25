@@ -3,6 +3,7 @@ from __future__ import annotations
 import urllib.parse
 
 from asgiref.typing import ASGI3Application, ASGIReceiveCallable, ASGISendCallable, HTTPScope, Scope, WebSocketScope
+from bfabric.config import BaseUrl
 from loguru import logger
 from pydantic import SecretStr, ValidationError
 
@@ -140,7 +141,7 @@ class BfabricAuthMiddleware:
 
         # Create session data
         session_data = SessionData(
-            bfabric_instance=result.token_data.caller,
+            bfabric_instance=BaseUrl(result.token_data.caller),
             bfabric_auth_login=result.token_data.user,
             bfabric_auth_password=result.token_data.user_ws_password.get_secret_value(),
             entity_class=result.token_data.entity_class,
@@ -180,8 +181,8 @@ class BfabricAuthMiddleware:
             else:
                 logger.debug("Landing callback returned None, redirecting to default authenticated_path.")
 
-        # update the session
-        session["bfabric_session"] = session_data.model_dump()
+        # update the session; json mode so no ``str`` subclass (e.g. ``BaseUrl``) reaches the cookie serializer
+        session["bfabric_session"] = session_data.model_dump(mode="json")
 
         # Send redirect response
         response = RedirectResponse(url=redirect_url, redirect_type="authenticated")

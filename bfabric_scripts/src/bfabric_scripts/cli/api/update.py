@@ -1,6 +1,9 @@
+import sys
+
 import rich
 import rich.prompt
 from bfabric_scripts.cli.api.output_format import OutputFormat, render_output
+from bfabric_scripts.cli.interactive import is_interactive
 from bfabric_scripts.cli.api.query_repr import Query
 from cyclopts import Parameter
 from loguru import logger
@@ -47,6 +50,13 @@ def cmd_api_update(params: Params, *, client: Bfabric) -> None:
         return
 
     if not params.no_confirm:
+        if not is_interactive():
+            print(
+                f"Refusing to update {params.endpoint} {params.entity_id} without confirmation: "
+                f"there is no terminal to confirm on. Pass --no-confirm to proceed.",
+                file=sys.stderr,
+            )
+            return
         if not _confirm_action(attributes_dict, client, params.endpoint, params.entity_id):
             return
 
