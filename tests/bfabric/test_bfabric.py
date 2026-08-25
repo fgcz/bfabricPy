@@ -513,7 +513,7 @@ class TestConnectOAuthFromConfig:
 
         _ = Bfabric._connect_oauth_from_config(config_data)
 
-        assert mock_provider_cls.call_args.kwargs["scope"] == ""
+        assert not mock_provider_cls.for_refresh.call_args.kwargs.get("scope")
 
 
 def _provider_kwargs(mock_provider_cls):
@@ -566,7 +566,7 @@ class TestConnectClientCredentialsFromConfig:
 
         _ = Bfabric._connect_oauth_from_config(config_data)
 
-        assert mock_provider_cls.call_args.kwargs["scope"] == "api:read"
+        assert mock_provider_cls.for_client_credentials.call_args.kwargs["scope"] == "api:read"
 
     def test_does_not_require_a_cached_token(self, mocker):
         """A service account authenticates from its secret, so an empty token cache is not an error."""

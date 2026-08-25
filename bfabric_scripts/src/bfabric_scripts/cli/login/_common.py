@@ -154,8 +154,10 @@ def save_registration(
 ) -> None:
     """Persist a registration response to *env_name* so the client is usable and editable.
 
-    Refuses an environment that already exists unless *force*: the write replaces every auth-owned
-    key at once, so saving into a working login would strip the credentials it authenticates with.
+    Refuses an environment that already exists unless *force*. Untouched auth-owned keys are carried
+    over, so nothing is stripped — but ``client_id`` is replaced, and an interactive OAuth
+    environment keys its token cache on it. Saving a new client into one leaves ``auth_method:
+    oauth`` pointing at a client with no cached token, so the next connect fails.
 
     :param is_service_account: Whether this client is meant to authenticate as a service account.
         Only then is ``auth_method: client_credentials`` recorded — it reroutes every later

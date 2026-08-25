@@ -512,6 +512,33 @@ class TestSaveRegistrationIntoExistingEnvironment:
         # An auth-owned key the response did not supply is carried over, not dropped.
         assert env["scope"] == "api:read"
 
+    def test_force_into_an_oauth_env_is_what_the_guard_prevents(self, mocker, tmp_path):
+        """The guard's reason: an interactive OAuth env keys its token cache on client_id, so
+        replacing it leaves auth_method: oauth pointing at a client with no cached token."""
+        mocker.patch("bfabric_scripts.cli.login.register.register_client", return_value=self._result())
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            "GENERAL:\n"
+            "  default_config: PROD\n"
+            "PROD:\n"
+            "  base_url: https://example.com/bfabric\n"
+            "  auth_method: oauth\n"
+            "  client_id: CLI\n"
+        )
+        cmd_login_register(
+            base_url="https://example.com/bfabric",
+            token="bearer-tok",
+            client_name="Cron",
+            redirect_uri="http://localhost/callback",
+            no_service_user=True,
+            config_file=config_file,
+            save_env="PROD",
+            force=True,
+        )
+        env = yaml.safe_load(config_file.read_text())["PROD"]
+        assert env["auth_method"] == "oauth"
+        assert env["client_id"] == "new-cid"
+
     def test_new_environment_needs_no_force(self, mocker, tmp_path):
         mocker.patch("bfabric_scripts.cli.login.register.register_client", return_value=self._result())
         config_file = tmp_path / "config.yml"

@@ -145,3 +145,124 @@ class TestRotateSecretIntoExistingEnvironment:
             set_default=False,
         )
         assert yaml.safe_load(config_file.read_text())["CRON"]["scope"] == "api:read"
+
+
+class TestOverwriteGuard:
+    """Recording a service account rewrites ``auth_method``, so every later ``connect()`` on the
+    environment authenticates as a different identity. Converting an existing login needs consent."""
+
+    def _write_password_env(self, config_file):
+        config_file.write_text(
+            "GENERAL:\n"
+            "  default_config: PROD\n"
+            "PROD:\n"
+            "  base_url: https://example.com/bfabric\n"
+            "  login: someuser\n"
+            "  password: " + "x" * 32 + "\n"
+            "  auth_method: password\n"
+        )
+
+    def test_refuses_to_convert_an_existing_env_non_interactively(self, tmp_path, mocker, capsys):
+        config_file = tmp_path / "config.yml"
+        self._write_password_env(config_file)
+        mocker.patch("bfabric_scripts.cli.login.service_account.is_interactive", return_value=False)
+
+        cmd_auth_service_account(
+            base_url="https://example.com/bfabric",
+            client_id="cron",
+            client_secret="s3cret",
+            config_env="PROD",
+            config_file=config_file,
+        )
+
+        data = yaml.safe_load(config_file.read_text())
+        assert data["PROD"]["auth_method"] == "password"
+        assert "client_secret" not in data["PROD"]
+        assert "--config-env" in capsys.readouterr().err
+
+    def test_converts_when_confirmed(self, tmp_path, mocker):
+        config_file = tmp_path / "config.yml"
+        self._write_password_env(config_file)
+        mocker.patch("bfabric_scripts.cli.login.service_account.is_interactive", return_value=True)
+        mocker.patch("bfabric_scripts.cli.login.service_account.confirm", return_value=True)
+
+        cmd_auth_service_account(
+            base_url="https://example.com/bfabric",
+            client_id="cron",
+            client_secret="s3cret",
+            config_env="PROD",
+            config_file=config_file,
+        )
+
+        data = yaml.safe_load(config_file.read_text())
+        assert data["PROD"]["auth_method"] == "client_credentials"
+        assert data["PROD"]["client_secret"] == "s3cret"
+
+    def test_declining_leaves_the_env_untouched(self, tmp_path, mocker):
+        config_file = tmp_path / "config.yml"
+        self._write_password_env(config_file)
+        mocker.patch("bfabric_scripts.cli.login.service_account.is_interactive", return_value=True)
+        mocker.patch("bfabric_scripts.cli.login.service_account.confirm", return_value=False)
+
+        cmd_auth_service_account(
+            base_url="https://example.com/bfabric",
+            client_id="cron",
+            client_secret="s3cret",
+            config_env="PROD",
+            config_file=config_file,
+        )
+
+        data = yaml.safe_load(config_file.read_text())
+        assert data["PROD"]["auth_method"] == "password"
+        assert data["PROD"]["login"] == "someuser"
+
+    def test_drops_the_superseded_password_credentials(self, tmp_path, mocker):
+        """A converted env's login/password can never authenticate again, so leaving them would
+        strand an unreachable secret in the file."""
+        config_file = tmp_path / "config.yml"
+        self._write_password_env(config_file)
+        mocker.patch("bfabric_scripts.cli.login.service_account.is_interactive", return_value=True)
+        mocker.patch("bfabric_scripts.cli.login.service_account.confirm", return_value=True)
+
+        cmd_auth_service_account(
+            base_url="https://example.com/bfabric",
+            client_id="cron",
+            client_secret="s3cret",
+            config_env="PROD",
+            config_file=config_file,
+        )
+
+        data = yaml.safe_load(config_file.read_text())
+        assert "login" not in data["PROD"]
+        assert "password" not in data["PROD"]
+
+    def test_re_running_on_a_service_account_env_does_not_prompt(self, tmp_path, mocker):
+        """Re-running is the documented way to store a rotated secret; it changes no identity."""
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            "GENERAL:\n"
+            "  default_config: PROD\n"
+            "PROD:\n"
+            "  base_url: https://example.com/bfabric\n"
+            "  auth_method: client_credentials\n"
+            "  client_id: cron\n"
+            "  client_secret: old-secret\n"
+            "  registration_access_token: rat\n"
+            "  registration_client_uri: https://example.com/reg/cron\n"
+        )
+        mocker.patch("bfabric_scripts.cli.login.service_account.is_interactive", return_value=True)
+        mock_confirm = mocker.patch("bfabric_scripts.cli.login.service_account.confirm")
+
+        cmd_auth_service_account(
+            base_url="https://example.com/bfabric",
+            client_id="cron",
+            client_secret="new-secret",
+            config_env="PROD",
+            config_file=config_file,
+        )
+
+        mock_confirm.assert_not_called()
+        data = yaml.safe_load(config_file.read_text())
+        assert data["PROD"]["client_secret"] == "new-secret"
+        # The registration credentials must survive, or the client can no longer be edited.
+        assert data["PROD"]["registration_access_token"] == "rat"

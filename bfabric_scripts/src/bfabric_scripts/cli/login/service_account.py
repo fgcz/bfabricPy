@@ -11,6 +11,7 @@ import cyclopts
 
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
+from bfabric_scripts.cli.interactive import confirm, is_interactive
 from bfabric_scripts.cli.login._common import (
     load_config_file,
     require_mutable_config,
@@ -28,6 +29,23 @@ _CLIENT_SECRET_HELP = "OAuth client secret (prompted if omitted)."
 _CONFIG_ENV_HELP = "Environment name (defaults to BFABRICPY_CONFIG_ENV or the default)."
 _SET_DEFAULT_HELP = "Set this environment as the default in the config file (prompted if omitted)."
 _SCOPE_HELP = "OAuth scope requested on every token request. Omit to accept the client's default scope."
+
+
+def _confirm_convert(config_env: str, recorded: str) -> bool:
+    """Confirm converting an existing environment to a service account.
+
+    The write rewrites ``auth_method``, so every later ``connect()`` on this environment
+    authenticates as the service account rather than whoever is configured now.
+    """
+    print(f"Environment '{config_env}' is currently configured for {recorded} authentication.", file=sys.stderr)
+    if not is_interactive():
+        print(
+            f"Refusing to convert it to a service account non-interactively. Pass --config-env with "
+            f"a different name, or re-run in a terminal to confirm.",
+            file=sys.stderr,
+        )
+        return False
+    return confirm(f"Convert '{config_env}' to a service account?", default=False) is True
 
 
 def cmd_auth_service_account(
@@ -52,7 +70,15 @@ def cmd_auth_service_account(
         print("Login aborted.", file=sys.stderr)
         return
     loaded = load_config_file(config_file)
-    is_new_env = loaded is None or config_env not in loaded.environments
+    existing = loaded.environments.get(config_env) if loaded else None
+    is_new_env = existing is None
+    # Re-running on a service account is how a rotated secret gets stored, so only a *change* of
+    # auth method is a conversion worth confirming.
+    if existing is not None and existing.auth_method != "client_credentials":
+        recorded = existing.auth_method or ("password" if existing.auth is not None else "no")
+        if not _confirm_convert(config_env, recorded):
+            print("Login aborted.", file=sys.stderr)
+            return
     set_default = resolve_set_default(set_default, config_env, is_new_env=is_new_env)
     if set_default is None:
         print("Login aborted.", file=sys.stderr)
