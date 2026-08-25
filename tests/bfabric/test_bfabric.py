@@ -465,7 +465,7 @@ def test_repr(bfabric_instance, variant):
         variant(bfabric_instance) == "Bfabric(config_data=ConfigData("
         "client=BfabricClientConfig(base_url='https://example.com/bfabric', application_ids={}, "
         "job_notification_emails='', engine=BfabricAPIEngineType.SUDS), auth=None, "
-        "auth_method=None, client_id=None, env_name=None))"
+        "auth_config=NoAuth(declared=False, kind='none'), env_name=None))"
     )
 
 
@@ -479,7 +479,7 @@ class TestConnectOAuthFromConfig:
             client_id=None,
         )
         with pytest.raises(ValueError, match="missing 'client_id'"):
-            Bfabric._connect_oauth_from_config(config_data)
+            Bfabric.from_config_data(config_data)
 
     def test_raises_when_env_name_missing(self, mocker):
         """The cache key includes the env name, so without one no CLI-written cache can ever match —
@@ -493,7 +493,7 @@ class TestConnectOAuthFromConfig:
             env_name=None,
         )
         with pytest.raises(ValueError, match="missing 'env_name'"):
-            Bfabric._connect_oauth_from_config(config_data)
+            Bfabric.from_config_data(config_data)
 
 
 def _provider_kwargs(mock_provider_cls):

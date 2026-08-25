@@ -13,9 +13,7 @@ from bfabric.config import BfabricAuth, BfabricClientConfig
 from bfabric.config.auth_methods import (
     AuthMethodName,
     AuthMethod,
-    ClientCredentialsAuth,
     ClientRegistration,
-    InteractiveOAuthAuth,
     NoAuth,
     auth_method_from_flat,
     auth_owned_keys,
@@ -79,9 +77,6 @@ class EnvironmentConfig(BaseModel):
     @property
     def registration_client_uri(self) -> str | None:
         return self.registration.registration_client_uri if self.registration else None
-
-    def needs_credential_provider(self) -> bool:
-        return isinstance(self.auth_config, InteractiveOAuthAuth | ClientCredentialsAuth)
 
 
 class ConfigFile(BaseModel):

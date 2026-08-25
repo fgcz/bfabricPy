@@ -8,7 +8,7 @@ models are parse-only and never serialise themselves back.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, ClassVar, Literal, get_args
+from typing import TYPE_CHECKING, Annotated, ClassVar, Literal, cast, get_args
 
 # typing.override is 3.12+, and this package supports 3.11.
 from typing_extensions import override
@@ -35,8 +35,13 @@ class AuthMethodBase(BaseModel):
 
     owned_keys: ClassVar[frozenset[str]] = frozenset()
 
-    declared_name: AuthMethodName | None = None
-    """The ``auth_method`` value the file carried, or ``None`` if it declared none."""
+    declared: bool = False
+    """Whether the file carried an explicit ``auth_method`` key, as legacy envs do not."""
+
+    @property
+    def declared_name(self) -> AuthMethodName | None:
+        """The ``auth_method`` this environment declared, or ``None`` if it declared none."""
+        return cast("AuthMethodName", getattr(self, "kind", None)) if self.declared else None
 
     def static_auth(self) -> BfabricAuth | None:
         """Credentials available without a network round trip."""
@@ -142,6 +147,12 @@ class UnknownAuth(AuthMethodBase):
     kind: Literal["unknown"] = "unknown"
     unknown_name: str
 
+    @property
+    @override
+    def declared_name(self) -> AuthMethodName | None:
+        """``None``: the declared name is not one this version can act on."""
+        return None
+
     @override
     def credential_provider(self, *, base_url: BaseUrl, env_name: str | None) -> OAuthCredentialProvider:
         raise ValueError(
@@ -184,6 +195,13 @@ def auth_owned_keys() -> frozenset[str]:
     return frozenset(keys)
 
 
+def _as_secret(value: object) -> SecretStr | None:
+    """Wrap *value* as a secret, passing an existing :class:`SecretStr` through unmasked."""
+    if value is None:
+        return None
+    return value if isinstance(value, SecretStr) else SecretStr(str(value))
+
+
 def registration_from_flat(values: Mapping[str, object]) -> ClientRegistration | None:
     """Parse the registration credential pair; a half pair is tolerated as ``None``."""
     token = values.get("registration_access_token")
@@ -192,29 +210,31 @@ def registration_from_flat(values: Mapping[str, object]) -> ClientRegistration |
         if token is not None or uri is not None:
             logger.warning("Ignoring incomplete registration credentials: both keys are required.")
         return None
-    return ClientRegistration(registration_access_token=SecretStr(str(token)), registration_client_uri=str(uri))
+    secret = _as_secret(token)
+    assert secret is not None  # noqa: S101 - `token is None` is excluded above
+    return ClientRegistration(registration_access_token=secret, registration_client_uri=str(uri))
 
 
 def auth_method_from_flat(values: Mapping[str, object]) -> AuthMethodBase:
     """Parse a flat YAML environment into an auth method, tolerating incoherent stored state."""
-    declared = values.get("auth_method")
-    declared_name = str(declared) if declared is not None else None
+    raw_name = values.get("auth_method")
+    declared_name = str(raw_name) if raw_name is not None else None
 
     if declared_name is not None and declared_name not in _KNOWN_METHODS:
         return UnknownAuth(unknown_name=declared_name)
 
     if declared_name in (None, "password") and values.get("login") is not None:
         return PasswordAuth(
-            declared_name="password" if declared_name == "password" else None,
+            declared=declared_name == "password",
             login=str(values["login"]),
-            password=SecretStr(str(values.get("password", ""))),
+            password=_as_secret(values.get("password")) or SecretStr(""),
         )
 
     if declared_name == "oauth":
         client_id = values.get("client_id")
         scope = values.get("scope")
         return InteractiveOAuthAuth(
-            declared_name=declared_name,
+            declared=True,
             client_id=str(client_id) if client_id is not None else None,
             scope=str(scope) if scope is not None else None,
         )
@@ -224,14 +244,14 @@ def auth_method_from_flat(values: Mapping[str, object]) -> AuthMethodBase:
         secret = values.get("client_secret")
         scope = values.get("scope")
         return ClientCredentialsAuth(
-            declared_name=declared_name,
+            declared=True,
             client_id=str(client_id) if client_id is not None else None,
-            client_secret=SecretStr(str(secret)) if secret is not None else None,
+            client_secret=_as_secret(secret),
             scope=str(scope) if scope is not None else None,
         )
 
     if values.get("pat"):
-        return PatAuth(declared_name="pat" if declared_name == "pat" else None, pat=SecretStr(str(values["pat"])))
+        return PatAuth(declared=declared_name == "pat", pat=_as_secret(values["pat"]) or SecretStr(""))
 
     if declared_name is None and (values.get("client_id") is not None or values.get("scope") is not None):
         client_id = values.get("client_id")
