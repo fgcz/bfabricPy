@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
+from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_data import ConfigData, export_config_data, load_config_data
 
 from bfabric import BfabricClientConfig, BfabricAuth
@@ -139,3 +140,36 @@ class TestConfigDataOAuthFields:
         cd = ConfigData(client=client_config, auth=None, auth_method="oauth", client_id="my-app")
         assert cd.auth_method == "oauth"
         assert cd.client_id == "my-app"
+
+
+class TestCredentialProvider:
+    """Only the two OAuth methods need a provider; the rest authenticate from ``auth``."""
+
+    def _config_data(self, **kwargs):
+        return ConfigData(client=BfabricClientConfig(base_url="https://example.com/bfabric"), **kwargs)
+
+    def test_pat_needs_no_provider(self):
+        """A PAT lives in ``auth``, so asking for a provider must not warn or misclassify it."""
+        config_data = self._config_data(
+            auth=BfabricAuth(login=OAUTH_LOGIN, password="short-pat"),
+            auth_method="pat",
+            env_name="PROD",
+        )
+        assert config_data.credential_provider() is None
+
+    def test_password_needs_no_provider(self):
+        config_data = self._config_data(auth=BfabricAuth(login="user", password="p" * 32), auth_method="password")
+        assert config_data.credential_provider() is None
+
+    def test_no_auth_method_needs_no_provider(self):
+        assert self._config_data(auth=None).credential_provider() is None
+
+    def test_client_credentials_reports_the_missing_secret(self):
+        config_data = self._config_data(auth=None, auth_method="client_credentials", client_id="svc", env_name="PROD")
+        with pytest.raises(ValueError, match="client_secret"):
+            _ = config_data.credential_provider()
+
+    def test_oauth_reports_a_missing_client_id(self):
+        config_data = self._config_data(auth=None, auth_method="oauth", env_name="PROD")
+        with pytest.raises(ValueError, match="client_id"):
+            _ = config_data.credential_provider()

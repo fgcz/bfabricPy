@@ -3,15 +3,18 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import yaml
 from loguru import logger
 from pydantic import BaseModel
 
 from bfabric.config import BfabricClientConfig, BfabricAuth
-from bfabric.config.auth_methods import AuthMethodBase, AuthMethodName, auth_method_from_flat
+from bfabric.config.auth_methods import AuthMethodName, ClientCredentialsAuth, InteractiveOAuthAuth
 from bfabric.config.config_file import ConfigFile
+
+if TYPE_CHECKING:
+    from bfabric.oauth._credential_provider import OAuthCredentialProvider
 
 
 class ConfigData(BaseModel):
@@ -21,18 +24,19 @@ class ConfigData(BaseModel):
     client_id: str | None = None
     env_name: str | None = None
 
-    def _auth_keys(self) -> dict[str, object]:
-        """This config's auth keys in the flat form :func:`auth_method_from_flat` reads."""
-        return {
-            "auth_method": self.auth_method,
-            "login": self.auth.login if self.auth else None,
-            "password": self.auth.password.get_secret_value() if self.auth else None,
-            "client_id": self.client_id,
-        }
+    def credential_provider(self) -> OAuthCredentialProvider | None:
+        """A token-refreshing provider, for the auth methods that need one.
 
-    def auth_config(self) -> AuthMethodBase:
-        """The union view of this flat config."""
-        return auth_method_from_flat({key: value for key, value in self._auth_keys().items() if value is not None})
+        ``password`` and ``pat`` authenticate from :attr:`auth` and need none.
+        """
+        match self.auth_method:
+            case "oauth":
+                method = InteractiveOAuthAuth(declared_name=self.auth_method, client_id=self.client_id)
+            case "client_credentials":
+                method = ClientCredentialsAuth(declared_name=self.auth_method, client_id=self.client_id)
+            case _:
+                return None
+        return method.credential_provider(base_url=self.client.base_url, env_name=self.env_name)
 
     def with_auth(self, auth: BfabricAuth | None) -> ConfigData:
         """Returns a shallow copy of self with the auth field set to the specified value."""
