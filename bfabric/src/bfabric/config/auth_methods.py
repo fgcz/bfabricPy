@@ -1,9 +1,9 @@
 """In-memory representation of how a config environment authenticates.
 
-The on-disk YAML stays flat (``auth_method`` plus sibling keys) and is frozen: bfabric <=1.19.0
-clients validate every environment in a shared ``~/.bfabricpy.yml`` eagerly, and app_runner
-bind-mounts that file into containers running them. :func:`auth_method_from_flat` and
-:meth:`AuthMethodBase.to_flat` are the only translation between the two shapes.
+The on-disk YAML is flat (``auth_method`` plus sibling keys); :func:`auth_method_from_flat` is the
+only place it is interpreted. Writing goes the other way round: the CLI hands
+:func:`bfabric.config.config_writer.write_environment_to_config` the flat keys directly, so these
+models are parse-only and never serialise themselves back.
 """
 
 from __future__ import annotations
@@ -27,18 +27,9 @@ class AuthMethodBase(BaseModel):
     """Base for the auth-method variants."""
 
     owned_keys: ClassVar[frozenset[str]] = frozenset()
-    declared_method: ClassVar[str | None] = None
 
-    def to_flat(self) -> dict[str, object]:
-        """The flat YAML fragment for this method, built from the keys it owns."""
-        flat: dict[str, object] = {}
-        if self.declared_method is not None and getattr(self, "auth_method_written", True):
-            flat["auth_method"] = self.declared_method
-        for key in sorted(self.owned_keys, key=_FLAT_KEY_ORDER.index):
-            value = getattr(self, key, None)
-            if value is not None:
-                flat[key] = value.get_secret_value() if isinstance(value, SecretStr) else value
-        return flat
+    declared_name: str | None = None
+    """The ``auth_method`` value the file carried, or ``None`` if it declared none."""
 
     def static_auth(self) -> BfabricAuth | None:
         """Credentials available without a network round trip."""
@@ -54,9 +45,7 @@ class PasswordAuth(AuthMethodBase):
     kind: Literal["password"] = "password"
     login: str
     password: SecretStr
-    auth_method_written: bool = Field(default=False, exclude=True)
 
-    declared_method: ClassVar[str | None] = "password"
     owned_keys: ClassVar[frozenset[str]] = frozenset({"login", "password"})
 
     @override
@@ -68,12 +57,7 @@ class PatAuth(AuthMethodBase):
     kind: Literal["pat"] = "pat"
     pat: SecretStr
 
-    declared_method: ClassVar[str | None] = "pat"
     owned_keys: ClassVar[frozenset[str]] = frozenset({"pat"})
-
-    @override
-    def to_flat(self) -> dict[str, object]:
-        return {"auth_method": "pat", "pat": self.pat.get_secret_value()}
 
     @override
     def static_auth(self) -> BfabricAuth:
@@ -84,9 +68,7 @@ class InteractiveOAuthAuth(AuthMethodBase):
     kind: Literal["oauth"] = "oauth"
     client_id: str | None = None
     scope: str | None = None
-    auth_method_written: bool = Field(default=True, exclude=True)
 
-    declared_method: ClassVar[str | None] = "oauth"
     owned_keys: ClassVar[frozenset[str]] = frozenset({"client_id", "scope"})
 
     @override
@@ -119,7 +101,6 @@ class ClientCredentialsAuth(AuthMethodBase):
     client_secret: SecretStr | None = None
     scope: str | None = None
 
-    declared_method: ClassVar[str | None] = "client_credentials"
     owned_keys: ClassVar[frozenset[str]] = frozenset({"client_id", "client_secret", "scope"})
 
     @override
@@ -149,20 +130,14 @@ class NoAuth(AuthMethodBase):
 
 
 class UnknownAuth(AuthMethodBase):
-    """An ``auth_method`` this version does not know, kept verbatim so a write cannot destroy it."""
+    """An ``auth_method`` this version does not know; usable for display, not for connecting."""
 
     kind: Literal["unknown"] = "unknown"
-    method_name: str
-    extra: dict[str, object] = Field(default_factory=dict)
-
-    @override
-    def to_flat(self) -> dict[str, object]:
-        return {"auth_method": self.method_name} | self.extra
 
     @override
     def credential_provider(self, *, base_url: BaseUrl, env_name: str | None) -> OAuthCredentialProvider:
         raise ValueError(
-            f"Unknown auth_method {self.method_name!r} in the config environment. Upgrade bfabricPy "
+            f"Unknown auth_method {self.declared_name!r} in the config environment. Upgrade bfabricPy "
             f"or set a supported auth_method."
         )
 
@@ -174,12 +149,6 @@ class ClientRegistration(BaseModel):
     registration_client_uri: str
 
     owned_keys: ClassVar[frozenset[str]] = frozenset({"registration_access_token", "registration_client_uri"})
-
-    def to_flat(self) -> dict[str, object]:
-        return {
-            "registration_access_token": self.registration_access_token.get_secret_value(),
-            "registration_client_uri": self.registration_client_uri,
-        }
 
 
 AuthMethod = Annotated[
@@ -197,9 +166,6 @@ AUTH_METHOD_CLASSES: tuple[type[AuthMethodBase], ...] = (
 )
 
 _KNOWN_METHODS = frozenset({"password", "pat", "oauth", "client_credentials"})
-
-# Emission order, so a rewritten environment keeps the layout the CLI has always produced.
-_FLAT_KEY_ORDER = ["login", "password", "pat", "client_id", "client_secret", "scope"]
 
 
 def auth_owned_keys() -> frozenset[str]:
@@ -227,21 +193,20 @@ def auth_method_from_flat(values: Mapping[str, object]) -> AuthMethodBase:
     declared_name = str(declared) if declared is not None else None
 
     if declared_name is not None and declared_name not in _KNOWN_METHODS:
-        owned = auth_owned_keys()
-        extra = {key: value for key, value in values.items() if key in owned and key != "auth_method"}
-        return UnknownAuth(method_name=declared_name, extra=extra)
+        return UnknownAuth(declared_name=declared_name)
 
     if declared_name in (None, "password") and values.get("login") is not None:
         return PasswordAuth(
+            declared_name=declared_name,
             login=str(values["login"]),
             password=SecretStr(str(values.get("password", ""))),
-            auth_method_written=declared_name == "password",
         )
 
     if declared_name == "oauth":
         client_id = values.get("client_id")
         scope = values.get("scope")
         return InteractiveOAuthAuth(
+            declared_name=declared_name,
             client_id=str(client_id) if client_id is not None else None,
             scope=str(scope) if scope is not None else None,
         )
@@ -251,13 +216,14 @@ def auth_method_from_flat(values: Mapping[str, object]) -> AuthMethodBase:
         secret = values.get("client_secret")
         scope = values.get("scope")
         return ClientCredentialsAuth(
+            declared_name=declared_name,
             client_id=str(client_id) if client_id is not None else None,
             client_secret=SecretStr(str(secret)) if secret is not None else None,
             scope=str(scope) if scope is not None else None,
         )
 
     if values.get("pat"):
-        return PatAuth(pat=SecretStr(str(values["pat"])))
+        return PatAuth(declared_name=declared_name, pat=SecretStr(str(values["pat"])))
 
     if declared_name is None and (values.get("client_id") is not None or values.get("scope") is not None):
         client_id = values.get("client_id")
@@ -265,7 +231,6 @@ def auth_method_from_flat(values: Mapping[str, object]) -> AuthMethodBase:
         return InteractiveOAuthAuth(
             client_id=str(client_id) if client_id is not None else None,
             scope=str(scope) if scope is not None else None,
-            auth_method_written=False,
         )
 
     if declared_name is not None:

@@ -21,8 +21,8 @@ class ConfigData(BaseModel):
     client_id: str | None = None
     env_name: str | None = None
 
-    def to_flat(self) -> dict[str, object]:
-        """The flat mapping :func:`auth_method_from_flat` consumes."""
+    def _auth_keys(self) -> dict[str, object]:
+        """This config's auth keys in the flat form :func:`auth_method_from_flat` reads."""
         return {
             "auth_method": self.auth_method,
             "login": self.auth.login if self.auth else None,
@@ -32,7 +32,7 @@ class ConfigData(BaseModel):
 
     def auth_config(self) -> AuthMethodBase:
         """The union view of this flat config."""
-        return auth_method_from_flat({key: value for key, value in self.to_flat().items() if value is not None})
+        return auth_method_from_flat({key: value for key, value in self._auth_keys().items() if value is not None})
 
     def with_auth(self, auth: BfabricAuth | None) -> ConfigData:
         """Returns a shallow copy of self with the auth field set to the specified value."""
