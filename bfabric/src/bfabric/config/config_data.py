@@ -3,40 +3,56 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, cast
 
 import yaml
 from loguru import logger
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, model_validator
 
 from bfabric.config import BfabricClientConfig, BfabricAuth
-from bfabric.config.auth_methods import AuthMethodName, ClientCredentialsAuth, InteractiveOAuthAuth
+from bfabric.config.auth_methods import AuthMethod, AuthMethodName, NoAuth, auth_method_from_flat
 from bfabric.config.config_file import ConfigFile
 
 if TYPE_CHECKING:
     from bfabric.oauth._credential_provider import OAuthCredentialProvider
 
+# The flat auth keys accepted by the constructor and carried in the override JSON.
+_FLAT_AUTH_KEYS = ("auth_method", "client_id")
+
 
 class ConfigData(BaseModel):
     client: BfabricClientConfig
     auth: BfabricAuth | None
-    auth_method: AuthMethodName | None = None
-    client_id: str | None = None
+    auth_config: AuthMethod = Field(default_factory=NoAuth)
+    """How this environment authenticates, beyond the static credentials in :attr:`auth`."""
     env_name: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _gather_auth_config(cls, values: object) -> object:
+        """Accept the flat ``auth_method``/``client_id`` kwargs the override JSON carries."""
+        if not isinstance(values, dict):
+            return values
+        raw = cast("dict[str, object]", values)
+        if "auth_config" in raw or not any(raw.get(key) is not None for key in _FLAT_AUTH_KEYS):
+            return raw
+        rest = {key: value for key, value in raw.items() if key not in _FLAT_AUTH_KEYS}
+        return {**rest, "auth_config": auth_method_from_flat(raw)}
+
+    @property
+    def auth_method(self) -> AuthMethodName | None:
+        return self.auth_config.declared_name
+
+    @property
+    def client_id(self) -> str | None:
+        return getattr(self.auth_config, "client_id", None)
 
     def credential_provider(self) -> OAuthCredentialProvider | None:
         """A token-refreshing provider, for the auth methods that need one.
 
         ``password`` and ``pat`` authenticate from :attr:`auth` and need none.
         """
-        match self.auth_method:
-            case "oauth":
-                method = InteractiveOAuthAuth(declared_name=self.auth_method, client_id=self.client_id)
-            case "client_credentials":
-                method = ClientCredentialsAuth(declared_name=self.auth_method, client_id=self.client_id)
-            case _:
-                return None
-        return method.credential_provider(base_url=self.client.base_url, env_name=self.env_name)
+        return self.auth_config.credential_provider(base_url=self.client.base_url, env_name=self.env_name)
 
     def with_auth(self, auth: BfabricAuth | None) -> ConfigData:
         """Returns a shallow copy of self with the auth field set to the specified value."""
@@ -58,8 +74,7 @@ def _load_environment_config_data(config_path: Path | str, force_config_env: str
     return ConfigData(
         client=env_config.config,
         auth=env_config.auth,
-        auth_method=env_config.auth_method,
-        client_id=env_config.client_id,
+        auth_config=env_config.auth_config,
         env_name=resolved_env,
     )
 

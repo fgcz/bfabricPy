@@ -113,11 +113,6 @@ class Bfabric:
         return cls(config_data=config_data, _credential_provider=config_data.credential_provider())
 
     @classmethod
-    def _connect_oauth_from_config(cls, config_data: ConfigData) -> Bfabric:
-        """Deprecated alias of :meth:`from_config_data`."""
-        return cls.from_config_data(config_data)
-
-    @classmethod
     def from_config(
         cls,
         config_env: str | None = None,
