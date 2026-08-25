@@ -101,7 +101,7 @@ def cmd_login_register_webapp(
     if save_env is not None:
         save_registration(
             oauth_info,
-            base_url=str(client.config.base_url),
+            base_url=client.config.base_url,
             config_file=config_file,
             env_name=save_env,
             # A webapp's users authenticate in the browser, so its environment must not be stamped
