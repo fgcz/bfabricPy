@@ -16,6 +16,14 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `bfabric.oauth.exchange_code` redeems the returned code for tokens. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
 - `bfabric.oauth.token_url` builds the token endpoint URL for an instance.
 
+### Changed
+
+- An environment's authentication is modelled as a discriminated union (`config/auth_methods.py`), and each auth method builds its own credentials. `EnvironmentConfig.auth`, `auth_method`, `client_id`, `client_secret` and `scope` are now read-only properties over it; the config file format is unchanged.
+- `write_environment_to_config` takes a required `auth="merge"|"replace"` mode. `replace` keeps the previous behaviour of replacing every auth-owned key; `merge` keeps the ones the payload does not mention, and a key set to `None` is removed.
+- An `auth_method` the client does not recognise is preserved and reported rather than silently discarded along with its sibling keys, and it only fails when that environment is used.
+- `Bfabric.connect()` and the `connect_*` methods share one credential-provider seam, so loading an OAuth environment reads the token cache once instead of twice.
+- New `validate_writable_environment` refuses to write an environment whose auth keys contradict each other (for example `auth_method: client_credentials` without a `client_secret`). Reading stays tolerant, so existing config files keep loading.
+
 ### Fixed
 
 - `Bfabric.read` no longer skips or shifts results when a non-zero `offset` is combined with a `max_results` smaller than that offset; the first requested page is now sliced at `offset % 100` independent of `max_results`.
@@ -73,6 +81,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - **Breaking:** the `engine` parameter of `Bfabric.from_config` (which never applied it) and of `BfabricClientConfig.copy_with`.
 
 ### Fixed
+
+- `Bfabric.config_data` no longer drops `auth_method`, `client_id` and `env_name`, which silently degraded an OAuth client's config to no-auth when it was round-tripped (for example through `BFABRICPY_CONFIG_OVERRIDE`).
+- The config file is written atomically, so an interrupted write can no longer truncate it. Note the inode changes, which matters when the file itself rather than its directory is bind-mounted.
+- `ConfigFile.model_validate` no longer mutates the mapping passed to it; it was inserting an `environments` key that callers then persisted to YAML.
 
 - An unreachable B-Fabric instance raises `BfabricUnavailableError` (a `BfabricRequestError`) naming the instance and the transport failure, instead of leaking `suds.transport.TransportError`, `urllib.error.URLError` or `httpx.TransportError`. Covers the SOAP engine and the OAuth/REST calls (JWKS, device code, registration, token exchange, introspection, PKCE).
 - `ResultContainer.assert_success` raises `BfabricRequestError` instead of a bare `RuntimeError`; it remains a `RuntimeError` subclass, so existing `except RuntimeError` handlers keep working.
