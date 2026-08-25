@@ -511,7 +511,7 @@ class TestConnectOAuthFromConfig:
             env_name="PROD",
         )
 
-        _ = Bfabric._connect_oauth_from_config(config_data)
+        _ = Bfabric.from_config_data(config_data)
 
         assert not mock_provider_cls.for_refresh.call_args.kwargs.get("scope")
 
@@ -539,7 +539,7 @@ class TestConnectClientCredentialsFromConfig:
             env_name="PROD",
         )
 
-        client = Bfabric._connect_oauth_from_config(config_data)
+        client = Bfabric.from_config_data(config_data)
 
         mock_provider_cls.for_client_credentials.assert_called_once_with(
             base_url="https://example.com/bfabric",
@@ -564,7 +564,7 @@ class TestConnectClientCredentialsFromConfig:
             env_name="PROD",
         )
 
-        _ = Bfabric._connect_oauth_from_config(config_data)
+        _ = Bfabric.from_config_data(config_data)
 
         assert mock_provider_cls.for_client_credentials.call_args.kwargs["scope"] == "api:read"
 
@@ -582,7 +582,7 @@ class TestConnectClientCredentialsFromConfig:
             env_name="PROD",
         )
 
-        _ = Bfabric._connect_oauth_from_config(config_data)
+        _ = Bfabric.from_config_data(config_data)
 
         mock_cache.assert_not_called()
 
@@ -597,7 +597,7 @@ class TestConnectClientCredentialsFromConfig:
             env_name="PROD",
         )
         with pytest.raises(ValueError, match="missing 'client_secret'"):
-            Bfabric._connect_oauth_from_config(config_data)
+            Bfabric.from_config_data(config_data)
 
     def test_does_not_require_env_name(self, mocker):
         """Unlike the interactive flow, nothing is keyed on the env name here."""
@@ -612,7 +612,7 @@ class TestConnectClientCredentialsFromConfig:
             env_name=None,
         )
 
-        assert Bfabric._connect_oauth_from_config(config_data) is not None
+        assert Bfabric.from_config_data(config_data) is not None
 
 
 class TestConnectOAuth:

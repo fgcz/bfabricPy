@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING
 import yaml
 
 from bfabric.config.config_file import ConfigFile, EnvironmentConfig
-from bfabric.config.config_writer import read_environment_auth_keys, write_environment_to_config
+from bfabric.config.config_writer import write_environment_to_config
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice, select_or_input, text_input
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS, SCOPE_PRESETS_BY_NAME
 from bfabric.config import BaseUrl
@@ -182,9 +182,8 @@ def save_registration(
     if is_service_account and result.get("client_secret"):
         env_data["auth_method"] = "client_credentials"
     write_environment_to_config(config_file, env_name, env_data, auth="merge", set_default=False)
-    merged = read_environment_auth_keys(config_file, env_name)
     print(f"Saved to environment '{env_name}' in {config_file}", file=sys.stderr)
-    if not (merged.get("registration_access_token") and merged.get("registration_client_uri")):
+    if not (result.get("registration_access_token") and result.get("registration_client_uri")):
         # Say it now: otherwise this surfaces only when someone tries to fix a wrong redirect URI,
         # by which time the one-time token is unrecoverable.
         print(
