@@ -43,22 +43,6 @@ class TestExchangeToken:
             "token_type": "Bearer",
         }
 
-    def test_strips_trailing_slash(self, mocker):
-        mock_post = mocker.patch("bfabric.oauth._token_exchange.httpx.post")
-        mock_response = mocker.MagicMock()
-        mock_response.json.return_value = {"access_token": "at"}
-        mock_post.return_value = mock_response
-
-        exchange_token(
-            f"{BASE_URL}///",
-            "jwt",
-            client_id="cid",
-            client_secret="cs",
-        )
-
-        url = mock_post.call_args[0][0]
-        assert url == f"{BASE_URL}/rest/oauth/token"
-
     def test_raises_on_http_error(self, mocker):
         import httpx
 
@@ -121,17 +105,6 @@ class TestIntrospectToken:
         assert ctx.entity_id is None
         assert ctx.application_id is None
         assert ctx.subject == "user"
-
-    def test_strips_trailing_slash(self, mocker):
-        mock_post = mocker.patch("bfabric.oauth._token_exchange.httpx.post")
-        mock_response = mocker.MagicMock()
-        mock_response.json.return_value = {"sub": "u"}
-        mock_post.return_value = mock_response
-
-        introspect_token(f"{BASE_URL}///", "at", client_id="cid", client_secret="cs")
-
-        url = mock_post.call_args[0][0]
-        assert url == f"{BASE_URL}/rest/oauth/introspect"
 
     def test_raises_on_http_error(self, mocker):
         import httpx

@@ -139,7 +139,7 @@ class TestCmdAuthLogin:
     def test_refuses_to_run_under_a_config_override(self, tmp_path, mocker, monkeypatch, capsys):
         config_file = tmp_path / "config.yml"
         mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login")
-        monkeypatch.setenv("BFABRICPY_CONFIG_OVERRIDE", '{"base_url": "https://example.com"}')
+        monkeypatch.setenv("BFABRICPY_CONFIG_OVERRIDE", '{"base_url": "https://example.com/bfabric"}')
         cmd_auth_login(base_url="https://example.com/bfabric", scope="api:read", config_file=config_file)
         mock_pkce.assert_not_called()
         assert not config_file.exists()
@@ -373,5 +373,5 @@ class TestBaseUrl:
         mock_pkce.assert_not_called()
         assert not config_file.exists()
         err = capsys.readouterr().err
-        assert "http or https" in err
+        assert "Not a valid http(s) URL" in err
         assert "Login aborted." in err

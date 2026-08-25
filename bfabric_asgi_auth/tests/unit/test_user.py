@@ -35,13 +35,13 @@ class TestBfabricUser:
         assert user.login == "testuser"
 
     def test_instance(self, user: BfabricUser) -> None:
-        assert user.instance == "https://fgcz-bfabric.uzh.ch/bfabric/"
+        assert user.instance == "https://fgcz-bfabric.uzh.ch/bfabric"
 
     def test_display_name(self, user: BfabricUser) -> None:
         assert user.display_name == "testuser"
 
     def test_identity(self, user: BfabricUser) -> None:
-        assert user.identity == "testuser@https://fgcz-bfabric.uzh.ch/bfabric/"
+        assert user.identity == "testuser@https://fgcz-bfabric.uzh.ch/bfabric"
 
     def test_entity_class(self, user: BfabricUser) -> None:
         assert user.entity_class == "Workunit"
@@ -60,4 +60,4 @@ class TestBfabricUser:
         assert isinstance(client, Bfabric)
         assert client.auth.login == "testuser"
         assert client.auth.password.get_secret_value() == "a" * 32
-        assert str(client.config.base_url) == "https://fgcz-bfabric.uzh.ch/bfabric/"
+        assert str(client.config.base_url) == "https://fgcz-bfabric.uzh.ch/bfabric"

@@ -18,6 +18,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Changed
 
+- **Breaking: new `bfabric.BaseUrl`**, a `str` subclass replacing the pydantic `HttpUrl` on `BfabricClientConfig.base_url`, `Entity.bfabric_instance` and `EntityUriComponents.bfabric_instance` it ensures the base_url always ends with `/bfabric`.
+- `connect_oauth` / `connect_pkce` / `connect_device_code` / `connect_pat` and `WebappClient.create` also normalise host case and a default port, and reject a non-HTTP URL with a `ValueError`.
+- `UrlTokenContext.base_url` returns a `BaseUrl`.
+- `TokenValidationSettings` / `WebappIntegrationSettings` hold their instance URLs as `BaseUrl`, so a non-http one is rejected on parse and a trailing slash no longer has to match exactly.
 - `DuplicateResult` carries the `check-duplicates` response's `linkable` and `existingResourceStatus`, and `linkable` decides whether a duplicate may be linked. **Breaking:** `on_duplicate="link"` now requires a B-Fabric that reports `linkable`; a response omitting it is refused rather than guessed.
 - `on_duplicate="link"` only links to a duplicate the server reports as linkable; one whose resource is still `pending` or `failed` is uploaded instead, so a retry after a failed transfer no longer fails until B-Fabric's orphan cleanup runs.
 - `upload_files` raises `WorkunitCompletionError` when every transfer succeeded but marking the workunit `available` failed. It carries the `UploadSummary`, so a caller can record what landed and retry only the status flip rather than creating a second workunit.
@@ -25,6 +29,14 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - A `resume_cache` run continues an interrupted upload into its original workunit and resource instead of creating a second pair. A tus URL's metadata is fixed when the upload is created, so bytes sent to a saved URL always land on the first resource; the previous behaviour reported a newly created resource the bytes never reached. A tracked upload (`track_job`) reuses its original job for the same reason.
 - An interrupted upload that saved a resume URL leaves its workunit `processing` rather than flipping it to `failed`, so the next run can continue into it.
 - `upload_files` documents that a successful return means the transfer completed, not that the file is stored: the storage service's post-finish checks run afterwards and report to B-Fabric, so a resource can end up `failed` after being reported in `summary.uploads`. A caller that deletes its local copy must re-read the resource status and require `available` first.
+
+### Fixed
+
+- The SUDS WSDL URL, and the `show.html` links printed by `bfabric_read` and `bfabric-cli api read`, no longer contain a doubled slash.
+
+### Removed
+
+- **Breaking:** `bfabric.transfer.api_to_rest_url`. The REST endpoints hang off the instance URL, which `base_url` now always is, so it had become the identity function — use `client.config.base_url`.
 
 ## \[1.21.0\] - 2026-08-20
 

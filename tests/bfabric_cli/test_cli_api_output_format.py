@@ -11,7 +11,7 @@ from bfabric_scripts.cli.api.output_format import OutputFormat, _determine_outpu
 @pytest.fixture
 def mock_client(mocker):
     client = mocker.Mock()
-    client.config.base_url = "http://test-bfabric.com"
+    client.config.base_url = "http://test-bfabric.com/bfabric"
     return client
 
 

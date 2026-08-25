@@ -13,6 +13,7 @@ from bfabric.oauth import register_client
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric_scripts.cli.login._common import FORCE_HELP, SAVE_ENV_HELP, save_registration
 from bfabric_scripts.cli.login._constants import DEFAULT_REGISTRATION_SCOPE
+from bfabric_scripts.cli.login._urls import normalize_base_url
 
 
 def _resolve_token_from_config(config_env: str | None, config_file: Path) -> tuple[str, str]:
@@ -28,7 +29,7 @@ def _resolve_token_from_config(config_env: str | None, config_file: Path) -> tup
 
     try:
         client = Bfabric.connect(config_file_path=config_file, config_file_env=config_env or "default")
-        return client.auth.password.get_secret_value(), str(client.config.base_url).rstrip("/")
+        return client.auth.password.get_secret_value(), str(client.config.base_url)
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         raise SystemExit(1) from None
@@ -101,7 +102,7 @@ def cmd_login_register(
 
     try:
         result = register_client(
-            base_url=resolved_base_url,
+            base_url=normalize_base_url(resolved_base_url),
             token=resolved_token,
             client_name=client_name,
             redirect_uri=redirect_uri,

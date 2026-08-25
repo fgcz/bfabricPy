@@ -31,7 +31,7 @@ class TestCmdAuthPat:
     def test_strips_trailing_slash(self, tmp_path):
         config_file = tmp_path / "config.yml"
         cmd_auth_pat(
-            base_url="https://example.com/bfabric/",
+            base_url="https://example.com/bfabric",
             pat="tok",
             config_env="PROD",
             config_file=config_file,

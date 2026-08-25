@@ -17,13 +17,14 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - `bfabric-cli auth client-delete` revokes a registered OAuth client on the server, after a confirmation prompt.
 - `bfabric-cli auth client-show` and `auth client-update` inspect and correct a registered client (for example a wrong redirect URI) without re-registering it. `auth client-update` re-saves the registration token and client secret that B-Fabric rotates on each update, so the client stays manageable across repeated edits. It changes the OAuth client only: a webapp's application `weburl` holds the same URL and needs `api update application`.
 
-### Fixed
-
-- `auth register-webapp --save-env` no longer records `auth_method: client_credentials` for a webapp registered with `--service-user`, which made later `connect()` calls on that environment authenticate as the service account instead of the browser flow.
-
 ### Changed
 
 - `bfabric-cli auth status` and `auth list` report `client_credentials` environments as such instead of labelling them `password` or `none`. `auth logout` clears the stored client secret.
+- `auth login` / `auth pat` complete a bare host with `/bfabric` for any instance, not just the four known ones, so `bfabric-cli login my-instance.example.com` works. A URL whose path is something else is now refused instead of used as given.
+
+### Fixed
+
+- `auth register-webapp --save-env` no longer records `auth_method: client_credentials` for a webapp registered with `--service-user`, which made later `connect()` calls on that environment authenticate as the service account instead of the browser flow.
 
 ## \[1.17.0\] - 2026-08-20
 
@@ -50,6 +51,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - `auth register-webapp` prints `Error: ...` and exits 1 when the OAuth session cannot be refreshed, instead of a raw traceback.
 - `auth register` no longer prompts for an *Employee Bearer token* when a login exists; it authenticates as the environment in effect.
+- `auth register` canonicalises its `base_url` argument like the other `auth` commands, so a bare host or a trailing slash works and a non-HTTP URL is rejected with a plain message.
 
 ## \[1.16.0\] - 2026-08-03
 

@@ -11,8 +11,8 @@ def _write_config(config_file, default="PROD"):
         yaml.dump(
             {
                 "GENERAL": general,
-                "PROD": {"base_url": "https://prod.example.com", "auth_method": "oauth"},
-                "TEST": {"base_url": "https://test.example.com", "auth_method": "pat", "pat": "tok123"},
+                "PROD": {"base_url": "https://prod.example.com/bfabric", "auth_method": "oauth"},
+                "TEST": {"base_url": "https://test.example.com/bfabric", "auth_method": "pat", "pat": "tok123"},
             }
         )
     )

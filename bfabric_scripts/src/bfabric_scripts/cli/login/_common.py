@@ -17,6 +17,7 @@ from bfabric.config.config_file import ConfigFile, EnvironmentConfig
 from bfabric.config.config_writer import merge_auth_owned_keys, write_environment_to_config
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice, select_or_input, text_input
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS, SCOPE_PRESETS_BY_NAME
+from bfabric.config import BaseUrl
 from bfabric_scripts.cli.login._urls import KNOWN_INSTANCES, normalize_base_url
 
 if TYPE_CHECKING:
@@ -67,12 +68,12 @@ def _pick_or_type(message: str, labels: dict[str, str], prompt: str) -> str | No
     return text_input(prompt) if picked == _CUSTOM else picked
 
 
-def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> str | None:
+def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> BaseUrl | None:
     """Resolve the instance URL: explicit, else the environment's recorded one, else a picker."""
     if base_url is not None:
         return normalize_base_url(base_url)
     if env is not None:
-        return normalize_base_url(str(env.config.base_url))
+        return env.config.base_url
     if not is_interactive():
         return None
     # First-login picker over the known instances, plus free-text entry.

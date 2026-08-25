@@ -11,6 +11,7 @@ from joserfc import jwt as joserfc_jwt
 from joserfc.jwk import KeySet
 from loguru import logger
 
+from bfabric.config.base_url import BaseUrl
 from bfabric.errors import raise_if_unavailable
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -40,9 +41,13 @@ class UrlTokenContext(BaseModel):
     name: str | None = Field(default=None)
 
     @property
-    def base_url(self) -> str | None:
-        """B-Fabric instance base URL derived from ``iss``, trailing slash stripped."""
-        return self.issuer.rstrip("/") if self.issuer else None
+    def base_url(self) -> BaseUrl | None:
+        """B-Fabric instance base URL derived from ``iss``.
+
+        :raises ValueError: If ``iss`` is present but not an http(s) URL, which would mean the
+            issuer that signed this token named itself with something we cannot call back.
+        """
+        return BaseUrl(self.issuer) if self.issuer else None
 
     @property
     def is_employee(self) -> bool:
@@ -56,7 +61,7 @@ _jwks_lock = threading.Lock()
 _JWKS_CACHE_TTL = 3600  # 1 hour
 
 
-def _fetch_jwks(base_url: str) -> dict[str, object]:
+def _fetch_jwks(base_url: BaseUrl) -> dict[str, object]:
     """Fetch (and cache for 1 hour) the JWKS from the B-Fabric server."""
     now = time.time()
     with _jwks_lock:
@@ -68,7 +73,7 @@ def _fetch_jwks(base_url: str) -> dict[str, object]:
                 return jwks
 
     logger.debug("Fetching JWKS from {}", base_url)
-    url = f"{base_url.rstrip('/')}/rest/oauth/jwks"
+    url = f"{base_url}/rest/oauth/jwks"
     with raise_if_unavailable(base_url):
         response = httpx.get(url, timeout=30)
     _ = response.raise_for_status()
@@ -78,10 +83,9 @@ def _fetch_jwks(base_url: str) -> dict[str, object]:
     return jwks
 
 
-def verify_jwt(base_url: str, token: str) -> dict[str, object]:
+def verify_jwt(base_url: BaseUrl, token: str) -> dict[str, object]:
     """Verify the JWT signature + expiry against the B-Fabric JWKS endpoint.
 
-    :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
     :param token: The raw JWT string
     :returns: The verified claims dictionary
     :raises: ``joserfc.errors.JoseError`` subclasses on invalid/expired tokens

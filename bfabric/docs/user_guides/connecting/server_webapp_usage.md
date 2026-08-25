@@ -77,10 +77,10 @@ from bfabric.experimental.webapp_integration_settings import TokenValidationSett
 
 # Configure which B-Fabric instances are allowed
 settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
     supported_bfabric_instances=[
-        "https://fgcz-bfabric.uzh.ch/bfabric/",
-        "https://fgcz-bfabric-test.uzh.ch/bfabric/",
+        "https://fgcz-bfabric.uzh.ch/bfabric",
+        "https://fgcz-bfabric-test.uzh.ch/bfabric",
     ],
 )
 
@@ -109,12 +109,12 @@ from bfabric import Bfabric
 from bfabric.rest.token_data import get_token_data
 
 # Validate token first
-base_url = "https://fgcz-bfabric.uzh.ch/bfabric/"
+base_url = "https://fgcz-bfabric.uzh.ch/bfabric"
 token = "your_token_here"
 token_data = get_token_data(base_url=base_url, token=token)
 
 # Check if the token is from an allowed instance
-allowed_instances = ["https://fgcz-bfabric.uzh.ch/bfabric/"]
+allowed_instances = ["https://fgcz-bfabric.uzh.ch/bfabric"]
 if token_data.caller not in allowed_instances:
     raise ValueError(f"Token from {token_data.caller} is not allowed")
 
@@ -132,10 +132,10 @@ The `TokenValidationSettings` class configures which B-Fabric instances are allo
 from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
 
 settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
     supported_bfabric_instances=[
-        "https://fgcz-bfabric.uzh.ch/bfabric/",
-        "https://fgcz-bfabric-test.uzh.ch/bfabric/",
+        "https://fgcz-bfabric.uzh.ch/bfabric",
+        "https://fgcz-bfabric-test.uzh.ch/bfabric",
     ],
 )
 ```
@@ -158,10 +158,10 @@ from bfabric.experimental.webapp_integration_settings import WebappIntegrationSe
 from bfabric.config import BfabricAuth
 
 settings = WebappIntegrationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
-    supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric/"],
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
+    supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric"],
     feeder_user_credentials={
-        "https://fgcz-bfabric.uzh.ch/bfabric/": BfabricAuth(
+        "https://fgcz-bfabric.uzh.ch/bfabric": BfabricAuth(
             login="feeder_user", password="feeder_user_password"
         ),
     },
@@ -185,10 +185,10 @@ Always restrict `supported_bfabric_instances` to only the instances you trust:
 
 ```python
 settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
     supported_bfabric_instances=[
-        "https://fgcz-bfabric.uzh.ch/bfabric/",  # Only allow production
-        # "https://fgcz-bfabric-test.uzh.ch/bfabric/",  # Commented out to prevent test tokens
+        "https://fgcz-bfabric.uzh.ch/bfabric",  # Only allow production
+        # "https://fgcz-bfabric-test.uzh.ch/bfabric",  # Commented out to prevent test tokens
     ],
 )
 ```

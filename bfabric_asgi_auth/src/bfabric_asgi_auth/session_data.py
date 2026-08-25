@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from bfabric.config import BaseUrl
 from pydantic import BaseModel
 
 
@@ -19,7 +20,7 @@ class SessionData(BaseModel):
     :ivar application_id: ID of the B-Fabric application
     """
 
-    bfabric_instance: str
+    bfabric_instance: BaseUrl
     bfabric_auth_login: str
     bfabric_auth_password: str
     entity_class: str

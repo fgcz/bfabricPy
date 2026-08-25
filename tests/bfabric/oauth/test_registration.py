@@ -126,7 +126,7 @@ class TestRegisterClient:
 
     def test_normalizes_trailing_slash(self, mock_httpx_post):
         register_client(
-            base_url="https://example.com/bfabric/",
+            base_url="https://example.com/bfabric",
             token="tok",
             client_name="app",
             redirect_uri="http://localhost/cb",
@@ -163,7 +163,7 @@ class TestRegisterWebapp:
     @pytest.fixture
     def mock_client(self, mocker):
         client = mocker.MagicMock(name="bfabric_client")
-        client.config.base_url = "https://example.com/bfabric/"
+        client.config.base_url = "https://example.com/bfabric"
         client.save.return_value = mocker.MagicMock(name="save_result")
         return client
 

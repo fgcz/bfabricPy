@@ -6,6 +6,7 @@ import pytest
 from pydantic import SecretStr
 
 from bfabric import Bfabric, BfabricAPIEngineType, BfabricClientConfig, BfabricAuth
+from bfabric.config import BaseUrl
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_data import ConfigData
@@ -18,7 +19,7 @@ _TEST_SCOPE = "api:read api:write"
 
 @pytest.fixture
 def mock_config():
-    return BfabricClientConfig(engine=BfabricAPIEngineType.SUDS, base_url="https://example.com/api/")
+    return BfabricClientConfig(engine=BfabricAPIEngineType.SUDS, base_url="https://example.com/bfabric")
 
 
 @pytest.fixture
@@ -94,25 +95,29 @@ def test_connect_pat_env_from_config_file(mocker, tmp_path):
 def test_connect_webapp(mocker, mock_config):
     mock_get_token_data = mocker.patch(
         "bfabric.bfabric.get_token_data",
-        return_value=mocker.MagicMock(user="test_user", user_ws_password="x" * 32, caller="https://example.com/api/"),
+        return_value=mocker.MagicMock(
+            user="test_user", user_ws_password="x" * 32, caller="https://example.com/bfabric"
+        ),
     )
     mocker.patch.object(Bfabric, "_log_version_message")
 
-    client, data = Bfabric.connect_webapp(token="test_token", validation_instance_url="https://example.com/validation/")
+    client, data = Bfabric.connect_webapp(
+        token="test_token", validation_instance_url="https://validation.example.com/bfabric"
+    )
 
     assert client.auth.login == "test_user"
     assert client.auth.password == SecretStr("x" * 32)
-    assert client.config.base_url == "https://example.com/api/"
+    assert client.config.base_url == "https://example.com/bfabric"
     assert data == mock_get_token_data.return_value
 
-    mock_get_token_data.assert_called_once_with(base_url="https://example.com/validation/", token="test_token")
+    mock_get_token_data.assert_called_once_with(base_url="https://validation.example.com/bfabric", token="test_token")
 
 
 @pytest.fixture
 def token_validation_settings():
     class MockSettings:
-        validation_bfabric_instance = "https://example.com/bfabric/"
-        supported_bfabric_instances = ["https://example.com/bfabric/"]
+        validation_bfabric_instance = "https://example.com/bfabric"
+        supported_bfabric_instances = ["https://example.com/bfabric"]
 
     return MockSettings()
 
@@ -122,13 +127,13 @@ def mock_validate_token(mocker):
     func = mocker.patch("bfabric.bfabric.validate_token")
     func.return_value.user = "test_user"
     func.return_value.user_ws_password = SecretStr("x" * 32)
-    func.return_value.caller = "https://example.com/bfabric/"
+    func.return_value.caller = "https://example.com/bfabric"
     return func
 
 
 def test_connect_token(mock_config, token_validation_settings, mock_validate_token):
     client, data = Bfabric.connect_token(token="test_token", settings=token_validation_settings)
-    assert client.config.base_url == "https://example.com/bfabric/"
+    assert client.config.base_url == "https://example.com/bfabric"
     assert client.auth.login == "test_user"
     assert client.auth.password == SecretStr("x" * 32)
     assert data == mock_validate_token.return_value
@@ -136,7 +141,7 @@ def test_connect_token(mock_config, token_validation_settings, mock_validate_tok
 
 async def test_connect_token_async(mock_config, token_validation_settings, mock_validate_token):
     client, data = await Bfabric.connect_token_async(token="test_token", settings=token_validation_settings)
-    assert client.config.base_url == "https://example.com/bfabric/"
+    assert client.config.base_url == "https://example.com/bfabric"
     assert client.auth.login == "test_user"
     assert client.auth.password == SecretStr("x" * 32)
     assert data == mock_validate_token.return_value
@@ -423,6 +428,19 @@ def test_upload_resource(bfabric_instance, mocker):
     )
 
 
+class TestEngineUrl:
+    """The URL the default engine builds from a canonicalised ``base_url``."""
+
+    def test_suds_wsdl_url_has_a_single_slash(self, mocker):
+        construct_client = mocker.patch("bfabric.engine.engine_suds.Client")
+        mocker.patch.object(Bfabric, "_log_version_message")
+        client = Bfabric(
+            config_data=ConfigData(client=BfabricClientConfig(base_url="https://example.com/bfabric"), auth=None)
+        )
+        client._engine._get_suds_service("sample")
+        construct_client.assert_called_once_with("https://example.com/bfabric/sample?wsdl", cache=None)
+
+
 def test_get_version_message(mock_config, bfabric_instance):
     mock_config.base_url = "dummy_url"
     line1, line2 = bfabric_instance._get_version_message()
@@ -445,7 +463,7 @@ def test_log_version_message(mocker, bfabric_instance):
 def test_repr(bfabric_instance, variant):
     assert (
         variant(bfabric_instance) == "Bfabric(config_data=ConfigData("
-        "client=BfabricClientConfig(base_url='https://example.com/api/', application_ids={}, "
+        "client=BfabricClientConfig(base_url='https://example.com/bfabric', application_ids={}, "
         "job_notification_emails='', engine=BfabricAPIEngineType.SUDS), auth=None, "
         "auth_method=None, client_id=None, client_secret=None, env_name=None))"
     )
@@ -574,7 +592,7 @@ class TestConnectOAuth:
         )
         assert client._credential_provider == mock_provider_cls.return_value
         assert client._auth is None
-        assert client.config.base_url == "https://example.com/bfabric/"
+        assert client.config.base_url == "https://example.com/bfabric"
 
     def test_auth_property_uses_provider(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
@@ -599,11 +617,11 @@ class TestConnectOAuth:
         client = Bfabric.connect_oauth(
             client_id="id",
             client_secret="secret",
-            base_url="https://example.com/bfabric/",
+            base_url="https://example.com/bfabric",
             scope=_TEST_SCOPE,
         )
 
-        assert client.config.base_url == "https://example.com/bfabric/"
+        assert client.config.base_url == "https://example.com/bfabric"
         call_kwargs = mock_provider_cls.call_args[1]
         assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
 
@@ -687,7 +705,7 @@ class TestConnectPkce:
         )
         assert client._credential_provider == mock_provider_cls.return_value
         assert client._auth is None
-        assert client.config.base_url == "https://example.com/bfabric/"
+        assert client.config.base_url == "https://example.com/bfabric"
 
     def test_parameter_forwarding(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
@@ -731,7 +749,7 @@ class TestConnectPkce:
             scope=_TEST_SCOPE,
         )
 
-        assert client.config.base_url == "https://example.com/bfabric/"
+        assert client.config.base_url == "https://example.com/bfabric"
         call_kwargs = mock_provider_cls.call_args[1]
         assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
 
@@ -770,7 +788,7 @@ class TestConnectDeviceCode:
         )
         assert client._credential_provider == mock_provider_cls.return_value
         assert client._auth is None
-        assert client.config.base_url == "https://example.com/bfabric/"
+        assert client.config.base_url == "https://example.com/bfabric"
 
     def test_parameter_forwarding(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
@@ -810,7 +828,7 @@ class TestConnectDeviceCode:
             scope=_TEST_SCOPE,
         )
 
-        assert client.config.base_url == "https://example.com/bfabric/"
+        assert client.config.base_url == "https://example.com/bfabric"
         call_kwargs = mock_provider_cls.call_args[1]
         assert call_kwargs["token_url"] == "https://example.com/bfabric/rest/oauth/token"
 
@@ -826,7 +844,7 @@ class TestConnectPat:
 
         assert client.auth.login == OAUTH_LOGIN
         assert client.auth.password.get_secret_value() == "my_personal_access_token"
-        assert client.config.base_url == "https://example.com/bfabric/"
+        assert client.config.base_url == "https://example.com/bfabric"
 
     def test_no_credential_provider(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
@@ -846,7 +864,7 @@ class TestConnectPat:
             pat="my_pat",
         )
 
-        assert client.config.base_url == "https://example.com/bfabric/"
+        assert client.config.base_url == "https://example.com/bfabric"
 
     def test_accepts_secret_str(self, mocker):
         mocker.patch.object(Bfabric, "_log_version_message")
@@ -901,6 +919,13 @@ class TestPickling:
         restored = pickle.loads(pickle.dumps(client))  # noqa: S301
         assert restored._credential_provider is None
         assert restored.auth.login == "user"
+
+    def test_canonical_base_url_survives_round_trip(self):
+        """``config.base_url`` is a ``str`` subclass, which pickles by re-calling the constructor."""
+        config = BfabricClientConfig.model_validate({"base_url": "https://example.com/bfabric/"})
+        restored = pickle.loads(pickle.dumps(config))  # noqa: S301
+        assert restored.base_url == "https://example.com/bfabric"
+        assert isinstance(restored.base_url, BaseUrl)
 
 
 class TestClientCredentialsMultiInstance:

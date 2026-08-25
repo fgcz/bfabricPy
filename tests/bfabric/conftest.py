@@ -9,4 +9,4 @@ def pytest_runtest_setup() -> None:
 
 @pytest.fixture
 def bfabric_instance() -> str:
-    return "https://bfabric.example.org/bfabric/"
+    return "https://bfabric.example.org/bfabric"

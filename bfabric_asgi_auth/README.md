@@ -25,7 +25,7 @@ token_validator = create_mock_validator()  # Accepts tokens starting with 'valid
 from bfabric_asgi_auth import create_bfabric_validator
 
 token_validator = create_bfabric_validator(
-    validation_instance_url="https://fgcz-bfabric-test.uzh.ch/bfabric/"
+    validation_instance_url="https://fgcz-bfabric-test.uzh.ch/bfabric"
 )
 ```
 
