@@ -110,10 +110,7 @@ class Bfabric:
     @classmethod
     def from_config_data(cls, config_data: ConfigData) -> Bfabric:
         """Build a client from *config_data*, wiring a credential provider if its auth method needs one."""
-        provider = config_data.auth_config().credential_provider(
-            base_url=config_data.client.base_url, env_name=config_data.env_name
-        )
-        return cls(config_data=config_data, _credential_provider=provider)
+        return cls(config_data=config_data, _credential_provider=config_data.credential_provider())
 
     @classmethod
     def _connect_oauth_from_config(cls, config_data: ConfigData) -> Bfabric:
