@@ -105,9 +105,33 @@ granted scope would bake that drop in permanently. Only the CLI reads the key �
 `BfabricClientConfig` and not plumbed through `ConfigData` / `export_config_data`.
 
 A re-login **merges** into an existing environment section rather than replacing it, so hand-written
-keys (`application_ids`, `engine`, `job_notification_emails`, …) survive. The auth-owned keys
-(`login`, `password`, `pat`, `auth_method`, `client_id`, `scope`) are replaced wholesale, so a stale
-`pat` cannot outlive the auth method that wrote it and be resurrected by `gather_auth`.
+keys (`application_ids`, `engine`, `job_notification_emails`, …) survive. What happens to the
+auth-owned keys is the caller's choice: `write_environment_to_config(..., auth="replace")` treats the
+payload as the complete auth state, so a stale `pat` cannot outlive the method that wrote it, while
+`auth="merge"` keeps the ones the payload does not mention, for a partial update such as a rotated
+secret. The mode is required, because the two directions corrupt in opposite ways. The auth-owned key
+set itself is derived from the auth-method variants in `config/auth_methods.py`.
+
+## In-memory model: the auth-method union
+
+The flat YAML above is the frozen wire format; in memory each auth method is its own model
+(`PasswordAuth`, `PatAuth`, `InteractiveOAuthAuth`, `ClientCredentialsAuth`, `NoAuth`,
+`UnknownAuth`), discriminated on `kind` and exposed as `EnvironmentConfig.auth_config`. Each variant
+declares the flat keys it owns and knows how to produce its own credentials — a static `BfabricAuth`
+or a refreshing `OAuthCredentialProvider` — so `Bfabric.connect()` and the `auth` CLI ask the method
+instead of switching on a string.
+
+`config/auth_methods.py` is the **only** place the flat and structured shapes are translated
+(`auth_method_from_flat` and `to_flat`). Adding an auth method means adding a variant there; do not
+reintroduce a parallel list of auth keys elsewhere. `EnvironmentConfig` keeps `auth`, `auth_method`,
+`client_id`, `client_secret` and `scope` as read-only properties over the union, so existing readers
+are unaffected.
+
+Reading is deliberately tolerant and writing is strict: 1.21.0 wrote environments without any
+cross-field validation, so a config already on disk must keep loading even if its keys contradict
+each other, while `validate_writable_environment` refuses to persist a new one that does.
+`auth_method` values this version does not recognise parse to `UnknownAuth`, which keeps the
+unrecognised keys verbatim and raises only when that environment is the one being connected.
 
 For PAT (Personal Access Token) logins the token is stored inline under `pat` (with
 `auth_method: pat`), never as `login: __oauth__` / `password: <token>`:
