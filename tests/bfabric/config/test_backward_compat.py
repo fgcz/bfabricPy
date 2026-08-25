@@ -101,3 +101,42 @@ def test_current_reader_parses_pat_env_shape():
     assert env.auth_method == "pat"
     assert env.auth.login == "__oauth__"
     assert env.auth.password.get_secret_value() == "short-pat-token"
+
+
+def _oauth_env_shape() -> dict[str, str]:
+    """The environment dict the current ``auth login`` / ``auth device-code`` writer emits."""
+    return {
+        "base_url": "https://example.com/bfabric",
+        "auth_method": "oauth",
+        "client_id": "CLI",
+        "scope": "api:read",
+    }
+
+
+def _client_credentials_env_shape() -> dict[str, str]:
+    """The environment dict the ``auth service-account`` writer emits."""
+    return {
+        "base_url": "https://example.com/bfabric",
+        "auth_method": "client_credentials",
+        "client_id": "svc-account",
+        "client_secret": "not-32-chars",
+        "scope": "api:read",
+    }
+
+
+@pytest.mark.parametrize(
+    "env_shape", [_pat_env_shape, _oauth_env_shape, _client_credentials_env_shape], ids=["pat", "oauth", "svcacct"]
+)
+def test_every_written_env_shape_is_parseable_by_legacy_client(env_shape):
+    """app_runner bind-mounts the host config into containers running published <=1.19.0 clients.
+
+    Every shape the CLI writes must therefore leave the shared file loadable for them.
+    """
+    config = {
+        "GENERAL": {"default_config": "PROD"},
+        "PROD": {"base_url": "https://prod.example.com", "login": "user", "password": "x" * 32},
+        "OTHER": env_shape(),
+    }
+    legacy = LegacyConfigFile.model_validate(config)
+    assert legacy.environments["PROD"].auth.login == "user"
+    assert legacy.environments["OTHER"].auth is None
