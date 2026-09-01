@@ -25,7 +25,12 @@ def dispatch(workunit_definition_path: Path, work_dir: Path, *, client: Bfabric)
     """Dispatches the workunit to a folder structure with 1 chunk and 1 input file."""
     # Get the initial information about the workunit
     workunit_definition = WorkunitDefinition.from_yaml(workunit_definition_path)
-    input_bf_dataset = client.reader.read_id(Dataset, workunit_definition.execution.dataset)
+    dataset_id = workunit_definition.execution.dataset
+    if dataset_id is None:
+        raise ValueError("This app is a dataset-flow app, but the workunit has no input dataset.")
+    input_bf_dataset = client.reader.read_id(Dataset, dataset_id)
+    if input_bf_dataset is None:
+        raise ValueError(f"Input dataset {dataset_id} does not exist.")
     input_df = input_bf_dataset.to_polars()
     logger.info(f"Original table: {input_df}")
 
