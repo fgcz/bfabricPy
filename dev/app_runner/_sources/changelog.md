@@ -4,6 +4,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Changed
+
+- The demo app copier template requests its input files with a `bfabric_resource_dataset` input instead of resolving the dataset's resources itself, so its `dispatch` no longer talks to B-Fabric and the generated app drops its `pyjanitor` dependency. The Snakefile takes its input names from the `dataset.parquet` sidecar rather than globbing `input/`.
+
+### Fixed
+
+- The demo app copier template pins `bfabric-app-runner` to the version its `app.yml` declares, so a generated app's environment no longer silently resolves an older app-runner than the one its Makefile runs.
+- The demo app's generated `release.bash` is executable, as the post-copy message instructs.
+
 ## \[0.8.0\] - 2026-08-20
 
 ### Added
