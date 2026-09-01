@@ -17,7 +17,7 @@ import webbrowser
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import TYPE_CHECKING
-from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.parse import parse_qs, urlparse
 
 import httpx
 from loguru import logger
@@ -209,16 +209,13 @@ def pkce_login(
 
     server = _CallbackServer(port)
 
-    login_url = f"{authorize_url(base_url)}?" + urlencode(
-        {
-            "response_type": "code",
-            "client_id": client_id,
-            "redirect_uri": server.redirect_uri,
-            "code_challenge": challenge,
-            "code_challenge_method": "S256",
-            "state": state,
-            "scope": scope,
-        }
+    login_url = authorize_url(
+        base_url,
+        client_id=client_id,
+        redirect_uri=server.redirect_uri,
+        code_challenge=challenge,
+        state=state,
+        scope=scope,
     )
 
     browser_opened = False
