@@ -20,6 +20,7 @@ import httpx
 from loguru import logger
 
 from bfabric.errors import BfabricOAuthError, raise_if_unavailable
+from bfabric.oauth._endpoints import token_url
 
 if TYPE_CHECKING:
     from bfabric.config.base_url import BaseUrl
@@ -75,7 +76,7 @@ def _poll_for_token(
     :returns: Token dict with ``access_token``, ``refresh_token``, etc.
     :raises RuntimeError: On timeout, expired token, or access denied
     """
-    token_url = f"{base_url}/rest/oauth/token"
+    token_endpoint = token_url(base_url)
     deadline = time.monotonic() + timeout
     poll_interval = interval
 
@@ -85,7 +86,7 @@ def _poll_for_token(
 
         try:
             response = httpx.post(
-                token_url,
+                token_endpoint,
                 data={
                     "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
                     "device_code": device_code,
@@ -116,7 +117,7 @@ def _poll_for_token(
             # during a redeploy, say. Report it as a domain error so the CLI prints a clean message
             # instead of letting httpx's HTTPStatusError escape as a traceback.
             raise BfabricOAuthError(
-                f"Token endpoint returned a non-JSON {response.status_code} response at {token_url}. "
+                f"Token endpoint returned a non-JSON {response.status_code} response at {token_endpoint}. "
                 "The server may be unavailable — try again shortly."
             ) from None
 

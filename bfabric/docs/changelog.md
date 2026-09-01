@@ -9,6 +9,11 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- `bfabric.oauth.exchange_code` redeems an authorization code for tokens, so a web app whose callback lands on a registered public redirect URI can complete the flow without reimplementing the request. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
+- `bfabric.oauth.authorize_url` and `bfabric.oauth.token_url` build the two B-Fabric OAuth endpoint URLs from an instance URL.
+
 ## \[1.22.0\] - 2026-08-25
 
 ### Added

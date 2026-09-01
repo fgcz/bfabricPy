@@ -1,6 +1,8 @@
-"""OAuth 2.0 Authorization Code flow with PKCE for interactive CLI login.
+"""OAuth 2.0 Authorization Code flow with PKCE.
 
-The callback is received by a local HTTP server, so this only works with a browser on this machine.
+:func:`pkce_login` drives the whole flow for a CLI: it receives the callback on a local HTTP server,
+so it only works with a browser on this machine. A web app, whose callback instead lands on a
+registered public redirect URI, cannot use it but can use :func:`exchange_code` for the final leg.
 """
 
 from __future__ import annotations
@@ -21,6 +23,7 @@ import httpx
 from loguru import logger
 
 from bfabric.errors import BfabricOAuthError, raise_if_unavailable
+from bfabric.oauth._endpoints import authorize_url, token_url
 
 if TYPE_CHECKING:
     from bfabric.config.base_url import BaseUrl
@@ -143,18 +146,30 @@ class _CallbackServer(HTTPServer):
         return f"http://127.0.0.1:{self.server_address[1]}/callback"
 
 
-def _exchange_code(
+def exchange_code(
     *,
-    token_url: str,
+    base_url: str,
     client_id: str,
     code: str,
     redirect_uri: str,
     code_verifier: str,
+    client_secret: str | None = None,
 ) -> dict[str, object]:
-    """Exchange an authorization code for tokens at the token endpoint."""
-    with raise_if_unavailable(token_url):
+    """Exchange an authorization code for tokens at the token endpoint.
+
+    The final leg of an authorization-code flow, and the only one that is the same whether the
+    callback arrived on a CLI's loopback listener or a web app's public redirect URI.
+
+    :param redirect_uri: the same URI the authorization request was sent with, which the server
+        re-checks
+    :param client_secret: a confidential client's secret, sent as ``client_secret_basic`` to match
+        the RFC 8693 exchange in ``bfabric.oauth._token_exchange``. Empty or ``None`` makes the
+        request as a public client, relying on PKCE alone -- an empty string because that is how
+        the rest of the library spells "no secret" (see ``Bfabric.connect_pkce``).
+    """
+    with raise_if_unavailable(base_url):
         response = httpx.post(
-            token_url,
+            token_url(base_url),
             data={
                 "grant_type": "authorization_code",
                 "client_id": client_id,
@@ -163,6 +178,7 @@ def _exchange_code(
                 "code_verifier": code_verifier,
             },
             timeout=30,
+            auth=(client_id, client_secret) if client_secret else None,
         )
     _ = response.raise_for_status()
     result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
@@ -193,7 +209,7 @@ def pkce_login(
 
     server = _CallbackServer(port)
 
-    authorize_url = f"{base_url}/rest/oauth/authorize?" + urlencode(
+    login_url = f"{authorize_url(base_url)}?" + urlencode(
         {
             "response_type": "code",
             "client_id": client_id,
@@ -207,10 +223,10 @@ def pkce_login(
 
     browser_opened = False
     if open_browser:
-        browser_opened = webbrowser.open(authorize_url)
+        browser_opened = webbrowser.open(login_url)
     if not browser_opened:
         print(
-            f"Open this URL to log in:\n{authorize_url}\n"
+            f"Open this URL to log in:\n{login_url}\n"
             f"After logging in you are redirected to {server.redirect_uri}, which only works in a "
             f"browser on this machine. {_REMOTE_HOST_CAVEAT}",
             file=sys.stderr,
@@ -243,9 +259,8 @@ def pkce_login(
         raise BfabricOAuthError("No authorization code received")
 
     logger.debug("Exchanging authorization code for tokens")
-    token_url = f"{base_url}/rest/oauth/token"
-    return _exchange_code(
-        token_url=token_url,
+    return exchange_code(
+        base_url=base_url,
         client_id=client_id,
         code=result.code,
         redirect_uri=server.redirect_uri,

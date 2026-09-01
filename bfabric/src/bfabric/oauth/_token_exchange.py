@@ -15,6 +15,7 @@ from loguru import logger
 
 from bfabric.errors import raise_if_unavailable
 
+from bfabric.oauth._endpoints import token_url
 from bfabric.oauth._url_token import UrlTokenContext
 
 if TYPE_CHECKING:
@@ -39,7 +40,7 @@ def exchange_token(
     :returns: Token response dict with ``access_token``, ``refresh_token``, etc.
     :raises httpx.HTTPStatusError: On non-2xx responses
     """
-    url = f"{base_url}/rest/oauth/token"
+    url = token_url(base_url)
     logger.debug("Exchanging launch token at {}", url)
     with raise_if_unavailable(base_url):
         response = httpx.post(

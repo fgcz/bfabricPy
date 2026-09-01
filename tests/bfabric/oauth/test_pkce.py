@@ -11,9 +11,9 @@ from bfabric.errors import BfabricOAuthError
 from bfabric.oauth._pkce import (
     _AuthorizationResult,
     _CallbackServer,
-    _exchange_code,
     _generate_challenge,
     _generate_verifier,
+    exchange_code,
     pkce_login,
 )
 
@@ -151,8 +151,8 @@ class TestExchangeCode:
         mock_response.json.return_value = {"access_token": "at", "refresh_token": "rt"}
 
         mock_post = mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
-        result = _exchange_code(
-            token_url="https://example.com/rest/oauth/token",
+        result = exchange_code(
+            base_url="https://example.com/bfabric",
             client_id="my-client",
             code="auth_code",
             redirect_uri="http://127.0.0.1:12345/callback",
@@ -160,7 +160,7 @@ class TestExchangeCode:
         )
 
         mock_post.assert_called_once_with(
-            "https://example.com/rest/oauth/token",
+            "https://example.com/bfabric/rest/oauth/token",
             data={
                 "grant_type": "authorization_code",
                 "client_id": "my-client",
@@ -169,8 +169,63 @@ class TestExchangeCode:
                 "code_verifier": "my_verifier",
             },
             timeout=30,
+            auth=None,
         )
         assert result == {"access_token": "at", "refresh_token": "rt"}
+
+    @pytest.mark.parametrize("client_secret", [None, ""], ids=["omitted", "empty"])
+    def test_public_client_sends_no_auth(self, mocker, client_secret):
+        # An empty secret must be treated as absent, not sent as Basic with a blank password:
+        # `client_secret=""` is how the rest of the library spells "public client", e.g. every
+        # OAuthCredentialProvider that Bfabric.connect_pkce builds.
+        mock_response = mocker.MagicMock()
+        mock_response.json.return_value = {}
+        mock_post = mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
+
+        exchange_code(
+            base_url="https://example.com/bfabric",
+            client_id="my-client",
+            code="auth_code",
+            redirect_uri="https://app.example.com/callback",
+            code_verifier="my_verifier",
+            client_secret=client_secret,
+        )
+
+        assert mock_post.call_args.kwargs["auth"] is None
+
+    def test_confidential_client_uses_basic_auth(self, mocker):
+        mock_response = mocker.MagicMock()
+        mock_response.json.return_value = {}
+        mock_post = mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
+
+        exchange_code(
+            base_url="https://example.com/bfabric",
+            client_id="my-client",
+            code="auth_code",
+            redirect_uri="https://app.example.com/callback",
+            code_verifier="my_verifier",
+            client_secret="s3cret",
+        )
+
+        assert mock_post.call_args.kwargs["auth"] == ("my-client", "s3cret")
+
+    def test_secret_is_not_placed_in_the_body(self, mocker):
+        # client_secret_basic, not client_secret_post: the secret must never reach the form body,
+        # where it would be logged by any intermediary that records request payloads.
+        mock_response = mocker.MagicMock()
+        mock_response.json.return_value = {}
+        mock_post = mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
+
+        exchange_code(
+            base_url="https://example.com/bfabric",
+            client_id="my-client",
+            code="auth_code",
+            redirect_uri="https://app.example.com/callback",
+            code_verifier="my_verifier",
+            client_secret="s3cret",
+        )
+
+        assert "client_secret" not in mock_post.call_args.kwargs["data"]
 
     def test_raises_on_http_error(self, mocker):
         mock_response = mocker.MagicMock()
@@ -180,8 +235,8 @@ class TestExchangeCode:
 
         mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
         with pytest.raises(httpx.HTTPStatusError):
-            _exchange_code(
-                token_url="https://example.com/rest/oauth/token",
+            exchange_code(
+                base_url="https://example.com/bfabric",
                 client_id="id",
                 code="code",
                 redirect_uri="http://127.0.0.1:8000/callback",
@@ -194,7 +249,7 @@ class TestPkceLogin:
         token_dict = {"access_token": "jwt_here", "refresh_token": "rt_here"}
 
         mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
-        mock_exchange = mocker.patch("bfabric.oauth._pkce._exchange_code", return_value=token_dict)
+        mock_exchange = mocker.patch("bfabric.oauth._pkce.exchange_code", return_value=token_dict)
         mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=True)
         mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="fixed_state")
         mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="fixed_verifier")
@@ -210,7 +265,7 @@ class TestPkceLogin:
 
         assert result == token_dict
         mock_exchange.assert_called_once_with(
-            token_url="https://example.com/bfabric/rest/oauth/token",
+            base_url="https://example.com/bfabric",
             client_id="test-cli",
             code="the_code",
             redirect_uri="http://127.0.0.1:9999/callback",
@@ -302,7 +357,7 @@ class TestPkceLogin:
 
     def test_browser_fallback_prints_url(self, mocker, capsys):
         mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
-        mocker.patch("bfabric.oauth._pkce._exchange_code", return_value={"access_token": "t"})
+        mocker.patch("bfabric.oauth._pkce.exchange_code", return_value={"access_token": "t"})
         mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=False)
         mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state")
         mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="v")
@@ -324,7 +379,7 @@ class TestPkceLogin:
         """Printing the URL is right for a local user without a browser and a trap for a remote one:
         the redirect lands on this host's loopback, so a browser elsewhere cannot complete it."""
         mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
-        mocker.patch("bfabric.oauth._pkce._exchange_code", return_value={"access_token": "t"})
+        mocker.patch("bfabric.oauth._pkce.exchange_code", return_value={"access_token": "t"})
         mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=False)
         mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state")
         mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="v")
@@ -344,7 +399,7 @@ class TestPkceLogin:
 
     def test_open_browser_false_prints_url_without_opening_a_browser(self, mocker, capsys):
         mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
-        mocker.patch("bfabric.oauth._pkce._exchange_code", return_value={"access_token": "t"})
+        mocker.patch("bfabric.oauth._pkce.exchange_code", return_value={"access_token": "t"})
         mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state")
         mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="v")
         mocker.patch("bfabric.oauth._pkce._generate_challenge", return_value="c")
