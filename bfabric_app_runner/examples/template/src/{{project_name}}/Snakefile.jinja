@@ -3,10 +3,13 @@ from {{project_name}}.steps.collect_info import write_index_html
 from {{project_name}}.workflow_params import WorkflowParams
 from pathlib import Path
 from zipfile import ZipFile
+import polars as pl
 import yaml
 
-input_file_paths = sorted(Path("input").glob("*"))
-input_file_names = [p.name for p in input_file_paths]
+# The `bfabric_resource_dataset` input writes this sidecar alongside the downloaded resources; taking the names from
+# its `File` column keeps the sidecar itself out of the inputs, which globbing `input/` would not.
+input_dataset = pl.read_parquet("input/dataset.parquet")
+input_file_names = input_dataset["File"].to_list()
 workflow_params = WorkflowParams.model_validate(yaml.safe_load(Path("params.yml").read_text()))
 
 
