@@ -25,7 +25,7 @@ def dispatch(workunit_definition_path: Path, work_dir: Path, *, client: Bfabric)
     """Dispatches the workunit to a folder structure with 1 chunk and 1 input file."""
     # Get the initial information about the workunit
     workunit_definition = WorkunitDefinition.from_yaml(workunit_definition_path)
-    input_bf_dataset = Dataset.find(workunit_definition.execution.dataset, client=client)
+    input_bf_dataset = client.reader.read_id(Dataset, workunit_definition.execution.dataset)
     input_df = input_bf_dataset.to_polars()
     logger.info(f"Original table: {input_df}")
 

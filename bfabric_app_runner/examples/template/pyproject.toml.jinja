@@ -11,7 +11,9 @@ dependencies = [
     "snakemake",
     "polars",
     "bfabric",
-    "bfabric-app-runner",
+    # Keep this pin in sync with `bfabric.app_runner` in app.yml. Left unpinned, uv prefers the newest `bfabric` and
+    # quietly resolves whatever older app-runner still accepts it, so this env and the Makefile's runner drift apart.
+    "bfabric-app-runner==0.8.0",
     "cyclopts",
     "loguru",
     "pyjanitor",

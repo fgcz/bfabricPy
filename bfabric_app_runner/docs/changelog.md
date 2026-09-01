@@ -4,6 +4,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+### Fixed
+
+- The demo app copier template pins `bfabric-app-runner` to the version its `app.yml` declares, so a generated app's environment no longer silently resolves an older app-runner than the one its Makefile runs.
+- The demo app's `dispatch` reads its input dataset via `client.reader.read_id`, dropping a `FindMixin` deprecation warning, and its generated `release.bash` is executable as the post-copy message instructs.
+
 ## \[0.8.0\] - 2026-08-20
 
 ### Added
