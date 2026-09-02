@@ -17,7 +17,7 @@ import threading
 import webbrowser
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 from urllib.parse import parse_qs, urlparse
 
 import httpx
@@ -58,7 +58,7 @@ class AuthorizationRequest(BaseModel):
     verifier -- a disagreement the server only reports at the token step, one redirect later.
     """
 
-    model_config = ConfigDict(frozen=True)
+    model_config: ClassVar[ConfigDict] = ConfigDict(frozen=True)
 
     url: str
     """Where to redirect the user, carrying the authorization request."""
