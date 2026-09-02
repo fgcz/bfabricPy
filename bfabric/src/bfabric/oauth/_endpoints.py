@@ -1,10 +1,10 @@
 """The B-Fabric OAuth endpoint URLs.
 
-Only the two endpoints worth centralising live here: ``token``, which every grant hits and which
-was built at eight separate call sites, and ``authorize``, whose request a web app driving its own
-authorization-code flow has to build for itself. The remaining endpoints
-(``device_authorization``, ``introspect``, ``register``, ``jwks``) have one caller each and stay
-as f-strings beside it, where they read better than an indirection.
+Only the two endpoints worth centralising live here: ``token``, which every grant hits and which was
+built at eight separate call sites, and ``authorize``, built once for
+:class:`~bfabric.oauth.AuthorizationRequest`. The remaining endpoints (``device_authorization``,
+``introspect``, ``register``, ``jwks``) have one caller each and stay as f-strings beside it, where
+they read better than an indirection.
 """
 
 from __future__ import annotations
@@ -25,14 +25,10 @@ def authorize_url(
 ) -> str:
     """The URL to send a user to, so they log in and authorize this client.
 
-    Always requests the ``code`` response type with PKCE; there is no unprotected variant to
-    select, and ``S256`` is the only challenge method B-Fabric is asked for.
-
-    :param redirect_uri: where the server returns the user; must be one the client registered, and
-        must be repeated identically in the later token request
-    :param code_challenge: the S256 challenge for the verifier the caller holds until the exchange
-    :param state: an unguessable value echoed back on the redirect. The caller has to compare it
-        to what it sent, or a forged callback is indistinguishable from a real one.
+    Not exported, unlike :func:`token_url`: the challenge and state it takes are ones a caller
+    should not be deriving itself, so :meth:`~bfabric.oauth.AuthorizationRequest.create` generates
+    both and is the way in. Always requests the ``code`` response type with PKCE; ``S256`` is the
+    only challenge method B-Fabric is asked for.
     """
     query = urlencode(
         {

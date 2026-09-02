@@ -2,7 +2,8 @@
 
 :func:`pkce_login` drives the whole flow for a CLI: it receives the callback on a local HTTP server,
 so it only works with a browser on this machine. A web app, whose callback instead lands on a
-registered public redirect URI, cannot use it but can use :func:`exchange_code` for the final leg.
+registered public redirect URI, drives the same flow in two steps around its own redirect --
+:class:`AuthorizationRequest` to send the user out, then :func:`exchange_code` when they come back.
 """
 
 from __future__ import annotations
@@ -21,6 +22,7 @@ from urllib.parse import parse_qs, urlparse
 
 import httpx
 from loguru import logger
+from pydantic import BaseModel, ConfigDict
 
 from bfabric.errors import BfabricOAuthError, raise_if_unavailable
 from bfabric.oauth._endpoints import authorize_url, token_url
@@ -43,6 +45,51 @@ def _generate_challenge(verifier: str) -> str:
     """Derive the S256 code challenge from *verifier* (RFC 7636 Section 4.2)."""
     digest = hashlib.sha256(verifier.encode("ascii")).digest()
     return base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
+
+
+class AuthorizationRequest(BaseModel):
+    """An authorization request, and the two secrets needed to finish it after the redirect.
+
+    Send the user to :attr:`url`, keep :attr:`state` and :attr:`verifier` somewhere that survives
+    the round trip, and on the callback compare the returned ``state`` before passing ``code`` and
+    :attr:`verifier` to :func:`exchange_code`.
+
+    The PKCE challenge is derived here rather than asked for, so it cannot disagree with the
+    verifier -- a disagreement the server only reports at the token step, one redirect later.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    url: str
+    """Where to redirect the user, carrying the authorization request."""
+
+    state: str
+    """The CSRF value to compare against the ``state`` the callback returns."""
+
+    verifier: str
+    """The PKCE verifier to pass to :func:`exchange_code` as ``code_verifier``."""
+
+    @classmethod
+    def create(cls, base_url: str, *, client_id: str, redirect_uri: str, scope: str) -> AuthorizationRequest:
+        """Build a fresh authorization request, generating its verifier and CSRF state.
+
+        :param redirect_uri: where the server returns the user; must be one the client registered,
+            and must be repeated identically in the later token request
+        """
+        verifier = _generate_verifier()
+        state = secrets.token_urlsafe(32)
+        return cls(
+            url=authorize_url(
+                base_url,
+                client_id=client_id,
+                redirect_uri=redirect_uri,
+                code_challenge=_generate_challenge(verifier),
+                state=state,
+                scope=scope,
+            ),
+            state=state,
+            verifier=verifier,
+        )
 
 
 @dataclass
@@ -167,6 +214,8 @@ def exchange_code(
         request as a public client, relying on PKCE alone -- an empty string because that is how
         the rest of the library spells "no secret" (see ``Bfabric.connect_pkce``).
     """
+    # No in-repo caller passes a secret: bfabric's own flows are all public clients. The consumer
+    # is the log-viewer web app, so this branch is held up by its tests here rather than by use.
     with raise_if_unavailable(base_url):
         response = httpx.post(
             token_url(base_url),
@@ -203,27 +252,21 @@ def pkce_login(
     :raises RuntimeError: On timeout, CSRF state mismatch, or authorization error
     """
     logger.debug("Starting PKCE login flow for {}", base_url)
-    verifier = _generate_verifier()
-    challenge = _generate_challenge(verifier)
-    state = secrets.token_urlsafe(32)
-
+    # The server first: its bound port decides the redirect URI the request has to carry.
     server = _CallbackServer(port)
-
-    login_url = authorize_url(
+    request = AuthorizationRequest.create(
         base_url,
         client_id=client_id,
         redirect_uri=server.redirect_uri,
-        code_challenge=challenge,
-        state=state,
         scope=scope,
     )
 
     browser_opened = False
     if open_browser:
-        browser_opened = webbrowser.open(login_url)
+        browser_opened = webbrowser.open(request.url)
     if not browser_opened:
         print(
-            f"Open this URL to log in:\n{login_url}\n"
+            f"Open this URL to log in:\n{request.url}\n"
             f"After logging in you are redirected to {server.redirect_uri}, which only works in a "
             f"browser on this machine. {_REMOTE_HOST_CAVEAT}",
             file=sys.stderr,
@@ -242,8 +285,8 @@ def pkce_login(
 
     result = server.result
 
-    if result.state != state:
-        logger.debug("CSRF state mismatch: expected {!r}, got {!r}", state, result.state)
+    if result.state != request.state:
+        logger.debug("CSRF state mismatch: expected {!r}, got {!r}", request.state, result.state)
         raise BfabricOAuthError("CSRF state mismatch in OAuth callback")
 
     if result.error is not None:
@@ -261,5 +304,5 @@ def pkce_login(
         client_id=client_id,
         code=result.code,
         redirect_uri=server.redirect_uri,
-        code_verifier=verifier,
+        code_verifier=request.verifier,
     )

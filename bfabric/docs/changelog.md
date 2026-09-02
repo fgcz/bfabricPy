@@ -11,8 +11,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
-- `bfabric.oauth.exchange_code` redeems an authorization code for tokens, so a web app whose callback lands on a registered public redirect URI can complete the flow without reimplementing the request. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
-- `bfabric.oauth.authorize_url` builds the URL a user is redirected to in order to log in, including the PKCE and CSRF-state parameters, and `bfabric.oauth.token_url` builds the token endpoint URL.
+- `bfabric.oauth.AuthorizationRequest.create` starts an authorization-code login, returning the URL to redirect a user to along with the CSRF state and PKCE verifier to keep until they return. A web app can now run the flow without deriving a code challenge itself.
+- `bfabric.oauth.exchange_code` redeems the returned code for tokens. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
+- `bfabric.oauth.verify_jwt` verifies a B-Fabric JWT against the instance's JWKS, which it caches for an hour. It was already used internally by `WebappClient`.
+- `bfabric.oauth.token_url` builds the token endpoint URL for an instance.
 
 ## \[1.22.0\] - 2026-08-25
 
