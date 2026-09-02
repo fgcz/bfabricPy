@@ -7,7 +7,7 @@ from bfabric.oauth._endpoints import token_url
 from bfabric.oauth._pkce import AuthorizationRequest, exchange_code, pkce_login
 from bfabric.oauth._registration import register_client, register_webapp
 from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
-from bfabric.oauth._url_token import UrlTokenContext, verify_jwt
+from bfabric.oauth._url_token import UrlTokenContext
 from bfabric.oauth._webapp_client import WebappClient
 
 __all__ = [
@@ -23,5 +23,4 @@ __all__ = [
     "register_client",
     "register_webapp",
     "token_url",
-    "verify_jwt",
 ]
