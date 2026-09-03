@@ -146,18 +146,25 @@ class TestCallbackServer:
 
 
 class TestExchangeCode:
-    def test_posts_correct_params(self, mocker):
-        mock_response = mocker.MagicMock()
-        mock_response.json.return_value = {"access_token": "at", "refresh_token": "rt"}
+    @pytest.fixture
+    def mock_post(self, mocker):
+        response = mocker.MagicMock()
+        response.json.return_value = {"access_token": "at", "refresh_token": "rt"}
+        return mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=response)
 
-        mock_post = mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
-        result = exchange_code(
+    @staticmethod
+    def exchange(**kwargs):
+        return exchange_code(
             base_url="https://example.com/bfabric",
             client_id="my-client",
             code="auth_code",
-            redirect_uri="http://127.0.0.1:12345/callback",
+            redirect_uri="https://app.example.com/callback",
             code_verifier="my_verifier",
+            **kwargs,
         )
+
+    def test_posts_correct_params(self, mock_post):
+        result = self.exchange()
 
         mock_post.assert_called_once_with(
             "https://example.com/bfabric/rest/oauth/token",
@@ -165,7 +172,7 @@ class TestExchangeCode:
                 "grant_type": "authorization_code",
                 "client_id": "my-client",
                 "code": "auth_code",
-                "redirect_uri": "http://127.0.0.1:12345/callback",
+                "redirect_uri": "https://app.example.com/callback",
                 "code_verifier": "my_verifier",
             },
             timeout=30,
@@ -174,93 +181,34 @@ class TestExchangeCode:
         assert result == {"access_token": "at", "refresh_token": "rt"}
 
     @pytest.mark.parametrize("client_secret", [None, ""], ids=["omitted", "empty"])
-    def test_public_client_sends_no_auth(self, mocker, client_secret):
-        # An empty secret must be treated as absent, not sent as Basic with a blank password:
+    def test_public_client_sends_no_auth(self, mock_post, client_secret):
         # `client_secret=""` is how the rest of the library spells "public client", e.g. every
-        # OAuthCredentialProvider that Bfabric.connect_pkce builds.
-        mock_response = mocker.MagicMock()
-        mock_response.json.return_value = {}
-        mock_post = mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
-
-        exchange_code(
-            base_url="https://example.com/bfabric",
-            client_id="my-client",
-            code="auth_code",
-            redirect_uri="https://app.example.com/callback",
-            code_verifier="my_verifier",
-            client_secret=client_secret,
-        )
-
+        # OAuthCredentialProvider that Bfabric.connect_pkce builds -- not Basic with a blank password.
+        self.exchange(client_secret=client_secret)
         assert mock_post.call_args.kwargs["auth"] is None
 
-    def test_confidential_client_uses_basic_auth(self, mocker):
-        mock_response = mocker.MagicMock()
-        mock_response.json.return_value = {}
-        mock_post = mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
-
-        exchange_code(
-            base_url="https://example.com/bfabric",
-            client_id="my-client",
-            code="auth_code",
-            redirect_uri="https://app.example.com/callback",
-            code_verifier="my_verifier",
-            client_secret="s3cret",
-        )
-
+    def test_confidential_client_uses_basic_auth(self, mock_post):
+        self.exchange(client_secret="s3cret")
         assert mock_post.call_args.kwargs["auth"] == ("my-client", "s3cret")
 
-    def test_confidential_client_omits_client_id_from_the_body(self, mocker):
-        # RFC 6749 Section 2.3 allows one authentication method per request. With the client
-        # identified in the Basic header, a body client_id is a second one, and a strict server
-        # answers with a 401 indistinguishable from a misconfigured client.
-        mock_response = mocker.MagicMock()
-        mock_response.json.return_value = {}
-        mock_post = mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
-
-        exchange_code(
-            base_url="https://example.com/bfabric",
-            client_id="my-client",
-            code="auth_code",
-            redirect_uri="https://app.example.com/callback",
-            code_verifier="my_verifier",
-            client_secret="s3cret",
-        )
-
+    def test_confidential_client_omits_client_id_from_the_body(self, mock_post):
+        # RFC 6749 Section 2.3 allows one authentication method per request, and the Basic header
+        # is already it; a strict server rejects the second one with an ambiguous 401.
+        self.exchange(client_secret="s3cret")
         assert "client_id" not in mock_post.call_args.kwargs["data"]
 
-    def test_secret_is_not_placed_in_the_body(self, mocker):
-        # client_secret_basic, not client_secret_post: the secret must never reach the form body,
-        # where it would be logged by any intermediary that records request payloads.
-        mock_response = mocker.MagicMock()
-        mock_response.json.return_value = {}
-        mock_post = mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
-
-        exchange_code(
-            base_url="https://example.com/bfabric",
-            client_id="my-client",
-            code="auth_code",
-            redirect_uri="https://app.example.com/callback",
-            code_verifier="my_verifier",
-            client_secret="s3cret",
-        )
-
+    def test_secret_is_not_placed_in_the_body(self, mock_post):
+        # client_secret_basic, not client_secret_post: in the body an intermediary that records
+        # request payloads would log it.
+        self.exchange(client_secret="s3cret")
         assert "client_secret" not in mock_post.call_args.kwargs["data"]
 
-    def test_raises_on_http_error(self, mocker):
-        mock_response = mocker.MagicMock()
-        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+    def test_raises_on_http_error(self, mocker, mock_post):
+        mock_post.return_value.raise_for_status.side_effect = httpx.HTTPStatusError(
             "401", request=mocker.MagicMock(), response=mocker.MagicMock()
         )
-
-        mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
         with pytest.raises(httpx.HTTPStatusError):
-            exchange_code(
-                base_url="https://example.com/bfabric",
-                client_id="id",
-                code="code",
-                redirect_uri="http://127.0.0.1:8000/callback",
-                code_verifier="verifier",
-            )
+            self.exchange()
 
 
 class TestPkceLogin:
