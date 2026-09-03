@@ -114,6 +114,7 @@ class Bfabric:
         Loads tokens from the disk cache keyed on ``base_url`` + ``client_id`` + ``env_name``.
         """
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
         from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
 
         base_url = config_data.client.base_url
@@ -137,7 +138,7 @@ class Bfabric:
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret="",
-            token_url=f"{base_url}/rest/oauth/token",
+            token_url=token_url(base_url),
             scope="",
             grant_type="refresh_token",
             token_cache_path=cache_path,
@@ -245,13 +246,13 @@ class Bfabric:
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
 
         base_url = BaseUrl(base_url)
-        token_url = f"{base_url}/rest/oauth/token"
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret=client_secret,
-            token_url=token_url,
+            token_url=token_url(base_url),
             scope=scope,
             grant_type="client_credentials",
             token_cache_path=token_cache_path,
@@ -285,6 +286,7 @@ class Bfabric:
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
         from bfabric.oauth._pkce import pkce_login
 
         base_url = BaseUrl(base_url)
@@ -296,11 +298,10 @@ class Bfabric:
             open_browser=open_browser,
             timeout=timeout,
         )
-        token_url = f"{base_url}/rest/oauth/token"
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret="",
-            token_url=token_url,
+            token_url=token_url(base_url),
             token=token,
             grant_type="refresh_token",
             scope=scope,
@@ -336,6 +337,7 @@ class Bfabric:
         """
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
         from bfabric.oauth._device_code import device_code_login
+        from bfabric.oauth._endpoints import token_url
 
         base_url = BaseUrl(base_url)
         token = device_code_login(
@@ -344,11 +346,10 @@ class Bfabric:
             scope=scope,
             timeout=timeout,
         )
-        token_url = f"{base_url}/rest/oauth/token"
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret="",
-            token_url=token_url,
+            token_url=token_url(base_url),
             token=token,
             grant_type="refresh_token",
             scope=scope,

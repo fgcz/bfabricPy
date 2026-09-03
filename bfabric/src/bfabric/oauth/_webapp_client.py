@@ -52,13 +52,13 @@ class WebappClient:
         """
         from bfabric.bfabric import Bfabric
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
         from bfabric.oauth._token_exchange import exchange_token
         from bfabric.oauth._url_token import UrlTokenContext, verify_jwt
         from bfabric.config import BfabricClientConfig, BaseUrl
         from bfabric.config.config_data import ConfigData
 
         base_url = BaseUrl(base_url)
-        token_url = f"{base_url}/rest/oauth/token"
 
         # 1. Exchange the short-lived launch token for access + refresh tokens
         token_dict = exchange_token(
@@ -76,7 +76,7 @@ class WebappClient:
         user_provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret=client_secret,
-            token_url=token_url,
+            token_url=token_url(base_url),
             scope="",
             token=token_dict,
             grant_type="refresh_token",

@@ -53,9 +53,6 @@ class AuthorizationRequest(BaseModel):
     Send the user to :attr:`url`, keep :attr:`state` and :attr:`verifier` somewhere that survives
     the round trip, and on the callback compare the returned ``state`` before passing ``code`` and
     :attr:`verifier` to :func:`exchange_code`.
-
-    The PKCE challenge is derived here rather than asked for, so it cannot disagree with the
-    verifier -- a disagreement the server only reports at the token step, one redirect later.
     """
 
     model_config: ClassVar[ConfigDict] = ConfigDict(frozen=True)
@@ -204,15 +201,11 @@ def exchange_code(
 ) -> dict[str, object]:
     """Exchange an authorization code for tokens at the token endpoint.
 
-    The final leg of an authorization-code flow, and the only one that is the same whether the
-    callback arrived on a CLI's loopback listener or a web app's public redirect URI.
-
     :param redirect_uri: the same URI the authorization request was sent with, which the server
         re-checks
-    :param client_secret: a confidential client's secret, sent as ``client_secret_basic`` to match
-        the RFC 8693 exchange in ``bfabric.oauth._token_exchange``. Empty or ``None`` makes the
-        request as a public client, relying on PKCE alone -- an empty string because that is how
-        the rest of the library spells "no secret" (see ``Bfabric.connect_pkce``).
+    :param client_secret: a confidential client's secret, sent as ``client_secret_basic``. Empty or
+        ``None`` makes the request as a public client relying on PKCE alone; an empty string
+        because that is how the rest of the library spells "no secret".
     """
     # No in-repo caller passes a secret: bfabric's own flows are all public clients. The consumer
     # is the log-viewer web app, so this branch is held up by its tests here rather than by use.

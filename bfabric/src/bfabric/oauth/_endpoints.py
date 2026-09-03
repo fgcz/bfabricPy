@@ -1,13 +1,7 @@
 """The B-Fabric OAuth endpoint URLs.
 
-Only the two endpoints worth centralising live here: ``token``, which every grant hits, and
-``authorize``, built once for :class:`~bfabric.oauth.AuthorizationRequest`. The remaining endpoints
-(``device_authorization``, ``introspect``, ``register``, ``jwks``) have one caller each and stay as
-f-strings beside it, where they read better than an indirection.
-
-Migrating the token URL is unfinished: the ``Bfabric.connect_*`` entry points and
-:meth:`~bfabric.oauth.WebappClient.create` still build it inline, so a change to the path has to be
-made there too.
+Only the multi-caller endpoints live here; ``device_authorization``, ``introspect``, ``register``
+and ``jwks`` have one caller each and stay as f-strings beside it.
 """
 
 from __future__ import annotations
@@ -28,10 +22,8 @@ def authorize_url(
 ) -> str:
     """The URL to send a user to, so they log in and authorize this client.
 
-    Not exported, unlike :func:`token_url`: the challenge and state it takes are ones a caller
-    should not be deriving itself, so :meth:`~bfabric.oauth.AuthorizationRequest.create` generates
-    both and is the way in. Always requests the ``code`` response type with PKCE; ``S256`` is the
-    only challenge method B-Fabric is asked for.
+    Not exported: a caller should not derive the challenge and state itself, so
+    :meth:`~bfabric.oauth.AuthorizationRequest.create` generates both and is the way in.
     """
     query = urlencode(
         {
