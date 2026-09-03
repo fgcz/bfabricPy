@@ -277,8 +277,6 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to complete login
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric.oauth._credential_provider import OAuthCredentialProvider
-        from bfabric.oauth._endpoints import token_url
         from bfabric.oauth._pkce import pkce_login
 
         base_url = BaseUrl(base_url)
@@ -290,17 +288,9 @@ class Bfabric:
             open_browser=open_browser,
             timeout=timeout,
         )
-        provider = OAuthCredentialProvider(
-            client_id=client_id,
-            client_secret="",
-            token_url=token_url(base_url),
-            token=token,
-            grant_type="refresh_token",
-            scope=scope,
-            token_cache_path=token_cache_path,
+        return cls._connect_refreshing(
+            base_url, client_id=client_id, scope=scope, token=token, token_cache_path=token_cache_path
         )
-        config_data = ConfigData(client=BfabricClientConfig(base_url=base_url), auth=None)
-        return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
     def connect_device_code(
@@ -320,17 +310,28 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to authorize
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric.oauth._credential_provider import OAuthCredentialProvider
         from bfabric.oauth._device_code import device_code_login
-        from bfabric.oauth._endpoints import token_url
 
         base_url = BaseUrl(base_url)
-        token = device_code_login(
-            base_url,
-            client_id=client_id,
-            scope=scope,
-            timeout=timeout,
+        token = device_code_login(base_url, client_id=client_id, scope=scope, timeout=timeout)
+        return cls._connect_refreshing(
+            base_url, client_id=client_id, scope=scope, token=token, token_cache_path=token_cache_path
         )
+
+    @classmethod
+    def _connect_refreshing(
+        cls,
+        base_url: BaseUrl,
+        *,
+        client_id: str,
+        scope: str,
+        token: dict[str, object],
+        token_cache_path: Path | None,
+    ) -> Bfabric:
+        """Wrap an interactive login's token in a public client that refreshes it."""
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
+
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret="",
