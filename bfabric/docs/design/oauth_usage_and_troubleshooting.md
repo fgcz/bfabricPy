@@ -182,9 +182,14 @@ make the flow work remotely. See the
 hatches.
 
 ### `connect_pkce` only supports **public** clients (tentative on the 401 cause)
-`_exchange_code` sends only `client_id` + PKCE `code_verifier` at the token endpoint — **no
+`connect_pkce` sends only `client_id` + PKCE `code_verifier` at the token endpoint — **no
 `client_secret`**. So it works with *public* clients (like `bfabric-cli`) but not with a
 **confidential** client that has a secret and requires client authentication.
+
+A confidential client is not out of reach, just not reachable through `connect_pkce`: call
+`bfabric.oauth.exchange_code(..., client_secret=...)` yourself, which authenticates with
+`client_secret_basic`. That is the path a web app takes, driving the flow around its own redirect
+with `AuthorizationRequest` and then `exchange_code`.
 
 > **Observed but not fully root-caused:** a freshly UI-created (confidential) client failed the
 > code→token exchange with **HTTP 401** at `/rest/oauth/token`, *after* the browser/redirect half

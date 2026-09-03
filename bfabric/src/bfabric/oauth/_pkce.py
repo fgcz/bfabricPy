@@ -216,16 +216,22 @@ def exchange_code(
     """
     # No in-repo caller passes a secret: bfabric's own flows are all public clients. The consumer
     # is the log-viewer web app, so this branch is held up by its tests here rather than by use.
+    data = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": redirect_uri,
+        "code_verifier": code_verifier,
+    }
+    # RFC 6749 Section 2.3 allows one authentication method per request: a confidential client is
+    # already identified by the Basic header, so repeating client_id in the body is a second one
+    # and a strict server rejects it. A public client sends no header, so the body is the only
+    # place it can identify itself.
+    if not client_secret:
+        data["client_id"] = client_id
     with raise_if_unavailable(base_url):
         response = httpx.post(
             token_url(base_url),
-            data={
-                "grant_type": "authorization_code",
-                "client_id": client_id,
-                "code": code,
-                "redirect_uri": redirect_uri,
-                "code_verifier": code_verifier,
-            },
+            data=data,
             timeout=30,
             auth=(client_id, client_secret) if client_secret else None,
         )

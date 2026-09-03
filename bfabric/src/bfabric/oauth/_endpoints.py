@@ -1,10 +1,13 @@
 """The B-Fabric OAuth endpoint URLs.
 
-Only the two endpoints worth centralising live here: ``token``, which every grant hits and which was
-built at eight separate call sites, and ``authorize``, built once for
-:class:`~bfabric.oauth.AuthorizationRequest`. The remaining endpoints (``device_authorization``,
-``introspect``, ``register``, ``jwks``) have one caller each and stay as f-strings beside it, where
-they read better than an indirection.
+Only the two endpoints worth centralising live here: ``token``, which every grant hits, and
+``authorize``, built once for :class:`~bfabric.oauth.AuthorizationRequest`. The remaining endpoints
+(``device_authorization``, ``introspect``, ``register``, ``jwks``) have one caller each and stay as
+f-strings beside it, where they read better than an indirection.
+
+Migrating the token URL is unfinished: the ``Bfabric.connect_*`` entry points and
+:meth:`~bfabric.oauth.WebappClient.create` still build it inline, so a change to the path has to be
+made there too.
 """
 
 from __future__ import annotations

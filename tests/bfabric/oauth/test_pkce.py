@@ -209,6 +209,25 @@ class TestExchangeCode:
 
         assert mock_post.call_args.kwargs["auth"] == ("my-client", "s3cret")
 
+    def test_confidential_client_omits_client_id_from_the_body(self, mocker):
+        # RFC 6749 Section 2.3 allows one authentication method per request. With the client
+        # identified in the Basic header, a body client_id is a second one, and a strict server
+        # answers with a 401 indistinguishable from a misconfigured client.
+        mock_response = mocker.MagicMock()
+        mock_response.json.return_value = {}
+        mock_post = mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=mock_response)
+
+        exchange_code(
+            base_url="https://example.com/bfabric",
+            client_id="my-client",
+            code="auth_code",
+            redirect_uri="https://app.example.com/callback",
+            code_verifier="my_verifier",
+            client_secret="s3cret",
+        )
+
+        assert "client_id" not in mock_post.call_args.kwargs["data"]
+
     def test_secret_is_not_placed_in_the_body(self, mocker):
         # client_secret_basic, not client_secret_post: the secret must never reach the form body,
         # where it would be logged by any intermediary that records request payloads.
