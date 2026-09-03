@@ -31,12 +31,7 @@ def exchange_token(
 ) -> dict[str, object]:
     """Exchange a short-lived launch JWT for access + refresh tokens via RFC 8693.
 
-    POSTs to ``{base_url}/rest/oauth/token`` with
-    ``grant_type=urn:ietf:params:oauth:grant-type:token-exchange``.
-
     :param launch_token: The short-lived JWT from the launch URL
-    :param client_id: OAuth client ID for the webapp
-    :param client_secret: OAuth client secret for the webapp
     :returns: Token response dict with ``access_token``, ``refresh_token``, etc.
     :raises httpx.HTTPStatusError: On non-2xx responses
     """
@@ -69,13 +64,6 @@ def introspect_token(
 ) -> UrlTokenContext:
     """Introspect an access token to extract entity claims.
 
-    POSTs to ``{base_url}/rest/oauth/introspect`` using ``client_secret_basic``
-    auth and returns a :class:`UrlTokenContext` with the extracted claims.
-
-    :param access_token: The access token to introspect
-    :param client_id: OAuth client ID for the webapp
-    :param client_secret: OAuth client secret for the webapp
-    :returns: :class:`UrlTokenContext` with entity claims
     :raises httpx.HTTPStatusError: On non-2xx responses
     """
     url = f"{base_url}/rest/oauth/introspect"

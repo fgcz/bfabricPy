@@ -241,8 +241,6 @@ class Bfabric:
         credential provider.
 
         :param client_id: OAuth client ID (from ``register_client`` or admin setup)
-        :param client_secret: OAuth client secret
-        :param scope: OAuth scope
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
@@ -274,12 +272,6 @@ class Bfabric:
     ) -> Bfabric:
         """Returns a new Bfabric instance after interactive browser-based PKCE login.
 
-        Opens the user's browser to the B-Fabric authorization page.  After
-        the user logs in, tokens are exchanged automatically and the returned
-        client uses :class:`OAuthCredentialProvider` for transparent refresh.
-
-        :param client_id: OAuth client ID
-        :param scope: OAuth scope
         :param port: Local port for the callback server (``0`` = auto-assign)
         :param open_browser: Whether to open the authorization URL in the browser
         :param timeout: Seconds to wait for the user to complete login
@@ -322,16 +314,9 @@ class Bfabric:
     ) -> Bfabric:
         """Returns a new Bfabric instance after device code authorization (RFC 8628).
 
-        Displays a user code and verification URI on stderr.  The user
-        visits the URI, enters the code, and authorizes the device.  The
-        returned client uses :class:`OAuthCredentialProvider` for transparent
-        token refresh.
+        Displays a user code and verification URI on stderr, so it suits headless environments
+        (SSH, containers) where the localhost redirect of :meth:`connect_pkce` is not reachable.
 
-        This flow is suitable for headless environments (SSH, containers)
-        where a localhost redirect is not feasible.
-
-        :param client_id: OAuth client ID
-        :param scope: OAuth scope
         :param timeout: Seconds to wait for the user to authorize
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """

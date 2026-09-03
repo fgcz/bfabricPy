@@ -215,10 +215,8 @@ def exchange_code(
         "redirect_uri": redirect_uri,
         "code_verifier": code_verifier,
     }
-    # RFC 6749 Section 2.3 allows one authentication method per request: a confidential client is
-    # already identified by the Basic header, so repeating client_id in the body is a second one
-    # and a strict server rejects it. A public client sends no header, so the body is the only
-    # place it can identify itself.
+    # RFC 6749 Section 2.3 allows one authentication method per request, and a confidential client
+    # already used the Basic header; only a public client identifies itself in the body.
     if not client_secret:
         data["client_id"] = client_id
     with raise_if_unavailable(base_url):
@@ -248,7 +246,7 @@ def pkce_login(
     :param open_browser: If ``False``, or if the browser fails to open, the URL is printed to stderr
     :param timeout: Seconds to wait for the user to complete login
     :returns: Token dict with ``access_token``, ``refresh_token``, etc.
-    :raises RuntimeError: On timeout, CSRF state mismatch, or authorization error
+    :raises BfabricOAuthError: On timeout, CSRF state mismatch, or authorization error
     """
     logger.debug("Starting PKCE login flow for {}", base_url)
     # The server first: its bound port decides the redirect URI the request has to carry.
