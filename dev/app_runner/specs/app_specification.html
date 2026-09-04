@@ -443,6 +443,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec"><code class="docutils literal notranslate"><span class="pre">AppSpec</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.available_versions"><code class="docutils literal notranslate"><span class="pre">AppSpec.available_versions</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.bfabric"><code class="docutils literal notranslate"><span class="pre">AppSpec.bfabric</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.for_parameters"><code class="docutils literal notranslate"><span class="pre">AppSpec.for_parameters()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.load_yaml"><code class="docutils literal notranslate"><span class="pre">AppSpec.load_yaml()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.model_config"><code class="docutils literal notranslate"><span class="pre">AppSpec.model_config</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.no_duplicate_versions"><code class="docutils literal notranslate"><span class="pre">AppSpec.no_duplicate_versions()</span></code></a></li>
@@ -878,7 +879,7 @@ in the environment (typically specified in the pylock file).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Constraints<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>func</strong> = &lt;function _resolve_against_spec_dir at 0x7f561762d940&gt;</p></li>
+<li><p><strong>func</strong> = &lt;function _resolve_against_spec_dir at 0x7f9b4422d940&gt;</p></li>
 </ul>
 </dd>
 </dl>
@@ -973,6 +974,16 @@ a command string:</p>
 <dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpec.bfabric">
 <span class="sig-name descname"><span class="pre">bfabric</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#bfabric_app_runner.specs.app.app_spec.BfabricAppSpec" title="bfabric_app_runner.specs.app.app_spec.BfabricAppSpec"><span class="pre">BfabricAppSpec</span></a></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.bfabric" title="Link to this definition">#</a></dt>
 <dd><p>B-Fabric-related settings shared by all versions (see <code class="docutils literal notranslate"><span class="pre">BfabricAppSpec</span></code>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bfabric_app_runner.specs.app.app_spec.AppSpec.for_parameters">
+<span class="sig-name descname"><span class="pre">for_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_parameters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric_app_runner.specs.app.app_version.AppVersion" title="bfabric_app_runner.specs.app.app_version.AppVersion"><span class="pre">AppVersion</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.for_parameters" title="Link to this definition">#</a></dt>
+<dd><p>Returns the app version these workunit parameters select, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if there is no such version.</p>
+<p>A spec defining exactly one version needs no <code class="docutils literal notranslate"><span class="pre">application_version</span></code> parameter: a workunit without one
+resolves to that version, so an app that never had the parameter works unchanged. A parameter that <em>is</em>
+present is always taken literally – naming an undefined version gives <code class="docutils literal notranslate"><span class="pre">None</span></code> even for a
+single-version spec, rather than quietly running something else.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1254,6 +1265,7 @@ AppVersion.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec"><code class="docutils literal notranslate"><span class="pre">AppSpec</span></code></a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.available_versions"><code class="docutils literal notranslate"><span class="pre">AppSpec.available_versions</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.bfabric"><code class="docutils literal notranslate"><span class="pre">AppSpec.bfabric</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.for_parameters"><code class="docutils literal notranslate"><span class="pre">AppSpec.for_parameters()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.load_yaml"><code class="docutils literal notranslate"><span class="pre">AppSpec.load_yaml()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.model_config"><code class="docutils literal notranslate"><span class="pre">AppSpec.model_config</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bfabric_app_runner.specs.app.app_spec.AppSpec.no_duplicate_versions"><code class="docutils literal notranslate"><span class="pre">AppSpec.no_duplicate_versions()</span></code></a></li>
