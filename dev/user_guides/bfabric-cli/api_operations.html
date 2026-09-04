@@ -503,6 +503,14 @@
 <td><p>No</p></td>
 <td><p>Key-value pairs to filter results</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--json</span></code></p></td>
+<td><p>No</p></td>
+<td><p>Query as a JSON object, merged with the key-value pairs</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--json-file</span></code></p></td>
+<td><p>No</p></td>
+<td><p>Path to a file containing that JSON object</p></td>
+</tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--format</span></code></p></td>
 <td><p>No</p></td>
 <td><p>Output: <code class="docutils literal notranslate"><span class="pre">json</span></code>, <code class="docutils literal notranslate"><span class="pre">yaml</span></code>, <code class="docutils literal notranslate"><span class="pre">tsv</span></code>, <code class="docutils literal notranslate"><span class="pre">table-rich</span></code> (default: <code class="docutils literal notranslate"><span class="pre">table-rich</span></code>)</p></td>
@@ -537,6 +545,10 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">r
 <span class="c1"># Query multiple IDs</span>
 bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>id<span class="w"> </span><span class="m">2784586</span><span class="w"> </span>id<span class="w"> </span><span class="m">2784576</span>
 
+<span class="c1"># Query as JSON, from the command line or a file</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>--json<span class="w"> </span><span class="s1">'{"createdby": "pfeeder", "createdafter": "2024-05-01"}'</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>--json-file<span class="w"> </span>query.json
+
 <span class="c1"># Output formats</span>
 bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>--limit<span class="w"> </span><span class="m">10</span><span class="w"> </span>--format<span class="w"> </span>json
 bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>resource<span class="w"> </span>--limit<span class="w"> </span><span class="m">10</span><span class="w"> </span>--format<span class="w"> </span>tsv
@@ -562,8 +574,14 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class=
 
 <span class="c1"># Create a sample</span>
 bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class="w"> </span>sample<span class="w"> </span>name<span class="w"> </span><span class="s2">"My Sample"</span><span class="w"> </span>containerid<span class="w"> </span><span class="m">1234</span>
+
+<span class="c1"># Create from JSON — the only way to pass nested or non-string values</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class="w"> </span>sample<span class="w"> </span>--json<span class="w"> </span><span class="s1">'{"name": "My Sample", "containerid": 1234}'</span>
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class="w"> </span>sample<span class="w"> </span>--json-file<span class="w"> </span>sample.json
 </pre></div>
 </div>
+<p><code class="docutils literal notranslate"><span class="pre">--json</span></code> and <code class="docutils literal notranslate"><span class="pre">--json-file</span></code> work the same way for <code class="docutils literal notranslate"><span class="pre">read</span></code> and <code class="docutils literal notranslate"><span class="pre">update</span></code>. Both are merged with any
+key-value pairs given alongside them, and a key present in both is an error.</p>
 </section>
 </section>
 <section id="updating-entities">
