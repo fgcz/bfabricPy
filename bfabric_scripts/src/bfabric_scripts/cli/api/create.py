@@ -21,11 +21,9 @@ class Params(BaseModel):
     """Output format."""
 
     @field_validator("attributes")
-    def _must_not_contain_id(cls, value):
-        if value:
-            for attribute, _ in value:
-                if attribute == "id":
-                    raise ValueError("Attribute 'id' is not allowed in the attributes.")
+    def _must_not_contain_id(cls, value: Query) -> Query:
+        if "id" in value.to_dict("collect"):
+            raise ValueError("Attribute 'id' is not allowed in the attributes.")
         return value
 
 

@@ -10,12 +10,17 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+### Added
+
+- `api read`, `api create` and `api update` accept `--json` and `--json-file`, which is the only way to pass nested or non-string attribute values. Both are merged with any key-value pairs, and a key given in both is an error.
+
 ### Changed
 
 - `auth login` / `auth pat` complete a bare host with `/bfabric` for any instance, not just the four known ones, so `bfabric-cli login my-instance.example.com` works. A URL whose path is something else is now refused instead of used as given.
 
 ### Fixed
 
+- `api create` now rejects an `id` attribute as documented; the check never fired before.
 - `bfabric-cli api update` and `api delete` explain that there is no terminal to confirm on, and name `--no-confirm`, instead of failing with an `EOFError` traceback when run from a script or cron job.
 
 ## \[1.17.0\] - 2026-08-20
