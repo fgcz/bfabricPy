@@ -181,18 +181,32 @@ make the flow work remotely. See the
 [authentication guide](../user_guides/bfabric-cli/authentication.md) for the user-facing escape
 hatches.
 
-### `connect_pkce` only supports **public** clients (tentative on the 401 cause)
-`_exchange_code` sends only `client_id` + PKCE `code_verifier` at the token endpoint — **no
+### `connect_pkce` only supports **public** clients
+`connect_pkce` sends only `client_id` + PKCE `code_verifier` at the token endpoint — **no
 `client_secret`**. So it works with *public* clients (like `bfabric-cli`) but not with a
 **confidential** client that has a secret and requires client authentication.
 
-> **Observed but not fully root-caused:** a freshly UI-created (confidential) client failed the
-> code→token exchange with **HTTP 401** at `/rest/oauth/token`, *after* the browser/redirect half
-> succeeded. A 401 there is consistent with `invalid_client` (confidential client needs a secret,
-> which `connect_pkce` never sends) — but it is also consistent with `unauthorized_client` (the
-> client isn't allowed the `authorization_code` grant). The discriminator is the OAuth `error` field
-> in the 401 body, which bfabricPy does not currently log. To capture it, temporarily print the
-> token-endpoint response instead of calling `raise_for_status()`.
+A confidential client is not out of reach, just not reachable through `connect_pkce`: call
+`bfabric.oauth.exchange_code(..., client_secret=...)` yourself, which authenticates with
+`client_secret_basic`. That is the path a web app takes, driving the flow around its own redirect
+with `AuthorizationRequest` and then `exchange_code`.
+
+> **Verified live (2026-09-04, production instance):** the token endpoint does accept
+> `client_secret_basic` on the `authorization_code` grant, and accepts it *without* a `client_id` in
+> the POST body. Probed with a deliberately invalid code, so client authentication was the only
+> thing under test: the right secret gives `400 invalid_grant` ("Authorization code is invalid,
+> expired, or already used"), i.e. the client was authenticated and only the code was rejected,
+> while a wrong secret gives `401 invalid_client` ("Bad client credentials"). Credentials in the
+> POST body are accepted too; `exchange_code` sends Basic because a body secret is more likely to be
+> recorded by an intermediary. A body `client_id` alongside the Basic header is accepted as well, so
+> the request body is identical for a public and a confidential client and only the header varies.
+>
+> This also root-causes the **HTTP 401** previously seen when `connect_pkce` was pointed at a
+> confidential client: `invalid_client`, because `connect_pkce` never sends a secret — not
+> `unauthorized_client`. A client registered via `auth register` does carry the `authorization_code`
+> grant. What remains untested is only the confidential happy path end to end (a real code actually
+> redeeming), whose two halves — the Basic client auth above and the code/PKCE redemption that
+> public-client `pkce_login` exercises — are each proven separately.
 
 ### Reactive-notebook caveat
 `connect_pkce` runs the full browser round-trip on **every** call — it does not load-and-skip from a

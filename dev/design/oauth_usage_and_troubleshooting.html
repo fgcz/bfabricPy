@@ -416,7 +416,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#it-is-blocking-but-can-feel-instant">It is blocking, but can feel instant</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#redirect-uri-must-match-exactly-127-0-0-1-not-localhost-and-the-right-port">Redirect URI must match exactly — <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>, not <code class="docutils literal notranslate"><span class="pre">localhost</span></code>, and the right port</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loopback-redirect-fails-on-remote-hosted-notebooks">Loopback redirect fails on remote/hosted notebooks</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-pkce-only-supports-public-clients-tentative-on-the-401-cause"><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients (tentative on the 401 cause)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-pkce-only-supports-public-clients"><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reactive-notebook-caveat">Reactive-notebook caveat</a></li>
 </ul>
 </li>
@@ -643,19 +643,31 @@ make the flow work remotely. See the
 <a class="reference internal" href="../user_guides/bfabric-cli/authentication.html"><span class="std std-doc">authentication guide</span></a> for the user-facing escape
 hatches.</p>
 </section>
-<section id="connect-pkce-only-supports-public-clients-tentative-on-the-401-cause">
-<h3><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients (tentative on the 401 cause)<a class="headerlink" href="#connect-pkce-only-supports-public-clients-tentative-on-the-401-cause" title="Link to this heading">#</a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">_exchange_code</span></code> sends only <code class="docutils literal notranslate"><span class="pre">client_id</span></code> + PKCE <code class="docutils literal notranslate"><span class="pre">code_verifier</span></code> at the token endpoint — <strong>no
+<section id="connect-pkce-only-supports-public-clients">
+<h3><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients<a class="headerlink" href="#connect-pkce-only-supports-public-clients" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> sends only <code class="docutils literal notranslate"><span class="pre">client_id</span></code> + PKCE <code class="docutils literal notranslate"><span class="pre">code_verifier</span></code> at the token endpoint — <strong>no
 <code class="docutils literal notranslate"><span class="pre">client_secret</span></code></strong>. So it works with <em>public</em> clients (like <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code>) but not with a
 <strong>confidential</strong> client that has a secret and requires client authentication.</p>
+<p>A confidential client is not out of reach, just not reachable through <code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code>: call
+<code class="docutils literal notranslate"><span class="pre">bfabric.oauth.exchange_code(...,</span> <span class="pre">client_secret=...)</span></code> yourself, which authenticates with
+<code class="docutils literal notranslate"><span class="pre">client_secret_basic</span></code>. That is the path a web app takes, driving the flow around its own redirect
+with <code class="docutils literal notranslate"><span class="pre">AuthorizationRequest</span></code> and then <code class="docutils literal notranslate"><span class="pre">exchange_code</span></code>.</p>
 <blockquote>
-<div><p><strong>Observed but not fully root-caused:</strong> a freshly UI-created (confidential) client failed the
-code→token exchange with <strong>HTTP 401</strong> at <code class="docutils literal notranslate"><span class="pre">/rest/oauth/token</span></code>, <em>after</em> the browser/redirect half
-succeeded. A 401 there is consistent with <code class="docutils literal notranslate"><span class="pre">invalid_client</span></code> (confidential client needs a secret,
-which <code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> never sends) — but it is also consistent with <code class="docutils literal notranslate"><span class="pre">unauthorized_client</span></code> (the
-client isn’t allowed the <code class="docutils literal notranslate"><span class="pre">authorization_code</span></code> grant). The discriminator is the OAuth <code class="docutils literal notranslate"><span class="pre">error</span></code> field
-in the 401 body, which bfabricPy does not currently log. To capture it, temporarily print the
-token-endpoint response instead of calling <code class="docutils literal notranslate"><span class="pre">raise_for_status()</span></code>.</p>
+<div><p><strong>Verified live (2026-09-04, production instance):</strong> the token endpoint does accept
+<code class="docutils literal notranslate"><span class="pre">client_secret_basic</span></code> on the <code class="docutils literal notranslate"><span class="pre">authorization_code</span></code> grant, and accepts it <em>without</em> a <code class="docutils literal notranslate"><span class="pre">client_id</span></code> in
+the POST body. Probed with a deliberately invalid code, so client authentication was the only
+thing under test: the right secret gives <code class="docutils literal notranslate"><span class="pre">400</span> <span class="pre">invalid_grant</span></code> (“Authorization code is invalid,
+expired, or already used”), i.e. the client was authenticated and only the code was rejected,
+while a wrong secret gives <code class="docutils literal notranslate"><span class="pre">401</span> <span class="pre">invalid_client</span></code> (“Bad client credentials”). Credentials in the
+POST body are accepted too; <code class="docutils literal notranslate"><span class="pre">exchange_code</span></code> sends Basic because a body secret is more likely to be
+recorded by an intermediary. A body <code class="docutils literal notranslate"><span class="pre">client_id</span></code> alongside the Basic header is accepted as well, so
+the request body is identical for a public and a confidential client and only the header varies.</p>
+<p>This also root-causes the <strong>HTTP 401</strong> previously seen when <code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> was pointed at a
+confidential client: <code class="docutils literal notranslate"><span class="pre">invalid_client</span></code>, because <code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> never sends a secret — not
+<code class="docutils literal notranslate"><span class="pre">unauthorized_client</span></code>. A client registered via <code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span></code> does carry the <code class="docutils literal notranslate"><span class="pre">authorization_code</span></code>
+grant. What remains untested is only the confidential happy path end to end (a real code actually
+redeeming), whose two halves — the Basic client auth above and the code/PKCE redemption that
+public-client <code class="docutils literal notranslate"><span class="pre">pkce_login</span></code> exercises — are each proven separately.</p>
 </div></blockquote>
 </section>
 <section id="reactive-notebook-caveat">
@@ -767,7 +779,7 @@ employee, else missing <code class="docutils literal notranslate"><span class="p
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#it-is-blocking-but-can-feel-instant">It is blocking, but can feel instant</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#redirect-uri-must-match-exactly-127-0-0-1-not-localhost-and-the-right-port">Redirect URI must match exactly — <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>, not <code class="docutils literal notranslate"><span class="pre">localhost</span></code>, and the right port</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loopback-redirect-fails-on-remote-hosted-notebooks">Loopback redirect fails on remote/hosted notebooks</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-pkce-only-supports-public-clients-tentative-on-the-401-cause"><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients (tentative on the 401 cause)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-pkce-only-supports-public-clients"><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#reactive-notebook-caveat">Reactive-notebook caveat</a></li>
 </ul>
 </li>

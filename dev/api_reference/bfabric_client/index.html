@@ -568,8 +568,6 @@ credential provider.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>client_id</strong> – OAuth client ID (from <code class="docutils literal notranslate"><span class="pre">register_client</span></code> or admin setup)</p></li>
-<li><p><strong>client_secret</strong> – OAuth client secret</p></li>
-<li><p><strong>scope</strong> – OAuth scope</p></li>
 <li><p><strong>token_cache_path</strong> – Optional path to cache tokens on disk (survives restarts)</p></li>
 </ul>
 </dd>
@@ -580,14 +578,9 @@ credential provider.</p>
 <dt class="sig sig-object py" id="bfabric.Bfabric.connect_pkce">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">connect_pkce</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_browser</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">120.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_cache_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_pkce" title="Link to this definition">#</a></dt>
 <dd><p>Returns a new Bfabric instance after interactive browser-based PKCE login.</p>
-<p>Opens the user’s browser to the B-Fabric authorization page.  After
-the user logs in, tokens are exchanged automatically and the returned
-client uses <code class="xref py py-class docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> for transparent refresh.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>client_id</strong> – OAuth client ID</p></li>
-<li><p><strong>scope</strong> – OAuth scope</p></li>
 <li><p><strong>port</strong> – Local port for the callback server (<code class="docutils literal notranslate"><span class="pre">0</span></code> = auto-assign)</p></li>
 <li><p><strong>open_browser</strong> – Whether to open the authorization URL in the browser</p></li>
 <li><p><strong>timeout</strong> – Seconds to wait for the user to complete login</p></li>
@@ -601,17 +594,11 @@ client uses <code class="xref py py-class docutils literal notranslate"><span cl
 <dt class="sig sig-object py" id="bfabric.Bfabric.connect_device_code">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">Bfabric.</span></span><span class="sig-name descname"><span class="pre">connect_device_code</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scope</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">600.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token_cache_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#bfabric.Bfabric" title="bfabric.bfabric.Bfabric"><span class="pre">Bfabric</span></a></span></span><a class="headerlink" href="#bfabric.Bfabric.connect_device_code" title="Link to this definition">#</a></dt>
 <dd><p>Returns a new Bfabric instance after device code authorization (RFC 8628).</p>
-<p>Displays a user code and verification URI on stderr.  The user
-visits the URI, enters the code, and authorizes the device.  The
-returned client uses <code class="xref py py-class docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> for transparent
-token refresh.</p>
-<p>This flow is suitable for headless environments (SSH, containers)
-where a localhost redirect is not feasible.</p>
+<p>Displays a user code and verification URI on stderr, so it suits headless environments
+(SSH, containers) where the localhost redirect of <a class="reference internal" href="#bfabric.Bfabric.connect_pkce" title="bfabric.Bfabric.connect_pkce"><code class="xref py py-meth docutils literal notranslate"><span class="pre">connect_pkce()</span></code></a> is not reachable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>client_id</strong> – OAuth client ID</p></li>
-<li><p><strong>scope</strong> – OAuth scope</p></li>
 <li><p><strong>timeout</strong> – Seconds to wait for the user to authorize</p></li>
 <li><p><strong>token_cache_path</strong> – Optional path to cache tokens on disk (survives restarts)</p></li>
 </ul>
