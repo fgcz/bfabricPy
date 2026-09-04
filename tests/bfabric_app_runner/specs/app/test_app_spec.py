@@ -41,6 +41,29 @@ class TestVersions:
         assert "Duplicate versions found" in str(e.value)
 
 
+class TestForParameters:
+    @pytest.fixture()
+    def single(self, parsed) -> AppSpec:
+        return AppSpec(bfabric=parsed.bfabric, versions=[parsed["0.1.0"]])
+
+    def test_selects_the_requested_version(self, parsed):
+        assert parsed.for_parameters({"application_version": "0.1.0"}) is parsed["0.1.0"]
+
+    def test_returns_none_for_an_unknown_version(self, parsed):
+        assert parsed.for_parameters({"application_version": "9.9.9"}) is None
+
+    @pytest.mark.parametrize("raw_parameters", [{}, {"application_version": None}])
+    def test_returns_none_without_a_version_when_several_are_defined(self, parsed, raw_parameters):
+        assert parsed.for_parameters(raw_parameters) is None
+
+    @pytest.mark.parametrize("raw_parameters", [{}, {"application_version": None}])
+    def test_falls_back_to_the_only_version(self, single, raw_parameters):
+        assert single.for_parameters(raw_parameters) is single["0.1.0"]
+
+    def test_does_not_fall_back_when_a_different_version_is_requested(self, single):
+        assert single.for_parameters({"application_version": "9.9.9"}) is None
+
+
 class TestBfabricAppSpec:
     @staticmethod
     def test_app_runner_version(parsed):
