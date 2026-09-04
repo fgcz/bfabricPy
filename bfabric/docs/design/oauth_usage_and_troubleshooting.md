@@ -198,7 +198,8 @@ with `AuthorizationRequest` and then `exchange_code`.
 > expired, or already used"), i.e. the client was authenticated and only the code was rejected,
 > while a wrong secret gives `401 invalid_client` ("Bad client credentials"). Credentials in the
 > POST body are accepted too; `exchange_code` sends Basic because a body secret is more likely to be
-> recorded by an intermediary.
+> recorded by an intermediary. A body `client_id` alongside the Basic header is accepted as well, so
+> the request body is identical for a public and a confidential client and only the header varies.
 >
 > This also root-causes the **HTTP 401** previously seen when `connect_pkce` was pointed at a
 > confidential client: `invalid_client`, because `connect_pkce` never sends a secret — not

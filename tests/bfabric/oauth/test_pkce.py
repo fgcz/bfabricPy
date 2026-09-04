@@ -191,11 +191,15 @@ class TestExchangeCode:
         self.exchange(client_secret="s3cret")
         assert mock_post.call_args.kwargs["auth"] == ("my-client", "s3cret")
 
-    def test_confidential_client_omits_client_id_from_the_body(self, mock_post):
-        # RFC 6749 Section 2.3 allows one authentication method per request, and the Basic header
-        # is already it; a strict server rejects the second one with an ambiguous 401.
+    def test_body_does_not_depend_on_client_authentication(self, mock_post):
+        # B-Fabric accepts the body `client_id` alongside the Basic header (probed against a live
+        # instance), so only `auth` varies with the secret and the body stays branch-free.
+        self.exchange()
+        public_body = mock_post.call_args.kwargs["data"]
+        mock_post.reset_mock()
+
         self.exchange(client_secret="s3cret")
-        assert "client_id" not in mock_post.call_args.kwargs["data"]
+        assert mock_post.call_args.kwargs["data"] == public_body
 
     def test_secret_is_not_placed_in_the_body(self, mock_post):
         # client_secret_basic, not client_secret_post: in the body an intermediary that records
