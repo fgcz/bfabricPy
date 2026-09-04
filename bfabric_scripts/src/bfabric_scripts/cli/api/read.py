@@ -8,14 +8,10 @@ from pydantic import BaseModel
 from rich.console import Console
 
 from bfabric import Bfabric
-from bfabric.typing import ApiResponseObjectType
+from bfabric.results.result_container import ResultContainer
 from bfabric.utils.cli_integration import use_client
 from bfabric_scripts.cli.api.output_format import OutputFormat, render_output
 from bfabric_scripts.cli.api.query_repr import Query
-
-# Re-export so that existing callers (e.g. tests) can still do:
-#   from bfabric_scripts.cli.api.read import OutputFormat, render_output
-__all__ = ["OutputFormat", "render_output"]
 
 
 class Params(BaseModel):
@@ -42,11 +38,13 @@ class Params(BaseModel):
         return value[0].split(",") if (len(value) == 1 and "," in value[0]) else value
 
 
-def perform_query(params: Params, client: Bfabric) -> list[ApiResponseObjectType]:
+def perform_query(params: Params, client: Bfabric) -> ResultContainer:
     """Performs the query and returns the results."""
     query = params.query.to_dict(duplicates="collect")
     query_stmt = f"client.read(endpoint={params.endpoint!r}, obj={query!r}, max_results={params.limit!r}, return_id_only={params.return_id_only!r})"
-    results = eval(query_stmt)
+    results = client.read(
+        endpoint=params.endpoint, obj=query, max_results=params.limit, return_id_only=params.return_id_only
+    )
 
     # Log query and results meta information
     python_code = (
