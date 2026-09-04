@@ -36,6 +36,9 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 - The SUDS WSDL URL, and the `show.html` links printed by `bfabric_read` and `bfabric-cli api read`, no longer contain a doubled slash.
 - Parsing an environment whose secret is already a `SecretStr` keeps the secret instead of replacing it with the masked `**********`.
+- `Bfabric.config_data` no longer drops `auth_method`, `client_id` and `env_name`, which silently degraded an OAuth client's config to no-auth when it was round-tripped (for example through `BFABRICPY_CONFIG_OVERRIDE`).
+- The config file is written atomically, so an interrupted write can no longer truncate it. Note the inode changes, which matters when the file itself rather than its directory is bind-mounted.
+- `ConfigFile.model_validate` no longer mutates the mapping passed to it; it was inserting an `environments` key that callers then persisted to YAML.
 
 ### Removed
 
@@ -70,10 +73,6 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - **Breaking:** the `engine` parameter of `Bfabric.from_config` (which never applied it) and of `BfabricClientConfig.copy_with`.
 
 ### Fixed
-
-- `Bfabric.config_data` no longer drops `auth_method`, `client_id` and `env_name`, which silently degraded an OAuth client's config to no-auth when it was round-tripped (for example through `BFABRICPY_CONFIG_OVERRIDE`).
-- The config file is written atomically, so an interrupted write can no longer truncate it. Note the inode changes, which matters when the file itself rather than its directory is bind-mounted.
-- `ConfigFile.model_validate` no longer mutates the mapping passed to it; it was inserting an `environments` key that callers then persisted to YAML.
 
 - An unreachable B-Fabric instance raises `BfabricUnavailableError` (a `BfabricRequestError`) naming the instance and the transport failure, instead of leaking `suds.transport.TransportError`, `urllib.error.URLError` or `httpx.TransportError`. Covers the SOAP engine and the OAuth/REST calls (JWKS, device code, registration, token exchange, introspection, PKCE).
 - `ResultContainer.assert_success` raises `BfabricRequestError` instead of a bare `RuntimeError`; it remains a `RuntimeError` subclass, so existing `except RuntimeError` handlers keep working.
