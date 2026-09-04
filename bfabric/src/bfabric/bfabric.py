@@ -114,6 +114,7 @@ class Bfabric:
         Loads tokens from the disk cache keyed on ``base_url`` + ``client_id`` + ``env_name``.
         """
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
         from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
 
         base_url = config_data.client.base_url
@@ -137,7 +138,7 @@ class Bfabric:
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret="",
-            token_url=f"{base_url}/rest/oauth/token",
+            token_url=token_url(base_url),
             scope="",
             grant_type="refresh_token",
             token_cache_path=cache_path,
@@ -240,18 +241,16 @@ class Bfabric:
         credential provider.
 
         :param client_id: OAuth client ID (from ``register_client`` or admin setup)
-        :param client_secret: OAuth client secret
-        :param scope: OAuth scope
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
 
         base_url = BaseUrl(base_url)
-        token_url = f"{base_url}/rest/oauth/token"
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret=client_secret,
-            token_url=token_url,
+            token_url=token_url(base_url),
             scope=scope,
             grant_type="client_credentials",
             token_cache_path=token_cache_path,
@@ -273,18 +272,11 @@ class Bfabric:
     ) -> Bfabric:
         """Returns a new Bfabric instance after interactive browser-based PKCE login.
 
-        Opens the user's browser to the B-Fabric authorization page.  After
-        the user logs in, tokens are exchanged automatically and the returned
-        client uses :class:`OAuthCredentialProvider` for transparent refresh.
-
-        :param client_id: OAuth client ID
-        :param scope: OAuth scope
         :param port: Local port for the callback server (``0`` = auto-assign)
         :param open_browser: Whether to open the authorization URL in the browser
         :param timeout: Seconds to wait for the user to complete login
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric.oauth._credential_provider import OAuthCredentialProvider
         from bfabric.oauth._pkce import pkce_login
 
         base_url = BaseUrl(base_url)
@@ -296,18 +288,9 @@ class Bfabric:
             open_browser=open_browser,
             timeout=timeout,
         )
-        token_url = f"{base_url}/rest/oauth/token"
-        provider = OAuthCredentialProvider(
-            client_id=client_id,
-            client_secret="",
-            token_url=token_url,
-            token=token,
-            grant_type="refresh_token",
-            scope=scope,
-            token_cache_path=token_cache_path,
+        return cls._connect_refreshing(
+            base_url, client_id=client_id, scope=scope, token=token, token_cache_path=token_cache_path
         )
-        config_data = ConfigData(client=BfabricClientConfig(base_url=base_url), auth=None)
-        return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
     def connect_device_code(
@@ -321,34 +304,38 @@ class Bfabric:
     ) -> Bfabric:
         """Returns a new Bfabric instance after device code authorization (RFC 8628).
 
-        Displays a user code and verification URI on stderr.  The user
-        visits the URI, enters the code, and authorizes the device.  The
-        returned client uses :class:`OAuthCredentialProvider` for transparent
-        token refresh.
+        Displays a user code and verification URI on stderr, so it suits headless environments
+        (SSH, containers) where the localhost redirect of :meth:`connect_pkce` is not reachable.
 
-        This flow is suitable for headless environments (SSH, containers)
-        where a localhost redirect is not feasible.
-
-        :param client_id: OAuth client ID
-        :param scope: OAuth scope
         :param timeout: Seconds to wait for the user to authorize
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric.oauth._credential_provider import OAuthCredentialProvider
         from bfabric.oauth._device_code import device_code_login
 
         base_url = BaseUrl(base_url)
-        token = device_code_login(
-            base_url,
-            client_id=client_id,
-            scope=scope,
-            timeout=timeout,
+        token = device_code_login(base_url, client_id=client_id, scope=scope, timeout=timeout)
+        return cls._connect_refreshing(
+            base_url, client_id=client_id, scope=scope, token=token, token_cache_path=token_cache_path
         )
-        token_url = f"{base_url}/rest/oauth/token"
+
+    @classmethod
+    def _connect_refreshing(
+        cls,
+        base_url: BaseUrl,
+        *,
+        client_id: str,
+        scope: str,
+        token: dict[str, object],
+        token_cache_path: Path | None,
+    ) -> Bfabric:
+        """Wrap an interactive login's token in a public client that refreshes it."""
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
+
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret="",
-            token_url=token_url,
+            token_url=token_url(base_url),
             token=token,
             grant_type="refresh_token",
             scope=scope,
