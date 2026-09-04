@@ -15,17 +15,17 @@ Complete reference for the `TokenData` class.
 
 ## Properties
 
-| Property | Type | Description |
+| Property           | Type     | Description                              |
 | ------------------ | -------- | ---------------------------------------- |
-| `user` | str | B-Fabric user login |
-| `user_ws_password` | str | Web service password for the user |
-| `application_id` | int | Application ID |
-| `entity_class` | str | Entity class name |
-| `entity_id` | int | Entity ID |
-| `job_id` | int | External job ID |
-| `caller` | str | B-Fabric instance URL |
-| `token_expires` | datetime | Token expiration time |
-| `web_service_user` | bool | Whether user has web service permissions |
+| `user`             | str      | B-Fabric user login                      |
+| `user_ws_password` | str      | Web service password for the user        |
+| `application_id`   | int      | Application ID                           |
+| `entity_class`     | str      | Entity class name                        |
+| `entity_id`        | int      | Entity ID                                |
+| `job_id`           | int      | External job ID                          |
+| `caller`           | str      | B-Fabric instance URL                    |
+| `token_expires`    | datetime | Token expiration time                    |
+| `web_service_user` | bool     | Whether user has web service permissions |
 
 ## Quick Examples
 

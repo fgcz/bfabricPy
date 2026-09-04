@@ -52,7 +52,7 @@ Please note:
 - The workunit reference (an integer workunit ID or a path to a workunit definition YAML file) must
   be specified, so the correct information can be retrieved.
 - Several actions might require a particular user to be possible, e.g. the `bfabric_copy_resource` will require a user
-    with permission to create the particular file over SSH.
+  with permission to create the particular file over SSH.
 
 ## Reference
 

@@ -184,14 +184,14 @@ Still stuck?
 
 ## Common Mistakes
 
-| Mistake | Symptom | Fix |
-|----------|-----------|-----|
-| Using login password instead of web service password | "Invalid login or password" | Use web service password from B-Fabric profile |
-| Config file in wrong location | "Configuration file not found" | Ensure `~/.bfabricpy.yml` (not `.bfabric.yml`) |
-| Wrong environment variable | Querying wrong instance | Check `BFABRICPY_CONFIG_ENV` value |
-| Missing default_config | "No default_config found" | Add `default_config` field under `GENERAL` section |
-| `base_url` without the `/bfabric` path | "is not a B-Fabric instance URL" | Use the URL the error suggests |
-| Typos in filter names | No results or errors | Use `bfabric-cli api inspect` to check valid parameter names |
+| Mistake                                              | Symptom                          | Fix                                                          |
+| ---------------------------------------------------- | -------------------------------- | ------------------------------------------------------------ |
+| Using login password instead of web service password | "Invalid login or password"      | Use web service password from B-Fabric profile               |
+| Config file in wrong location                        | "Configuration file not found"   | Ensure `~/.bfabricpy.yml` (not `.bfabric.yml`)               |
+| Wrong environment variable                           | Querying wrong instance          | Check `BFABRICPY_CONFIG_ENV` value                           |
+| Missing default_config                               | "No default_config found"        | Add `default_config` field under `GENERAL` section           |
+| `base_url` without the `/bfabric` path               | "is not a B-Fabric instance URL" | Use the URL the error suggests                               |
+| Typos in filter names                                | No results or errors             | Use `bfabric-cli api inspect` to check valid parameter names |
 
 ## Next Steps
 

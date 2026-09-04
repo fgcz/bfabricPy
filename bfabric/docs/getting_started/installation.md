@@ -7,7 +7,7 @@ bfabricPy consists of two main packages:
 
 Choose your installation method based on how you plan to use bfabricPy.
 
-______________________________________________________________________
+---
 
 ## Installing the Core Library (`bfabric`)
 
@@ -49,7 +49,7 @@ pip install bfabric
 uv pip install bfabric
 ```
 
-______________________________________________________________________
+---
 
 ## Installing Command-Line Tools (`bfabric-scripts`)
 
@@ -76,28 +76,28 @@ uv tool upgrade bfabric-scripts
 
 This makes `bfabric-cli` available system-wide and simplifies upgrades.
 
-______________________________________________________________________
+---
 
 ## Which Should You Install?
 
 bfabricPy provides two components that are installed separately:
 
-| Component | Type | Install Method | Best For |
-|-----------|------|----------------|-----------|
-| **bfabric** | Python package | `pip install bfabric` or `uv pip install bfabric` | Python projects, scripts, applications |
-| **bfabric-scripts** | CLI tool | `uv tool install bfabric-scripts` | Command-line usage, quick tasks, shell scripts |
+| Component           | Type           | Install Method                                    | Best For                                       |
+| ------------------- | -------------- | ------------------------------------------------- | ---------------------------------------------- |
+| **bfabric**         | Python package | `pip install bfabric` or `uv pip install bfabric` | Python projects, scripts, applications         |
+| **bfabric-scripts** | CLI tool       | `uv tool install bfabric-scripts`                 | Command-line usage, quick tasks, shell scripts |
 
 **Install both if:** You plan to use both Python programming and command-line tools.
 
 **Note:** `bfabric` is a Python package dependency. `bfabric-scripts` is a CLI tool installed separately using `uv tool`.
 
-______________________________________________________________________
+---
 
 ## Development Installation
 
 For contributing to bfabricPy, see the [Contributing Guide](https://github.com/fgcz/bfabricPy/blob/main/CONTRIBUTING.md).
 
-______________________________________________________________________
+---
 
 ## Verifying Installation
 
@@ -118,7 +118,7 @@ bfabric-cli --help
 
 This should display the CLI version and available commands.
 
-______________________________________________________________________
+---
 
 ## About bfabric-cli
 
@@ -132,7 +132,7 @@ ______________________________________________________________________
 
 For comprehensive `bfabric-cli` documentation, see the [bfabric-cli User Guide](../user_guides/bfabric-cli/index).
 
-______________________________________________________________________
+---
 
 ## System Requirements
 
@@ -141,7 +141,7 @@ ______________________________________________________________________
 
 The `bfabric` package and `bfabric-scripts` share the same Python version requirements.
 
-______________________________________________________________________
+---
 
 ## Next Steps
 
@@ -152,7 +152,7 @@ After installing the packages:
    - For Python usage: [Quick Start Tutorial](quick_start)
    - For CLI usage: [bfabric-cli User Guide](../user_guides/bfabric-cli/index)
 
-______________________________________________________________________
+---
 
 ## Related Documentation
 

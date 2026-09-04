@@ -12,13 +12,13 @@ Use the CLI when you need quick one-off operations, want to test API calls, or p
 bfabric-cli api --help
 ```
 
-| Subcommand | Purpose |
+| Subcommand | Purpose                     |
 | ---------- | --------------------------- |
-| `create` | Create new entities |
-| `read` | Query and retrieve entities |
-| `update` | Modify existing entities |
-| `delete` | Remove entities |
-| `inspect` | Inspect SOAP API structure |
+| `create`   | Create new entities         |
+| `read`     | Query and retrieve entities |
+| `update`   | Modify existing entities    |
+| `delete`   | Remove entities             |
+| `inspect`  | Inspect SOAP API structure  |
 
 ## Reading Entities
 
@@ -30,16 +30,16 @@ bfabric-cli api read [ENDPOINT] [QUERY] [OPTIONS]
 
 ### Parameters
 
-| Parameter | Required | Description |
-| ----------- | -------- | ------------------------------------------------------------------- |
-| `endpoint` | Yes | Entity type (e.g., `resource`, `sample`, `workunit`, `dataset`) |
-| `query` | No | Key-value pairs to filter results |
-| `--json` | No | Query as a JSON object, merged with the key-value pairs |
-| `--json-file` | No | Path to a file containing that JSON object |
-| `--format` | No | Output: `json`, `yaml`, `tsv`, `table-rich` (default: `table-rich`) |
-| `--limit` | No | Maximum results (default: 100) |
-| `--columns` | No | Comma-separated columns to display |
-| `--file` | No | Write output to file |
+| Parameter     | Required | Description                                                         |
+| ------------- | -------- | ------------------------------------------------------------------- |
+| `endpoint`    | Yes      | Entity type (e.g., `resource`, `sample`, `workunit`, `dataset`)     |
+| `query`       | No       | Key-value pairs to filter results                                   |
+| `--json`      | No       | Query as a JSON object, merged with the key-value pairs             |
+| `--json-file` | No       | Path to a file containing that JSON object                          |
+| `--format`    | No       | Output: `json`, `yaml`, `tsv`, `table-rich` (default: `table-rich`) |
+| `--limit`     | No       | Maximum results (default: 100)                                      |
+| `--columns`   | No       | Comma-separated columns to display                                  |
+| `--file`      | No       | Write output to file                                                |
 
 ### Examples
 
@@ -146,17 +146,17 @@ bfabric-cli api inspect [ENDPOINT] [METHOD]
 
 ## Common Entity Types
 
-| Endpoint | Description |
+| Endpoint         | Description             |
 | ---------------- | ----------------------- |
-| `resource` | File resources |
-| `sample` | Samples |
-| `workunit` | Workunits/jobs |
-| `dataset` | Datasets |
-| `project` | Projects |
-| `container` | Containers |
-| `application` | Applications |
-| `executable` | Application executables |
-| `importresource` | Import resources |
+| `resource`       | File resources          |
+| `sample`         | Samples                 |
+| `workunit`       | Workunits/jobs          |
+| `dataset`        | Datasets                |
+| `project`        | Projects                |
+| `container`      | Containers              |
+| `application`    | Applications            |
+| `executable`     | Application executables |
+| `importresource` | Import resources        |
 
 ## Tips
 

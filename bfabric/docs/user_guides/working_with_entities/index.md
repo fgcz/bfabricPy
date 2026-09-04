@@ -10,15 +10,15 @@ bfabricPy provides typed entity classes with type-specific features like Dataset
 
 For complete API documentation, see [API Reference: Entity Types](../../api_reference/entity_types/index.md).
 
-| Entity | Special Features |
-| ------- | ---------------- |
-| **Dataset** | DataFrame conversion, CSV/Parquet export |
-| **Workunit** | Parameter access, output folder calculation |
-| **Resource** | Path methods, storage access |
-| **Application** | Technology folder name |
-| **Executable** | Base64 decoding |
-| **Parameter** | Key-value access |
-| **User** | Login-based lookup |
+| Entity          | Special Features                            |
+| --------------- | ------------------------------------------- |
+| **Dataset**     | DataFrame conversion, CSV/Parquet export    |
+| **Workunit**    | Parameter access, output folder calculation |
+| **Resource**    | Path methods, storage access                |
+| **Application** | Technology folder name                      |
+| **Executable**  | Base64 decoding                             |
+| **Parameter**   | Key-value access                            |
+| **User**        | Login-based lookup                          |
 
 ## Datasets
 

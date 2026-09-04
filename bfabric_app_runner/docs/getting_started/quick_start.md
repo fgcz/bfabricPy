@@ -8,7 +8,6 @@ This tutorial walks through running a B-Fabric application workunit using bfabri
 2. **B-Fabric credentials configured**: `~/.bfabricpy.yml` must contain valid credentials
 3. **A workunit to process**: You need a workunit ID from B-Fabric
 
-
 ## Makefile Workflow (Interactive)
 
 The Makefile workflow is the recommended approach for development and debugging. It breaks execution into discrete steps that you can run, inspect, and re-run individually.
@@ -70,7 +69,6 @@ make stage
 
 Uploads results back to B-Fabric.
 
-
 ## Run Workunit (Unattended)
 
 For automated execution (e.g., from a Slurm script), use `run workunit` to execute all stages in sequence:
@@ -80,7 +78,6 @@ bfabric-app-runner run workunit <app_definition> <scratch_root> <workunit_ref>
 ```
 
 This runs dispatch, inputs, process, and outputs in a single invocation.
-
 
 ## Running Individual Actions
 
@@ -104,7 +101,6 @@ bfabric-app-runner action run-all --config app_env.yml
 
 Instead of `--config` you can pass the parameters explicitly, e.g.
 `action dispatch --work-dir ./work --app-ref app.yml --workunit-ref 12345`.
-
 
 ## Troubleshooting
 
@@ -145,7 +141,6 @@ For significant changes, use a development version of the app:
 ```bash
 bfabric-app-runner prepare workunit /path/to/app.yml ./work 12345 --force-app-version devel
 ```
-
 
 ## Next Steps
 

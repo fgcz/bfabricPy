@@ -8,7 +8,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - `Y` is increased for feature releases, that should not break the API
 - `Z` is increased for bug-fix releases
 
-## \[Unreleased\]
+## [Unreleased]
 
 ### Added
 
@@ -23,7 +23,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - `api create` now rejects an `id` attribute as documented; the check never fired before.
 - `bfabric-cli api update` and `api delete` explain that there is no terminal to confirm on, and name `--no-confirm`, instead of failing with an `EOFError` traceback when run from a script or cron job.
 
-## \[1.17.0\] - 2026-08-20
+## [1.17.0] - 2026-08-20
 
 ### Added
 
@@ -50,7 +50,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - `auth register` no longer prompts for an *Employee Bearer token* when a login exists; it authenticates as the environment in effect.
 - `auth register` canonicalises its `base_url` argument like the other `auth` commands, so a bare host or a trailing slash works and a non-HTTP URL is rejected with a plain message.
 
-## \[1.16.0\] - 2026-08-03
+## [1.16.0] - 2026-08-03
 
 - `bfabric-cli auth` — OAuth authentication & client management. Login: `login` (browser), `device-code` (headless), `pat`; client registration: `register` / `register-webapp`; environment management: `default`, `list`, `status`, `logout`. Scope presets (`read-only` / `read-write` / `upload`) or a raw scope, via an interactive picker when `--scope` is omitted in a terminal; no baked-in default scope, so a headless run must pass `--scope` (registration keeps the OIDC-inclusive default webapps need). When `--config-env` is omitted it prompts for the environment (else targets the current default / `PRODUCTION`); unless `--set-default` / `--no-set-default` is given it asks (default yes) whether to make the env the default, and cancelling that prompt aborts the login. `status` reports an OAuth env's cached-token freshness and granted scope (annotated with the matching preset); `logout` removes an env's config entry and cached tokens (confirmation required). PATs are stored under a `pat` key (`auth_method: pat`), keeping the config parseable by ≤1.19.0 clients.
 - `bfabric-cli workunit upload FILES...` — upload files/directories to a workunit over tus (resumable, large-file capable): new or `--workunit-id`, one resource per file, skips duplicates (`--force`), live progress (`--no-progress`), optional `--track-job`. Requires an OAuth client with the `tus` scope.
@@ -59,7 +59,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - `bfabric-cli dataset update` — update an existing dataset with a change preview before confirming (`csv`/`tsv`/`xlsx`/`parquet`).
 - Internal: `dataset upload` / `bfabric_save_csv2dataset.py` use `bfabric.operations.dataset.create_dataset`; API error handling centralized in `@use_client` (dropped `@logger.catch`); `--config-env` naming unified; `lxml` now an explicit dep (was transitive via optional `zeep`); requires `bfabric[transfer]>=1.20`; adds `questionary`-based `cli.interactive` helpers and `config_writer.remove_environment_from_config`.
 
-## \[1.15.0\] - 2026-04-20
+## [1.15.0] - 2026-04-20
 
 ### Added
 
@@ -75,7 +75,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - `PathConventionMS` now handles instruments with a number in the name before the underscore character.
 
-## \[1.14.0\] - 2026-03-12
+## [1.14.0] - 2026-03-12
 
 ### Added
 
@@ -85,19 +85,19 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - `bfabric-cli api read` and `bfabric-cli executable upload` diagnostic/informational output is now routed through loguru, so it can be silenced via `BFABRICPY_LOG_LEVEL=OFF` (or `WARNING`/`ERROR`/`CRITICAL`).
 
-## \[1.13.40\] - 2025-12-16
+## [1.13.40] - 2025-12-16
 
 ### Added
 
 - `bfabric-cli api inspect` to inspect various API endpoints directly from the command line.
 
-## \[1.13.39\] - 2025-12-03
+## [1.13.39] - 2025-12-03
 
 ### Fixed
 
 - Fix bfabric_read_samples_of_workunit.py returns the same column name `groupingvar_name` as in the past.
 
-## \[1.13.38\] - 2025-12-03
+## [1.13.38] - 2025-12-03
 
 ### Changed
 
@@ -109,7 +109,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - Fix bfabric_read_samples_of_workunit.py ordering.
 
-## \[1.13.37\] - 2025-10-27
+## [1.13.37] - 2025-10-27
 
 ### Changed
 
@@ -118,7 +118,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - Update `bfabric` to `1.13.36`.
 - Update `cyclopts` to `4.*`
 
-## \[1.13.36\] - 2025-10-13
+## [1.13.36] - 2025-10-13
 
 ### Removed
 
@@ -133,13 +133,13 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - `bfabric_flask.py` didn't log exceptions properly because it passed the wrong argument `exc_info` instead of `exception`.
 - Legacy: `bfabric_save_workflowstep.py` reads config from `~/slurmworker/config/legacy_template_steps.yml`. Not relevant for bfabric-app-runner apps.
 
-## \[1.13.35\] - 2025-09-25
+## [1.13.35] - 2025-09-25
 
 ### Changed
 
 - `bfabric_list_not_existing_storage_directories.py` is made more robust. Instead of the file based cache, it will check all containers modified within a sliding time window (default 14 days).
 
-## \[1.13.34\] - 2025-09-22
+## [1.13.34] - 2025-09-22
 
 ### Fixed
 
@@ -149,13 +149,13 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - Update `bfabric` to include case-insensitive dataset column type detection support.
 
-## \[1.13.33\] - 2025-08-26
+## [1.13.33] - 2025-08-26
 
 ### Changed
 
 - Update `bfabric` to 1.13.32.
 
-## \[1.13.32\] - 2025-08-20
+## [1.13.32] - 2025-08-20
 
 ### Fixed
 
@@ -165,7 +165,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - Update `bfabric` to 1.13.31.
 
-## \[1.13.31\] - 2025-08-19
+## [1.13.31] - 2025-08-19
 
 ### Fixed
 
@@ -175,7 +175,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - Update `bfabric` to 1.13.30. This includes a fix for legacy wrapper creator.
 
-## \[1.13.30\] - 2025-07-04
+## [1.13.30] - 2025-07-04
 
 ### Added
 
@@ -185,7 +185,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - `bfabric_flask.py` is not exported as a script anymore, because misuse can lead to security issues and should be deployed properly.
 
-## \[1.13.29\] - 2025-06-27
+## [1.13.29] - 2025-06-27
 
 ### Removed
 
@@ -204,11 +204,11 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 ### Changed
 
 - Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
-    when saving to B-Fabric.
+  when saving to B-Fabric.
 - Update `bfabric` to 1.13.28.
 - Update legacy `bfabric_logthis.py`, the workunit target logic has been removed (unused).
 
-## \[1.13.28\] - 2025-05-21
+## [1.13.28] - 2025-05-21
 
 ### Removed
 
@@ -220,18 +220,18 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - Update `bfabric` to 1.13.27.
 - `bfabric-cli api delete` will use the type of the entity in CLI messages.
 
-## \[1.13.27\] - 2025-04-22
+## [1.13.27] - 2025-04-22
 
 ### Changed
 
 - `bfabric-cli dataset upload` will print warnings when trailing whitespace is detected and not print the whole
-    response anymore, but rather the important information only.
+  response anymore, but rather the important information only.
 
 ### Added
 
 - Optional support for uploading xlsx (currently behind `excel` optional feature).
 
-## \[1.13.26\] - 2025-04-08
+## [1.13.26] - 2025-04-08
 
 ### Changed
 
@@ -245,19 +245,19 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 - Use most recent cyclopts version again, i.e. [issue 168](https://github.com/fgcz/bfabricPy/issues/168) is fixed.
 
-## \[1.13.25\] - 2025-03-27
+## [1.13.25] - 2025-03-27
 
 ### Fixed
 
 - Temporary workaround for https://github.com/fgcz/bfabricPy/issues/168.
 
-## \[1.13.24\] - 2025-02-19
+## [1.13.24] - 2025-02-19
 
 ### Fixed
 
 - Update `bfabric` to 1.13.22 for dataset fix.
 
-## \[1.13.23\] - 2025-02-19
+## [1.13.23] - 2025-02-19
 
 ### Added
 
@@ -266,37 +266,37 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - `bfabric-cli api create` command to create a new entity
 - `bfabric-cli api delete` command to delete an existing entity
 
-## \[1.13.22\] - 2025-02-17
+## [1.13.22] - 2025-02-17
 
 ### Fixed
 
 - Fix printing of YAML for parsing with shyaml, previously line breaks could have been introduced.
 
-## \[1.13.21\] - 2025-02-11
+## [1.13.21] - 2025-02-11
 
 ### Fixed
 
 - Add missing default value for columns in `bfabric-cli api read`
 
-## \[1.13.20\] - 2025-02-10
+## [1.13.20] - 2025-02-10
 
 ### Added
 
 - `bfabric-cli workunit not-available`:
-    - allows sorting by arbitrary fields, e.g. application id
-    - allows filtering inclusive or exclusive by user
+  - allows sorting by arbitrary fields, e.g. application id
+  - allows filtering inclusive or exclusive by user
 
 ### Changed
 
 - Pin bfabricPy version to avoid future headaches.
 - `bfabric-cli api read`
-    - Removes the automatic output type logic
-    - Multiple values can be submitted for the same key (just specify it multiple times)
-    - The actual query will be printed as a line of bfabricPy code
-    - `--file` parameter to write the output to a specific file
-    - Argument parsing is handled with pydantic now
-    - Added tsv support
+  - Removes the automatic output type logic
+  - Multiple values can be submitted for the same key (just specify it multiple times)
+  - The actual query will be printed as a line of bfabricPy code
+  - `--file` parameter to write the output to a specific file
+  - Argument parsing is handled with pydantic now
+  - Added tsv support
 
-## \[1.13.19\] - 2025-01-29
+## [1.13.19] - 2025-01-29
 
 Initial release of standalone bfabric_scripts package.

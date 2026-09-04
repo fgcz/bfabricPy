@@ -43,11 +43,11 @@ prod-rw   oauth · api:write · present, expires in ~7h  (active via BFABRICPY_C
 
 A scope is the set of permissions the token carries. Pass a preset or a raw scope string:
 
-| Preset | Scope | For |
-| ------------ | --------------- | -------------------------------------------- |
-| `read-only` | `api:read` | reading data |
-| `read-write` | `api:write` | creating and updating (includes reading) |
-| `upload` | `api:write tus` | uploading files (includes read and write) |
+| Preset       | Scope           | For                                       |
+| ------------ | --------------- | ----------------------------------------- |
+| `read-only`  | `api:read`      | reading data                              |
+| `read-write` | `api:write`     | creating and updating (includes reading)  |
+| `upload`     | `api:write tus` | uploading files (includes read and write) |
 
 ```bash
 bfabric-cli auth login --scope upload
@@ -71,12 +71,12 @@ bfabric-cli login --config-env test-rw
 The CLI knows these instances, so a bare host expands to the full URL and the environment name is
 suggested for you:
 
-| Name | URL |
-| ----------- | ------------------------------------------- |
-| `fgcz-prod` | `https://fgcz-bfabric.uzh.ch/bfabric` |
+| Name        | URL                                        |
+| ----------- | ------------------------------------------ |
+| `fgcz-prod` | `https://fgcz-bfabric.uzh.ch/bfabric`      |
 | `fgcz-test` | `https://fgcz-bfabric-test.uzh.ch/bfabric` |
 | `fgcz-demo` | `https://fgcz-bfabric-demo.uzh.ch/bfabric` |
-| `trace` | `https://trace.fgcz.uzh.ch/bfabric` |
+| `trace`     | `https://trace.fgcz.uzh.ch/bfabric`        |
 
 Any other URL works too — the list is a convenience, not a restriction.
 

@@ -80,7 +80,7 @@ When multiple versions share a definition, the following template variables are 
 
 `${app.dir}`
 : The directory containing the `app.yml`. Use it for paths that are not path fields, i.e. inside a
-  `command` string or an `env` value, where they cannot be resolved automatically.
+`command` string or an `env` value, where they cannot be resolved automatically.
 
 These variables use Mako template interpolation and are resolved when the app spec is loaded.
 

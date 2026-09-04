@@ -6,10 +6,10 @@ Complete reference for the `bfabric-app-runner` command-line interface.
 
 Every command that talks to B-Fabric also accepts these options (omitted from the per-command listings below):
 
-| Option | Description |
-| -------------- | ------------------------------------------------------------------------------------- |
-| `--config-env` | Override the config environment; falls back to `BFABRICPY_CONFIG_ENV` or the file default |
-| `--config-file`| Override the config file path (default `~/.bfabricpy.yml`) |
+| Option          | Description                                                                               |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| `--config-env`  | Override the config environment; falls back to `BFABRICPY_CONFIG_ENV` or the file default |
+| `--config-file` | Override the config file path (default `~/.bfabricpy.yml`)                                |
 
 ## run
 
@@ -21,11 +21,11 @@ Run a workunit end-to-end (dispatch, process all chunks, register outputs).
 bfabric-app-runner run workunit <app_definition> <scratch_root> <workunit_ref>
 ```
 
-| Argument | Description |
-| ---------------- | ------------------------------------------- |
+| Argument         | Description                            |
+| ---------------- | -------------------------------------- |
 | `app_definition` | Path to the app.yml specification file |
-| `scratch_root` | Root directory for scratch/work files |
-| `workunit_ref` | Workunit reference (ID or URI) |
+| `scratch_root`   | Root directory for scratch/work files  |
+| `workunit_ref`   | Workunit reference (ID or URI)         |
 
 ## prepare
 
@@ -37,18 +37,18 @@ Prepare a workunit for execution (resolve inputs, set up work directory).
 bfabric-app-runner prepare workunit <app_spec> <work_dir> <workunit_ref> [options]
 ```
 
-| Argument | Description |
-| --------------- | ------------------------------------------- |
-| `app_spec` | Path to the app.yml specification file |
-| `work_dir` | Working directory for the workunit |
-| `workunit_ref` | Workunit reference (ID or URI) |
+| Argument       | Description                            |
+| -------------- | -------------------------------------- |
+| `app_spec`     | Path to the app.yml specification file |
+| `work_dir`     | Working directory for the workunit     |
+| `workunit_ref` | Workunit reference (ID or URI)         |
 
-| Option | Description |
-| ----------------------- | ---------------------------------------------------------- |
-| `--ssh-user` | SSH user for remote file access |
-| `--force-storage` | Override the storage location |
-| `--force-app-version` | Force a specific application version |
-| `--read-only` | Prepare in read-only mode |
+| Option                  | Description                          |
+| ----------------------- | ------------------------------------ |
+| `--ssh-user`            | SSH user for remote file access      |
+| `--force-storage`       | Override the storage location        |
+| `--force-app-version`   | Force a specific application version |
+| `--read-only`           | Prepare in read-only mode            |
 | `--use-external-runner` | Use an external runner for execution |
 
 ## action
@@ -110,15 +110,15 @@ Download and prepare input files into the target folder.
 bfabric-app-runner inputs prepare <inputs_yaml> [target_folder] [options]
 ```
 
-| Argument | Description |
-| --------------- | ------------------------------------------------ |
-| `inputs_yaml` | Path to the inputs YAML specification file |
+| Argument        | Description                                  |
+| --------------- | -------------------------------------------- |
+| `inputs_yaml`   | Path to the inputs YAML specification file   |
 | `target_folder` | Target directory (optional, defaults to cwd) |
 
-| Option | Description |
-| ------------ | ------------------------------------------------- |
-| `--ssh-user` | SSH user for remote file access |
-| `--filter` | Only prepare inputs matching this filename pattern |
+| Option       | Description                                        |
+| ------------ | -------------------------------------------------- |
+| `--ssh-user` | SSH user for remote file access                    |
+| `--filter`   | Only prepare inputs matching this filename pattern |
 
 ### inputs list
 
@@ -128,13 +128,13 @@ List all defined inputs and their status.
 bfabric-app-runner inputs list <inputs_yaml> [target_folder] [options]
 ```
 
-| Argument | Description |
-| --------------- | ------------------------------------------------ |
-| `inputs_yaml` | Path to the inputs YAML specification file |
+| Argument        | Description                                  |
+| --------------- | -------------------------------------------- |
+| `inputs_yaml`   | Path to the inputs YAML specification file   |
 | `target_folder` | Target directory (optional, defaults to cwd) |
 
-| Option | Description |
-| --------- | --------------------------------------------- |
+| Option    | Description                                  |
+| --------- | -------------------------------------------- |
 | `--check` | Also check whether each input exists on disk |
 
 ### inputs check
@@ -145,9 +145,9 @@ Verify that all expected input files are present.
 bfabric-app-runner inputs check <inputs_yaml> [target_folder]
 ```
 
-| Argument | Description |
-| --------------- | ------------------------------------------------ |
-| `inputs_yaml` | Path to the inputs YAML specification file |
+| Argument        | Description                                  |
+| --------------- | -------------------------------------------- |
+| `inputs_yaml`   | Path to the inputs YAML specification file   |
 | `target_folder` | Target directory (optional, defaults to cwd) |
 
 ### inputs clean
@@ -158,13 +158,13 @@ Remove prepared input files from the target folder.
 bfabric-app-runner inputs clean <inputs_yaml> [target_folder] [options]
 ```
 
-| Argument | Description |
-| --------------- | ------------------------------------------------ |
-| `inputs_yaml` | Path to the inputs YAML specification file |
+| Argument        | Description                                  |
+| --------------- | -------------------------------------------- |
+| `inputs_yaml`   | Path to the inputs YAML specification file   |
 | `target_folder` | Target directory (optional, defaults to cwd) |
 
-| Option | Description |
-| ---------- | ------------------------------------------------- |
+| Option     | Description                                      |
+| ---------- | ------------------------------------------------ |
 | `--filter` | Only clean inputs matching this filename pattern |
 
 ## outputs
@@ -179,15 +179,15 @@ Register all outputs defined in a YAML file.
 bfabric-app-runner outputs register <outputs_yaml> <workunit_ref> [options]
 ```
 
-| Argument | Description |
-| --------------- | ------------------------------------------------- |
+| Argument       | Description                                 |
+| -------------- | ------------------------------------------- |
 | `outputs_yaml` | Path to the outputs YAML specification file |
-| `workunit_ref` | Workunit reference (ID or URI) |
+| `workunit_ref` | Workunit reference (ID or URI)              |
 
-| Option | Description |
-| -------------------------- | ----------------------------------------------- |
-| `--ssh-user` | SSH user for remote file transfers |
-| `--force-storage` | Override the storage location |
+| Option            | Description                        |
+| ----------------- | ---------------------------------- |
+| `--ssh-user`      | SSH user for remote file transfers |
+| `--force-storage` | Override the storage location      |
 
 ### outputs register-single-file
 
@@ -197,18 +197,18 @@ Register a single output file without an outputs YAML.
 bfabric-app-runner outputs register-single-file <local_path> [options]
 ```
 
-| Argument | Description |
-| ------------ | ----------------------------------- |
+| Argument     | Description                        |
+| ------------ | ---------------------------------- |
 | `local_path` | Path to the local file to register |
 
-| Option | Description |
-| -------------------------- | ---------------------------------------------------------- |
-| `--workunit-ref` (required)| Workunit reference (ID or URI) |
-| `--store-entry-path` | Filename in B-Fabric storage |
-| `--store-folder-path` | Directory path within storage |
-| `--update-existing` | Update behavior: `no`, `if-exists`, or `required` (default `no`) |
-| `--ssh-user` | SSH user for remote transfers |
-| `--force-storage` | Override the storage location |
+| Option                      | Description                                                      |
+| --------------------------- | ---------------------------------------------------------------- |
+| `--workunit-ref` (required) | Workunit reference (ID or URI)                                   |
+| `--store-entry-path`        | Filename in B-Fabric storage                                     |
+| `--store-folder-path`       | Directory path within storage                                    |
+| `--update-existing`         | Update behavior: `no`, `if-exists`, or `required` (default `no`) |
+| `--ssh-user`                | SSH user for remote transfers                                    |
+| `--force-storage`           | Override the storage location                                    |
 
 ## validate
 
@@ -222,13 +222,13 @@ Validate an app specification file.
 bfabric-app-runner validate app-spec <app_yaml> [options]
 ```
 
-| Argument | Description |
-| ---------- | ----------------------------------- |
+| Argument   | Description              |
+| ---------- | ------------------------ |
 | `app_yaml` | Path to the app.yml file |
 
-| Option | Description |
-| ------------- | ------------------------------------------------ |
-| `--app-id` | Application ID for template variable resolution |
+| Option       | Description                                       |
+| ------------ | ------------------------------------------------- |
+| `--app-id`   | Application ID for template variable resolution   |
 | `--app-name` | Application name for template variable resolution |
 
 ### validate app-spec-template
@@ -239,8 +239,8 @@ Validate an app specification template (before variable resolution).
 bfabric-app-runner validate app-spec-template <yaml_file>
 ```
 
-| Argument | Description |
-| ----------- | -------------------------------------- |
+| Argument    | Description                        |
+| ----------- | ---------------------------------- |
 | `yaml_file` | Path to the app spec template file |
 
 ### validate inputs-spec
@@ -251,8 +251,8 @@ Validate an inputs specification file.
 bfabric-app-runner validate inputs-spec <yaml_file>
 ```
 
-| Argument | Description |
-| ----------- | ---------------------------------------- |
+| Argument    | Description                  |
+| ----------- | ---------------------------- |
 | `yaml_file` | Path to the inputs YAML file |
 
 ### validate outputs-spec
@@ -263,6 +263,6 @@ Validate an outputs specification file.
 bfabric-app-runner validate outputs-spec <yaml_file>
 ```
 
-| Argument | Description |
-| ----------- | ----------------------------------------- |
+| Argument    | Description                   |
+| ----------- | ----------------------------- |
 | `yaml_file` | Path to the outputs YAML file |
