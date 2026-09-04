@@ -13,7 +13,6 @@ INSTANCE = "https://test.bfabric.example.com/"
 def _user(login: str = "test_user", **fields: object) -> User:
     return User(
         data_dict={"classname": "user", "id": 1, "login": login, **fields},
-        client=None,
         bfabric_instance=INSTANCE,
     )
 

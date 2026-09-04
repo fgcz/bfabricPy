@@ -114,7 +114,7 @@ def _create_workunit_initial(client: Bfabric, params: CreateWorkunitParams, audi
     if params.input_dataset_id is not None:
         obj["inputdatasetid"] = params.input_dataset_id
     result = client.save("workunit", obj)
-    return Workunit(result[0], client=None, bfabric_instance=client.config.base_url).id
+    return Workunit(result[0], bfabric_instance=client.config.base_url).id
 
 
 def _create_workunit_resources(client: Bfabric, workunit_id: int, resources: dict[str, str]) -> None:

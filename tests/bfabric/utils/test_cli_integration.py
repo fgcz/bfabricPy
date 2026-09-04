@@ -144,7 +144,7 @@ class TestUseClientBehavior:
     @pytest.fixture
     def mock_bfabric_connect(self, mocker):
         """Mock Bfabric.connect to prevent actual connections."""
-        return mocker.patch("bfabric.Bfabric.connect", return_value=mocker.Mock())
+        return mocker.patch("bfabric.Bfabric.connect", return_value=mocker.MagicMock())
 
     def test_use_client_passes_config_env_to_bfabric_connect(self, mock_bfabric_connect):
         """Verify that config_env parameter is passed to Bfabric.connect."""
@@ -299,7 +299,7 @@ class TestUseClientErrorReporting:
         return mocker.patch("bfabric.utils.cli_integration.logger")
 
     def test_runtime_error_from_the_command_is_reported_as_one_line(self, mocker, capsys):
-        mocker.patch("bfabric.Bfabric.connect", return_value=mocker.Mock())
+        mocker.patch("bfabric.Bfabric.connect", return_value=mocker.MagicMock())
 
         @use_client
         def my_function(*, client: Bfabric) -> None:
@@ -328,7 +328,7 @@ class TestUseClientErrorReporting:
 
     def test_traceback_is_kept_at_debug_level(self, mocker, mock_logger):
         """The traceback is still available for development via ``BFABRICPY_LOG_LEVEL=DEBUG``."""
-        mocker.patch("bfabric.Bfabric.connect", return_value=mocker.Mock())
+        mocker.patch("bfabric.Bfabric.connect", return_value=mocker.MagicMock())
 
         @use_client
         def my_function(*, client: Bfabric) -> None:
@@ -373,7 +373,7 @@ class TestUseClientSetupLogging:
     def test_use_client_setup_logging_by_default(self, mocker):
         """Verify that logging is set up by default."""
         mock_setup_logging = mocker.patch("bfabric.utils.cli_integration.setup_script_logging")
-        mock_bfabric_connect = mocker.patch("bfabric.Bfabric.connect", return_value=mocker.Mock())
+        mock_bfabric_connect = mocker.patch("bfabric.Bfabric.connect", return_value=mocker.MagicMock())
 
         @use_client
         def my_function(arg1: str, *, client: Bfabric) -> str:
@@ -392,7 +392,7 @@ class TestUseClientSetupLogging:
         # Note: The current implementation doesn't support passing setup_logging=False
         # This test verifies that the default behavior (setup_logging=True) works correctly
         mock_setup_logging = mocker.patch("bfabric.utils.cli_integration.setup_script_logging")
-        mock_bfabric_connect = mocker.patch("bfabric.Bfabric.connect", return_value=mocker.Mock())
+        mock_bfabric_connect = mocker.patch("bfabric.Bfabric.connect", return_value=mocker.MagicMock())
 
         @use_client
         def my_function(arg1: str, *, client: Bfabric) -> str:

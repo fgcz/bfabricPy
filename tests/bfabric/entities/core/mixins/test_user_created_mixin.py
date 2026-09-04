@@ -21,8 +21,8 @@ def data_dict():
 
 
 @pytest.fixture
-def entity(data_dict, mock_client, bfabric_instance):
-    return MockEntity(data_dict=data_dict, client=mock_client, bfabric_instance=bfabric_instance)
+def entity(data_dict, bfabric_instance):
+    return MockEntity(data_dict=data_dict, bfabric_instance=bfabric_instance)
 
 
 @pytest.fixture
@@ -72,8 +72,6 @@ def test_created_by_when_login_unresolvable(entity, data_dict, mock_get_by_login
     assert str(err.value) == "Field 'createdby' refers to login 'ghost_login', which is not a known user"
 
 
-def test_users_when_no_client(data_dict, bfabric_instance):
-    entity = MockEntity(data_dict=data_dict, bfabric_instance=bfabric_instance)
-    with pytest.raises(ValueError) as err:
-        _ = entity._users
-    assert str(err.value) == "Cannot resolve users: this entity has no client"
+def test_created_by_outside_a_read_scope(entity):
+    with pytest.raises(LookupError, match="No active ReadScope"):
+        _ = entity.created_by

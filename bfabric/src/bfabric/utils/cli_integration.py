@@ -77,7 +77,10 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
             except (ValueError, RuntimeError) as e:
                 _report_and_exit(e)
         try:
-            return fn(*args, client=client, **kwargs)  # type: ignore[arg-type]
+            # Establish the ambient ReadScope so entity navigation (e.g. `workunit.application`)
+            # works throughout the command without each command opening one explicitly.
+            with client.reader:
+                return fn(*args, client=client, **kwargs)  # type: ignore[arg-type]
         except RuntimeError as e:
             _report_and_exit(e)
 

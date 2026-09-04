@@ -6,7 +6,6 @@ from bfabric.entities import User
 def _user(bfabric_instance: str, **fields: object) -> User:
     return User(
         data_dict={"classname": "user", "id": 1, "login": "test_user", **fields},
-        client=None,
         bfabric_instance=bfabric_instance,
     )
 

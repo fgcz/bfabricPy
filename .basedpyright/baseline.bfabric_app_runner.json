@@ -568,22 +568,6 @@
         ],
         "./bfabric_app_runner/src/bfabric_app_runner/app_runner/resolve_app.py": [
             {
-                "code": "reportReturnType",
-                "range": {
-                    "startColumn": 11,
-                    "endColumn": 78,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportReturnType",
-                "range": {
-                    "startColumn": 11,
-                    "endColumn": 32,
-                    "lineCount": 1
-                }
-            },
-            {
                 "code": "reportAssignmentType",
                 "range": {
                     "startColumn": 15,

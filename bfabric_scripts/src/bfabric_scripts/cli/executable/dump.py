@@ -63,10 +63,9 @@ def cmd_executable_dump(
         else:
             raise ValueError(f"Unknown file extension: {path.suffix}. Please specify --format.")
 
-    results = Executable.find_by({"id": executable_id, "fulldetails": "true"}, client=client)
-    if not results:
+    executable = client.reader.query_one(Executable, {"id": executable_id, "fulldetails": "true"})
+    if executable is None:
         raise ValueError(f"Executable with ID {executable_id} not found.")
-    executable = list(results.values())[0]
     data = executable.data_dict
     data["parameter"] = [p.data_dict for p in executable.parameters.list]
     if clean:

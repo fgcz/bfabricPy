@@ -5,7 +5,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
-    from bfabric import Bfabric
     from bfabric.config.base_url import BaseUrl
     from bfabric.entities import User
     from bfabric.entities.core.users import Users
@@ -20,16 +19,12 @@ class UserCreatedMixin:
         def data_dict(self) -> ApiResponseObjectType: ...
         @property
         def bfabric_instance(self) -> BaseUrl: ...
-        @property
-        def _client(self) -> Bfabric | None: ...
 
     @cached_property
     def _users(self) -> Users:
         from bfabric.entities.core.users import Users
 
-        if self._client is None:
-            raise ValueError("Cannot resolve users: this entity has no client")
-        return Users(entity_reader=self._client.reader)
+        return Users()
 
     def _timestamp(self, field: str) -> datetime.datetime:
         iso = cast("str", self.data_dict[field])

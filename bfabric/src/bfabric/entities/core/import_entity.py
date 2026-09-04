@@ -4,7 +4,7 @@ import importlib
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from bfabric import BaseUrl, Bfabric
+    from bfabric import BaseUrl
     from bfabric.entities.core.entity import Entity
     from bfabric.typing import ApiResponseObjectType
 
@@ -36,10 +36,10 @@ def entity_type_of(entity_class: type[Entity]) -> str:
     return entity_class.__name__.lower()
 
 
-def instantiate_entity(data_dict: ApiResponseObjectType, client: Bfabric | None, bfabric_instance: BaseUrl) -> Entity:
+def instantiate_entity(data_dict: ApiResponseObjectType, bfabric_instance: BaseUrl) -> Entity:
     """Instantiates an entity given its data dictionary with the most specific class possible."""
     entity_class_name = data_dict["classname"]
     if not isinstance(entity_class_name, str):
         raise TypeError("classname must be string")
     entity_class = import_entity(entity_class_name)
-    return entity_class(data_dict=data_dict, client=client, bfabric_instance=bfabric_instance)
+    return entity_class(data_dict=data_dict, bfabric_instance=bfabric_instance)

@@ -28,10 +28,10 @@ class ExternalJob(Entity):
     def client_entity(self) -> Entity | None:
         # TODO the most clean solution would be to extract the Reference loading functionality from References
         #      into a separate class which can be reused here.
+        from bfabric.entities.core.read_scope import get_read_scope
+
         ref = _ClientEntityRef.model_validate(self.data_dict)
-        if self._client is None:
-            raise ValueError("Client must be set to resolve client entity")
-        return self._client.reader.read_id(
+        return get_read_scope().read_id(
             entity_type=ref.client_entity_classname,
             entity_id=ref.client_entity_id,
             bfabric_instance=self.bfabric_instance,

@@ -16,8 +16,8 @@ def data_dict():
 
 
 @pytest.fixture()
-def resource(data_dict, mock_client, bfabric_instance):
-    return Resource(data_dict, client=mock_client, bfabric_instance=bfabric_instance)
+def resource(data_dict, bfabric_instance):
+    return Resource(data_dict, bfabric_instance=bfabric_instance)
 
 
 def test_storage_relative_path(resource):

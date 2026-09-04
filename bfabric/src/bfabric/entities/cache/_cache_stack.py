@@ -1,3 +1,5 @@
+# pyright: reportImportCycles=false
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -21,6 +23,14 @@ class CacheStack:
     def __init__(self) -> None:
         self._stack: list[EntityMemoryCache] = []
 
+    def _frames(self) -> list[EntityMemoryCache]:
+        """The active caches, innermost last.
+
+        Read through by every lookup so a subclass can source the frames elsewhere — see
+        ``ReadScope``'s context-local stack, which keeps concurrent requests from sharing caches.
+        """
+        return self._stack
+
     def cache_push(self, cache: EntityMemoryCache) -> None:
         self._stack.append(cache)
 
@@ -28,10 +38,10 @@ class CacheStack:
         self._stack.pop()
 
     def item_contains(self, uri: EntityUri) -> bool:
-        return any(cache.contains(uri) for cache in reversed(self._stack))
+        return any(cache.contains(uri) for cache in reversed(self._frames()))
 
     def item_get(self, uri: EntityUri) -> Entity | None:
-        for cache in reversed(self._stack):
+        for cache in reversed(self._frames()):
             entity = cache.get(uri)
             if entity is not None:
                 return entity
@@ -40,7 +50,7 @@ class CacheStack:
     def item_get_all(self, entity_uris: list[EntityUri]) -> dict[EntityUri, Entity]:
         results = {}
         pending = set(entity_uris)
-        for cache in reversed(self._stack):
+        for cache in reversed(self._frames()):
             if not pending:
                 break
             matches = cache.get_all(list(pending))
@@ -49,7 +59,7 @@ class CacheStack:
         return results
 
     def item_put(self, entity: Entity) -> None:
-        for cache in reversed(self._stack):
+        for cache in reversed(self._frames()):
             cache.put(entity)
 
     def item_put_all(self, entities: Iterable[Entity]) -> None:

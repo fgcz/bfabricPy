@@ -1,3 +1,4 @@
+# pyright: reportImportCycles=false
 """B-Fabric Application Interface using WSDL
 
 Copyright (C) 2014 - 2024 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
@@ -42,8 +43,8 @@ if TYPE_CHECKING:
 
     from pydantic import SecretStr
 
+    from bfabric.entities.core.read_scope import ReadScope
     from bfabric.oauth._credential_provider import OAuthCredentialProvider
-    from bfabric.entities.core.entity_reader import EntityReader
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
@@ -415,11 +416,11 @@ class Bfabric:
             self._credential_provider = old_provider
 
     @cached_property
-    def reader(self) -> EntityReader:
-        """Returns an EntityReader for this client."""
-        from bfabric.entities.core.entity_reader import EntityReader
+    def reader(self) -> ReadScope:
+        """Returns a single-client :class:`ReadScope` for reading entities from this instance."""
+        from bfabric.entities.core.read_scope import ReadScope
 
-        return EntityReader.for_client(client=self)
+        return ReadScope(self)
 
     def read(
         self,

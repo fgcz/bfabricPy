@@ -22,7 +22,7 @@ def data_dict(scenario):
 
 @pytest.fixture
 def parameter(data_dict, bfabric_instance):
-    return Parameter(data_dict=data_dict, client=None, bfabric_instance=bfabric_instance)
+    return Parameter(data_dict=data_dict, bfabric_instance=bfabric_instance)
 
 
 def test_key(parameter):

@@ -109,7 +109,7 @@ def main() -> None:
                 "status": "processing",
             },
         )
-        workunit_id = Workunit(wu_result[0], client=None, bfabric_instance=client.config.base_url).id
+        workunit_id = Workunit(wu_result[0], bfabric_instance=client.config.base_url).id
         print(f"  Workunit ID: {workunit_id}")
 
         print("Creating resource + upload token...")

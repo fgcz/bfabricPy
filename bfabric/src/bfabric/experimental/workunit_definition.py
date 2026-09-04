@@ -105,7 +105,7 @@ class WorkunitDefinition(BaseModel):
         if isinstance(workunit, Path):
             result = cls.from_yaml(workunit)
         else:
-            workunit_instance = Workunit.find(id=workunit, client=client)
+            workunit_instance = client.reader.read_id(Workunit, workunit)
             if workunit_instance is None:
                 raise ValueError(f"Workunit with ID {workunit} does not exist")
             result = cls.from_workunit(workunit=workunit_instance)

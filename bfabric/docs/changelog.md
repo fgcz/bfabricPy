@@ -11,10 +11,22 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
+- **New `ReadScope`** — `client.reader` now returns one. It is an ambient, read-only scope that routes reads to the right connection **by instance** (a single process can read from multiple B-Fabric instances, including multi-instance `query`) and owns the entity cache. Enter it with `with client.reader:` (or `with ReadScope([client_a, client_b]):`); navigating a relationship outside an active read scope raises a clear `LookupError`. The `@use_client` CLI decorator opens one automatically, so CLI/app-runner commands need no change.
 - `create_workunit` accepts `executables` (name → base64-encoded content), saved as `context: "WORKUNIT"` executables of the new workunit — e.g. the script that generated it. Executables alone count as workunit data.
 - `bfabric.oauth.AuthorizationRequest.create` starts an authorization-code login, returning the URL to redirect a user to along with the CSRF state and PKCE verifier to keep until they return. A web app can now run the flow without deriving a code challenge itself.
 - `bfabric.oauth.exchange_code` redeems the returned code for tokens. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
 - `bfabric.oauth.token_url` builds the token endpoint URL for an instance.
+
+### Changed
+
+- **Breaking:** entities no longer carry a live `Bfabric` client. `Entity(...)` and every subclass now take only `data_dict` + a **required** `bfabric_instance`; the `client=` parameter, the `Entity._client` property, and `Entity.load_yaml(client=...)` are removed. Lazy relationship navigation (`workunit.application`, `created_by`, `ExternalJob.client_entity`, …) resolves the connection from the active read scope instead.
+- The two `EntityReader` cross-instance guards (which raised `ValueError` on a mismatched `bfabric_instance`) are gone — cross-instance reads are routed rather than rejected. `EntityReader` is now an internal per-client detail behind `ReadScope`.
+- Caching is now scoped to the active `ReadScope`: `cache_entities(...)` operates on that scope's cache (its lifetime bounded by the scope, avoiding cross-request reuse) and must be called inside an active read scope.
+
+### Removed
+
+- **Breaking:** the deprecated `FindMixin` (`Entity.find` / `find_all` / `find_by`) is removed — use `client.reader.read_id` / `read_ids` / `query` (reshaping results with the `EntityResult` `.present` / `.by_id` views).
+- **Breaking:** `cache_entities` no longer accepts entity *classes* as cache keys (previously a `DeprecationWarning`) — pass the endpoint strings, e.g. `cache_entities(["workunit"])`.
 
 ## \[1.22.0\] - 2026-08-25
 

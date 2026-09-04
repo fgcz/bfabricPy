@@ -16,7 +16,7 @@ SAMPLE_URI = "https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=5"
 
 @pytest.fixture
 def mock_client(mocker):
-    client = mocker.Mock(spec=Bfabric)
+    client = mocker.MagicMock(spec=Bfabric)
     client.config.base_url = "https://fgcz-bfabric.uzh.ch/bfabric"
     return client
 
