@@ -37,30 +37,21 @@ class WebappClient:
         user_token_cache_path: Path | None = None,
         service_token_cache_path: Path | None = None,
     ) -> WebappClient:
-        """Create a ``WebappClient`` by exchanging a short-lived launch token.
-
-        Performs an RFC 8693 token exchange to convert the short-lived launch JWT
-        (from the URL) into long-lived access + refresh tokens, then decodes
-        the access token JWT locally to extract entity context.
+        """Create a ``WebappClient`` by exchanging a short-lived launch token (RFC 8693).
 
         :param launch_token: The short-lived JWT from the URL ``jwt`` parameter
-        :param client_id: OAuth client ID for the webapp
-        :param client_secret: OAuth client secret for the webapp
         :param scope: OAuth scope for the service account
-        :param user_token_cache_path: Optional path to cache user tokens on disk
-        :param service_token_cache_path: Optional path to cache service tokens on disk
         """
         from bfabric.bfabric import Bfabric
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
         from bfabric.oauth._token_exchange import exchange_token
         from bfabric.oauth._url_token import UrlTokenContext, verify_jwt
         from bfabric.config import BfabricClientConfig, BaseUrl
         from bfabric.config.config_data import ConfigData
 
         base_url = BaseUrl(base_url)
-        token_url = f"{base_url}/rest/oauth/token"
 
-        # 1. Exchange the short-lived launch token for access + refresh tokens
         token_dict = exchange_token(
             base_url,
             launch_token,
@@ -68,15 +59,13 @@ class WebappClient:
             client_secret=client_secret,
         )
 
-        # 2. Decode the access token JWT locally to extract entity claims
         claims = verify_jwt(base_url, str(token_dict["access_token"]))
         context = UrlTokenContext.model_validate(claims)
 
-        # 3. Create user client with OAuthCredentialProvider (refresh_token grant)
         user_provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret=client_secret,
-            token_url=token_url,
+            token_url=token_url(base_url),
             scope="",
             token=token_dict,
             grant_type="refresh_token",
@@ -88,7 +77,6 @@ class WebappClient:
             _credential_provider=user_provider,
         )
 
-        # 4. Create service client via connect_oauth (client_credentials grant)
         service_client = Bfabric.connect_oauth(
             client_id=client_id,
             client_secret=client_secret,
