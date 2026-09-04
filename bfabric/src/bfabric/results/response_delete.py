@@ -34,15 +34,6 @@ class ResponseDelete(ResultContainer):
         return cls(results=results, errors=errors, total_pages_api=None)
 
     @classmethod
-    def from_zeep(cls, zeep_response: Any, endpoint: str) -> ResponseDelete:
-        """Creates a `ResponseDelete` from a ZEEP response."""
-        from zeep.helpers import serialize_object  # pyright: ignore[reportUnknownVariableType]
-
-        result_parsed = [dict(serialize_object(result, target_cls=dict)) for result in zeep_response[endpoint]]
-        results, errors = cls.__convert_parsed_response(result_parsed)
-        return cls(results=results, errors=errors, total_pages_api=None)
-
-    @classmethod
     def __convert_parsed_response(
         cls, result_parsed: list[dict[str, Any]]
     ) -> tuple[list[dict[str, Any]], list[BfabricRequestError]]:

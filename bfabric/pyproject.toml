@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "bfabric"
 description = "Python client for the B-Fabric API"
 readme = "README.md"
-version = "1.20.0"
+version = "1.22.0"
 license = { text = "GPL-3.0" }
 authors = [
     { name = "Christian Panse", email = "cp@fgcz.ethz.ch" },
@@ -36,7 +36,6 @@ dependencies = [
 
 [project.optional-dependencies]
 transfer = ["tuspy>=1.0,<2"]
-zeep = ["zeep>=4.3.2,<5.0"]
 dev = [
     "bfabric[doc,test]",
     "black",

@@ -12,6 +12,21 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ### Added
 
+- `api read`, `api create` and `api update` accept `--json` and `--json-file`, which is the only way to pass nested or non-string attribute values. Both are merged with any key-value pairs, and a key given in both is an error.
+
+### Changed
+
+- `auth login` / `auth pat` complete a bare host with `/bfabric` for any instance, not just the four known ones, so `bfabric-cli login my-instance.example.com` works. A URL whose path is something else is now refused instead of used as given.
+
+### Fixed
+
+- `api create` now rejects an `id` attribute as documented; the check never fired before.
+- `bfabric-cli api update` and `api delete` explain that there is no terminal to confirm on, and name `--no-confirm`, instead of failing with an `EOFError` traceback when run from a script or cron job.
+
+## [1.17.0] - 2026-08-20
+
+### Added
+
 - `bfabric-cli login` (also a top-level shortcut for `auth login`) renews an expired token with **no arguments**; a first login picks the instance from the known hosts and derives the environment name.
 - `auth login --no-browser` prints the authorization URL instead of opening one; over SSH use `auth device-code`.
 - `auth register` / `register-webapp` require `--service-user LOGIN` or the new `--no-service-user`, instead of silently registering without the `client_credentials` grant.
@@ -25,14 +40,15 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 - Every `auth` command resolves its environment as `--config-env` > `BFABRICPY_CONFIG_ENV` > the configured default, and refuses to write the config under `BFABRICPY_CONFIG_OVERRIDE`.
 - Base URLs are normalised up front (scheme, host case, trailing slash, known-host expansion), and re-pointing an environment at a different instance needs confirmation.
 - `workunit upload --force` is replaced by `--on-duplicate upload|skip|link`, defaulting to `upload` — the duplicate check no longer runs unless asked for. Pass `skip` for the old behaviour.
+- Requires `bfabric` 1.21.0.
 - Packaging: `project.readme` points at the package's own `README.md`, expanded into a proper landing page since PyPI shows it.
 - Internal: the `auth` command implementations were reorganised onto shared environment- and URL-resolution helpers.
 
 ### Fixed
 
-- `api inspect` reports that it requires the SUDS engine instead of failing with an `AttributeError` when the configured engine is Zeep.
 - `auth register-webapp` prints `Error: ...` and exits 1 when the OAuth session cannot be refreshed, instead of a raw traceback.
 - `auth register` no longer prompts for an *Employee Bearer token* when a login exists; it authenticates as the environment in effect.
+- `auth register` canonicalises its `base_url` argument like the other `auth` commands, so a bare host or a trailing slash works and a non-HTTP URL is rejected with a plain message.
 
 ## [1.16.0] - 2026-08-03
 

@@ -59,7 +59,7 @@ from bfabric.entities.core.uri import EntityUri
 uri = EntityUri("https://fgcz-bfabric.uzh.ch/bfabric/sample/show.html?id=123")
 
 # Access components
-print(uri.components.bfabric_instance)  # "https://fgcz-bfabric.uzh.ch/bfabric/"
+print(uri.components.bfabric_instance)  # "https://fgcz-bfabric.uzh.ch/bfabric"
 print(uri.components.entity_type)  # "sample"
 print(uri.components.entity_id)  # 123
 ```
@@ -95,7 +95,7 @@ from bfabric.entities.core.uri import EntityUri
 
 # Build URI from parts
 uri = EntityUri.from_components(
-    bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
+    bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
     entity_type="sample",
     entity_id=123,
 )
@@ -132,11 +132,11 @@ entities = reader.read_uris(uris)
 
 ### Component Breakdown
 
-| Component          | Description                   | Example                                |
-| ------------------ | ----------------------------- | -------------------------------------- |
-| `bfabric_instance` | Base URL of B-Fabric instance | `https://fgcz-bfabric.uzh.ch/bfabric/` |
-| `entity_type`      | Entity name (lowercase)       | `sample`, `project`, `workunit`        |
-| `entity_id`        | Numeric entity ID             | `123`                                  |
+| Component          | Description                   | Example                               |
+| ------------------ | ----------------------------- | ------------------------------------- |
+| `bfabric_instance` | Base URL of B-Fabric instance | `https://fgcz-bfabric.uzh.ch/bfabric` |
+| `entity_type`      | Entity name (lowercase)       | `sample`, `project`, `workunit`       |
+| `entity_id`        | Numeric entity ID             | `123`                                 |
 
 ### Supported Entity Types
 

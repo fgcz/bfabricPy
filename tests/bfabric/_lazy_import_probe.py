@@ -69,7 +69,7 @@ def main() -> None:
             importlib.import_module(name)
         except ModuleNotFoundError as error:
             if error.name != BLOCKED:
-                continue  # an optional extra is not installed, e.g. zeep
+                continue  # an optional extra is not installed, e.g. transfer
             # Many modules reach the same statement transitively; report each one once.
             offenders.setdefault(_offending_site(error, root), name)
     for site, name in offenders.items():

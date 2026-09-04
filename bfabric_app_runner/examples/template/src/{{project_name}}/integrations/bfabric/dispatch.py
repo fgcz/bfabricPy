@@ -3,49 +3,27 @@ from typing import Any
 
 import yaml
 import cyclopts
-import polars as pl
-from bfabric import Bfabric
-from bfabric.entities import Dataset
 from bfabric.experimental.workunit_definition import WorkunitDefinition
-from bfabric.utils.cli_integration import use_client
-from loguru import logger
-import janitor.polars  # noqa
 
 app = cyclopts.App()
 
 
-# TODO this file is generally not as nice as i want it to be in the future, but i am adding it here so we do have an
-#      initial version that is compatible with the currently available API (and we can also use it as a demo for
-#      providing something better in the future then)
-
-
 @app.default
-@use_client
-def dispatch(workunit_definition_path: Path, work_dir: Path, *, client: Bfabric) -> None:
+def dispatch(workunit_definition_path: Path, work_dir: Path) -> None:
     """Dispatches the workunit to a folder structure with 1 chunk and 1 input file."""
-    # Get the initial information about the workunit
     workunit_definition = WorkunitDefinition.from_yaml(workunit_definition_path)
-    input_bf_dataset = Dataset.find(workunit_definition.execution.dataset, client=client)
-    input_df = input_bf_dataset.to_polars()
-    logger.info(f"Original table: {input_df}")
+    dataset_id = workunit_definition.execution.dataset
+    if dataset_id is None:
+        raise ValueError("This app is a dataset-flow app, but the workunit has no input dataset.")
 
-    # Clean the input data frame.
-    input_df = _clean_input_dataframe(input_df)
-    logger.info(f"Cleaned table: {input_df}")
-
-    # Create the input specification for each resource.
-    inputs = [
-        {
-            "type": "bfabric_resource",
-            "id": row["resource"],
-            "filename": str(Path("input") / Path(row["relative_path"]).name),
-        }
-        for row in input_df.iter_rows(named=True)
-    ]
-
-    # Parse the input parameters
+    # `bfabric_resource_dataset` downloads every resource the dataset lists into `input/`, next to a
+    # `dataset.parquet` whose `File` column names them. Resolving it is the app-runner's job at the inputs stage,
+    # so dispatch only names what it wants and never talks to B-Fabric itself.
     params = {"request_failure": workunit_definition.execution.raw_parameters.pop("request_failure") == "true"}
-    inputs.append({"type": "static_yaml", "filename": "params.yml", "data": params})
+    inputs = [
+        {"type": "bfabric_resource_dataset", "id": dataset_id, "filename": "input"},
+        {"type": "static_yaml", "filename": "params.yml", "data": params},
+    ]
 
     # Create folder structure.
     chunk_dir = work_dir / "work"
@@ -54,10 +32,6 @@ def dispatch(workunit_definition_path: Path, work_dir: Path, *, client: Bfabric)
     # Write output files
     _write_yaml_file(chunk_dir / "inputs.yml", {"inputs": inputs})
     _write_yaml_file(work_dir / "chunks.yml", {"chunks": [str(chunk_dir)]})
-
-
-def _clean_input_dataframe(df: pl.DataFrame) -> pl.DataFrame:
-    return df.clean_names(remove_special=True).select(pl.col("resource"), pl.col("relative_path"))
 
 
 def _write_yaml_file(path: Path, content: dict[str, Any]) -> None:

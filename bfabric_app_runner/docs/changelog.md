@@ -4,6 +4,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- An app spec that defines exactly one version no longer needs the workunit's `application_version` parameter; a workunit without one resolves to that version. A parameter that is present must still name a defined version.
+- The demo app copier template requests its input files with a `bfabric_resource_dataset` input instead of resolving the dataset's resources itself, so its `dispatch` no longer talks to B-Fabric and the generated app drops its `pyjanitor` dependency. The Snakefile takes its input names from the `dataset.parquet` sidecar rather than globbing `input/`.
+
+### Fixed
+
+- The demo app copier template pins `bfabric-app-runner` to the version its `app.yml` declares, so a generated app's environment no longer silently resolves an older app-runner than the one its Makefile runs.
+- The demo app's generated `release.bash` is executable, as the post-copy message instructs.
+
+## [0.8.0] - 2026-08-20
+
 ### Added
 
 - New `${app.dir}` template variable holding the app spec's directory, for paths no spec field resolves — e.g. `command: uv run --script ${app.dir}/dispatch.py`.
@@ -13,7 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Output registration always creates a new resource instead of recycling the legacy wrapper creator's `pending` placeholder ([#361](https://github.com/fgcz/bfabricPy/issues/361)); the `reuse_default_resource` field and its CLI options are gone, but remain tolerated in an `app.yml`.
 - Relative paths in the app spec (`pylock`, `local_extra_deps`, `prepend_paths`, host side of docker `mounts`) resolve against the `app.yml` directory instead of the run's scratch directory, with a leading `~` expanded ([#212](https://github.com/fgcz/bfabricPy/issues/212)).
 - Captured command output (`uv venv` / `uv pip install`) is logged one record per line, so every line carries its level prefix.
-- Requires `bfabric` 1.20.1 for the logging fix that keeps a nested app-runner from falling back to loguru's verbose DEBUG format.
+- Requires `bfabric` 1.21.0 for the logging fix that keeps a nested app-runner from falling back to loguru's verbose DEBUG format.
 - Internal: the input `Resolver` dispatches through a spec-class registry instead of an `issubclass` ladder, and reports a spec type with no resolver when it is constructed rather than part-way through a resolve; clears the 38 grandfathered basedpyright entries on that module.
 
 ### Fixed

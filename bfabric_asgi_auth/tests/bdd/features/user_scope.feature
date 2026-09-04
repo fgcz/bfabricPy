@@ -16,13 +16,13 @@ Feature: User scope population
     Given I am authenticated with token "valid_test123"
     When I request the user info endpoint
     Then the scope user display_name should be "test123"
-    And the scope user identity should be "test123@https://fgcz-bfabric-test.uzh.ch/bfabric/"
+    And the scope user identity should be "test123@https://fgcz-bfabric-test.uzh.ch/bfabric"
 
   Scenario: login and instance properties return correct values
     Given I am authenticated with token "valid_test123"
     When I request the user info endpoint
     Then the scope user login should be "test123"
-    And the scope user instance should be "https://fgcz-bfabric-test.uzh.ch/bfabric/"
+    And the scope user instance should be "https://fgcz-bfabric-test.uzh.ch/bfabric"
 
   Scenario: Unauthenticated request does not have scope["user"] set
     Given I have no session cookie

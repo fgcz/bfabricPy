@@ -1,18 +1,14 @@
-"""Parser for SOAP API method signatures using SUDS.
+"""Parses SOAP method signatures into Pydantic models for ``api inspect``.
 
-Extracts parameter and type information from SOAP endpoints into reusable
-Pydantic models for introspection and programmatic access.
-
-Note: This module deals with SUDS, which has limited type stubs. Many type
-checks are suppressed here as they relate to the SUDS library's dynamic nature.
-This module deeply interacts with SUDS internals and type checking is disabled.
+Written against SUDS internals, whose limited type stubs are why this module runs at
+``# pyright: basic`` with per-line ignores.
 """
 
 # pyright: basic
 
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 from suds.xsd.query import TypeQuery  # pyright: ignore[reportMissingTypeStubs]
 
 from bfabric import Bfabric
@@ -30,8 +26,6 @@ class FieldModel(BaseModel):
     multi_occurrence: bool
     children: list["FieldModel"] = Field(default_factory=list)
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)  # pyright: ignore[reportUnannotatedClassAttribute]
-
 
 class ParameterModel(BaseModel):
     """Represents a complete parameter with its type structure."""
@@ -41,8 +35,6 @@ class ParameterModel(BaseModel):
     required: bool
     children: list[FieldModel] = Field(default_factory=list)
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)  # pyright: ignore[reportUnannotatedClassAttribute]
-
 
 def parse_method_signature(
     client: Bfabric,
@@ -50,43 +42,28 @@ def parse_method_signature(
     method_name: str,
     max_depth: int = 5,
 ) -> dict[str, ParameterModel]:
-    """Parse a SOAP method signature into reusable Pydantic models.
+    """Parses a SOAP method signature into reusable Pydantic models.
 
-    Args:
-        client: Initialized Bfabric client with _engine attribute
-        endpoint: Name of the endpoint to inspect (e.g., "importresource")
-        method_name: Name of the method to inspect (e.g., "read")
-        max_depth: Maximum recursion depth for nested types
-
-    Returns:
-        Dictionary mapping parameter names to ParameterModel instances.
-
-    Raises:
-        RuntimeError: If the client is not configured to use the SUDS engine.
-        AttributeError: If endpoint or method doesn't exist
+    :raises RuntimeError: If the client is not configured to use the SUDS engine.
+    :raises AttributeError: If the endpoint or method does not exist.
     """
-    # The WSDL introspection below is written against SUDS internals and has no Zeep equivalent, so
-    # reject other engines up front instead of leaking an AttributeError from the private engine.
+    # The WSDL introspection below is written against SUDS internals, so reject any other engine up
+    # front instead of leaking an AttributeError from the private engine.
     if client.config.engine != BfabricAPIEngineType.SUDS:
         raise RuntimeError(
             f"'api inspect' is only supported with the SUDS engine (got: {client.config.engine}). "
             f"Set engine: SUDS in your bfabricpy config."
         )
 
-    # Get the SUDS service
     service = client._engine._get_suds_service(endpoint)  # type: ignore[attr-defined]  # pyright: ignore[reportPrivateUsage,reportAttributeAccessIssue,reportUnknownVariableType,reportUnknownMemberType]
 
-    # Get the specified method
     method = getattr(service, method_name)  # pyright: ignore[reportAny,reportUnknownArgumentType]
 
-    # Get parameter definitions
     binding = method.method.binding.input  # pyright: ignore[reportAny]
     param_defs = binding.param_defs(method.method)  # pyright: ignore[reportAny]
 
-    # Get schema for type resolution
     schema = method.method.binding.input.wsdl.schema  # pyright: ignore[reportAny]
 
-    # Parse each parameter
     result: dict[str, ParameterModel] = {}
     for param_name, param_schema in param_defs:  # pyright: ignore[reportAny]
         resolved_type = param_schema.resolve()  # pyright: ignore[reportAny]
@@ -96,7 +73,6 @@ def parse_method_signature(
             else str(resolved_type)  # pyright: ignore[reportAny]
         )
 
-        # Parse nested fields
         children: list[FieldModel] = []
         if hasattr(resolved_type, "children"):  # pyright: ignore[reportAny]
             fields = resolved_type.children()  # pyright: ignore[reportAny]
@@ -123,18 +99,7 @@ def _parse_field_recursive(
     current_depth: int,
     max_depth: int,
 ) -> FieldModel:
-    """Recursively parse a field and its nested types.
-
-    Args:
-        field: SUDS field object
-        schema: SUDS schema object for type resolution
-        current_depth: Current recursion depth
-        max_depth: Maximum recursion depth
-
-    Returns:
-        FieldModel with fully resolved nested structure
-    """
-    # Extract field information
+    """Recursively parses a field and its nested types."""
     field_name: str = field.name if hasattr(field, "name") else "unknown"  # pyright: ignore[reportAny]
     field_type: str | tuple[str, str] = field.type if hasattr(field, "type") else "N/A"  # pyright: ignore[reportAny]
     # Use SUDS built-in method to check if required, fallback to True (XSD default when minOccurs not specified)
@@ -146,15 +111,12 @@ def _parse_field_recursive(
 
     children: list[FieldModel] = []
 
-    # Recurse into nested types if within depth limit
     if current_depth < max_depth and hasattr(field, "type"):  # pyright: ignore[reportAny]
         type_ref = field.type  # pyright: ignore[reportAny]
 
-        # Skip built-in XML types
         if isinstance(type_ref, tuple):
             _type_name, type_ns = type_ref  # pyright: ignore[reportUnknownVariableType]
             if type_ns != NAMESPACES["xs"]:
-                # Look up the type in the schema
                 query = TypeQuery(type_ref)
                 type_def = query.execute(
                     schema

@@ -7,6 +7,7 @@ import pytest
 import yaml
 from pydantic import ValidationError
 
+from bfabric.config import BaseUrl
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_file import ConfigFile
 from bfabric.config.config_writer import (
@@ -18,16 +19,26 @@ from bfabric.config.config_writer import (
 
 
 class TestWriteEnvironmentToConfig:
+    def test_writes_a_str_subclass_as_a_plain_scalar(self, tmp_path):
+        """A ``BaseUrl`` needs no coercion by the caller, and must not reach the file as an
+        unloadable ``!!python/object/new:`` tag."""
+        config_path = tmp_path / "config.yml"
+        write_environment_to_config(
+            config_path, "PROD", {"base_url": BaseUrl("https://example.com/bfabric")}, set_default=True
+        )
+        assert "!!python/object" not in config_path.read_text()
+        assert yaml.safe_load(config_path.read_text())["PROD"]["base_url"] == "https://example.com/bfabric"
+
     def test_creates_new_file(self, tmp_path):
         config_path = tmp_path / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com"}, set_default=True)
+        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
         data = yaml.safe_load(config_path.read_text())
         assert data["GENERAL"]["default_config"] == "PROD"
-        assert data["PROD"]["base_url"] == "https://example.com"
+        assert data["PROD"]["base_url"] == "https://example.com/bfabric"
 
     def test_sets_permissions(self, tmp_path):
         config_path = tmp_path / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com"}, set_default=True)
+        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
         mode = stat.S_IMODE(os.stat(config_path).st_mode)
         assert mode == 0o600
 
@@ -42,7 +53,7 @@ class TestWriteEnvironmentToConfig:
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://example.com", "login": "__oauth__", "password": "secret-pat"},
+            {"base_url": "https://example.com/bfabric", "login": "__oauth__", "password": "secret-pat"},
             set_default=True,
         )
         mode = stat.S_IMODE(os.stat(config_path).st_mode)
@@ -54,22 +65,28 @@ class TestWriteEnvironmentToConfig:
             yaml.dump(
                 {
                     "GENERAL": {"default_config": "OLD"},
-                    "OLD": {"base_url": "https://old.example.com"},
+                    "OLD": {"base_url": "https://old.example.com/bfabric"},
                 }
             )
         )
-        write_environment_to_config(config_path, "NEW", {"base_url": "https://new.example.com"}, set_default=True)
+        write_environment_to_config(
+            config_path, "NEW", {"base_url": "https://new.example.com/bfabric"}, set_default=True
+        )
         data = yaml.safe_load(config_path.read_text())
         assert data["GENERAL"]["default_config"] == "NEW"
-        assert data["OLD"]["base_url"] == "https://old.example.com"
-        assert data["NEW"]["base_url"] == "https://new.example.com"
+        assert data["OLD"]["base_url"] == "https://old.example.com/bfabric"
+        assert data["NEW"]["base_url"] == "https://new.example.com/bfabric"
 
     def test_overwrites_supplied_keys_of_existing_env(self, tmp_path):
         config_path = tmp_path / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://v1.example.com"}, set_default=True)
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://v2.example.com"}, set_default=True)
+        write_environment_to_config(
+            config_path, "PROD", {"base_url": "https://v1.example.com/bfabric"}, set_default=True
+        )
+        write_environment_to_config(
+            config_path, "PROD", {"base_url": "https://v2.example.com/bfabric"}, set_default=True
+        )
         data = yaml.safe_load(config_path.read_text())
-        assert data["PROD"]["base_url"] == "https://v2.example.com"
+        assert data["PROD"]["base_url"] == "https://v2.example.com/bfabric"
 
     def test_preserves_unrelated_keys_of_existing_env(self, tmp_path):
         """A re-login must not wipe hand-written keys the CLI knows nothing about."""
@@ -79,10 +96,9 @@ class TestWriteEnvironmentToConfig:
                 {
                     "GENERAL": {"default_config": "PROD"},
                     "PROD": {
-                        "base_url": "https://v1.example.com",
+                        "base_url": "https://v1.example.com/bfabric",
                         "application_ids": {"app": 123},
                         "job_notification_emails": "me@example.com",
-                        "engine": "ZEEP",
                     },
                 }
             )
@@ -90,14 +106,13 @@ class TestWriteEnvironmentToConfig:
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://v2.example.com", "auth_method": "oauth", "client_id": "CLI"},
+            {"base_url": "https://v2.example.com/bfabric", "auth_method": "oauth", "client_id": "CLI"},
             set_default=True,
         )
         env = yaml.safe_load(config_path.read_text())["PROD"]
         assert env["application_ids"] == {"app": 123}
         assert env["job_notification_emails"] == "me@example.com"
-        assert env["engine"] == "ZEEP"
-        assert env["base_url"] == "https://v2.example.com"
+        assert env["base_url"] == "https://v2.example.com/bfabric"
 
     def test_drops_stale_pat_when_re_login_is_oauth(self, tmp_path):
         """Auth-owned keys are replaced wholesale: a leftover ``pat`` would be resurrected by
@@ -106,13 +121,18 @@ class TestWriteEnvironmentToConfig:
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://example.com", "auth_method": "pat", "pat": "secret-pat"},
+            {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "secret-pat"},
             set_default=True,
         )
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://example.com", "auth_method": "oauth", "client_id": "CLI", "scope": "api:read"},
+            {
+                "base_url": "https://example.com/bfabric",
+                "auth_method": "oauth",
+                "client_id": "CLI",
+                "scope": "api:read",
+            },
             set_default=True,
         )
         env = yaml.safe_load(config_path.read_text())["PROD"]
@@ -127,7 +147,7 @@ class TestWriteEnvironmentToConfig:
                 {
                     "GENERAL": {},
                     "PROD": {
-                        "base_url": "https://example.com",
+                        "base_url": "https://example.com/bfabric",
                         "login": "someone",
                         "password": "x" * 32,
                     },
@@ -137,7 +157,7 @@ class TestWriteEnvironmentToConfig:
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://example.com", "auth_method": "oauth", "client_id": "CLI"},
+            {"base_url": "https://example.com/bfabric", "auth_method": "oauth", "client_id": "CLI"},
             set_default=False,
         )
         env = yaml.safe_load(config_path.read_text())["PROD"]
@@ -149,29 +169,31 @@ class TestWriteEnvironmentToConfig:
         caught before any write, so the config on disk survives intact."""
         config_path = tmp_path / "config.yml"
         config_path.write_text(
-            yaml.dump({"GENERAL": {}, "PROD": {"base_url": "https://example.com", "engine": "bogus"}})
+            yaml.dump({"GENERAL": {}, "PROD": {"base_url": "https://example.com/bfabric", "engine": "bogus"}})
         )
         before = config_path.read_text()
         with pytest.raises(ValidationError):
             write_environment_to_config(
                 config_path,
                 "PROD",
-                {"base_url": "https://example.com", "auth_method": "oauth", "client_id": "CLI"},
+                {"base_url": "https://example.com/bfabric", "auth_method": "oauth", "client_id": "CLI"},
                 set_default=False,
             )
         assert config_path.read_text() == before
 
     def test_set_default_false(self, tmp_path):
         config_path = tmp_path / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com"}, set_default=True)
-        write_environment_to_config(config_path, "TEST", {"base_url": "https://test.example.com"}, set_default=False)
+        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
+        write_environment_to_config(
+            config_path, "TEST", {"base_url": "https://test.example.com/bfabric"}, set_default=False
+        )
         data = yaml.safe_load(config_path.read_text())
         assert data["GENERAL"]["default_config"] == "PROD"
         assert "TEST" in data
 
     def test_creates_parent_dirs(self, tmp_path):
         config_path = tmp_path / "sub" / "dir" / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com"}, set_default=True)
+        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
         assert config_path.is_file()
 
 
@@ -183,7 +205,7 @@ class TestRoundTrip:
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://example.com", "login": OAUTH_LOGIN, "password": "secret-pat"},
+            {"base_url": "https://example.com/bfabric", "login": OAUTH_LOGIN, "password": "secret-pat"},
             set_default=True,
         )
         config_file = ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
@@ -191,14 +213,14 @@ class TestRoundTrip:
         assert env.auth is not None
         assert env.auth.login == OAUTH_LOGIN
         assert env.auth.password.get_secret_value() == "secret-pat"
-        assert env.config.base_url == "https://example.com/"
+        assert env.config.base_url == "https://example.com/bfabric"
 
     def test_oauth_env_round_trips(self, tmp_path):
         config_path = tmp_path / "config.yml"
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://example.com", "auth_method": "oauth", "client_id": "cid"},
+            {"base_url": "https://example.com/bfabric", "auth_method": "oauth", "client_id": "cid"},
             set_default=True,
         )
         config_file = ConfigFile.model_validate(yaml.safe_load(config_path.read_text()))
@@ -206,7 +228,7 @@ class TestRoundTrip:
         assert env.auth is None
         assert env.auth_method == "oauth"
         assert env.client_id == "cid"
-        assert env.config.base_url == "https://example.com/"
+        assert env.config.base_url == "https://example.com/bfabric"
 
     def test_rejects_unparseable_env(self, tmp_path):
         # base_url is required by BfabricClientConfig; without it the written file would fail to
@@ -221,7 +243,9 @@ class TestRoundTrip:
     def test_does_not_corrupt_existing_file_on_invalid_env(self, tmp_path):
         # A rejected write must leave any pre-existing config untouched.
         config_path = tmp_path / "config.yml"
-        write_environment_to_config(config_path, "GOOD", {"base_url": "https://good.example.com"}, set_default=True)
+        write_environment_to_config(
+            config_path, "GOOD", {"base_url": "https://good.example.com/bfabric"}, set_default=True
+        )
         before = config_path.read_text()
         with pytest.raises((ValueError, TypeError)):
             write_environment_to_config(
@@ -235,7 +259,9 @@ class TestRoundTrip:
         # section, so an environment under either name would never load back.
         config_path = tmp_path / "config.yml"
         with pytest.raises(ValueError):
-            write_environment_to_config(config_path, reserved, {"base_url": "https://example.com"}, set_default=True)
+            write_environment_to_config(
+                config_path, reserved, {"base_url": "https://example.com/bfabric"}, set_default=True
+            )
         assert not config_path.exists()
 
 
@@ -246,8 +272,8 @@ class TestSetDefaultConfig:
             yaml.dump(
                 {
                     "GENERAL": {"default_config": "PROD"},
-                    "PROD": {"base_url": "https://prod.example.com"},
-                    "TEST": {"base_url": "https://test.example.com"},
+                    "PROD": {"base_url": "https://prod.example.com/bfabric"},
+                    "TEST": {"base_url": "https://test.example.com/bfabric"},
                 }
             )
         )
@@ -264,8 +290,8 @@ class TestSetDefaultConfig:
         self._write_two_env_config(config_path)
         set_default_config(config_path, "TEST")
         data = yaml.safe_load(config_path.read_text())
-        assert data["PROD"]["base_url"] == "https://prod.example.com"
-        assert data["TEST"]["base_url"] == "https://test.example.com"
+        assert data["PROD"]["base_url"] == "https://prod.example.com/bfabric"
+        assert data["TEST"]["base_url"] == "https://test.example.com/bfabric"
 
     def test_raises_on_unknown_env_and_leaves_file_unchanged(self, tmp_path):
         config_path = tmp_path / "config.yml"
@@ -298,8 +324,8 @@ class TestRemoveEnvironmentFromConfig:
             yaml.dump(
                 {
                     "GENERAL": {"default_config": default},
-                    "PROD": {"base_url": "https://prod.example.com"},
-                    "TEST": {"base_url": "https://test.example.com"},
+                    "PROD": {"base_url": "https://prod.example.com/bfabric"},
+                    "TEST": {"base_url": "https://test.example.com/bfabric"},
                 }
             )
         )
@@ -310,7 +336,7 @@ class TestRemoveEnvironmentFromConfig:
         remove_environment_from_config(config_path, "TEST")
         data = yaml.safe_load(config_path.read_text())
         assert "TEST" not in data
-        assert data["PROD"]["base_url"] == "https://prod.example.com"
+        assert data["PROD"]["base_url"] == "https://prod.example.com/bfabric"
         # Removing a non-default env leaves the default untouched.
         assert data["GENERAL"]["default_config"] == "PROD"
 
@@ -357,14 +383,14 @@ class TestClearEnvironmentCredentials:
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://example.com", "auth_method": "pat", "pat": "secret-pat"},
+            {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "secret-pat"},
             set_default=True,
         )
         removed = clear_environment_credentials(config_path, "PROD")
         assert removed == ("pat",)
         data = yaml.safe_load(config_path.read_text())
         assert "pat" not in data["PROD"]
-        assert data["PROD"]["base_url"] == "https://example.com"
+        assert data["PROD"]["base_url"] == "https://example.com/bfabric"
         assert data["GENERAL"]["default_config"] == "PROD"
 
     def test_strips_login_and_password(self, tmp_path):
@@ -372,7 +398,7 @@ class TestClearEnvironmentCredentials:
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://example.com", "login": "someone", "password": "x" * 32},
+            {"base_url": "https://example.com/bfabric", "login": "someone", "password": "x" * 32},
             set_default=True,
         )
         removed = clear_environment_credentials(config_path, "PROD")
@@ -388,7 +414,7 @@ class TestClearEnvironmentCredentials:
             config_path,
             "PROD",
             {
-                "base_url": "https://example.com",
+                "base_url": "https://example.com/bfabric",
                 "auth_method": "oauth",
                 "client_id": "CLI",
                 "scope": "api:write tus",
@@ -397,7 +423,7 @@ class TestClearEnvironmentCredentials:
         )
         assert clear_environment_credentials(config_path, "PROD") == ()
         env = yaml.safe_load(config_path.read_text())["PROD"]
-        assert env["base_url"] == "https://example.com"
+        assert env["base_url"] == "https://example.com/bfabric"
         assert env["client_id"] == "CLI"
         assert env["scope"] == "api:write tus"
 
@@ -406,7 +432,7 @@ class TestClearEnvironmentCredentials:
         write_environment_to_config(
             config_path,
             "PROD",
-            {"base_url": "https://example.com", "auth_method": "pat", "pat": "secret-pat"},
+            {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "secret-pat"},
             set_default=True,
         )
         _ = clear_environment_credentials(config_path, "PROD")
@@ -416,12 +442,15 @@ class TestClearEnvironmentCredentials:
     def test_leaves_other_environments_alone(self, tmp_path):
         config_path = tmp_path / "config.yml"
         write_environment_to_config(
-            config_path, "PROD", {"base_url": "https://example.com", "auth_method": "pat", "pat": "p"}, set_default=True
+            config_path,
+            "PROD",
+            {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "p"},
+            set_default=True,
         )
         write_environment_to_config(
             config_path,
             "TEST",
-            {"base_url": "https://test.example.com", "auth_method": "pat", "pat": "t"},
+            {"base_url": "https://test.example.com/bfabric", "auth_method": "pat", "pat": "t"},
             set_default=False,
         )
         _ = clear_environment_credentials(config_path, "PROD")
@@ -430,7 +459,7 @@ class TestClearEnvironmentCredentials:
 
     def test_raises_on_unknown_env_and_leaves_file_unchanged(self, tmp_path):
         config_path = tmp_path / "config.yml"
-        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com"}, set_default=True)
+        write_environment_to_config(config_path, "PROD", {"base_url": "https://example.com/bfabric"}, set_default=True)
         before = config_path.read_text()
         with pytest.raises(ValueError):
             clear_environment_credentials(config_path, "NOPE")
@@ -443,7 +472,10 @@ class TestClearEnvironmentCredentials:
     def test_tightens_permissions(self, tmp_path):
         config_path = tmp_path / "config.yml"
         write_environment_to_config(
-            config_path, "PROD", {"base_url": "https://example.com", "auth_method": "pat", "pat": "p"}, set_default=True
+            config_path,
+            "PROD",
+            {"base_url": "https://example.com/bfabric", "auth_method": "pat", "pat": "p"},
+            set_default=True,
         )
         config_path.chmod(0o644)
         _ = clear_environment_credentials(config_path, "PROD")

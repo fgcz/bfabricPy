@@ -1,17 +1,20 @@
+from urllib.error import URLError
+
 import pytest
+import suds.transport
 from pydantic import SecretStr
 from suds import MethodNotFound
 from suds.client import Client
 
 from bfabric.engine.engine_suds import EngineSUDS
-from bfabric.errors import BfabricRequestError
+from bfabric.errors import BfabricRequestError, BfabricUnavailableError
 from bfabric.results.response_delete import ResponseDelete
 from bfabric.results.result_container import ResultContainer
 
 
 @pytest.fixture
 def engine_suds():
-    return EngineSUDS(base_url="http://example.com/api")
+    return EngineSUDS(base_url="https://example.com/bfabric")
 
 
 @pytest.fixture
@@ -118,10 +121,54 @@ def test_convert_results(engine_suds, mocker):
 
 def test_get_suds_service(mocker, mock_client, mock_suds_service):
     construct_client = mocker.patch("bfabric.engine.engine_suds.Client", return_value=mock_client)
-    engine = EngineSUDS(base_url="http://example.com/api")
+    engine = EngineSUDS(base_url="https://example.com/bfabric")
     service = engine._get_suds_service("sample")
-    construct_client.assert_called_once_with("http://example.com/api/sample?wsdl", cache=None)
+    construct_client.assert_called_once_with("https://example.com/bfabric/sample?wsdl", cache=None)
     assert service == mock_suds_service
+
+
+class TestUnreachableInstance:
+    """An unreachable instance must arrive as a RuntimeError, not a transport-library exception.
+
+    Neither ``suds.transport.TransportError`` nor urllib's ``URLError`` is a ``RuntimeError``, so
+    untranslated they escape the error handling in `@use_client` and in calling services.
+    """
+
+    def test_connection_failure_raises_unavailable(self, mocker):
+        mocker.patch(
+            "bfabric.engine.engine_suds.Client",
+            side_effect=URLError(ConnectionRefusedError(111, "Connection refused")),
+        )
+        engine = EngineSUDS(base_url="https://example.com/bfabric")
+
+        with pytest.raises(BfabricUnavailableError, match="Could not reach the B-Fabric instance") as exc_info:
+            engine._get_suds_service("sample")
+
+        assert isinstance(exc_info.value, RuntimeError)
+        assert "https://example.com/bfabric" in str(exc_info.value)
+
+    def test_server_error_raises_unavailable(self, mocker):
+        mocker.patch(
+            "bfabric.engine.engine_suds.Client",
+            side_effect=suds.transport.TransportError("Internal Server Error", 500),
+        )
+        engine = EngineSUDS(base_url="https://example.com/bfabric")
+
+        with pytest.raises(BfabricUnavailableError):
+            engine._get_suds_service("sample")
+
+    def test_missing_endpoint_still_reports_the_endpoint(self, mocker):
+        """A 404 is not unreachability -- the instance answered, that endpoint just is not there."""
+        mocker.patch(
+            "bfabric.engine.engine_suds.Client",
+            side_effect=suds.transport.TransportError("Not Found", 404),
+        )
+        engine = EngineSUDS(base_url="https://example.com/bfabric")
+
+        with pytest.raises(BfabricRequestError, match="Non-existent endpoint 'sample'") as exc_info:
+            engine._get_suds_service("sample")
+
+        assert not isinstance(exc_info.value, BfabricUnavailableError)
 
 
 def test_convert_results_no_results(engine_suds, mocker):

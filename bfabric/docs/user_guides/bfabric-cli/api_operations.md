@@ -30,14 +30,16 @@ bfabric-cli api read [ENDPOINT] [QUERY] [OPTIONS]
 
 ### Parameters
 
-| Parameter   | Required | Description                                                         |
-| ----------- | -------- | ------------------------------------------------------------------- |
-| `endpoint`  | Yes      | Entity type (e.g., `resource`, `sample`, `workunit`, `dataset`)     |
-| `query`     | No       | Key-value pairs to filter results                                   |
-| `--format`  | No       | Output: `json`, `yaml`, `tsv`, `table-rich` (default: `table-rich`) |
-| `--limit`   | No       | Maximum results (default: 100)                                      |
-| `--columns` | No       | Comma-separated columns to display                                  |
-| `--file`    | No       | Write output to file                                                |
+| Parameter     | Required | Description                                                         |
+| ------------- | -------- | ------------------------------------------------------------------- |
+| `endpoint`    | Yes      | Entity type (e.g., `resource`, `sample`, `workunit`, `dataset`)     |
+| `query`       | No       | Key-value pairs to filter results                                   |
+| `--json`      | No       | Query as a JSON object, merged with the key-value pairs             |
+| `--json-file` | No       | Path to a file containing that JSON object                          |
+| `--format`    | No       | Output: `json`, `yaml`, `tsv`, `table-rich` (default: `table-rich`) |
+| `--limit`     | No       | Maximum results (default: 100)                                      |
+| `--columns`   | No       | Comma-separated columns to display                                  |
+| `--file`      | No       | Write output to file                                                |
 
 ### Examples
 
@@ -53,6 +55,10 @@ bfabric-cli api read resource createdby pfeeder createdafter 2024-05-01
 
 # Query multiple IDs
 bfabric-cli api read resource id 2784586 id 2784576
+
+# Query as JSON, from the command line or a file
+bfabric-cli api read resource --json '{"createdby": "pfeeder", "createdafter": "2024-05-01"}'
+bfabric-cli api read resource --json-file query.json
 
 # Output formats
 bfabric-cli api read resource --limit 10 --format json
@@ -78,7 +84,14 @@ bfabric-cli api create resource name "hello.txt" workunitid 321802 base64 aGVsbG
 
 # Create a sample
 bfabric-cli api create sample name "My Sample" containerid 1234
+
+# Create from JSON — the only way to pass nested or non-string values
+bfabric-cli api create sample --json '{"name": "My Sample", "containerid": 1234}'
+bfabric-cli api create sample --json-file sample.json
 ```
+
+`--json` and `--json-file` work the same way for `read` and `update`. Both are merged with any
+key-value pairs given alongside them, and a key present in both is an error.
 
 ## Updating Entities
 

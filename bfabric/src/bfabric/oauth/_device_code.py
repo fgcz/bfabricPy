@@ -1,76 +1,62 @@
-"""OAuth 2.0 Device Authorization Grant (RFC 8628) for headless/SSH login.
-
-Implements the device code flow:
-
-1. Request a device code + user code from the authorization server
-2. Display the user code and verification URI to the user
-3. Poll the token endpoint until the user authorizes or the request expires
-
-No extra dependencies — uses ``httpx`` (already a project dependency),
-``time``, and ``sys``.
-"""
+"""OAuth 2.0 Device Authorization Grant (RFC 8628) for headless/SSH login."""
 
 from __future__ import annotations
 
 import sys
 import time
+from typing import TYPE_CHECKING
 
 import httpx
 from loguru import logger
 
-from bfabric.errors import BfabricOAuthError
+from bfabric.errors import BfabricOAuthError, raise_if_unavailable
+from bfabric.oauth._endpoints import token_url
+
+if TYPE_CHECKING:
+    from bfabric.config.base_url import BaseUrl
 
 
 def _request_device_code(
-    base_url: str,
+    base_url: BaseUrl,
     *,
     client_id: str,
     scope: str,
 ) -> dict[str, object]:
     """Request a device code from the authorization server.
 
-    Posts to ``{base_url}/rest/oauth/device_authorization`` with the
-    given *client_id* and *scope*.
-
     :returns: Dict with ``device_code``, ``user_code``, ``verification_uri``,
         optionally ``verification_uri_complete``, ``expires_in``, ``interval``.
     :raises httpx.HTTPStatusError: On non-2xx responses
     """
     logger.debug("Requesting device code from {}", base_url)
-    response = httpx.post(
-        f"{base_url}/rest/oauth/device_authorization",
-        data={
-            "client_id": client_id,
-            "scope": scope,
-        },
-        timeout=30,
-    )
+    with raise_if_unavailable(base_url):
+        response = httpx.post(
+            f"{base_url}/rest/oauth/device_authorization",
+            data={
+                "client_id": client_id,
+                "scope": scope,
+            },
+            timeout=30,
+        )
     _ = response.raise_for_status()
     result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
     return result
 
 
 def _poll_for_token(
-    base_url: str,
+    base_url: BaseUrl,
     *,
     device_code: str,
     client_id: str,
     interval: float,
     timeout: float,
 ) -> dict[str, object]:
-    """Poll the token endpoint until the user authorizes the device.
-
-    Implements the polling loop described in RFC 8628 Section 3.5:
-
-    - ``authorization_pending`` — sleep and retry
-    - ``slow_down`` — increase interval by 5 seconds, sleep and retry
-    - ``expired_token`` — raise ``RuntimeError``
-    - ``access_denied`` — raise ``RuntimeError``
+    """Poll the token endpoint until the user authorizes the device (RFC 8628 Section 3.5).
 
     :returns: Token dict with ``access_token``, ``refresh_token``, etc.
-    :raises RuntimeError: On timeout, expired token, or access denied
+    :raises BfabricOAuthError: On timeout, expired token, or access denied
     """
-    token_url = f"{base_url}/rest/oauth/token"
+    token_endpoint = token_url(base_url)
     deadline = time.monotonic() + timeout
     poll_interval = interval
 
@@ -80,7 +66,7 @@ def _poll_for_token(
 
         try:
             response = httpx.post(
-                token_url,
+                token_endpoint,
                 data={
                     "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
                     "device_code": device_code,
@@ -89,7 +75,6 @@ def _poll_for_token(
                 timeout=30,
             )
         except httpx.TransportError:
-            # Network-level errors (connection refused, DNS, etc.) — retry
             time.sleep(poll_interval)
             continue
 
@@ -107,8 +92,13 @@ def _poll_for_token(
         try:
             error_body: dict[str, object] = response.json()  # pyright: ignore[reportAny]
         except (ValueError, KeyError):
-            _ = response.raise_for_status()
-            raise BfabricOAuthError(f"Unexpected response: {response.status_code}")  # pragma: no cover
+            # A non-JSON body means this isn't the OAuth endpoint answering — an app-server 404 page
+            # during a redeploy, say. Report it as a domain error so the CLI prints a clean message
+            # instead of letting httpx's HTTPStatusError escape as a traceback.
+            raise BfabricOAuthError(
+                f"Token endpoint returned a non-JSON {response.status_code} response at {token_endpoint}. "
+                "The server may be unavailable — try again shortly."
+            ) from None
 
         error = str(error_body.get("error", ""))
 
@@ -127,7 +117,6 @@ def _poll_for_token(
         if error == "access_denied":
             raise BfabricOAuthError("User denied the authorization request")
 
-        # Unknown error — raise with whatever info we have
         description = str(error_body.get("error_description", ""))
         msg = f"Device code token error: {error}"
         if description:
@@ -136,7 +125,7 @@ def _poll_for_token(
 
 
 def device_code_login(
-    base_url: str,
+    base_url: BaseUrl,
     *,
     client_id: str,
     scope: str,
@@ -144,17 +133,10 @@ def device_code_login(
 ) -> dict[str, object]:
     """Perform an OAuth 2.0 Device Authorization Grant flow (RFC 8628).
 
-    Requests a device code, displays the user code and verification URI,
-    then polls until the user authorizes or the request times out.
-
-    :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-    :param client_id: OAuth client ID
-    :param scope: OAuth scope
     :param timeout: Seconds to wait for the user to authorize
     :returns: Token dict with ``access_token``, ``refresh_token``, etc.
-    :raises RuntimeError: On timeout, expired token, or access denied
+    :raises BfabricOAuthError: On timeout, expired token, or access denied
     """
-    base_url = base_url.rstrip("/")
     logger.debug("Starting device code flow for {}", base_url)
     device_response = _request_device_code(base_url, client_id=client_id, scope=scope)
 

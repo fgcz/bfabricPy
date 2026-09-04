@@ -25,6 +25,7 @@ from bfabric_scripts.cli.login._common import (
     resolve_set_default,
 )
 from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID
+from bfabric.config import BaseUrl
 from bfabric_scripts.cli.login._urls import normalize_base_url, suggest_env_name
 
 _SCOPE_HELP = (
@@ -43,7 +44,7 @@ class _LoginParams:
     """Everything a login needs, resolved from the command line, config, or a prompt."""
 
     config_env: str
-    base_url: str
+    base_url: BaseUrl
     client_id: str
     scope: str
     set_default: bool

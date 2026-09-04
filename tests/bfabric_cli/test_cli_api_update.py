@@ -10,7 +10,7 @@ from bfabric_scripts.cli.api.output_format import OutputFormat
 @pytest.fixture
 def mock_client(mocker):
     client = mocker.Mock(spec=Bfabric)
-    client.config.base_url = "http://test-bfabric.com"
+    client.config.base_url = "http://test-bfabric.com/bfabric"
     return client
 
 
@@ -94,3 +94,57 @@ class TestUpdateOutputFormat:
         cmd_api_update(params, client=mock_client)
 
         mock_client.save.assert_called_once_with("workunit", {"id": 42, "status": "available"})
+
+    def test_update_passes_json_attributes_to_save(self, mock_client, save_result):
+        mock_client.save.return_value = save_result
+        params = Params(
+            endpoint="workunit",
+            entity_id=42,
+            attributes={"json_input": '{"parameter": {"id": 7}}'},
+            no_confirm=True,
+        )
+
+        cmd_api_update(params, client=mock_client)
+
+        mock_client.save.assert_called_once_with("workunit", {"id": 42, "parameter": {"id": 7}})
+
+    def test_update_rejects_json_id_that_contradicts_entity_id(self):
+        with pytest.raises(ValueError, match="does not match the entity_id"):
+            Params(endpoint="workunit", entity_id=42, attributes={"json_input": '{"id": 99}'})
+
+
+class TestUpdateNonInteractiveConfirmation:
+    """Without a terminal the confirmation cannot be answered, so say what to pass instead of
+    letting rich raise EOFError from a traceback."""
+
+    def test_refuses_and_names_no_confirm(self, mocker, mock_client, capsys):
+        mocker.patch("bfabric_scripts.cli.api.update.is_interactive", return_value=False)
+        params = Params(endpoint="workunit", entity_id=42, attributes=[("status", "available")])
+
+        cmd_api_update(params, client=mock_client)
+
+        mock_client.save.assert_not_called()
+        assert "--no-confirm" in capsys.readouterr().err
+
+    def test_does_not_read_the_entity_first(self, mocker, mock_client):
+        """The refusal is about the missing terminal, so it should not cost an API round-trip."""
+        mocker.patch("bfabric_scripts.cli.api.update.is_interactive", return_value=False)
+        params = Params(endpoint="workunit", entity_id=42, attributes=[("status", "available")])
+
+        cmd_api_update(params, client=mock_client)
+
+        mock_client.read.assert_not_called()
+
+    def test_no_confirm_still_writes_without_a_terminal(self, mocker, mock_client, save_result):
+        mocker.patch("bfabric_scripts.cli.api.update.is_interactive", return_value=False)
+        mock_client.save.return_value = save_result
+        params = Params(
+            endpoint="workunit",
+            entity_id=42,
+            attributes=[("status", "available")],
+            no_confirm=True,
+        )
+
+        cmd_api_update(params, client=mock_client)
+
+        mock_client.save.assert_called_once()
