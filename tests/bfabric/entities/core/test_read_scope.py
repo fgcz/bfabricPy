@@ -1,7 +1,14 @@
+import asyncio
+
 import pytest
 
 from bfabric import BaseUrl, Bfabric
-from bfabric.entities.core.read_scope import ReadScope, _reset_read_scope, get_read_scope
+from bfabric.entities.core.read_scope import (
+    ReadScope,
+    _read_scope_stack,
+    _reset_read_scope,
+    get_read_scope,
+)
 from bfabric.entities.core.uri import EntityUri
 
 INSTANCE_A = BaseUrl("https://a.example.org/bfabric")
@@ -58,21 +65,82 @@ class TestAmbientContext:
                 assert get_read_scope() is scope
             # inner exit must not clear the still-active outer context
             assert get_read_scope() is scope
-        # outer exit restores to no-scope and must not raise on a reused token
+        # both frames are gone once the outer `with` exits
         with pytest.raises(LookupError):
             get_read_scope()
 
-    def test_reentry_preserves_parent_delegation(self, client_a, client_b):
-        # Re-entering a scope that has a parent must keep delegating unknown instances to that
-        # parent (regression: recording ``None`` on re-entry dropped the delegation, so a read for
-        # the parent's instance raised LookupError inside the nested ``with``).
+    def test_reentry_preserves_enclosing_delegation(self, client_a, client_b):
+        # Re-entering a scope must keep delegating unknown instances to the scopes enclosing it, so
+        # a read for the outer scope's instance still resolves inside the nested ``with``.
         outer = ReadScope(client_a)
         inner = ReadScope(client_b)
         with outer, inner:
-            with inner:  # re-enter inner while outer is still its parent
+            with inner:  # re-enter inner while outer still encloses it
                 assert inner._reader_for(INSTANCE_A) is outer._readers[INSTANCE_A]
             # delegation still works once the re-entry has exited
             assert inner._reader_for(INSTANCE_A) is outer._readers[INSTANCE_A]
+
+    def test_reentering_an_enclosing_scope_does_not_form_a_cycle(self, client_a, client_b):
+        # ``with a: with b: with a:`` used to make a and b each other's stored parent, so delegating
+        # an unknown instance recursed between them until RecursionError.
+        a, b = ReadScope(client_a), ReadScope(client_b)
+        unknown = BaseUrl("https://c.example.org/bfabric")
+        with a, b, a:
+            with pytest.raises(LookupError, match="No B-Fabric connection registered"):
+                a._reader_for(unknown)
+
+
+class TestConcurrency:
+    """``client.reader`` is a cached_property, so concurrent tasks on one client share a scope."""
+
+    @staticmethod
+    def _gather(*coros):
+        async def run():
+            return await asyncio.gather(*coros, return_exceptions=True)
+
+        return asyncio.run(run())
+
+    def test_out_of_order_exit_between_tasks(self, client_a):
+        # Entering set a ContextVar Token on the shared scope; whichever task exited first reset the
+        # other's token, raising "was created in a different Context" and failing both requests.
+        scope = ReadScope(client_a)
+
+        async def request(hold):
+            with scope:
+                await asyncio.sleep(hold)
+            return "ok"
+
+        # enter A, enter B, then exit A first -- the exit order is not LIFO across the two tasks
+        assert self._gather(request(0.01), request(0.05)) == ["ok", "ok"]
+
+    def test_concurrent_cache_entities_are_isolated(self, client_a):
+        scope = ReadScope(client_a)
+        depths: list[int] = []
+
+        async def request(hold):
+            with scope.cache_entities("workunit", max_size=10):
+                await asyncio.sleep(hold)
+                depths.append(len(scope._cache._frames()))
+
+        self._gather(request(0.01), request(0.05))
+        # each task sees only the cache it pushed, not the other's
+        assert depths == [1, 1]
+        assert len(scope._cache._frames()) == 0
+
+    def test_scope_is_not_visible_to_a_sibling_task(self, client_a):
+        scope = ReadScope(client_a)
+        seen: list[object] = []
+
+        async def inside():
+            with scope:
+                await asyncio.sleep(0.02)
+
+        async def outside():
+            await asyncio.sleep(0.01)  # runs while `inside` holds the scope
+            seen.append(_read_scope_stack.get())
+
+        self._gather(inside(), outside())
+        assert seen == [()]
 
 
 class TestConstruction:
@@ -140,18 +208,18 @@ class TestRouting:
 class TestCacheScoping:
     def test_cache_entities_pushed_and_popped(self, client_a):
         scope = ReadScope(client_a)
-        assert len(scope._cache._stack) == 0
+        assert len(scope._cache._frames()) == 0
         with scope.cache_entities("workunit", max_size=5):
-            assert len(scope._cache._stack) == 1
-        assert len(scope._cache._stack) == 0
+            assert len(scope._cache._frames()) == 1
+        assert len(scope._cache._frames()) == 0
 
     def test_free_cache_entities_delegates_to_active_scope(self, client_a):
         from bfabric.entities.cache.context import cache_entities
 
         scope = ReadScope(client_a)
         with scope, cache_entities("workunit"):
-            assert len(scope._cache._stack) == 1
-        assert len(scope._cache._stack) == 0
+            assert len(scope._cache._frames()) == 1
+        assert len(scope._cache._frames()) == 0
 
     def test_free_cache_entities_without_scope_raises(self):
         from bfabric.entities.cache.context import cache_entities

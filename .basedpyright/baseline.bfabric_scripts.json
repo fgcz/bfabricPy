@@ -2346,22 +2346,6 @@
                     "endColumn": 30,
                     "lineCount": 1
                 }
-            },
-            {
-                "code": "reportOptionalMemberAccess",
-                "range": {
-                    "startColumn": 20,
-                    "endColumn": 32,
-                    "lineCount": 1
-                }
-            },
-            {
-                "code": "reportOptionalMemberAccess",
-                "range": {
-                    "startColumn": 24,
-                    "endColumn": 33,
-                    "lineCount": 1
-                }
             }
         ],
         "./bfabric_scripts/src/bfabric_scripts/cli/dataset/upload.py": [

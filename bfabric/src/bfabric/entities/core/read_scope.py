@@ -16,7 +16,6 @@ from bfabric.entities.core.uri import EntityUri
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
-    from contextvars import Token
 
     from bfabric import BaseUrl, Bfabric
     from bfabric.typing import ApiRequestObjectType
@@ -24,27 +23,36 @@ if TYPE_CHECKING:
 
 EntityT = TypeVar("EntityT", bound="Entity")
 
-_read_scope_var: ContextVar[ReadScope | None] = ContextVar("bfabric_read_scope", default=None)
+# Both the active-scope stack and the cache frames live in module-level ContextVars rather than on
+# the ReadScope, because `client.reader` is a cached_property: two concurrent tasks on one client
+# share a single ReadScope object, so any per-`with` state kept on the instance would be shared
+# between them. Per-instance ContextVars are not an option either — a web app that builds a client
+# per request would create one per request and leak.
+_read_scope_stack: ContextVar[tuple[ReadScope, ...]] = ContextVar("bfabric_read_scopes", default=())
+_cache_frames: ContextVar[tuple[tuple[ReadScope, EntityMemoryCache], ...]] = ContextVar(
+    "bfabric_cache_frames", default=()
+)
 
 
 def get_read_scope() -> ReadScope:
-    """Return the ambient :class:`ReadScope` for the current context.
+    """Return the innermost active :class:`ReadScope` for the current context.
 
     Unlike the cache stack, there is no lazy default: entity navigation is explicit-only, so this
     raises when no read scope is active rather than silently creating an unconnected one.
     """
-    scope = _read_scope_var.get()
-    if scope is None:
+    stack = _read_scope_stack.get()
+    if not stack:
         raise LookupError(
             "No active ReadScope. Wrap entity navigation in `with client.reader:` "
             "(or `with ReadScope([client_a, client_b]):` for multiple instances)."
         )
-    return scope
+    return stack[-1]
 
 
 def _reset_read_scope() -> None:  # pyright: ignore[reportUnusedFunction]
-    """Reset the ambient read scope for the current context (for testing)."""
-    _ = _read_scope_var.set(None)
+    """Reset the ambient read scope and cache frames for the current context (for testing)."""
+    _ = _read_scope_stack.set(())
+    _ = _cache_frames.set(())
 
 
 def _build_cache_config(entities: str | list[str] | dict[str, int], max_size: int) -> dict[str, int]:
@@ -55,6 +63,35 @@ def _build_cache_config(entities: str | list[str] | dict[str, int], max_size: in
     else:
         config = {entities: max_size}
     return {key.lower(): value for key, value in config.items()}
+
+
+class _ScopedCacheStack(CacheStack):
+    """The cache frames belonging to one :class:`ReadScope`, isolated per context.
+
+    A read scope hands one of these to each of its readers at construction, so the reference is
+    stable, but the frames it reports are only those pushed by the *calling* context. Two concurrent
+    requests sharing a scope can therefore neither read nor pop each other's caches.
+    """
+
+    def __init__(self, scope: ReadScope) -> None:  # pyright: ignore[reportMissingSuperCall]
+        # Deliberately skips super().__init__(): the base class's instance-level frame list would be
+        # dead state here (and would read as empty), since `_frames` sources the context-local stack.
+        self._scope: ReadScope = scope
+
+    # `typing.override` is 3.12+, and this package still supports 3.11.
+    def _frames(self) -> list[EntityMemoryCache]:  # pyright: ignore[reportImplicitOverride]
+        return [cache for scope, cache in _cache_frames.get() if scope is self._scope]
+
+    def cache_push(self, cache: EntityMemoryCache) -> None:  # pyright: ignore[reportImplicitOverride]
+        _ = _cache_frames.set((*_cache_frames.get(), (self._scope, cache)))
+
+    def cache_pop(self) -> None:  # pyright: ignore[reportImplicitOverride]
+        frames = _cache_frames.get()
+        for index in reversed(range(len(frames))):
+            if frames[index][0] is self._scope:
+                _ = _cache_frames.set(frames[:index] + frames[index + 1 :])
+                return
+        raise IndexError("pop from empty cache stack")
 
 
 class ReadScope:
@@ -74,13 +111,10 @@ class ReadScope:
         from bfabric import Bfabric
 
         client_list = [clients] if isinstance(clients, Bfabric) else list(clients)
-        self._cache: CacheStack = CacheStack()
+        self._cache: CacheStack = _ScopedCacheStack(self)
         self._readers: dict[BaseUrl, EntityReader] = {}
         for client in client_list:
             self.add_client(client)
-        # One (parent, token) frame per active `with` — a stack so the same read scope object can be
-        # re-entered (e.g. `client.reader` is cached, so a nested `with client.reader:` re-enters it).
-        self._frames: list[tuple[ReadScope | None, Token[ReadScope | None]]] = []
 
     def add_client(self, client: Bfabric) -> None:
         """Register (or replace) the connection for ``client``'s instance."""
@@ -91,18 +125,25 @@ class ReadScope:
         """The B-Fabric instance URLs this read scope can read from."""
         return list(self._readers)
 
-    @property
-    def _parent(self) -> ReadScope | None:
-        """The read scope active when this one was most recently entered, for instance delegation."""
-        return self._frames[-1][0] if self._frames else None
+    def _resolution_order(self) -> Iterator[ReadScope]:
+        """``self`` first, then the enclosing active scopes innermost-first, each visited once.
+
+        Derived from the ambient stack rather than a parent link stored on the scope, so re-entering
+        an already-enclosing scope (``with a: with b: with a:``) cannot form a delegation cycle.
+        """
+        seen: set[int] = set()
+        for scope in (self, *reversed(_read_scope_stack.get())):
+            if id(scope) not in seen:
+                seen.add(id(scope))
+                yield scope
 
     def _reader_for(self, instance: BaseUrl) -> EntityReader:
-        reader = self._readers.get(instance)
-        if reader is not None:
-            return reader
-        if self._parent is not None:
-            return self._parent._reader_for(instance)
-        known = ", ".join(sorted(self._readers)) or "(none)"
+        candidates = list(self._resolution_order())
+        for scope in candidates:
+            reader = scope._readers.get(instance)
+            if reader is not None:
+                return reader
+        known = ", ".join(sorted({str(url) for scope in candidates for url in scope._readers})) or "(none)"
         raise LookupError(
             f"No B-Fabric connection registered for instance {instance!r}. Known: {known}. "
             f"Enter `with ReadScope([...])` including that instance."
@@ -280,15 +321,14 @@ class ReadScope:
             self._cache.cache_pop()
 
     def __enter__(self) -> ReadScope:
-        parent = _read_scope_var.get()
-        # On re-entry of an already-active read scope, recording ``self`` as parent would recurse in
-        # `_reader_for`; keep the existing parent instead so instance delegation still works inside
-        # the nested `with` (recording ``None`` here would drop it).
-        effective_parent = self._parent if parent is self else parent
-        self._frames.append((effective_parent, _read_scope_var.set(self)))
+        _ = _read_scope_stack.set((*_read_scope_stack.get(), self))
         return self
 
     def __exit__(self, *exc: object) -> None:
-        if self._frames:
-            _, token = self._frames.pop()
-            _read_scope_var.reset(token)
+        # Sets the truncated stack rather than resetting a Token: a Token can only be reset in the
+        # context that created it, and the same scope object may be entered from several contexts.
+        # `with` nesting is LIFO within a context, so the top frame is this scope's; checking that
+        # keeps an unbalanced exit from dropping an enclosing scope's frame instead.
+        stack = _read_scope_stack.get()
+        if stack and stack[-1] is self:
+            _ = _read_scope_stack.set(stack[:-1])

@@ -26,6 +26,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Removed
 
 - **Breaking:** the deprecated `FindMixin` (`Entity.find` / `find_all` / `find_by`) is removed — use `client.reader.read_id` / `read_ids` / `query` (reshaping results with the `EntityResult` `.present` / `.by_id` views).
+- **Breaking:** `cache_entities` no longer accepts entity *classes* as cache keys (previously a `DeprecationWarning`) — pass the endpoint strings, e.g. `cache_entities(["workunit"])`.
 
 ## \[1.22.0\] - 2026-08-25
 

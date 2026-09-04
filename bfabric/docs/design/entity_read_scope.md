@@ -14,18 +14,33 @@ known design mistake:
 
 ## The design
 
-Entities are now **pure data**: a `data_dict` plus a required `bfabric_instance` string, nothing
+Entities are now **pure data**: a `data_dict` plus a required `bfabric_instance`, nothing
 else. The connection lives in a **`ReadScope`** — an ambient, read-only hub that:
 
 1. **Routes reads by instance.** A read scope holds one internal `EntityReader` per registered
    client. `read_uris` groups its URIs by instance and dispatches each group to the matching
    reader, so one read scope can read from several instances at once. `query` (which targets a single
    SOAP endpoint) is routed to the reader for the named instance.
-2. **Owns the entity cache.** The cache stack is a member of the read scope, so its lifetime is bounded
-   by the read scope — a cache can never outlive the connection/authority scope, which closes a
-   cross-user cache-leak hole (pure-data entities are otherwise freely shareable).
+2. **Owns the entity cache.** Cache frames are scoped to the read scope, so a cache can never outlive
+   the connection/authority scope, which closes a cross-user cache-leak hole (pure-data entities are
+   otherwise freely shareable).
 3. **Is the ambient context for lazy navigation.** `workunit.application`, `created_by`,
    `ExternalJob.client_entity`, and unloaded `refs` resolve the connection via `get_read_scope()`.
+
+### Per-`with` state is context-local, never on the scope
+
+`client.reader` is a `cached_property`, so two concurrent tasks using one client share a single
+`ReadScope` object. Everything that belongs to one `with` block therefore lives in module-level
+`ContextVar`s — the stack of active scopes and the cache frames — keyed by scope, never on the
+instance. Two consequences worth knowing:
+
+- `__exit__` truncates the stack instead of resetting a `ContextVar` token, because a token can only
+  be reset in the context that created it.
+- Instance delegation walks the ambient stack rather than a parent link stored on the scope, so
+  re-entering an already-enclosing scope (`with a: with b: with a:`) cannot form a resolution cycle.
+
+Per-instance `ContextVar`s would be the obvious alternative but are not viable: a web app that
+builds a client per request would create one per request and leak.
 
 `client.reader` returns a single-client `ReadScope`; `ReadScope([client_a, client_b])`
 builds a multi-instance one.
