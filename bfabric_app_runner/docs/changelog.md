@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- An app spec that defines exactly one version no longer needs the workunit's `application_version` parameter; a workunit without one resolves to that version. A parameter that is present must still name a defined version.
 - The demo app copier template requests its input files with a `bfabric_resource_dataset` input instead of resolving the dataset's resources itself, so its `dispatch` no longer talks to B-Fabric and the generated app drops its `pyjanitor` dependency. The Snakefile takes its input names from the `dataset.parquet` sidecar rather than globbing `input/`.
 
 ### Fixed
