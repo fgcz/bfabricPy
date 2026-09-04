@@ -291,9 +291,7 @@ class TestExecutables:
     """`executables` are saved as `context: "WORKUNIT"` executables of the new workunit."""
 
     def test_params_accepts_executables_only(self):
-        params = CreateWorkunitParams(
-            container_id=1, application_id=2, workunit_name="x", executables={"s.py": "eA=="}
-        )
+        params = CreateWorkunitParams(container_id=1, application_id=2, workunit_name="x", executables={"s.py": "eA=="})
 
         assert params.executables == {"s.py": "eA=="}
 
