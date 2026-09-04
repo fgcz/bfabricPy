@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import tomllib
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -38,15 +39,21 @@ def _collect_test_deps(package_dirs):
     Collect test dependencies from package pyproject.toml files.
 
     Filters out self-references to avoid trying to install packages
-    that aren't on PyPI yet or that we're installing from wheels.
+    that aren't on PyPI yet or that we're installing from wheels. The extras
+    such a self-reference asks for (`bfabric[transfer]`) are returned
+    separately, so the caller can install them from the wheel instead of
+    dropping them: without that, a release of only `bfabric` leaves `tuspy`
+    uninstalled and the tus tests fail on import.
 
     Args:
         package_dirs: Iterable of package directory names
 
     Returns:
-        List of test dependency strings
+        (deps, extras_by_package): test dependency strings, and the extras
+        requested on self-references keyed by package directory name.
     """
     all_deps = []
+    extras_by_package = {}
     package_names = set(package_dirs)  # e.g., {"bfabric", "bfabric_scripts"}
 
     for pkg in package_dirs:
@@ -74,8 +81,12 @@ def _collect_test_deps(package_dirs):
 
                     if dep_name not in package_names:
                         all_deps.append(dep)
+                    elif "[" in dep and "]" in dep:
+                        extras = dep.split("[", 1)[1].split("]", 1)[0]
+                        requested = {e.strip() for e in extras.split(",") if e.strip()}
+                        extras_by_package.setdefault(dep_name, set()).update(requested)
 
-    return all_deps
+    return all_deps, extras_by_package
 
 
 def _get_python_version_tuple(python_string):
@@ -220,19 +231,6 @@ def test_bfabric(session, resolution):
     session.run("pytest", "--durations=50", "--tb=short", "-ra", "tests/bfabric")
 
 
-@nox.session(python="3.13")
-def test_bfabric_zeep(session):
-    """Run the optional zeep-engine tests with the zeep extra installed.
-
-    The default `test_bfabric` session installs `bfabric[test]` without the `zeep`
-    extra, so the zeep-engine tests skip there (verifying the no-zeep path). This
-    session installs the extra so the engine itself stays covered.
-    """
-    session.install("./bfabric[test,zeep]")
-    session.run("uv", "pip", "list")
-    session.run("pytest", "--durations=50", "tests/bfabric/engine/test_engine_zeep.py")
-
-
 @nox.session(python=["3.11", "3.13"])
 @nox.parametrize("resolution", ["highest", "lowest-direct"])
 def test_bfabric_scripts(session, resolution):
@@ -373,10 +371,7 @@ def licensecheck(session, package) -> None:
 @nox.parametrize("package", WORKSPACE_PACKAGES)
 def basedpyright(session, package):
     # Install the package in editable mode so basedpyright can find it from source.
-    # bfabric's zeep engine is an optional extra; install it here so its imports
-    # (engine_zeep, ResponseDelete.from_zeep, the example scripts) still type-check.
-    extras = "[zeep]" if package == "bfabric" else ""
-    session.install("-e", f"./{package}{extras}")
+    session.install("-e", f"./{package}")
     session.install("basedpyright>=1.34.0,<1.35.0")
     # Use --venvpath to explicitly point to nox's venv directory, avoiding .venv if it exists
     venv_path = Path(session.virtualenv.location).parent
@@ -554,14 +549,22 @@ def test_distributions(session):
     session.log("")
 
     # Collect test dependencies from compatible packages only
-    test_deps = _collect_test_deps(compatible_packages.keys())
+    test_deps, extras_by_package = _collect_test_deps(compatible_packages.keys())
     if test_deps:
         session.log(f"Installing test dependencies: {len(test_deps)} packages")
         session.install("--resolution", resolution, *test_deps)
 
-    # Install all compatible wheels at once so uv can resolve dependencies
+    # Install all compatible wheels at once so uv can resolve dependencies,
+    # requesting the extras the test suites need (e.g. bfabric[transfer]).
+    wheel_specs = []
+    for wheel in compatible_wheels:
+        extras = extras_by_package.get(wheel_package_map[wheel])
+        wheel_specs.append(f"{wheel}[{','.join(sorted(extras))}]" if extras else wheel)
+
     session.log("Installing wheels...")
-    session.install(*compatible_wheels)
+    for spec in wheel_specs:
+        session.log(f"   - {spec}")
+    session.install(*wheel_specs)
 
     # Run tests for each compatible package
     for package, test_paths in compatible_packages.items():
@@ -574,3 +577,19 @@ def test_distributions(session):
         session.log("")
 
     session.log("All compatible packages tested successfully!")
+
+
+@nox.session(venv_backend="none", default=False)
+def diffstat(session):
+    """Summarize the branch's diff as added/removed/net lines, grouped by directory.
+
+    Thin wrapper around `.scripts/diffstat.py`, which needs no dependencies; every argument is
+    forwarded, so `nox -s diffstat -- --help` is the authoritative list of options.
+
+    Usage:
+        nox -s diffstat                                 # vs merge base with main, 2 levels deep
+        nox -s diffstat -- --base release --depth 1
+        nox -s diffstat -- -x tests -x '*/docs/*'       # drop paths from the table and totals
+    """
+    script = Path(__file__).parent / ".scripts" / "diffstat.py"
+    session.run(sys.executable, str(script), *session.posargs, external=True)

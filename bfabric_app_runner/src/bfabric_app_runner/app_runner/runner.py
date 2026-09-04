@@ -179,7 +179,6 @@ def run_app(
                 workunit_definition=workunit_definition,
                 client=client,
                 ssh_user=ssh_user,
-                reuse_default_resource=app_spec.reuse_default_resource,
                 force_storage=force_storage,
             )
 

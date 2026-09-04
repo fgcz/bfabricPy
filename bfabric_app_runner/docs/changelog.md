@@ -4,9 +4,38 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
-- Internal: migrated all read-path call sites off the deprecated `Entity.find`/`find_all`/`find_by` (`FindMixin`) API onto the modern `client.reader` (`read_id`/`read_ids`/`query_one`); no behavior change.
+### Changed
 
-## \[0.7.0rc1\] - 2026-07-15
+- An app spec that defines exactly one version no longer needs the workunit's `application_version` parameter; a workunit without one resolves to that version. A parameter that is present must still name a defined version.
+- The demo app copier template requests its input files with a `bfabric_resource_dataset` input instead of resolving the dataset's resources itself, so its `dispatch` no longer talks to B-Fabric and the generated app drops its `pyjanitor` dependency. The Snakefile takes its input names from the `dataset.parquet` sidecar rather than globbing `input/`.
+
+### Fixed
+
+- The demo app copier template pins `bfabric-app-runner` to the version its `app.yml` declares, so a generated app's environment no longer silently resolves an older app-runner than the one its Makefile runs.
+- The demo app's generated `release.bash` is executable, as the post-copy message instructs.
+
+## \[0.8.0\] - 2026-08-20
+
+### Added
+
+- New `${app.dir}` template variable holding the app spec's directory, for paths no spec field resolves — e.g. `command: uv run --script ${app.dir}/dispatch.py`.
+
+### Changed
+
+- Output registration always creates a new resource instead of recycling the legacy wrapper creator's `pending` placeholder ([#361](https://github.com/fgcz/bfabricPy/issues/361)); the `reuse_default_resource` field and its CLI options are gone, but remain tolerated in an `app.yml`.
+- Relative paths in the app spec (`pylock`, `local_extra_deps`, `prepend_paths`, host side of docker `mounts`) resolve against the `app.yml` directory instead of the run's scratch directory, with a leading `~` expanded ([#212](https://github.com/fgcz/bfabricPy/issues/212)).
+- Captured command output (`uv venv` / `uv pip install`) is logged one record per line, so every line carries its level prefix.
+- Requires `bfabric` 1.21.0 for the logging fix that keeps a nested app-runner from falling back to loguru's verbose DEBUG format.
+- Internal: the input `Resolver` dispatches through a spec-class registry instead of an `issubclass` ladder, and reports a spec type with no resolver when it is constructed rather than part-way through a resolve; clears the 38 grandfathered basedpyright entries on that module.
+
+### Fixed
+
+- A `python_env` command whose `uv` binary is missing from `PATH` fails with `uv executable not found on PATH` instead of an obscure `TypeError`.
+- The demo app copier template can be instantiated again; the destination must now be given as an absolute path.
+- A failing app command reports a single `Error: Command failed with exit code N: <command>` line instead of ~10 frames of app-runner boilerplate ([#231](https://github.com/fgcz/bfabricPy/issues/231)).
+- `run workunit` no longer prints a second traceback when `make run-all` fails; it reports one line naming the workunit, exit code, and work directory.
+
+## \[0.7.0\] - 2026-08-03
 
 - `SaveDatasetSpec` (the `bfabric_dataset` output) gains a `format` field (`csv` default, or `parquet`), so an output dataset can be registered from Parquet; `separator` is now optional (csv-only) ([#359](https://github.com/fgcz/bfabricPy/issues/359)).
 - `BfabricResourceSpec` gains an `access` field (`ssh`/`http`); `access: http` streams from the storage's HTTP endpoint (needs an OAuth client whose token carries the `containers` scope). The generic `file` spec also gained an HTTP source.
@@ -16,7 +45,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - `CommandPythonEnv.python_version` now defaults to `"3.13"` (was `None`), fixing a `uv venv -p None` failure and pinning to the tested interpreter.
 - The SLURM wrapper now launches `bfabric-app-runner` with `uv run -p 3.13`, so it can't float onto an untested Python such as a prerelease 3.14 ([#494](https://github.com/fgcz/bfabricPy/issues/494)).
 - Python-environment provisioning output (`uv venv` / `uv pip install`) is now logged at DEBUG instead of printed (quiet INFO runs); failures are logged in full at ERROR.
-- Internal: ruff `flake8-type-checking` now treats `pydantic.BaseModel` / `FromConfigFile` as runtime-evaluated (dropping `# noqa: TC00x` and blanket per-file ignores).
+- Internal: all read-path call sites migrated off the deprecated `Entity.find`/`find_all`/`find_by` (`FindMixin`) API onto `client.reader` (`read_id`/`read_ids`/`query_one`), with no behavior change; ruff `flake8-type-checking` now treats `pydantic.BaseModel` / `FromConfigFile` as runtime-evaluated (dropping `# noqa: TC00x` and blanket per-file ignores).
 
 ## \[0.6.1\] - 2026-06-11
 

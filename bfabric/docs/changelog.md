@@ -9,30 +9,108 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
-- **Breaking:** entities no longer carry a live `Bfabric` client. `Entity(...)` and every subclass now take only `data_dict` + a **required** `bfabric_instance`; the `client=` parameter, the `Entity._client` property, and `Entity.load_yaml(client=...)` are removed. Lazy relationship navigation (`workunit.application`, `created_by`, `ExternalJob.client_entity`, …) resolves the connection from the active read scope instead.
+### Added
+
 - **New `ReadScope`** — `client.reader` now returns one. It is an ambient, read-only scope that routes reads to the right connection **by instance** (a single process can read from multiple B-Fabric instances, including multi-instance `query`) and owns the entity cache. Enter it with `with client.reader:` (or `with ReadScope([client_a, client_b]):`); navigating a relationship outside an active read scope raises a clear `LookupError`. The `@use_client` CLI decorator opens one automatically, so CLI/app-runner commands need no change.
+- `create_workunit` accepts `executables` (name → base64-encoded content), saved as `context: "WORKUNIT"` executables of the new workunit — e.g. the script that generated it. Executables alone count as workunit data.
+- `bfabric.oauth.AuthorizationRequest.create` starts an authorization-code login, returning the URL to redirect a user to along with the CSRF state and PKCE verifier to keep until they return. A web app can now run the flow without deriving a code challenge itself.
+- `bfabric.oauth.exchange_code` redeems the returned code for tokens. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
+- `bfabric.oauth.token_url` builds the token endpoint URL for an instance.
+
+### Changed
+
+- **Breaking:** entities no longer carry a live `Bfabric` client. `Entity(...)` and every subclass now take only `data_dict` + a **required** `bfabric_instance`; the `client=` parameter, the `Entity._client` property, and `Entity.load_yaml(client=...)` are removed. Lazy relationship navigation (`workunit.application`, `created_by`, `ExternalJob.client_entity`, …) resolves the connection from the active read scope instead.
 - The two `EntityReader` cross-instance guards (which raised `ValueError` on a mismatched `bfabric_instance`) are gone — cross-instance reads are routed rather than rejected. `EntityReader` is now an internal per-client detail behind `ReadScope`.
 - Caching is now scoped to the active `ReadScope`: `cache_entities(...)` operates on that scope's cache (its lifetime bounded by the scope, avoiding cross-request reuse) and must be called inside an active read scope.
+
+### Removed
+
 - **Breaking:** the deprecated `FindMixin` (`Entity.find` / `find_all` / `find_by`) is removed — use `client.reader.read_id` / `read_ids` / `query` (reshaping results with the `EntityResult` `.present` / `.by_id` views).
-- `ResultContainer.to_polars()` returns an empty DataFrame for an empty result set instead of raising `polars.exceptions.NoDataError`, fixing a crash in `bfabric-cli api read` when a query matched no records.
-- OAuth: `Bfabric.connect_oauth` / `connect_pkce` / `connect_device_code` (and the underlying `_oauth` helpers) now require explicit `client_id` and `scope` — the core library no longer bakes in a `"CLI"` client ID or a default scope. Those defaults are now CLI policy (`bfabric-cli auth …` supplies them unchanged). `connect()` with `auth_method: oauth` now raises if the config environment has no `client_id` instead of falling back to `"CLI"`.
-- PKCE login: the browser callback page now renders a distinct, styled "Login failed" page showing the provider's error (e.g. a two-factor-enrollment requirement) instead of always claiming "Login successful".
-- OAuth token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) now raise a clear `BfabricOAuthError` instead of leaking an `authlib`/`requests` traceback.
-- `EntityReader` lookups (`read_id` / `read_ids` / `query` / `query_one`) now accept an entity **class** in place of the endpoint string — e.g. `client.reader.read_id(Resource, id)` — inferring both the endpoint and the result type; the string form (with optional `expected_type`) still works.
-- The id/URI `EntityReader` lookups (`read_ids` / `read_uris`) now return an `EntityResult` — a `dict[EntityUri, Entity | None]` subclass with `.present` (found entities as a list) and `.by_id` (found entities re-keyed by integer id) properties, so callers write `reader.read_ids(Resource, ids).present` instead of wrapping the result in a helper. Class→endpoint inference is centralized in `import_entity.entity_type_of` (the inverse of `import_entity`).
 
-## \[1.20.0rc2\] - 2026-07-15
+## \[1.22.0\] - 2026-08-25
 
-- OAuth 2.0 authentication: `connect_oauth` (client-credentials grant, auto-refresh + optional token cache), `connect_pkce` (interactive browser login, PKCE), `connect_device_code` (headless device grant), and `connect_pat` (Personal Access Token). `connect` auto-routes to OAuth when an environment sets `auth_method: oauth`. Adds `BfabricOAuthError` and the `authlib` / `joserfc` dependencies.
+### Added
+
+- `upload_files` resumes interrupted transfers by default, keeping each file's tus URL under `~/.bfabric/resume` per server, keyed by the file's MD5 and source path. Pass `resume_cache` to choose another path, or `resume_cache=None` to keep no state and never resume.
+
+### Changed
+
+- **Breaking: new `bfabric.BaseUrl`**, a `str` subclass replacing the pydantic `HttpUrl` on `BfabricClientConfig.base_url`, `Entity.bfabric_instance` and `EntityUriComponents.bfabric_instance`, which always ends with `/bfabric`. `UrlTokenContext.base_url`, `TokenValidationSettings` and `WebappIntegrationSettings` hold their instance URLs as `BaseUrl` too.
+- `connect_oauth` / `connect_pkce` / `connect_device_code` / `connect_pat` and `WebappClient.create` normalise host case and a default port, and reject a non-HTTP URL with a `ValueError`.
+- **Breaking:** `on_duplicate="link"` requires a B-Fabric that reports `linkable` and only links a duplicate reported as linkable; one whose resource is still `pending` or `failed` is uploaded instead. `DuplicateResult` carries `linkable` and `existingResourceStatus`.
+- `DuplicateResult.action` is a `Literal["upload", "skip", "link", "unsupported"]`; an action the client does not recognise is normalised to `unsupported` and refused per file.
+- `upload_files` raises `WorkunitCompletionError`, carrying the `UploadSummary`, when every transfer succeeded but marking the workunit `available` failed.
+- A resumed upload continues into its original workunit, resource and tracked job instead of creating a second one, and an interrupted upload that saved a resume URL leaves its workunit `processing` rather than `failed`.
+- `upload_files` documents that a successful return means the transfer completed, not that the file is stored — a caller that deletes its local copy must re-read the resource status and require `available` first.
+
+### Fixed
+
+- The SUDS WSDL URL, and the `show.html` links printed by `bfabric_read` and `bfabric-cli api read`, no longer contain a doubled slash.
+
+### Removed
+
+- **Breaking:** `bfabric.transfer.api_to_rest_url` — use `client.config.base_url`.
+
+## \[1.21.0\] - 2026-08-20
+
+### Added
+
+- `create_workunit` attaches a `dataset` (a `WorkunitDataset` of name + base64-encoded `csv`/`tsv`/`parquet`) as the workunit's output dataset, and references an existing one as its input via `input_dataset_id`. A dataset alone counts as workunit data, so neither resources nor files are required.
+- `on_duplicate="link"` registers a duplicate as a resource pointing at the existing bytes instead of omitting the file, transferring nothing. See `FileInfo.link_from_resource_id`.
+- `upload_files` / `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. `.DS_Store`).
+- `upload_files` accepts an `on_url` callback, reporting each file's resumable tus URL as soon as it exists (including for a transfer that then fails), so a caller can persist it for a later `send_to_sink(resume_url=...)`.
+- Config: new CLI-only `scope` field recording the scope *requested* at login, so a login can be replayed from disk; `config_writer.clear_environment_credentials` strips inline secrets while keeping the environment configured.
+
+### Changed
+
+- `upload_files(client, params)` takes its files as `UploadFilesParams.files`, a list of `UploadFileParam(path=..., on_duplicate=...)`; the `force` / `link_duplicates` booleans are gone.
+- **`on_duplicate` defaults to `upload`, so the duplicate check no longer runs unless asked for** — pass `skip` for the old behaviour.
+- `UploadSummary` holds one list per outcome — `uploads`, `skips`, `failures`, `links` — replacing the 1.20.0 counters; skips carry the duplicate they lost out to.
+- A workunit whose files were all linked now completes instead of failing the "nothing uploaded" check.
+- Two input files mapping to the same resource name are rejected before the workunit is created, not after.
+- `create_workunit` accepts a plain mapping for `params`, validated internally so an invalid mapping raises `ValidationError` before any write.
+- The OAuth module moved from `bfabric._oauth` to `bfabric.oauth`.
+- `import bfabric` no longer imports `polars` eagerly (~296 ms → ~184 ms); it loads on first use.
+- PKCE's printed-URL fallback and timeout error now name the loopback redirect target and point at the device-code flow.
+- `use_client` logs the reported error's traceback at DEBUG; the `Error: <message>` line and exit code 1 are unchanged.
+
+### Removed
+
+- **Breaking:** the zeep engine, which had stopped working against B-Fabric. `EngineSUDS` is the only engine, `BfabricAPIEngineType.ZEEP` is gone, and so is the `bfabric[zeep]` extra. An environment setting `engine: ZEEP` no longer loads — drop the key.
+- **Breaking:** the `engine` parameter of `Bfabric.from_config` (which never applied it) and of `BfabricClientConfig.copy_with`.
+
+### Fixed
+
+- An unreachable B-Fabric instance raises `BfabricUnavailableError` (a `BfabricRequestError`) naming the instance and the transport failure, instead of leaking `suds.transport.TransportError`, `urllib.error.URLError` or `httpx.TransportError`. Covers the SOAP engine and the OAuth/REST calls (JWKS, device code, registration, token exchange, introspection, PKCE).
+- `ResultContainer.assert_success` raises `BfabricRequestError` instead of a bare `RuntimeError`; it remains a `RuntimeError` subclass, so existing `except RuntimeError` handlers keep working.
+- `MultiQuery.read_multi` reserves query elements for `obj`'s other fields when chunking, instead of overflowing the API's 100-element limit. A query that already exhausts it raises `ValueError`.
+- Uploading a folder with sub-directories now works against servers that echo the resource name verbatim.
+- A nested re-upload reports `renamed_duplicate` rather than `exact_duplicate`; both carry the `skip` action, so branch on `action`, not `category`.
+- Device-code login reports a non-JSON token-endpoint response (e.g. an app-server 404 page during a redeploy) as `BfabricOAuthError` instead of a traceback.
+- `write_environment_to_config` merges into an existing environment instead of replacing it, so unrelated keys survive a re-login; auth-owned keys are still replaced wholesale.
+- `Bfabric.connect()` errors clearly when an `auth_method: oauth` config has no `env_name`.
+- `created_by` / `modified_by` raise a `ValueError` naming the login instead of returning `None`.
+- `setup_script_logging` no longer skips setup in subprocesses, which fell back to loguru's verbose DEBUG default; its repeat guard is now process-local.
+- The "could not find the config file" and "empty list provided for deletion" diagnostics go through loguru at WARNING instead of `print()`, so they honour the configured log level and sink.
+- Packaging: `project.readme` points at a package-local `README.md`, fixing builds from source with hatchling 1.32.0.
+- Internal: owner typing corrected across the `entities/core` descriptors and mixins; `HasMany(bfabric_field=...)` is now required and class-level access raises like `HasOne`.
+
+## \[1.20.0\] - 2026-08-03
+
+- OAuth 2.0 authentication: `connect_oauth` (client-credentials grant, auto-refresh + optional token cache), `connect_pkce` (interactive browser login, PKCE), `connect_device_code` (headless device grant), and `connect_pat` (Personal Access Token). `connect` auto-routes to OAuth when an environment sets `auth_method: oauth`. All three OAuth entry points require an explicit `client_id` and `scope` — the core library bakes in no defaults (those are CLI policy; `bfabric-cli auth …` supplies its own), and `connect()` raises if an `auth_method: oauth` environment has no `client_id`. Token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) raise `BfabricOAuthError` instead of leaking an `authlib`/`requests` traceback, and a failed PKCE login renders a distinct "Login failed" callback page showing the provider's error (e.g. a two-factor-enrollment requirement) rather than always claiming success. Adds the `authlib` / `joserfc` dependencies.
 - `WebappClient` — a dual-identity client pairing a token-derived `user` identity with a `service` (client-credentials) identity, for apps launched from B-Fabric.
 - New `bfabric.transfer` layer for moving files to/from B-Fabric: `fetch_to_path` (batch download over rsync / scp / cp / symlink / HTTP, checksum-verified) and `send_to_sink` (resumable tus upload, behind the `bfabric[transfer]` extra), plus the B-Fabric bindings (`ssh_source` / `http_source`, `UploadRestClient`, `token_provider`, OAuth scope checks). Ported from the `bfabric-tus-client` prototype.
 - `bfabric.operations.workunit.upload_files` — create or reuse a workunit and upload files as resources over tus (duplicate-skipping, optional `track_job`, failure cleanup). Exposed as `bfabric-cli workunit upload`.
 - Config: new `auth_method` (`password`/`oauth`) and `client_id` environment fields, plus `write_environment_to_config` and `DEFAULT_CONFIG_FILE`. PAT environments store the token under a `pat` key with `auth_method: pat` (not `login: __oauth__` / `password:`), so they no longer make older (≤1.19.0) clients reject the shared `~/.bfabricpy.yml`.
+- `EntityReader` lookups (`read_id` / `read_ids` / `query` / `query_one`) accept an entity **class** in place of the endpoint string — e.g. `client.reader.read_id(Resource, id)` — inferring both the endpoint and the result type; the string form (with optional `expected_type`) still works. The id/URI lookups (`read_ids` / `read_uris`) now return an `EntityResult`, a `dict[EntityUri, Entity | None]` subclass with `.present` (found entities as a list) and `.by_id` (found entities re-keyed by integer id), so callers write `reader.read_ids(Resource, ids).present` instead of wrapping the result in a helper.
+- `EntityUri.normalize` — normalize a B-Fabric web URL (as copied from the browser) into a canonical entity URI, dropping extra query parameters (e.g. `&tab=details`) and the fragment, and normalizing host case and a default port. The `EntityUri` constructor stays strict and now hints at `normalize` when it rejects such a URL. URI validation is also no longer regex-based (`urllib.parse` instead), so its error messages name the actual problem. This leaves the canonical form the constructor accepts unchanged, except that credentials in the URL (`https://user:pw@host/bfabric/…`) are now rejected and the localhost exemption is case-insensitive.
 - `zeep` is now optional — install `bfabric[zeep]` to use `engine="zeep"`; the default `suds` engine is unaffected.
 - Use `polars` (with the `rtcompat` extra on macOS x86_64) instead of `polars-lts-cpu`, fixing a clash with `pandera[polars]`; minimum polars now 1.34.
 - `ResultContainer.assert_success` now raises `RuntimeError` with a single message instead of a `(message, errors)` tuple.
 - The `@use_client` CLI decorator now catches `ValueError` / `RuntimeError` and prints a concise `Error: ...` (exiting non-zero) instead of a traceback.
-- Internal: `HasOne` descriptors are now generic over their return type, so to-one accesses type-check to the related entity (no more `cast` / `# pyright: ignore`), with no runtime change; removed dead required-relationship guards; ruff now treats `pydantic.BaseModel` as runtime-evaluated (dropping `# noqa: TC00x` workarounds).
+- `ResultContainer.to_polars()` returns an empty DataFrame for an empty result set instead of raising `polars.exceptions.NoDataError`, fixing a crash in `bfabric-cli api read` when a query matched no records.
+- `flatten_relations` (and `ResultContainer.to_polars(flatten=True)`) recursively flattens nested struct columns instead of only one level, so a nested `b.inner.p` field becomes the `b_inner_p` column. Also shipped as the `1.19.1` hotfix.
+- Internal: `HasOne` descriptors are now generic over their return type, so to-one accesses type-check to the related entity (no more `cast` / `# pyright: ignore`), with no runtime change; class→endpoint inference is centralized in `import_entity.entity_type_of` (the inverse of `import_entity`); removed dead required-relationship guards; ruff now treats `pydantic.BaseModel` as runtime-evaluated (dropping `# noqa: TC00x` workarounds).
 
 ## \[1.19.0\] - 2026-06-10
 

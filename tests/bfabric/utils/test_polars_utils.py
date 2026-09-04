@@ -24,6 +24,24 @@ def test_flatten_relations():
     pl.testing.assert_frame_equal(flatten_relations(df), expected_df)
 
 
+def test_flatten_relations_nested_struct():
+    df = pl.DataFrame(
+        {
+            "a": [1, 2],
+            "b": [{"x": 10, "inner": {"p": 100, "q": 101}}, {"x": 20, "inner": {"p": 200, "q": 201}}],
+        }
+    )
+    expected_df = pl.DataFrame(
+        {
+            "a": [1, 2],
+            "b_x": [10, 20],
+            "b_inner_p": [100, 200],
+            "b_inner_q": [101, 201],
+        }
+    )
+    pl.testing.assert_frame_equal(flatten_relations(df), expected_df)
+
+
 def test_flatten_relations_empty_df():
     df = pl.DataFrame({"a": [], "b": []})
     pl.testing.assert_frame_equal(flatten_relations(df), df)

@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from pathlib import Path
     from typing import Any
 
+    from bfabric import BaseUrl
     from bfabric.entities.core.references import References
     from bfabric.typing import ApiResponseDataType, ApiResponseObjectType
 
@@ -24,7 +25,7 @@ class Entity:
     :attr:`refs`), not through a client stored on the entity.
     """
 
-    def __init__(self, data_dict: ApiResponseObjectType, bfabric_instance: str) -> None:
+    def __init__(self, data_dict: ApiResponseObjectType, bfabric_instance: BaseUrl) -> None:
         self.__data_dict = data_dict
         self.__bfabric_instance = bfabric_instance
 
@@ -37,7 +38,7 @@ class Entity:
         return value
 
     @property
-    def bfabric_instance(self) -> str:
+    def bfabric_instance(self) -> BaseUrl:
         """The bfabric instance URL associated with the entity."""
         return self.__bfabric_instance
 
@@ -129,7 +130,7 @@ class Entity:
             yaml.safe_dump(self.__data_dict, file)
 
     @classmethod
-    def load_yaml(cls, path: Path, bfabric_instance: str) -> Self:
+    def load_yaml(cls, path: Path, bfabric_instance: BaseUrl) -> Self:
         """Loads an entity from a YAML file."""
         # TODO (#351): to be extended
         import yaml

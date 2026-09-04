@@ -11,7 +11,7 @@ The specification can be provided in a YAML file with the following structure:
 
 ```yaml
 bfabric:
-  app_runner: "0.0.17"  # or a git reference
+  app_runner: "0.8.0"  # or a git reference
   workflow_template_step_id: null  # optional
 versions:
   - version: "1.0.0"
@@ -24,6 +24,25 @@ versions:
 The top-level `bfabric` section contains metadata relevant to B-Fabric integration (the runner
 version to use and an optional workflow template step ID). The `versions` list defines one or
 more application versions, each with its own set of commands.
+
+## Paths
+
+Every path field in the spec (`pylock`, `local_extra_deps`, `prepend_paths`, and the host side of
+the docker `mounts` entries) is interpreted on the machine running the app, following one rule:
+
+- A relative path is resolved against the directory containing the app specification file, so a
+  spec directory can be relocated or checked out elsewhere without rewriting its paths.
+- A leading `~` is expanded to the home directory of the user running the app.
+- An absolute path is used as given.
+
+The container side of a `mounts` entry, and `mounts.work_dir_target`, are paths *inside* the
+container and are never rewritten.
+
+Paths that appear inside a `command` string or an `env` value cannot be detected as paths, so they
+are passed through unchanged; write those relative to the spec with `${app.dir}` (see
+[Variables and Templating](#variables-and-templating)).
+
+Use `bfabric-app-runner validate app-spec` to print the effective, resolved paths.
 
 ## Commands
 
@@ -118,12 +137,23 @@ Available variables for Mako templates:
 - `${app.id}`: Application ID (integer)
 - `${app.name}`: Application name (alphanumeric, underscores, hyphens)
 - `${app.version}`: Version string
+- `${app.dir}`: Directory containing the app specification file
 
 Example:
 
 ```yaml
 image: "registry.example.com/${app.name}:${app.version}"
 command: "/app/run.sh --app-id ${app.id}"
+```
+
+`${app.dir}` is for paths a spec field cannot resolve for you, i.e. a script referenced from within
+a command string:
+
+```yaml
+commands:
+  dispatch:
+    type: exec
+    command: "uv run --script ${app.dir}/dispatch.py"
 ```
 
 The `interpolate_config_strings` function processes all string values in the configuration after YAML loading.

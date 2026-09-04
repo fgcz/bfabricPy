@@ -113,7 +113,7 @@ def test_get_parquet(mock_dataset: Dataset) -> None:
 def test_repr(mock_empty_dataset: Dataset) -> None:
     assert (
         repr(mock_empty_dataset) == "Dataset(data_dict={'id': 1234, 'attribute': [], 'item': []}, "
-        "bfabric_instance='https://bfabric.example.org/bfabric/')"
+        "bfabric_instance='https://bfabric.example.org/bfabric')"
     )
 
 

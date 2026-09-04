@@ -8,21 +8,28 @@ Adds OAuth 2.0 support to bfabricPy. The library can now authenticate via PKCE, 
 
 ---
 
-## New: `bfabric._oauth` module
+## New: `bfabric.oauth` module
 
-Private module under `bfabric/src/bfabric/_oauth/` implementing all OAuth primitives.
+Package under `bfabric/src/bfabric/oauth/` implementing all OAuth primitives.
+
+The package root is the entire public surface: every submodule is underscore-prefixed, so the only supported import is `from bfabric.oauth import ...`. `__init__` exports `OAuthCredentialProvider`, `pkce_login`, `AuthorizationRequest`, `exchange_code`, `device_code_login`, `token_url`, `register_client`, `register_webapp`, `TokenCache`, `compute_token_cache_path`, `UrlTokenContext` and `WebappClient` — enough that nothing outside the package, including `bfabric_scripts`, ever names a module. Those names are provisional while the asgi-auth OAuth migration is in flight and may change without a deprecation cycle.
+
+`bfabric.py` is the one place that names the private submodules, and only because `__init__` re-exports `WebappClient`, whose module imports `Bfabric` — routing `connect_*` through the root makes that a static import cycle. It is an intra-package import, not a consumer reaching in.
+
+Separately, those `connect_*` imports are *function-local*: the OAuth code pulls `authlib` and `joserfc`, and `import bfabric` must stay free of both. Note that targeting a submodule does not by itself avoid this — importing `bfabric.oauth.<anything>` executes `__init__` first — so laziness, not module choice, is what keeps the base import clean.
 
 | File | Purpose |
 |------|---------|
-| `credential_provider.py` | `OAuthCredentialProvider` — thread-safe token management with automatic refresh and disk caching. Supports both `client_credentials` and `refresh_token` grant types. |
-| `pkce.py` | `pkce_login()` — browser-based PKCE flow. Starts a local HTTP server, opens the browser, exchanges the authorization code for tokens. |
-| `device_code.py` | `device_code_login()` — RFC 8628 device authorization flow for headless environments. |
-| `registration.py` | `register_client()` — RFC 7591 dynamic client registration via HTTP POST. |
-| `token_cache.py` | `TokenCache` — JSON file cache at `~/.bfabric/tokens/{hash}.json` with 0o600 permissions. `compute_token_cache_path()` derives a unique path from `(base_url, client_id, env_name)`. |
-| `url_token.py` | `UrlTokenContext` + `parse_url_token()` — extracts entity context (entity_id, application_id, etc.) from B-Fabric URL token JWTs. |
-| `webapp_client.py` | `WebappClient` — dual-identity client bundling a `user` (from URL token) and `service` (from client credentials) `Bfabric` instance. |
+| `_credential_provider.py` | `OAuthCredentialProvider` — thread-safe token management with automatic refresh and disk caching. Supports both `client_credentials` and `refresh_token` grant types. |
+| `_pkce.py` | `pkce_login()` — browser-based PKCE flow. Starts a local HTTP server, opens the browser, exchanges the authorization code for tokens. `AuthorizationRequest` + `exchange_code()` expose the same two legs separately, for a web app whose callback lands on its own redirect URI; `exchange_code()` also takes an optional `client_secret` for a confidential client. |
+| `_endpoints.py` | `token_url()` — the token endpoint URL for an instance, plus the (unexported) `authorize_url()` behind `AuthorizationRequest`. |
+| `_device_code.py` | `device_code_login()` — RFC 8628 device authorization flow for headless environments. |
+| `_registration.py` | `register_client()` — RFC 7591 dynamic client registration via HTTP POST. |
+| `_token_cache.py` | `TokenCache` — JSON file cache at `~/.bfabric/tokens/{hash}.json` with 0o600 permissions. `compute_token_cache_path()` derives a unique path from `(base_url, client_id, env_name)`. |
+| `_url_token.py` | `UrlTokenContext` + `verify_jwt()` — verifies a B-Fabric URL token JWT against the instance JWKS (cached 1 h) and returns its claims. |
+| `_webapp_client.py` | `WebappClient` — dual-identity client bundling a `user` (from URL token) and `service` (from client credentials) `Bfabric` instance. |
 
-The core `_oauth` API requires explicit `client_id` and `scope` arguments on all OAuth entry points. The library does not bake in a default client ID or scope. Tools like the CLI specify these values explicitly.
+The core `oauth` API requires explicit `client_id` and `scope` arguments on all OAuth entry points. The library does not bake in a default client ID or scope. Tools like the CLI specify these values explicitly.
 
 ---
 
@@ -34,8 +41,9 @@ The core `_oauth` API requires explicit `client_id` and `scope` arguments on all
 | `Bfabric.connect_oauth(client_id, client_secret, base_url)` | client_credentials | Service accounts / background jobs. |
 | `Bfabric.connect_pkce(base_url, client_id)` | authorization_code + PKCE | Interactive browser login (programmatic). |
 | `Bfabric.connect_device_code(base_url, client_id)` | device_code | Headless interactive login (programmatic). |
-| `Bfabric.from_url_token(base_url, jwt, refresh_token)` | URL token | Webapps launched from B-Fabric. Returns `(Bfabric, UrlTokenContext)`. |
-| `WebappClient.create(base_url, jwt, ..., client_id, client_secret)` | URL token + client_credentials | Dual-identity webapp client. |
+| `Bfabric.connect_pat(base_url, pat)` | personal access token | Opaque bearer token, no browser and no automatic refresh. |
+| `Bfabric.connect_token(token, settings)` | URL token | Webapps launched from B-Fabric. Returns `(Bfabric, TokenData)`; `connect_token_async` for coroutines. |
+| `WebappClient.create(base_url, launch_token, ..., client_id, client_secret)` | URL token + client_credentials | Dual-identity webapp client for apps launched from B-Fabric. |
 
 ---
 
@@ -45,14 +53,31 @@ All commands registered under `bfabric-cli auth` via cyclopts.
 
 | Command | File | Description |
 |---------|------|-------------|
-| `auth login <base_url>` | `cli/login/oauth_login.py` | Browser-based OAuth login. Caches tokens + writes config. |
-| `auth device-code <base_url>` | `cli/login/oauth_login.py` | Headless OAuth login. |
+| `auth login [base_url]` | `cli/login/oauth_login.py` | Browser-based OAuth login. Caches tokens + writes config. Also registered top-level as `bfabric-cli login`. |
+| `auth device-code [base_url]` | `cli/login/oauth_login.py` | Headless OAuth login. |
 | `auth pat <base_url>` | `cli/login/pat.py` | Personal Access Token login. |
 | `auth register <client_name> <redirect_uri>` | `cli/login/register.py` | RFC 7591 dynamic client registration. Outputs JSON. |
-| `auth status` | `cli/login/status.py` | Show current auth status for an environment. |
-| `auth logout` | `cli/login/logout.py` | Clear cached OAuth tokens. |
+| `auth register-webapp <client_name> <redirect_uri>` | `cli/login/register_webapp.py` | Registration preset for webapps (OIDC-inclusive scope). |
+| `auth status` | `cli/login/manage.py` | Show auth status for an environment. |
+| `auth list` | `cli/login/manage.py` | List environments grouped by instance, with scope / expiry / why-active. |
+| `auth activate [env]` | `cli/login/manage.py` | Make an environment the config default. |
+| `auth logout [env]` | `cli/login/manage.py` | Remove stored credentials for this machine, keeping the environment. `--all` for every environment. |
+| `auth remove [env]` | `cli/login/manage.py` | Delete an environment: config entry plus cached tokens. |
 
-All auth commands use `--config-env` (consistent with API commands via `@use_client`).
+See [the CLI authentication guide](../user_guides/bfabric-cli/authentication.md) for the user-facing
+view; this section covers only what is not visible from the outside.
+
+All auth commands resolve the environment as `--config-env` > `BFABRICPY_CONFIG_ENV` >
+`GENERAL.default_config`, matching `ConfigFile.get_selected_config_env`, and `base_url` is optional
+for the login commands because it is read back from that environment. Commands that write to the
+config refuse to run while `BFABRICPY_CONFIG_OVERRIDE` is set, since the file would not be the config
+in effect.
+
+`auth logout` removes credentials per auth method — the token cache for `oauth`, the inline `pat` or
+`login`/`password` keys for the others (via `clear_environment_credentials`). It deliberately does not
+revoke server-side. Instances *do* advertise `revocation_endpoint` in their discovery document (trace:
+`{base_url}/rest/oauth/token` → `/rest/oauth/revoke`), but whether it is implemented is unverified, so
+logout promises only what it delivers: local credentials gone, an issued token valid until it expires.
 
 ### `auth register` enhancements
 
@@ -72,7 +97,18 @@ PRODUCTION:
   base_url: "https://bfabric.example.com/bfabric"
   auth_method: "oauth"        # NEW — triggers OAuth flow in Bfabric.connect()
   client_id: "CLI"    # NEW — optional, defaults to "CLI"
+  scope: "api:write tus"      # NEW — the scope *requested* at login
 ```
+
+`scope` is what makes a login replayable from disk, and it is deliberately the **requested** value
+rather than the granted one: the server drops scopes the client isn't registered for, so replaying the
+granted scope would bake that drop in permanently. Only the CLI reads the key — it is excluded from
+`BfabricClientConfig` and not plumbed through `ConfigData` / `export_config_data`.
+
+A re-login **merges** into an existing environment section rather than replacing it, so hand-written
+keys (`application_ids`, `engine`, `job_notification_emails`, …) survive. The auth-owned keys
+(`login`, `password`, `pat`, `auth_method`, `client_id`, `scope`) are replaced wholesale, so a stale
+`pat` cannot outlive the auth method that wrote it and be resurrected by `gather_auth`.
 
 For PAT (Personal Access Token) logins the token is stored inline under `pat` (with
 `auth_method: pat`), never as `login: __oauth__` / `password: <token>`:

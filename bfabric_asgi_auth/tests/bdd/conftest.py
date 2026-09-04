@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import time
 
+from bfabric.config import BaseUrl
 from bfabric.rest.token_data import TokenData
 import pytest
 import pytest_asyncio
@@ -522,7 +523,7 @@ def session_bfabric_session_has_required_fields(context, client):
 
     # Verify fields are populated correctly from token_data
     token_data = context["token_data"]
-    assert session_data["bfabric_instance"] == token_data.caller
+    assert session_data["bfabric_instance"] == BaseUrl(token_data.caller)
     assert session_data["bfabric_auth_login"] == token_data.user
     # Verify password content matches (not just length)
     assert session_data["bfabric_auth_password"] == token_data.user_ws_password.get_secret_value()

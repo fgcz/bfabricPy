@@ -8,12 +8,12 @@ import httpx
 import pytest
 
 from bfabric.errors import BfabricOAuthError
-from bfabric._oauth.pkce import (
+from bfabric.oauth._pkce import (
     _AuthorizationResult,
     _CallbackServer,
-    _exchange_code,
     _generate_challenge,
     _generate_verifier,
+    exchange_code,
     pkce_login,
 )
 
@@ -146,59 +146,85 @@ class TestCallbackServer:
 
 
 class TestExchangeCode:
-    def test_posts_correct_params(self, mocker):
-        mock_response = mocker.MagicMock()
-        mock_response.json.return_value = {"access_token": "at", "refresh_token": "rt"}
+    @pytest.fixture
+    def mock_post(self, mocker):
+        response = mocker.MagicMock()
+        response.json.return_value = {"access_token": "at", "refresh_token": "rt"}
+        return mocker.patch("bfabric.oauth._pkce.httpx.post", return_value=response)
 
-        mock_post = mocker.patch("bfabric._oauth.pkce.httpx.post", return_value=mock_response)
-        result = _exchange_code(
-            token_url="https://example.com/rest/oauth/token",
+    @staticmethod
+    def exchange(**kwargs):
+        return exchange_code(
+            base_url="https://example.com/bfabric",
             client_id="my-client",
             code="auth_code",
-            redirect_uri="http://127.0.0.1:12345/callback",
+            redirect_uri="https://app.example.com/callback",
             code_verifier="my_verifier",
+            **kwargs,
         )
 
+    def test_posts_correct_params(self, mock_post):
+        result = self.exchange()
+
         mock_post.assert_called_once_with(
-            "https://example.com/rest/oauth/token",
+            "https://example.com/bfabric/rest/oauth/token",
             data={
                 "grant_type": "authorization_code",
                 "client_id": "my-client",
                 "code": "auth_code",
-                "redirect_uri": "http://127.0.0.1:12345/callback",
+                "redirect_uri": "https://app.example.com/callback",
                 "code_verifier": "my_verifier",
             },
             timeout=30,
+            auth=None,
         )
         assert result == {"access_token": "at", "refresh_token": "rt"}
 
-    def test_raises_on_http_error(self, mocker):
-        mock_response = mocker.MagicMock()
-        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+    @pytest.mark.parametrize("client_secret", [None, ""], ids=["omitted", "empty"])
+    def test_public_client_sends_no_auth(self, mock_post, client_secret):
+        # `client_secret=""` is how the rest of the library spells "public client", e.g. every
+        # OAuthCredentialProvider that Bfabric.connect_pkce builds -- not Basic with a blank password.
+        self.exchange(client_secret=client_secret)
+        assert mock_post.call_args.kwargs["auth"] is None
+
+    def test_confidential_client_uses_basic_auth(self, mock_post):
+        self.exchange(client_secret="s3cret")
+        assert mock_post.call_args.kwargs["auth"] == ("my-client", "s3cret")
+
+    def test_body_does_not_depend_on_client_authentication(self, mock_post):
+        # B-Fabric accepts the body `client_id` alongside the Basic header (probed against a live
+        # instance), so only `auth` varies with the secret and the body stays branch-free.
+        self.exchange()
+        public_body = mock_post.call_args.kwargs["data"]
+        mock_post.reset_mock()
+
+        self.exchange(client_secret="s3cret")
+        assert mock_post.call_args.kwargs["data"] == public_body
+
+    def test_secret_is_not_placed_in_the_body(self, mock_post):
+        # client_secret_basic, not client_secret_post: in the body an intermediary that records
+        # request payloads would log it.
+        self.exchange(client_secret="s3cret")
+        assert "client_secret" not in mock_post.call_args.kwargs["data"]
+
+    def test_raises_on_http_error(self, mocker, mock_post):
+        mock_post.return_value.raise_for_status.side_effect = httpx.HTTPStatusError(
             "401", request=mocker.MagicMock(), response=mocker.MagicMock()
         )
-
-        mocker.patch("bfabric._oauth.pkce.httpx.post", return_value=mock_response)
         with pytest.raises(httpx.HTTPStatusError):
-            _exchange_code(
-                token_url="https://example.com/rest/oauth/token",
-                client_id="id",
-                code="code",
-                redirect_uri="http://127.0.0.1:8000/callback",
-                code_verifier="verifier",
-            )
+            self.exchange()
 
 
 class TestPkceLogin:
     def test_happy_path(self, mocker):
         token_dict = {"access_token": "jwt_here", "refresh_token": "rt_here"}
 
-        mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
-        mock_exchange = mocker.patch("bfabric._oauth.pkce._exchange_code", return_value=token_dict)
-        mocker.patch("bfabric._oauth.pkce.webbrowser.open", return_value=True)
-        mocker.patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="fixed_state")
-        mocker.patch("bfabric._oauth.pkce._generate_verifier", return_value="fixed_verifier")
-        mocker.patch("bfabric._oauth.pkce._generate_challenge", return_value="fixed_challenge")
+        mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
+        mock_exchange = mocker.patch("bfabric.oauth._pkce.exchange_code", return_value=token_dict)
+        mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=True)
+        mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="fixed_state")
+        mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="fixed_verifier")
+        mocker.patch("bfabric.oauth._pkce._generate_challenge", return_value="fixed_challenge")
 
         mock_server = mocker.MagicMock()
         mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -210,7 +236,7 @@ class TestPkceLogin:
 
         assert result == token_dict
         mock_exchange.assert_called_once_with(
-            token_url="https://example.com/bfabric/rest/oauth/token",
+            base_url="https://example.com/bfabric",
             client_id="test-cli",
             code="the_code",
             redirect_uri="http://127.0.0.1:9999/callback",
@@ -218,11 +244,11 @@ class TestPkceLogin:
         )
 
     def test_state_mismatch_raises(self, mocker):
-        mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
-        mocker.patch("bfabric._oauth.pkce.webbrowser.open", return_value=True)
-        mocker.patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="expected_state")
-        mocker.patch("bfabric._oauth.pkce._generate_verifier", return_value="v")
-        mocker.patch("bfabric._oauth.pkce._generate_challenge", return_value="c")
+        mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
+        mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=True)
+        mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="expected_state")
+        mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="v")
+        mocker.patch("bfabric.oauth._pkce._generate_challenge", return_value="c")
 
         mock_server = mocker.MagicMock()
         mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -237,11 +263,11 @@ class TestPkceLogin:
         assert "wrong_state" not in str(exc_info.value)
 
     def test_error_from_server_raises(self, mocker):
-        mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
-        mocker.patch("bfabric._oauth.pkce.webbrowser.open", return_value=True)
-        mocker.patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state")
-        mocker.patch("bfabric._oauth.pkce._generate_verifier", return_value="v")
-        mocker.patch("bfabric._oauth.pkce._generate_challenge", return_value="c")
+        mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
+        mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=True)
+        mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state")
+        mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="v")
+        mocker.patch("bfabric.oauth._pkce._generate_challenge", return_value="c")
 
         mock_server = mocker.MagicMock()
         mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -257,12 +283,12 @@ class TestPkceLogin:
             pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
 
     def test_timeout_raises(self, mocker):
-        mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
-        mocker.patch("bfabric._oauth.pkce.webbrowser.open", return_value=True)
-        mocker.patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state")
-        mocker.patch("bfabric._oauth.pkce._generate_verifier", return_value="v")
-        mocker.patch("bfabric._oauth.pkce._generate_challenge", return_value="c")
-        mock_thread_cls = mocker.patch("bfabric._oauth.pkce.threading.Thread")
+        mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
+        mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=True)
+        mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state")
+        mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="v")
+        mocker.patch("bfabric.oauth._pkce._generate_challenge", return_value="c")
+        mock_thread_cls = mocker.patch("bfabric.oauth._pkce.threading.Thread")
 
         mock_server = mocker.MagicMock()
         mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -275,13 +301,38 @@ class TestPkceLogin:
         with pytest.raises(RuntimeError, match="timed out"):
             pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read", timeout=0.1)
 
+    def test_timeout_message_names_the_remote_host_trap(self, mocker):
+        """The timeout is where a stuck remote user actually looks, and it fires even when
+        ``webbrowser.open`` claimed success (the text-browser case), so the guidance can't be gated
+        on the open result."""
+        mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
+        mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=True)
+        mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state")
+        mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="v")
+        mocker.patch("bfabric.oauth._pkce._generate_challenge", return_value="c")
+        mock_thread_cls = mocker.patch("bfabric.oauth._pkce.threading.Thread")
+
+        mock_server = mocker.MagicMock()
+        mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
+        mock_server_cls.return_value = mock_server
+
+        mock_thread = mocker.MagicMock()
+        mock_thread.is_alive.return_value = True
+        mock_thread_cls.return_value = mock_thread
+
+        with pytest.raises(RuntimeError) as error:
+            pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read", timeout=0.1)
+        message = str(error.value)
+        assert "http://127.0.0.1:9999/callback" in message
+        assert "device-code" in message
+
     def test_browser_fallback_prints_url(self, mocker, capsys):
-        mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
-        mocker.patch("bfabric._oauth.pkce._exchange_code", return_value={"access_token": "t"})
-        mocker.patch("bfabric._oauth.pkce.webbrowser.open", return_value=False)
-        mocker.patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state")
-        mocker.patch("bfabric._oauth.pkce._generate_verifier", return_value="v")
-        mocker.patch("bfabric._oauth.pkce._generate_challenge", return_value="c")
+        mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
+        mocker.patch("bfabric.oauth._pkce.exchange_code", return_value={"access_token": "t"})
+        mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=False)
+        mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state")
+        mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="v")
+        mocker.patch("bfabric.oauth._pkce._generate_challenge", return_value="c")
 
         mock_server = mocker.MagicMock()
         mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -295,12 +346,35 @@ class TestPkceLogin:
         assert "Open this URL to log in:" in captured.err
         assert "https://example.com/bfabric/rest/oauth/authorize" in captured.err
 
-    def test_open_browser_false_prints_url(self, mocker, capsys):
-        mock_server_cls = mocker.patch("bfabric._oauth.pkce._CallbackServer")
-        mocker.patch("bfabric._oauth.pkce._exchange_code", return_value={"access_token": "t"})
-        mocker.patch("bfabric._oauth.pkce.secrets.token_urlsafe", return_value="state")
-        mocker.patch("bfabric._oauth.pkce._generate_verifier", return_value="v")
-        mocker.patch("bfabric._oauth.pkce._generate_challenge", return_value="c")
+    def test_browser_fallback_warns_the_redirect_is_host_local(self, mocker, capsys):
+        """Printing the URL is right for a local user without a browser and a trap for a remote one:
+        the redirect lands on this host's loopback, so a browser elsewhere cannot complete it."""
+        mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
+        mocker.patch("bfabric.oauth._pkce.exchange_code", return_value={"access_token": "t"})
+        mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=False)
+        mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state")
+        mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="v")
+        mocker.patch("bfabric.oauth._pkce._generate_challenge", return_value="c")
+
+        mock_server = mocker.MagicMock()
+        mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
+        mock_server.result = _AuthorizationResult(code="code", state="state")
+        mock_server.serve_forever = mocker.MagicMock()
+        mock_server_cls.return_value = mock_server
+
+        pkce_login("https://example.com/bfabric", client_id="test-cli", scope="api:read")
+
+        captured = capsys.readouterr()
+        assert "http://127.0.0.1:9999/callback" in captured.err
+        assert "this machine" in captured.err
+
+    def test_open_browser_false_prints_url_without_opening_a_browser(self, mocker, capsys):
+        mock_server_cls = mocker.patch("bfabric.oauth._pkce._CallbackServer")
+        mocker.patch("bfabric.oauth._pkce.exchange_code", return_value={"access_token": "t"})
+        mocker.patch("bfabric.oauth._pkce.secrets.token_urlsafe", return_value="state")
+        mocker.patch("bfabric.oauth._pkce._generate_verifier", return_value="v")
+        mocker.patch("bfabric.oauth._pkce._generate_challenge", return_value="c")
+        open_browser = mocker.patch("bfabric.oauth._pkce.webbrowser.open", return_value=True)
 
         mock_server = mocker.MagicMock()
         mock_server.redirect_uri = "http://127.0.0.1:9999/callback"
@@ -312,3 +386,4 @@ class TestPkceLogin:
 
         captured = capsys.readouterr()
         assert "Open this URL to log in:" in captured.err
+        open_browser.assert_not_called()

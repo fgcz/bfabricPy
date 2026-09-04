@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from bfabric.config.base_url import BaseUrl
     from bfabric.entities.user import User
 
 
@@ -20,7 +21,7 @@ class Users:
     def __init__(self) -> None:
         self._users: list[User] = []
 
-    def get_by_id(self, bfabric_instance: str, id: int) -> User | None:
+    def get_by_id(self, bfabric_instance: BaseUrl, id: int) -> User | None:
         """Gets a user by their ID."""
         from bfabric.entities.core.read_scope import get_read_scope
         from bfabric.entities.user import User as UserEntity
@@ -36,7 +37,7 @@ class Users:
         self._users.append(user)
         return user
 
-    def get_by_login(self, bfabric_instance: str, login: str) -> User | None:
+    def get_by_login(self, bfabric_instance: BaseUrl, login: str) -> User | None:
         """Gets a user by their login name."""
         from bfabric.entities.core.read_scope import get_read_scope
         from bfabric.entities.user import User as UserEntity

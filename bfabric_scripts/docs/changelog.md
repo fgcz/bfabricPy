@@ -10,10 +10,51 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
-## \[1.16.0rc2\] - 2026-07-15
+### Added
+
+- `api read`, `api create` and `api update` accept `--json` and `--json-file`, which is the only way to pass nested or non-string attribute values. Both are merged with any key-value pairs, and a key given in both is an error.
+
+### Changed
+
+- `auth login` / `auth pat` complete a bare host with `/bfabric` for any instance, not just the four known ones, so `bfabric-cli login my-instance.example.com` works. A URL whose path is something else is now refused instead of used as given.
+
+### Fixed
+
+- `api create` now rejects an `id` attribute as documented; the check never fired before.
+- `bfabric-cli api update` and `api delete` explain that there is no terminal to confirm on, and name `--no-confirm`, instead of failing with an `EOFError` traceback when run from a script or cron job.
+
+## \[1.17.0\] - 2026-08-20
+
+### Added
+
+- `bfabric-cli login` (also a top-level shortcut for `auth login`) renews an expired token with **no arguments**; a first login picks the instance from the known hosts and derives the environment name.
+- `auth login --no-browser` prints the authorization URL instead of opening one; over SSH use `auth device-code`.
+- `auth register` / `register-webapp` require `--service-user LOGIN` or the new `--no-service-user`, instead of silently registering without the `client_credentials` grant.
+- New user guide: [Authentication](https://fgcz.github.io/bfabricPy/user_guides/bfabric-cli/authentication.html) — command surface, scopes, logout vs remove, remote hosts.
+
+### Changed
+
+- `auth default` is now `auth activate`; deleting an environment is `auth remove`.
+- `auth logout` clears only this machine's credentials, leaving the environment ready for a zero-argument re-login (`--all` covers every environment). It does not revoke the token server-side.
+- `auth list` groups environments by instance and shows scope and token expiry; `list` and `status` mark *why* an environment is active.
+- Every `auth` command resolves its environment as `--config-env` > `BFABRICPY_CONFIG_ENV` > the configured default, and refuses to write the config under `BFABRICPY_CONFIG_OVERRIDE`.
+- Base URLs are normalised up front (scheme, host case, trailing slash, known-host expansion), and re-pointing an environment at a different instance needs confirmation.
+- `workunit upload --force` is replaced by `--on-duplicate upload|skip|link`, defaulting to `upload` — the duplicate check no longer runs unless asked for. Pass `skip` for the old behaviour.
+- Requires `bfabric` 1.21.0.
+- Packaging: `project.readme` points at the package's own `README.md`, expanded into a proper landing page since PyPI shows it.
+- Internal: the `auth` command implementations were reorganised onto shared environment- and URL-resolution helpers.
+
+### Fixed
+
+- `auth register-webapp` prints `Error: ...` and exits 1 when the OAuth session cannot be refreshed, instead of a raw traceback.
+- `auth register` no longer prompts for an *Employee Bearer token* when a login exists; it authenticates as the environment in effect.
+- `auth register` canonicalises its `base_url` argument like the other `auth` commands, so a bare host or a trailing slash works and a non-HTTP URL is rejected with a plain message.
+
+## \[1.16.0\] - 2026-08-03
 
 - `bfabric-cli auth` — OAuth authentication & client management. Login: `login` (browser), `device-code` (headless), `pat`; client registration: `register` / `register-webapp`; environment management: `default`, `list`, `status`, `logout`. Scope presets (`read-only` / `read-write` / `upload`) or a raw scope, via an interactive picker when `--scope` is omitted in a terminal; no baked-in default scope, so a headless run must pass `--scope` (registration keeps the OIDC-inclusive default webapps need). When `--config-env` is omitted it prompts for the environment (else targets the current default / `PRODUCTION`); unless `--set-default` / `--no-set-default` is given it asks (default yes) whether to make the env the default, and cancelling that prompt aborts the login. `status` reports an OAuth env's cached-token freshness and granted scope (annotated with the matching preset); `logout` removes an env's config entry and cached tokens (confirmation required). PATs are stored under a `pat` key (`auth_method: pat`), keeping the config parseable by ≤1.19.0 clients.
 - `bfabric-cli workunit upload FILES...` — upload files/directories to a workunit over tus (resumable, large-file capable): new or `--workunit-id`, one resource per file, skips duplicates (`--force`), live progress (`--no-progress`), optional `--track-job`. Requires an OAuth client with the `tus` scope.
+- `bfabric-cli workunit diff REF1 REF2` — compare two workunits side by side (name, parameters, output/input resources, status, application, container, input dataset), highlighting differences in rich tables. Each reference is a numeric workunit ID or a workunit URL, including one copied straight from the browser (extra query parameters such as `&tab=details` are accepted); `--only-diff` collapses the output to just the differing rows.
 - `bfabric-cli api create` / `api update` — accept `--format json|yaml|tsv|table_rich` (default `json`); now emit valid JSON and serialise `datetime` / `Decimal` (was Python `repr`, breaking `jq`) ([#503](https://github.com/fgcz/bfabricPy/issues/503)).
 - `bfabric-cli dataset update` — update an existing dataset with a change preview before confirming (`csv`/`tsv`/`xlsx`/`parquet`).
 - Internal: `dataset upload` / `bfabric_save_csv2dataset.py` use `bfabric.operations.dataset.create_dataset`; API error handling centralized in `@use_client` (dropped `@logger.catch`); `--config-env` naming unified; `lxml` now an explicit dep (was transitive via optional `zeep`); requires `bfabric[transfer]>=1.20`; adds `questionary`-based `cli.interactive` helpers and `config_writer.remove_environment_from_config`.

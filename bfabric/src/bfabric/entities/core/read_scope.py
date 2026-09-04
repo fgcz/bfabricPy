@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterable, Iterator, Sequence
     from contextvars import Token
 
-    from bfabric import Bfabric
+    from bfabric import BaseUrl, Bfabric
     from bfabric.typing import ApiRequestObjectType
 
 
@@ -75,7 +75,7 @@ class ReadScope:
 
         client_list = [clients] if isinstance(clients, Bfabric) else list(clients)
         self._cache: CacheStack = CacheStack()
-        self._readers: dict[str, EntityReader] = {}
+        self._readers: dict[BaseUrl, EntityReader] = {}
         for client in client_list:
             self.add_client(client)
         # One (parent, token) frame per active `with` — a stack so the same read scope object can be
@@ -87,7 +87,7 @@ class ReadScope:
         self._readers[client.config.base_url] = EntityReader(client, cache_stack=self._cache)
 
     @property
-    def instances(self) -> list[str]:
+    def instances(self) -> list[BaseUrl]:
         """The B-Fabric instance URLs this read scope can read from."""
         return list(self._readers)
 
@@ -96,7 +96,7 @@ class ReadScope:
         """The read scope active when this one was most recently entered, for instance delegation."""
         return self._frames[-1][0] if self._frames else None
 
-    def _reader_for(self, instance: str) -> EntityReader:
+    def _reader_for(self, instance: BaseUrl) -> EntityReader:
         reader = self._readers.get(instance)
         if reader is not None:
             return reader
@@ -108,7 +108,7 @@ class ReadScope:
             f"Enter `with ReadScope([...])` including that instance."
         )
 
-    def _default_instance(self) -> str:
+    def _default_instance(self) -> BaseUrl:
         if len(self._readers) == 1:
             return next(iter(self._readers))
         raise LookupError(
@@ -125,9 +125,9 @@ class ReadScope:
     ) -> EntityResult[EntityT]:
         """Read entities by URI, routing each to the reader for its instance (may span instances)."""
         uris = [EntityUri(uri) for uri in uris]
-        by_instance: dict[str, list[EntityUri]] = defaultdict(list)
+        by_instance: dict[BaseUrl, list[EntityUri]] = defaultdict(list)
         for uri in uris:
-            by_instance[str(uri.components.bfabric_instance)].append(uri)
+            by_instance[uri.components.bfabric_instance].append(uri)
 
         merged: dict[EntityUri, EntityT | None] = {}
         for instance, group in by_instance.items():
@@ -136,24 +136,26 @@ class ReadScope:
 
     @overload
     def read_id(
-        self, entity_type: type[EntityT], entity_id: int | str, bfabric_instance: str | None = None
+        self, entity_type: type[EntityT], entity_id: int | str, bfabric_instance: BaseUrl | None = None
     ) -> EntityT | None: ...
     @overload
     def read_id(
         self,
         entity_type: str,
         entity_id: int | str,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT],
     ) -> EntityT | None: ...
     @overload
-    def read_id(self, entity_type: str, entity_id: int | str, bfabric_instance: str | None = None) -> Entity | None: ...
+    def read_id(
+        self, entity_type: str, entity_id: int | str, bfabric_instance: BaseUrl | None = None
+    ) -> Entity | None: ...
     def read_id(
         self,
         entity_type: str | type[EntityT],
         entity_id: int | str,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT] = Entity,
     ) -> EntityT | None:
@@ -164,26 +166,26 @@ class ReadScope:
 
     @overload
     def read_ids(
-        self, entity_type: type[EntityT], entity_ids: Sequence[int | str], bfabric_instance: str | None = None
+        self, entity_type: type[EntityT], entity_ids: Sequence[int | str], bfabric_instance: BaseUrl | None = None
     ) -> EntityResult[EntityT]: ...
     @overload
     def read_ids(
         self,
         entity_type: str,
         entity_ids: Sequence[int | str],
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT],
     ) -> EntityResult[EntityT]: ...
     @overload
     def read_ids(
-        self, entity_type: str, entity_ids: Sequence[int | str], bfabric_instance: str | None = None
+        self, entity_type: str, entity_ids: Sequence[int | str], bfabric_instance: BaseUrl | None = None
     ) -> EntityResult[Entity]: ...
     def read_ids(
         self,
         entity_type: str | type[EntityT],
         entity_ids: Sequence[int | str],
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT] = Entity,
     ) -> EntityResult[EntityT]:
@@ -201,7 +203,7 @@ class ReadScope:
         self,
         entity_type: type[EntityT],
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         max_results: int | None = 100,
     ) -> dict[EntityUri, EntityT]: ...
     @overload
@@ -209,7 +211,7 @@ class ReadScope:
         self,
         entity_type: str,
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         max_results: int | None = 100,
         *,
         expected_type: type[EntityT],
@@ -219,14 +221,14 @@ class ReadScope:
         self,
         entity_type: str,
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         max_results: int | None = 100,
     ) -> dict[EntityUri, Entity]: ...
     def query(
         self,
         entity_type: str | type[EntityT],
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         max_results: int | None = 100,
         *,
         expected_type: type[EntityT] = Entity,
@@ -240,26 +242,26 @@ class ReadScope:
 
     @overload
     def query_one(
-        self, entity_type: type[EntityT], obj: ApiRequestObjectType, bfabric_instance: str | None = None
+        self, entity_type: type[EntityT], obj: ApiRequestObjectType, bfabric_instance: BaseUrl | None = None
     ) -> EntityT | None: ...
     @overload
     def query_one(
         self,
         entity_type: str,
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT],
     ) -> EntityT | None: ...
     @overload
     def query_one(
-        self, entity_type: str, obj: ApiRequestObjectType, bfabric_instance: str | None = None
+        self, entity_type: str, obj: ApiRequestObjectType, bfabric_instance: BaseUrl | None = None
     ) -> Entity | None: ...
     def query_one(
         self,
         entity_type: str | type[EntityT],
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT] = Entity,
     ) -> EntityT | None:

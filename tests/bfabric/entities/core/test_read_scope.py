@@ -1,11 +1,11 @@
 import pytest
 
-from bfabric import Bfabric
+from bfabric import BaseUrl, Bfabric
 from bfabric.entities.core.read_scope import ReadScope, _reset_read_scope, get_read_scope
 from bfabric.entities.core.uri import EntityUri
 
-INSTANCE_A = "https://a.example.org/bfabric/"
-INSTANCE_B = "https://b.example.org/bfabric/"
+INSTANCE_A = BaseUrl("https://a.example.org/bfabric")
+INSTANCE_B = BaseUrl("https://b.example.org/bfabric")
 
 
 @pytest.fixture
@@ -102,8 +102,8 @@ class TestRouting:
         reader_a, reader_b = mocker.MagicMock(name="reader_a"), mocker.MagicMock(name="reader_b")
         scope._readers = {INSTANCE_A: reader_a, INSTANCE_B: reader_b}
 
-        uri_a = EntityUri(f"{INSTANCE_A}project/show.html?id=1")
-        uri_b = EntityUri(f"{INSTANCE_B}project/show.html?id=2")
+        uri_a = EntityUri(f"{INSTANCE_A}/project/show.html?id=1")
+        uri_b = EntityUri(f"{INSTANCE_B}/project/show.html?id=2")
         ent_a, ent_b = mocker.MagicMock(name="ent_a"), mocker.MagicMock(name="ent_b")
         reader_a.read_uris.return_value = {uri_a: ent_a}
         reader_b.read_uris.return_value = {uri_b: ent_b}
@@ -130,7 +130,7 @@ class TestRouting:
         scope = ReadScope(client_a)
         reader_a = mocker.MagicMock(name="reader_a")
         scope._readers = {INSTANCE_A: reader_a}
-        uri = EntityUri(f"{INSTANCE_A}workunit/show.html?id=7")
+        uri = EntityUri(f"{INSTANCE_A}/workunit/show.html?id=7")
         entity = mocker.MagicMock(name="entity")
         reader_a.read_uris.return_value = {uri: entity}
 

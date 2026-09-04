@@ -1,41 +1,41 @@
 from __future__ import annotations
 
-from typing import Generic, TypeVar, TYPE_CHECKING
-
-import polars as pl
-from polars import DataFrame
+from typing import Generic, TypeVar, TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from polars import DataFrame
 
     # noinspection PyUnresolvedReferences
     from bfabric.entities.core.entity import Entity
 
 E = TypeVar("E", bound="Entity")
-T = TypeVar("T")
 
 
 class HasMany(Generic[E]):
     def __init__(
         self,
         *,
-        bfabric_field: str | None = None,
+        bfabric_field: str,
         optional: bool = False,
     ) -> None:
-        self._bfabric_field = bfabric_field
-        self._optional = optional
+        self._bfabric_field: str = bfabric_field
+        self._optional: bool = optional
 
-    def __get__(self, obj: T | None, objtype: type[T] | None = None) -> _HasManyProxy[E]:
+    def __get__(self, obj: Entity | None, objtype: type | None = None) -> _HasManyProxy[E]:
+        if obj is None:
+            raise AttributeError(f"{self._bfabric_field!r} is only accessible on an instance")
         items = obj.refs.get(self._bfabric_field)
         if items is None and not self._optional:
             raise ValueError(f"Missing field: {self._bfabric_field}")
-        items = items or []
-        return _HasManyProxy(items=items)
+        # refs.get returns the loosely-typed Entity | list[Entity] | None; narrow to the declared E.
+        return _HasManyProxy(items=cast("list[E]", items or []))
 
 
 class _HasManyProxy(Generic[E]):
     def __init__(self, items: list[E]) -> None:
-        self._items = items
+        self._items: list[E] = items
 
     @property
     def ids(self) -> list[int]:
@@ -47,6 +47,11 @@ class _HasManyProxy(Generic[E]):
 
     @property
     def polars(self) -> DataFrame:
+        # Imported here, not at module scope: HasMany is loaded by every `import bfabric`, and polars
+        # is by far the heaviest dependency (~200 MB, ~70 ms). Callers that never ask for a DataFrame
+        # should not pay for it. Same pattern as ResultContainer.to_polars.
+        import polars as pl
+
         return pl.from_dicts([x.data_dict for x in self._items])
 
     def __getitem__(self, key: int) -> E:

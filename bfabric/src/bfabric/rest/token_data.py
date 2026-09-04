@@ -19,6 +19,7 @@ from pydantic import (
 
 from pydantic import ValidationError
 
+from bfabric.config.base_url import BaseUrl
 from bfabric.entities.core.import_entity import import_entity
 from bfabric.errors import (
     BfabricInstanceNotConfiguredError,
@@ -134,6 +135,7 @@ async def validate_token(
     token_data = await get_token_data_async(
         base_url=settings.validation_bfabric_instance, token=token, http_client=http_client
     )
-    if token_data.caller not in settings.supported_bfabric_instances:
+    supported = {BaseUrl(instance) for instance in settings.supported_bfabric_instances}
+    if BaseUrl(token_data.caller) not in supported:
         raise BfabricInstanceNotConfiguredError(token_data.caller)
     return token_data

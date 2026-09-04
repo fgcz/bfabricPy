@@ -75,7 +75,7 @@ class TestFunctionality:
     def test_repr(entity):
         assert (
             repr(entity)
-            == "MockEntity(data_dict={'classname': 'mock', 'id': 1000, 'many': [{'id': 10, 'classname': 'testreferenced', 'name': 'Referenced Entity 10'}, {'id': 20, 'classname': 'testreferenced', 'name': 'Referenced Entity 20'}]}, bfabric_instance='https://bfabric.example.org/bfabric/')"
+            == "MockEntity(data_dict={'classname': 'mock', 'id': 1000, 'many': [{'id': 10, 'classname': 'testreferenced', 'name': 'Referenced Entity 10'}, {'id': 20, 'classname': 'testreferenced', 'name': 'Referenced Entity 20'}]}, bfabric_instance='https://bfabric.example.org/bfabric')"
         )
 
     @staticmethod
@@ -97,3 +97,12 @@ class TestMissing:
         with pytest.raises(ValueError) as err:
             _ = entity.field
         assert str(err.value) == "Missing field: many"
+
+
+class TestClassAccess:
+    @staticmethod
+    def test_get_on_class_raises(entity):
+        # Accessing the descriptor on the class (obj is None) is not supported and must not read refs.
+        with pytest.raises(AttributeError) as err:
+            _ = type(entity).field
+        assert str(err.value) == "'many' is only accessible on an instance"

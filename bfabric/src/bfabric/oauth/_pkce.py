@@ -1,0 +1,301 @@
+"""OAuth 2.0 Authorization Code flow with PKCE.
+
+:func:`pkce_login` drives the whole flow for a CLI: it receives the callback on a local HTTP server,
+so it only works with a browser on this machine. A web app, whose callback instead lands on a
+registered public redirect URI, drives the same flow in two steps around its own redirect --
+:class:`AuthorizationRequest` to send the user out, then :func:`exchange_code` when they come back.
+"""
+
+from __future__ import annotations
+
+import base64
+import hashlib
+import html
+import secrets
+import sys
+import threading
+import webbrowser
+from dataclasses import dataclass
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from typing import TYPE_CHECKING, ClassVar
+from urllib.parse import parse_qs, urlparse
+
+import httpx
+from loguru import logger
+from pydantic import BaseModel, ConfigDict
+
+from bfabric.errors import BfabricOAuthError, raise_if_unavailable
+from bfabric.oauth._endpoints import authorize_url, token_url
+
+if TYPE_CHECKING:
+    from bfabric.config.base_url import BaseUrl
+
+_REMOTE_HOST_CAVEAT = "On a remote host, use 'bfabric-cli auth device-code' instead."
+
+
+def _generate_verifier(length: int = 128) -> str:
+    """Generate a PKCE code verifier (RFC 7636 Section 4.1)."""
+    if not (43 <= length <= 128):
+        raise ValueError(f"PKCE verifier length must be 43..128, got {length}")
+    # 96 bytes is ~128 urlsafe chars, i.e. enough for any allowed length; truncate to the one asked for.
+    return secrets.token_urlsafe(96)[:length]
+
+
+def _generate_challenge(verifier: str) -> str:
+    """Derive the S256 code challenge from *verifier* (RFC 7636 Section 4.2)."""
+    digest = hashlib.sha256(verifier.encode("ascii")).digest()
+    return base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
+
+
+class AuthorizationRequest(BaseModel):
+    """An authorization request, and the two secrets needed to finish it after the redirect.
+
+    Send the user to :attr:`url`, keep :attr:`state` and :attr:`verifier` somewhere that survives
+    the round trip, and on the callback compare the returned ``state`` before passing ``code`` and
+    :attr:`verifier` to :func:`exchange_code`.
+    """
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(frozen=True)
+
+    url: str
+    """Where to redirect the user, carrying the authorization request."""
+
+    state: str
+    """The CSRF value to compare against the ``state`` the callback returns."""
+
+    verifier: str
+    """The PKCE verifier to pass to :func:`exchange_code` as ``code_verifier``."""
+
+    @classmethod
+    def create(cls, base_url: str, *, client_id: str, redirect_uri: str, scope: str) -> AuthorizationRequest:
+        """Build a fresh authorization request, generating its verifier and CSRF state.
+
+        :param redirect_uri: where the server returns the user; must be one the client registered,
+            and must be repeated identically in the later token request
+        """
+        verifier = _generate_verifier()
+        state = secrets.token_urlsafe(32)
+        return cls(
+            url=authorize_url(
+                base_url,
+                client_id=client_id,
+                redirect_uri=redirect_uri,
+                code_challenge=_generate_challenge(verifier),
+                state=state,
+                scope=scope,
+            ),
+            state=state,
+            verifier=verifier,
+        )
+
+
+@dataclass
+class _AuthorizationResult:
+    """Holds the query parameters received on the OAuth redirect."""
+
+    code: str | None = None
+    state: str | None = None
+    error: str | None = None
+    error_description: str | None = None
+
+
+_PAGE_TEMPLATE = """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{title}</title>
+<style>
+  :root {{ color-scheme: light dark; }}
+  body {{ font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+          margin: 0; min-height: 100vh; display: flex;
+          align-items: center; justify-content: center; background: #f5f5f7; }}
+  .card {{ max-width: 28rem; padding: 2.5rem 3rem; text-align: center;
+           background: #fff; border-radius: 12px;
+           box-shadow: 0 4px 24px rgba(0,0,0,.08); }}
+  .icon {{ font-size: 3rem; line-height: 1; color: {accent}; }}
+  h1 {{ margin: .75rem 0 .5rem; font-size: 1.4rem; color: {accent}; }}
+  p {{ margin: .25rem 0; color: #555; }}
+  @media (prefers-color-scheme: dark) {{
+    body {{ background: #1c1c1e; }} .card {{ background: #2c2c2e; box-shadow: none; }}
+    p {{ color: #aaa; }}
+  }}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">{icon}</div>
+    <h1>{title}</h1>
+    {body}
+  </div>
+</body>
+</html>"""
+
+
+def _render_callback_page(result: _AuthorizationResult) -> bytes:
+    """Build the page shown after the OAuth redirect.
+
+    No auto-close: a browser only lets a script close a window it opened itself, so ``window.close()``
+    is a no-op in this navigated-to tab.
+    """
+    if result.error is not None or result.code is None:
+        accent, icon, title = "#cf222e", "✕", "Login failed"
+        detail = result.error_description or result.error or "No authorization code was received."
+        body = f"<p>{html.escape(detail)}</p><p>You can close this tab and return to your terminal.</p>"
+    else:
+        accent, icon, title = "#1a7f37", "✓", "Login successful"
+        body = "<p>You can close this tab and return to your terminal.</p>"
+    return _PAGE_TEMPLATE.format(accent=accent, icon=icon, title=title, body=body).encode("utf-8")
+
+
+class _CallbackHandler(BaseHTTPRequestHandler):
+    """HTTP request handler that captures the OAuth authorization callback."""
+
+    server: _CallbackServer  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    def do_GET(self) -> None:  # noqa: N802
+        qs = parse_qs(urlparse(self.path).query)
+        result = _AuthorizationResult(
+            code=qs.get("code", [None])[0],
+            state=qs.get("state", [None])[0],
+            error=qs.get("error", [None])[0],
+            error_description=qs.get("error_description", [None])[0],
+        )
+        self.server.result = result
+
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.end_headers()
+        _ = self.wfile.write(_render_callback_page(result))
+
+        # From another thread: shutdown() waits for the serve_forever loop, which is this handler.
+        threading.Thread(target=self.server.shutdown, daemon=True).start()
+
+    def log_message(self, format: str, *args: object) -> None:  # noqa: A002  # pyright: ignore[reportImplicitOverride]
+        """Suppress default stderr logging."""
+
+
+class _CallbackServer(HTTPServer):
+    """Local HTTP server that listens for the OAuth redirect callback."""
+
+    result: _AuthorizationResult
+
+    def __init__(self, port: int = 0) -> None:
+        super().__init__(("127.0.0.1", port), _CallbackHandler)
+        self.result = _AuthorizationResult()
+
+    @property
+    def redirect_uri(self) -> str:
+        """The redirect URI that should be registered with the authorization server."""
+        return f"http://127.0.0.1:{self.server_address[1]}/callback"
+
+
+def exchange_code(
+    *,
+    base_url: str,
+    client_id: str,
+    code: str,
+    redirect_uri: str,
+    code_verifier: str,
+    client_secret: str | None = None,
+) -> dict[str, object]:
+    """Exchange an authorization code for tokens at the token endpoint.
+
+    :param redirect_uri: the same URI the authorization request was sent with, which the server
+        re-checks
+    :param client_secret: a confidential client's secret, sent as ``client_secret_basic``. Empty or
+        ``None`` makes the request as a public client relying on PKCE alone; an empty string
+        because that is how the rest of the library spells "no secret".
+    """
+    # No in-repo caller passes a secret: bfabric's own flows are all public clients. The consumer
+    # is the log-viewer web app, so this branch is held up by its tests here rather than by use.
+    with raise_if_unavailable(base_url):
+        response = httpx.post(
+            token_url(base_url),
+            data={
+                "grant_type": "authorization_code",
+                "client_id": client_id,
+                "code": code,
+                "redirect_uri": redirect_uri,
+                "code_verifier": code_verifier,
+            },
+            timeout=30,
+            auth=(client_id, client_secret) if client_secret else None,
+        )
+    _ = response.raise_for_status()
+    result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
+    return result
+
+
+def pkce_login(
+    base_url: BaseUrl,
+    *,
+    client_id: str,
+    scope: str,
+    port: int = 0,
+    open_browser: bool = True,
+    timeout: float = 120.0,
+) -> dict[str, object]:
+    """Perform an OAuth 2.0 Authorization Code flow with PKCE.
+
+    :param port: Local port for the callback server (``0`` = auto-assign)
+    :param open_browser: If ``False``, or if the browser fails to open, the URL is printed to stderr
+    :param timeout: Seconds to wait for the user to complete login
+    :returns: Token dict with ``access_token``, ``refresh_token``, etc.
+    :raises BfabricOAuthError: On timeout, CSRF state mismatch, or authorization error
+    """
+    logger.debug("Starting PKCE login flow for {}", base_url)
+    # The server first: its bound port decides the redirect URI the request has to carry.
+    server = _CallbackServer(port)
+    request = AuthorizationRequest.create(
+        base_url,
+        client_id=client_id,
+        redirect_uri=server.redirect_uri,
+        scope=scope,
+    )
+
+    browser_opened = False
+    if open_browser:
+        browser_opened = webbrowser.open(request.url)
+    if not browser_opened:
+        print(
+            f"Open this URL to log in:\n{request.url}\n"
+            f"After logging in you are redirected to {server.redirect_uri}, which only works in a "
+            f"browser on this machine. {_REMOTE_HOST_CAVEAT}",
+            file=sys.stderr,
+        )
+
+    server_thread = threading.Thread(target=server.serve_forever, daemon=True)
+    server_thread.start()
+    server_thread.join(timeout=timeout)
+
+    if server_thread.is_alive():
+        server.shutdown()
+        raise BfabricOAuthError(
+            f"PKCE login timed out after {timeout} seconds. The login must be completed in a browser "
+            f"on this machine, because the redirect goes to {server.redirect_uri}. {_REMOTE_HOST_CAVEAT}"
+        )
+
+    result = server.result
+
+    if result.state != request.state:
+        logger.debug("CSRF state mismatch: expected {!r}, got {!r}", request.state, result.state)
+        raise BfabricOAuthError("CSRF state mismatch in OAuth callback")
+
+    if result.error is not None:
+        msg = f"Authorization error: {result.error}"
+        if result.error_description:
+            msg += f" — {result.error_description}"
+        raise BfabricOAuthError(msg)
+
+    if result.code is None:
+        raise BfabricOAuthError("No authorization code received")
+
+    logger.debug("Exchanging authorization code for tokens")
+    return exchange_code(
+        base_url=base_url,
+        client_id=client_id,
+        code=result.code,
+        redirect_uri=server.redirect_uri,
+        code_verifier=request.verifier,
+    )

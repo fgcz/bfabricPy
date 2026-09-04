@@ -5,7 +5,7 @@ from bfabric.experimental.webapp_integration_settings import TokenValidationSett
 from bfabric.rest.token_data import validate_token
 from httpx import HTTPError
 from loguru import logger
-from pydantic import SecretStr, ValidationError
+from pydantic import SecretStr
 
 from bfabric_asgi_auth.token_validation.strategy import (
     TokenValidationError,
@@ -25,7 +25,9 @@ def create_bfabric_validator(settings: TokenValidationSettingsProtocol) -> Token
         try:
             # Use async token validation
             token_data = await validate_token(token=token.get_secret_value(), settings=settings)
-        except (HTTPError, ValidationError, BfabricInstanceNotConfiguredError) as e:
+        # ValueError covers pydantic's ValidationError (a subclass) and a caller/instance URL that
+        # BaseUrl rejects -- a rejected instance is a failed validation, not a 500.
+        except (HTTPError, ValueError, BfabricInstanceNotConfiguredError) as e:
             logger.exception("Token validation failed.")
             return TokenValidationError(error=f"Bfabric token validation failed: {str(e)}")
 

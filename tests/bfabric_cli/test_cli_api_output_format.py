@@ -11,7 +11,7 @@ from bfabric_scripts.cli.api.output_format import OutputFormat, _determine_outpu
 @pytest.fixture
 def mock_client(mocker):
     client = mocker.Mock()
-    client.config.base_url = "http://test-bfabric.com"
+    client.config.base_url = "http://test-bfabric.com/bfabric"
     return client
 
 
@@ -24,7 +24,7 @@ def sample_results():
 
 
 class TestRenderOutputJsonSafety:
-    """Ensure JSON output survives non-JSON-native values (Zeep engine produces these)."""
+    """Ensure JSON output survives non-JSON-native values, which the API can return."""
 
     def test_datetime_values_are_serialised(self, mock_client, mocker):
         results = [{"id": 1, "created": datetime.datetime(2024, 1, 1, 12, 0, 0)}]

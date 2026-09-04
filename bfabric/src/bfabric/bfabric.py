@@ -29,8 +29,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from loguru import logger
 from rich.console import Console
 
-from bfabric.config import DEFAULT_CONFIG_FILE, BfabricAuth, BfabricClientConfig
-from bfabric.config.bfabric_client_config import BfabricAPIEngineType
+from bfabric.config import DEFAULT_CONFIG_FILE, BaseUrl, BfabricAuth, BfabricClientConfig
 from bfabric.config.config_data import ConfigData, load_config_data
 from bfabric.config.config_file import read_config_file
 from bfabric.engine.engine_suds import EngineSUDS
@@ -44,9 +43,8 @@ if TYPE_CHECKING:
 
     from pydantic import SecretStr
 
-    from bfabric._oauth.credential_provider import OAuthCredentialProvider
-    from bfabric.engine.engine_zeep import EngineZeep
     from bfabric.entities.core.read_scope import ReadScope
+    from bfabric.oauth._credential_provider import OAuthCredentialProvider
     from bfabric.experimental.webapp_integration_settings import TokenValidationSettingsProtocol
     from bfabric.typing import ApiRequestObjectType, ApiResponseObjectType
 
@@ -73,19 +71,8 @@ class Bfabric:
         self._log_version_message()
 
     @cached_property
-    def _engine(self) -> EngineSUDS | EngineZeep:
-        if self.config.engine == BfabricAPIEngineType.SUDS:
-            return EngineSUDS(base_url=self._config.base_url)
-        elif self.config.engine == BfabricAPIEngineType.ZEEP:
-            try:
-                from bfabric.engine.engine_zeep import EngineZeep
-            except ImportError as e:
-                raise ImportError(
-                    "The zeep engine requires the optional 'zeep' extra: pip install bfabric[zeep]"
-                ) from e
-            return EngineZeep(base_url=self._config.base_url)
-        else:
-            raise ValueError(f"Unexpected engine type: {self.config.engine}")
+    def _engine(self) -> EngineSUDS:
+        return EngineSUDS(base_url=self._config.base_url)
 
     @classmethod
     def connect(
@@ -105,6 +92,9 @@ class Bfabric:
         `BFABRICPY_CONFIG_ENV` will be used, otherwise the default environment in the config file will be used.
         Otherwise, `config_file_env` specifies the name of the environment.
 
+        An environment with `auth_method: oauth` (as written by `bfabric-cli login`) authenticates with its cached
+        OAuth token, which is refreshed transparently.
+
         :param config_file_path: a non-standard configuration file to use, if config file is selected as a config source
         :param config_file_env: name of environment to use, if config file is selected as a config source.
             if `"default"` is specified, the default environment will be used.
@@ -122,26 +112,34 @@ class Bfabric:
     def _connect_oauth_from_config(cls, config_data: ConfigData) -> Bfabric:
         """Create a Bfabric instance from a config with ``auth_method: oauth``.
 
-        Loads tokens from the disk cache keyed on ``base_url`` + ``client_id``.
+        Loads tokens from the disk cache keyed on ``base_url`` + ``client_id`` + ``env_name``.
         """
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
-        from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
+        from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
 
-        base_url = config_data.client.base_url.rstrip("/")
+        base_url = config_data.client.base_url
         if not config_data.client_id:
             raise ValueError(
                 "OAuth config is missing 'client_id'. Set it in the config environment "
                 "(e.g. re-run 'bfabric-cli auth login' or 'bfabric-cli auth device-code')."
             )
         client_id = config_data.client_id
-        env_name = config_data.env_name or "default"
-        cache_path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
+        if not config_data.env_name:
+            # The cache key includes the environment name, and "default" (the old fallback here) is a
+            # name the config layer forbids outright — so it could never match a CLI-written cache.
+            raise ValueError(
+                "OAuth config is missing 'env_name', so the token cache cannot be located. When "
+                "configuring via BFABRICPY_CONFIG_OVERRIDE, include 'env_name' naming the "
+                "environment whose cached token should be used."
+            )
+        cache_path = compute_token_cache_path(base_url, client_id, config_data.env_name).expanduser()
         if not TokenCache(cache_path).load():
             raise ValueError("No OAuth tokens found. Run 'bfabric-cli auth login' or 'bfabric-cli auth device-code'.")
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret="",
-            token_url=f"{base_url}/rest/oauth/token",
+            token_url=token_url(base_url),
             scope="",
             grant_type="refresh_token",
             token_cache_path=cache_path,
@@ -154,7 +152,6 @@ class Bfabric:
         config_env: str | None = None,
         config_path: str | None = None,
         auth: BfabricAuth | Literal["config"] | None = "config",
-        engine: BfabricAPIEngineType | None = None,
     ) -> Bfabric:
         """Returns a new Bfabric instance, configured with the user configuration file.
         If the `config_env` is specified then it will be used, if it is not specified the default environment will be
@@ -166,7 +163,6 @@ class Bfabric:
         :param config_path: Path to the config file, in case it is different from default
         :param auth: Authentication to use. If "config" is given, the authentication will be read from the config file.
              If it is set to None, no authentication will be used.
-        :param engine: Engine to use for the API.
         """
         warnings.warn(
             "Bfabric.from_config() is deprecated and will be removed in a future release. "
@@ -189,7 +185,7 @@ class Bfabric:
         cls,
         token: str,
         *,
-        validation_instance_url: str = "https://fgcz-bfabric.uzh.ch/bfabric/",
+        validation_instance_url: str = "https://fgcz-bfabric.uzh.ch/bfabric",
         config_file_path: None = None,
         config_file_env: None = None,
     ) -> tuple[Bfabric, TokenData]:
@@ -246,25 +242,21 @@ class Bfabric:
         credential provider.
 
         :param client_id: OAuth client ID (from ``register_client`` or admin setup)
-        :param client_secret: OAuth client secret
-        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param scope: OAuth scope
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
 
-        base_url = base_url.rstrip("/")
-        token_url = f"{base_url}/rest/oauth/token"
+        base_url = BaseUrl(base_url)
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret=client_secret,
-            token_url=token_url,
+            token_url=token_url(base_url),
             scope=scope,
             grant_type="client_credentials",
             token_cache_path=token_cache_path,
         )
-        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
-        config_data = ConfigData(client=config, auth=None)
+        config_data = ConfigData(client=BfabricClientConfig(base_url=base_url), auth=None)
         return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
@@ -281,22 +273,14 @@ class Bfabric:
     ) -> Bfabric:
         """Returns a new Bfabric instance after interactive browser-based PKCE login.
 
-        Opens the user's browser to the B-Fabric authorization page.  After
-        the user logs in, tokens are exchanged automatically and the returned
-        client uses :class:`OAuthCredentialProvider` for transparent refresh.
-
-        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param client_id: OAuth client ID
-        :param scope: OAuth scope
         :param port: Local port for the callback server (``0`` = auto-assign)
         :param open_browser: Whether to open the authorization URL in the browser
         :param timeout: Seconds to wait for the user to complete login
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
-        from bfabric._oauth.pkce import pkce_login
+        from bfabric.oauth._pkce import pkce_login
 
-        base_url = base_url.rstrip("/")
+        base_url = BaseUrl(base_url)
         token = pkce_login(
             base_url,
             client_id=client_id,
@@ -305,19 +289,9 @@ class Bfabric:
             open_browser=open_browser,
             timeout=timeout,
         )
-        token_url = f"{base_url}/rest/oauth/token"
-        provider = OAuthCredentialProvider(
-            client_id=client_id,
-            client_secret="",
-            token_url=token_url,
-            token=token,
-            grant_type="refresh_token",
-            scope=scope,
-            token_cache_path=token_cache_path,
+        return cls._connect_refreshing(
+            base_url, client_id=client_id, scope=scope, token=token, token_cache_path=token_cache_path
         )
-        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
-        config_data = ConfigData(client=config, auth=None)
-        return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
     def connect_device_code(
@@ -331,42 +305,44 @@ class Bfabric:
     ) -> Bfabric:
         """Returns a new Bfabric instance after device code authorization (RFC 8628).
 
-        Displays a user code and verification URI on stderr.  The user
-        visits the URI, enters the code, and authorizes the device.  The
-        returned client uses :class:`OAuthCredentialProvider` for transparent
-        token refresh.
+        Displays a user code and verification URI on stderr, so it suits headless environments
+        (SSH, containers) where the localhost redirect of :meth:`connect_pkce` is not reachable.
 
-        This flow is suitable for headless environments (SSH, containers)
-        where a localhost redirect is not feasible.
-
-        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
-        :param client_id: OAuth client ID
-        :param scope: OAuth scope
         :param timeout: Seconds to wait for the user to authorize
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
-        from bfabric._oauth.credential_provider import OAuthCredentialProvider
-        from bfabric._oauth.device_code import device_code_login
+        from bfabric.oauth._device_code import device_code_login
 
-        base_url = base_url.rstrip("/")
-        token = device_code_login(
-            base_url,
-            client_id=client_id,
-            scope=scope,
-            timeout=timeout,
+        base_url = BaseUrl(base_url)
+        token = device_code_login(base_url, client_id=client_id, scope=scope, timeout=timeout)
+        return cls._connect_refreshing(
+            base_url, client_id=client_id, scope=scope, token=token, token_cache_path=token_cache_path
         )
-        token_url = f"{base_url}/rest/oauth/token"
+
+    @classmethod
+    def _connect_refreshing(
+        cls,
+        base_url: BaseUrl,
+        *,
+        client_id: str,
+        scope: str,
+        token: dict[str, object],
+        token_cache_path: Path | None,
+    ) -> Bfabric:
+        """Wrap an interactive login's token in a public client that refreshes it."""
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
+        from bfabric.oauth._endpoints import token_url
+
         provider = OAuthCredentialProvider(
             client_id=client_id,
             client_secret="",
-            token_url=token_url,
+            token_url=token_url(base_url),
             token=token,
             grant_type="refresh_token",
             scope=scope,
             token_cache_path=token_cache_path,
         )
-        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
-        config_data = ConfigData(client=config, auth=None)
+        config_data = ConfigData(client=BfabricClientConfig(base_url=base_url), auth=None)
         return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
@@ -382,17 +358,16 @@ class Bfabric:
         API accepts them directly. There is no automatic refresh; if the token
         expires a new one must be obtained.
 
-        :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
         :param pat: Personal Access Token (string or ``SecretStr``)
         """
         from pydantic import SecretStr
 
         from bfabric.config.bfabric_auth import OAUTH_LOGIN
 
-        base_url = base_url.rstrip("/")
+        base_url = BaseUrl(base_url)
         pat_value: str = pat.get_secret_value() if isinstance(pat, SecretStr) else pat
         auth = BfabricAuth(login=OAUTH_LOGIN, password=SecretStr(pat_value))
-        config = BfabricClientConfig(base_url=base_url)  # pyright: ignore[reportCallIssue]
+        config = BfabricClientConfig(base_url=base_url)
         config_data = ConfigData(client=config, auth=auth)
         return cls(config_data=config_data)
 
@@ -668,21 +643,21 @@ def get_system_auth(
     )
 
     resolved_path = Path(config_path or "~/.bfabricpy.yml").expanduser()
+    canonical_base_url = BaseUrl(base_url) if base_url is not None else None
 
     # Use the provided config data from arguments instead of the file
     if not resolved_path.is_file():
         if config_path:
             # NOTE: If user explicitly specifies a path to a wrong config file, this has to be an exception
             raise OSError(f"Explicitly specified config file does not exist: {resolved_path}")
-        # TODO: Convert to log
-        print(f"Warning: could not find the config file in the default location: {resolved_path}")
-        config = BfabricClientConfig(base_url=base_url)
+        logger.warning(f"could not find the config file in the default location: {resolved_path}")
+        config = BfabricClientConfig(base_url=canonical_base_url)  # pyright: ignore[reportArgumentType]
         auth = None if login is None or password is None else BfabricAuth(login=login, password=password)
 
     # Load config from file, override some of the fields with the provided ones
     else:
         config, auth = read_config_file(resolved_path, config_env=config_env)
-        config = config.copy_with(base_url=base_url)
+        config = config.copy_with(base_url=canonical_base_url)
         if (login is not None) and (password is not None):
             auth = BfabricAuth(login=login, password=password)
         elif (login is None) and (password is None):

@@ -11,7 +11,8 @@ from pathlib import Path
 
 import pytest
 
-from bfabric.utils.cli_integration import use_client
+from bfabric.utils import cli_integration
+from bfabric.utils.cli_integration import setup_script_logging, use_client
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric import Bfabric
 
@@ -288,6 +289,82 @@ class TestDefaultConfigFile:
         """Verify the default config file path is correct."""
         expected = Path("~/.bfabricpy.yml")
         assert DEFAULT_CONFIG_FILE == expected
+
+
+class TestUseClientErrorReporting:
+    """The CLI error boundary: a RuntimeError becomes one stderr line and exit 1, never a traceback."""
+
+    @pytest.fixture
+    def mock_logger(self, mocker):
+        return mocker.patch("bfabric.utils.cli_integration.logger")
+
+    def test_runtime_error_from_the_command_is_reported_as_one_line(self, mocker, capsys):
+        mocker.patch("bfabric.Bfabric.connect", return_value=mocker.MagicMock())
+
+        @use_client
+        def my_function(*, client: Bfabric) -> None:
+            raise RuntimeError("boom")
+
+        with pytest.raises(SystemExit) as exc_info:
+            my_function()
+
+        assert exc_info.value.code == 1
+        stderr = capsys.readouterr().err
+        assert stderr == "Error: boom\n"
+        assert "Traceback" not in stderr
+
+    def test_connect_failure_is_reported_as_one_line(self, mocker, capsys):
+        mocker.patch("bfabric.Bfabric.connect", side_effect=RuntimeError("no config"))
+
+        @use_client
+        def my_function(*, client: Bfabric) -> None:
+            raise AssertionError("must not be reached")
+
+        with pytest.raises(SystemExit) as exc_info:
+            my_function()
+
+        assert exc_info.value.code == 1
+        assert capsys.readouterr().err == "Error: no config\n"
+
+    def test_traceback_is_kept_at_debug_level(self, mocker, mock_logger):
+        """The traceback is still available for development via ``BFABRICPY_LOG_LEVEL=DEBUG``."""
+        mocker.patch("bfabric.Bfabric.connect", return_value=mocker.MagicMock())
+
+        @use_client
+        def my_function(*, client: Bfabric) -> None:
+            raise RuntimeError("boom")
+
+        with pytest.raises(SystemExit):
+            my_function()
+
+        mock_logger.debug.assert_called_once()
+        logged = mock_logger.debug.call_args[0][0]
+        assert "Traceback" in logged
+        assert "my_function" in logged
+
+
+class TestSetupScriptLogging:
+    @pytest.fixture(autouse=True)
+    def _reset_flag(self):
+        """Keep the process-wide flag from leaking between these tests."""
+        cli_integration._logging_configured = False
+        yield
+        cli_integration._logging_configured = False
+
+    def test_guard_is_not_written_to_the_environment(self):
+        """A child process must configure its own sinks rather than inherit the parent's guard."""
+        setup_script_logging()
+
+        assert "BFABRICPY_SCRIPT_LOGGING_SETUP" not in os.environ
+
+    def test_repeated_calls_configure_the_sinks_only_once(self, mocker):
+        mock_remove = mocker.patch.object(cli_integration.logger, "remove")
+        mocker.patch.object(cli_integration.logger, "add")
+
+        setup_script_logging()
+        setup_script_logging()
+
+        mock_remove.assert_called_once()
 
 
 class TestUseClientSetupLogging:

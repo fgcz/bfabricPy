@@ -112,7 +112,7 @@ def test_store_output_folder(workunit) -> None:
 def test_repr(bfabric_instance) -> None:
     workunit = Workunit({"id": 30000}, bfabric_instance=bfabric_instance)
     assert repr(workunit) == (
-        "Workunit(data_dict={'id': 30000}, bfabric_instance='https://bfabric.example.org/bfabric/')"
+        "Workunit(data_dict={'id': 30000}, bfabric_instance='https://bfabric.example.org/bfabric')"
     )
 
 

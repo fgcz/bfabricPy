@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from logot import logged
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.transfer.errors import BfabricTransferError, ScopeError
@@ -11,7 +12,6 @@ from bfabric.transfer.upload import (
     DuplicateResult,
     UploadRestClient,
     UploadTokenResult,
-    api_to_rest_url,
     require_tus,
     tus_sink_for_resource,
 )
@@ -20,7 +20,7 @@ from bfabric.transfer import FileInfo, TransferSinkTus
 
 def _rest_client(mocker, make_jwt, *, scope: str = "api:read tus containers"):
     client = mocker.MagicMock()
-    client.config.base_url = "https://host/bfabric/api/"
+    client.config.base_url = "https://host/bfabric"
     client.auth = mocker.MagicMock(login=OAUTH_LOGIN, password=mocker.MagicMock())
     client.auth.password.get_secret_value.return_value = make_jwt({"scope": scope})
     return UploadRestClient(client)
@@ -36,12 +36,10 @@ def _mock_post(mocker, *, is_success: bool, payload=None, status_code: int = 200
     return mocker.patch("bfabric.transfer.upload.httpx.post", return_value=response)
 
 
-class TestApiToRestUrl:
-    def test_strips_api_suffix_and_trailing_slash(self):
-        assert api_to_rest_url("https://host/bfabric/api/") == "https://host/bfabric"
-
-    def test_no_api_suffix_only_strips_trailing_slash(self):
-        assert api_to_rest_url("https://host/bfabric/") == "https://host/bfabric"
+class TestRestBaseUrl:
+    def test_is_the_configured_instance_url(self, mocker, make_jwt):
+        # The REST endpoints hang off the servlet root, which is what base_url is required to be.
+        assert _rest_client(mocker, make_jwt).rest_base_url == "https://host/bfabric"
 
 
 class TestRequireTus:
@@ -84,6 +82,33 @@ class TestCheckDuplicates:
             {"name": "b.txt", "md5": "abc123", "size": 42},
         ]
 
+    def test_an_unrecognised_action_becomes_the_unsupported_sentinel(self, mocker, make_jwt, logot):
+        # ``action`` is a strict Literal so the type checker verifies the branches that switch on it.
+        # An action this client does not know must still parse -- upload_files rejects it per file
+        # with a remedy naming the file, which a parse-time failure of the whole batch would replace
+        # with a generic ValidationError -- so it is normalised to the sentinel that guard refuses.
+        payload = [{"name": "a.txt", "category": "quarantined", "action": "quarantine"}]
+        _ = _mock_post(mocker, is_success=True, payload=payload)
+        rest = _rest_client(mocker, make_jwt)
+
+        result = rest.check_duplicates(container_id=4, files=[_file_info("a.txt")])
+
+        assert result[0].action == "unsupported"
+        # The server's own word is logged rather than silently dropped.
+        logot.assert_logged(
+            logged.info("check-duplicates returned the unrecognised action 'quarantine'; treating it as unsupported.")
+        )
+
+    @pytest.mark.parametrize("action", ["upload", "skip", "link"])
+    def test_a_known_action_passes_through_unchanged(self, mocker, make_jwt, action):
+        payload = [{"name": "a.txt", "category": "new", "action": action}]
+        _ = _mock_post(mocker, is_success=True, payload=payload)
+        rest = _rest_client(mocker, make_jwt)
+
+        result = rest.check_duplicates(container_id=4, files=[_file_info("a.txt")])
+
+        assert result[0].action == action
+
     def test_failure_raises_transfer_error(self, mocker, make_jwt):
         _mock_post(mocker, is_success=False, status_code=500, text="boom")
         rest = _rest_client(mocker, make_jwt)
@@ -105,6 +130,73 @@ class TestCreateResources:
         assert created.id == 11
         assert created.storage_path == "/store/a.txt"
         assert created.import_resource_id == 99
+
+    def test_maps_linked_flag(self, mocker, make_jwt):
+        payload = [
+            {"id": 11, "name": "a.txt", "storagePath": "/store/a.txt", "importResourceId": 99, "linked": False},
+            {"id": 12, "name": "b.txt", "storagePath": "/store/b.txt", "importResourceId": None, "linked": True},
+        ]
+        _mock_post(mocker, is_success=True, payload=payload)
+        rest = _rest_client(mocker, make_jwt)
+
+        result = rest.create_resources(workunit_id=3, files=[_file_info("a.txt"), _file_info("b.txt")])
+
+        assert [r.linked for r in result] == [False, True]
+
+    def test_linked_defaults_false_when_absent(self, mocker, make_jwt):
+        # Older servers omit the field entirely; those resources carry real bytes.
+        _mock_post(mocker, is_success=True, payload=[{"id": 11, "name": "a.txt", "storagePath": "/store/a.txt"}])
+        rest = _rest_client(mocker, make_jwt)
+
+        assert rest.create_resources(workunit_id=3, files=[_file_info("a.txt")])[0].linked is False
+
+    def test_preserves_nested_name_verbatim(self, mocker, make_jwt):
+        # The server echoes the name as sent, so a nested name survives the round trip unchanged.
+        payload = [{"id": 11, "name": "sub/nested.raw", "storagePath": "p403/w346616/sub/nested.raw"}]
+        _mock_post(mocker, is_success=True, payload=payload)
+        rest = _rest_client(mocker, make_jwt)
+
+        created = rest.create_resources(workunit_id=3, files=[_file_info("sub/nested.raw")])[0]
+
+        assert created.name == "sub/nested.raw"
+        assert created.storage_path == "p403/w346616/sub/nested.raw"
+
+    def test_sends_link_from_resource_id_when_set(self, mocker, make_jwt):
+        mock_post = _mock_post(mocker, is_success=True, payload=[{"id": 11, "name": "a.txt", "linked": True}])
+        rest = _rest_client(mocker, make_jwt)
+        linking = FileInfo(name="a.txt", md5="abc123", size=42, path=Path("/local/a.txt"), link_from_resource_id=4711)
+
+        _ = rest.create_resources(workunit_id=3, files=[linking])
+
+        assert mock_post.call_args.kwargs["json"]["files"][0]["linkFromResourceId"] == 4711
+
+    def test_omits_link_from_resource_id_when_unset(self, mocker, make_jwt):
+        # An ordinary upload must not carry the key at all, rather than sending it as null.
+        mock_post = _mock_post(mocker, is_success=True, payload=[{"id": 11, "name": "a.txt"}])
+        rest = _rest_client(mocker, make_jwt)
+
+        _ = rest.create_resources(workunit_id=3, files=[_file_info("a.txt")])
+
+        assert "linkFromResourceId" not in mock_post.call_args.kwargs["json"]["files"][0]
+
+    def test_check_duplicates_never_sends_link_from_resource_id(self, mocker, make_jwt):
+        # linkFromResourceId is a create-resources concept; the dedup request shape is unchanged.
+        mock_post = _mock_post(mocker, is_success=True, payload=[])
+        rest = _rest_client(mocker, make_jwt)
+        linking = FileInfo(name="a.txt", md5="abc123", size=42, path=Path("/local/a.txt"), link_from_resource_id=4711)
+
+        _ = rest.check_duplicates(container_id=4, files=[linking])
+
+        assert mock_post.call_args.kwargs["json"]["files"] == [{"name": "a.txt", "md5": "abc123", "size": 42}]
+
+    def test_never_sends_linked_request_field(self, mocker, make_jwt):
+        # The server no longer parses `linked` on requests; linkFromResourceId is the only way to link.
+        mock_post = _mock_post(mocker, is_success=True, payload=[{"id": 11, "name": "a.txt"}])
+        rest = _rest_client(mocker, make_jwt)
+
+        _ = rest.create_resources(workunit_id=3, files=[_file_info("a.txt")])
+
+        assert "linked" not in mock_post.call_args.kwargs["json"]["files"][0]
 
     def test_failure_raises_transfer_error(self, mocker, make_jwt):
         _mock_post(mocker, is_success=False, status_code=500, text="boom")

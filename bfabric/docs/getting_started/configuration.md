@@ -4,7 +4,13 @@ bfabricPy can be configured through config files, environment variables, or code
 
 ## Configuration File (Recommended)
 
-Create a YAML file at `~/.bfabricpy.yml`:
+The config file lives at `~/.bfabricpy.yml`. The simplest way to create it is to log in:
+
+```bash
+bfabric-cli login
+```
+
+That writes an environment for the instance you picked:
 
 ```yaml
 # ~/.bfabricpy.yml
@@ -13,19 +19,56 @@ GENERAL:
   default_config: PRODUCTION  # Default environment to use
 
 PRODUCTION:
-  login: yourBfabricLogin
-  password: yourBfabricWebServicePassword  # Get from B-Fabric profile
-  base_url: https://fgcz-bfabric.uzh.ch/bfabric/
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric
+  auth_method: oauth
+  client_id: CLI
+  scope: api:read
 
 TEST:
-  login: yourBfabricLogin
-  password: yourBfabricWebServicePassword
-  base_url: https://fgcz-bfabric-test.uzh.ch/bfabric/
+  base_url: https://fgcz-bfabric-test.uzh.ch/bfabric
+  auth_method: oauth
+  client_id: CLI
+  scope: api:write
 ```
 
-### Web Service Password
+The token itself is not stored here — it lives in a separate cache under `~/.bfabric/tokens/`, and
+`Bfabric.connect()` refreshes it as needed. See [CLI Authentication](../user_guides/bfabric-cli/authentication.md) for
+scopes and for managing several environments.
 
-The password in your config file is **NOT** your login password. Find your web service password:
+### base_url
+
+`base_url` is the instance's servlet root and must end in `/bfabric` — everything else is derived from
+it, so a host on its own (`https://fgcz-bfabric.uzh.ch`) or a URL reaching further in
+(`https://fgcz-bfabric.uzh.ch/bfabric/api`) is rejected when the config loads. A trailing slash is
+accepted and dropped. `bfabric-cli login fgcz-bfabric.uzh.ch` completes a bare host for you.
+
+### Personal Access Tokens
+
+`bfabric-cli auth pat` stores a token inline instead, for non-interactive logins:
+
+```yaml
+PRODUCTION:
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric
+  auth_method: pat
+  pat: yourPersonalAccessToken
+```
+
+### Web Service Password (Legacy)
+
+```{note}
+Web service passwords are being phased out in favour of `bfabric-cli login`. Prefer OAuth for new setups.
+```
+
+An environment can also hold a login and web service password directly:
+
+```yaml
+PRODUCTION:
+  login: yourBfabricLogin
+  password: yourBfabricWebServicePassword  # Get from B-Fabric profile
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric
+```
+
+The password here is **NOT** your login password. Find your web service password:
 
 1. Log into B-Fabric web interface
 2. Go to your profile page
@@ -80,7 +123,7 @@ python script.py  # Will use TEST environment
 Complete configuration override (highest priority). Used primarily for integration tests, where it needs to be prevented that the regular config file leads to the wrong B-Fabric instance being modified.
 
 ```bash
-export BFABRICPY_CONFIG_OVERRIDE='{"client": {"base_url": "https://fgcz-bfabric.uzh.ch/bfabric/"}, "auth": {"login": "myuser", "password": "mypass"}}'
+export BFABRICPY_CONFIG_OVERRIDE='{"client": {"base_url": "https://fgcz-bfabric.uzh.ch/bfabric"}, "auth": {"login": "myuser", "password": "mypass"}}'
 python script.py  # Uses this config, ignoring ~/.bfabricpy.yml
 ```
 
@@ -103,8 +146,7 @@ from bfabric.config import BfabricAuth, BfabricClientConfig
 
 # Create config programmatically
 client_config = BfabricClientConfig(
-    base_url="https://fgcz-bfabric.uzh.ch/bfabric/",
-    engine="SUDS",  # default; "ZEEP" is also available but requires `pip install bfabric[zeep]`
+    base_url="https://fgcz-bfabric.uzh.ch/bfabric",
 )
 
 auth = BfabricAuth(
@@ -119,7 +161,7 @@ auth = BfabricAuth(
 
 For web applications that receive B-Fabric tokens, see:
 
-- [Server/Webapp Usage](../user_guides/creating_a_client/server_webapp_usage.md)
+- [Server/Webapp Usage](../user_guides/connecting/server_webapp_usage.md)
 
 ## Best Practices
 
@@ -132,6 +174,6 @@ For web applications that receive B-Fabric tokens, see:
 ## See Also
 
 - [Installation Guide](installation.md) - Installation options
-- [Creating a Client Guide](../user_guides/creating_a_client/index.md) - How to use configuration
-- [Server/Webapp Configuration](../user_guides/creating_a_client/server_webapp_usage.md) - Token-based auth
+- [Connecting Guide](../user_guides/connecting/index.md) - How to use configuration
+- [Server/Webapp Configuration](../user_guides/connecting/server_webapp_usage.md) - Token-based auth
 - [Troubleshooting](troubleshooting.md) - Common issues and solutions

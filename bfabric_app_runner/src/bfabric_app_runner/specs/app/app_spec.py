@@ -10,6 +10,7 @@ from bfabric_app_runner.specs.app.app_version import AppVersion, AppVersionMulti
 from bfabric_app_runner.specs.config_interpolation import VariablesApp
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
     from pathlib import Path
 
 
@@ -41,13 +42,18 @@ class AppSpecTemplate(BaseModel):
     versions: list[AppVersionMultiTemplate]
     """App version templates; each may declare several versions and use ``Variables`` placeholders."""
 
+    @classmethod
+    def for_yaml(cls, path: Path) -> AppSpecTemplate:
+        """Parses the app spec template, resolving relative paths against the file's directory."""
+        return cls.model_validate(yaml.safe_load(path.read_text()), context={"spec_dir": path.resolve().parent})
+
     # TODO this should take the variables as param instead
-    def evaluate(self, app_id: int, app_name: str) -> AppSpec:
-        """Evaluates the template to a concrete ``AppSpec`` instance."""
+    def evaluate(self, app_id: int, app_name: str, app_dir: Path | None) -> AppSpec:
+        """Evaluates the template to a concrete ``AppSpec`` instance, with ``app_dir`` as ``${app.dir}``."""
         version_templates = [expanded for version in self.versions for expanded in version.expand_versions()]
         versions = []
         for version_template in version_templates:
-            variables_app = VariablesApp(id=app_id, name=app_name, version=version_template.version)
+            variables_app = VariablesApp(id=app_id, name=app_name, version=version_template.version, dir=app_dir)
             versions.append(version_template.evaluate(variables_app=variables_app))
         # TODO add interpolation for bfabric config for consistency
         return AppSpec.model_validate({"versions": versions, "bfabric": self.bfabric})
@@ -74,8 +80,21 @@ class AppSpec(BaseModel):
     @classmethod
     def load_yaml(cls, app_yaml: Path, app_id: int | str, app_name: str) -> AppSpec:
         """Loads the app versions from the provided YAML file and evaluates the templates."""
-        app_spec_file = AppSpecTemplate.model_validate(yaml.safe_load(app_yaml.read_text()))
-        return app_spec_file.evaluate(app_id=int(app_id), app_name=str(app_name))
+        app_spec_file = AppSpecTemplate.for_yaml(app_yaml)
+        return app_spec_file.evaluate(app_id=int(app_id), app_name=str(app_name), app_dir=app_yaml.resolve().parent)
+
+    def for_parameters(self, raw_parameters: Mapping[str, str | None]) -> AppVersion | None:
+        """Returns the app version these workunit parameters select, or ``None`` if there is no such version.
+
+        A spec defining exactly one version needs no ``application_version`` parameter: a workunit without one
+        resolves to that version, so an app that never had the parameter works unchanged. A parameter that *is*
+        present is always taken literally -- naming an undefined version gives ``None`` even for a
+        single-version spec, rather than quietly running something else.
+        """
+        version = raw_parameters.get("application_version")
+        if version is None:
+            return self.versions[0] if len(self.versions) == 1 else None
+        return self[version]
 
     @property
     def available_versions(self) -> set[str]:

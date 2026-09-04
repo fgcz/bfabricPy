@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
 
 import pytest
 
@@ -9,6 +10,20 @@ import pytest
 def _clear_config_env(monkeypatch):
     """Drop the global ``__MOCK`` env so commands resolve the environment from the temp config."""
     monkeypatch.delenv("BFABRICPY_CONFIG_ENV", raising=False)
+    monkeypatch.delenv("BFABRICPY_CONFIG_OVERRIDE", raising=False)
+
+
+@pytest.fixture(autouse=True)
+def _isolated_home(tmp_path, monkeypatch):
+    """Point ``$HOME`` at a temp dir so no test reads or writes the developer's real token cache.
+
+    The token cache path is derived from ``~/.bfabric/tokens``, so without this a command under test
+    resolves a real path on the machine running the suite.
+    """
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setattr(Path, "home", lambda: home)
 
 
 @pytest.fixture
@@ -28,5 +43,5 @@ def oauth_session(mocker):
     session = mocker.MagicMock()
     session.token = None
     session.metadata = {"token_endpoint": "https://example.com/bfabric/rest/oauth/token"}
-    mocker.patch("bfabric._oauth.credential_provider.OAuth2Session", return_value=session)
+    mocker.patch("bfabric.oauth._credential_provider.OAuth2Session", return_value=session)
     return session

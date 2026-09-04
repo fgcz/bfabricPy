@@ -12,7 +12,7 @@ from bfabric.experimental import MultiQuery
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
-    from bfabric import Bfabric
+    from bfabric import BaseUrl, Bfabric
     from bfabric.entities.cache._cache_stack import CacheStack
     from bfabric.typing import ApiRequestObjectType, ApiResponseDataType, ApiResponseObjectType
 
@@ -132,24 +132,26 @@ class EntityReader:
 
     @overload
     def read_id(
-        self, entity_type: type[EntityT], entity_id: int | str, bfabric_instance: str | None = None
+        self, entity_type: type[EntityT], entity_id: int | str, bfabric_instance: BaseUrl | None = None
     ) -> EntityT | None: ...
     @overload
     def read_id(
         self,
         entity_type: str,
         entity_id: int | str,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT],
     ) -> EntityT | None: ...
     @overload
-    def read_id(self, entity_type: str, entity_id: int | str, bfabric_instance: str | None = None) -> Entity | None: ...
+    def read_id(
+        self, entity_type: str, entity_id: int | str, bfabric_instance: BaseUrl | None = None
+    ) -> Entity | None: ...
     def read_id(
         self,
         entity_type: str | type[EntityT],
         entity_id: int | str,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT] = Entity,
     ) -> EntityT | None:
@@ -179,26 +181,29 @@ class EntityReader:
 
     @overload
     def read_ids(
-        self, entity_type: type[EntityT], entity_ids: Sequence[int | str], bfabric_instance: str | None = None
+        self,
+        entity_type: type[EntityT],
+        entity_ids: Sequence[int | str],
+        bfabric_instance: BaseUrl | None = None,
     ) -> EntityResult[EntityT]: ...
     @overload
     def read_ids(
         self,
         entity_type: str,
         entity_ids: Sequence[int | str],
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT],
     ) -> EntityResult[EntityT]: ...
     @overload
     def read_ids(
-        self, entity_type: str, entity_ids: Sequence[int | str], bfabric_instance: str | None = None
+        self, entity_type: str, entity_ids: Sequence[int | str], bfabric_instance: BaseUrl | None = None
     ) -> EntityResult[Entity]: ...
     def read_ids(
         self,
         entity_type: str | type[EntityT],
         entity_ids: Sequence[int | str],
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT] = Entity,
     ) -> EntityResult[EntityT]:
@@ -227,7 +232,7 @@ class EntityReader:
         self,
         entity_type: type[EntityT],
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         max_results: int | None = 100,
     ) -> dict[EntityUri, EntityT]: ...
     @overload
@@ -235,7 +240,7 @@ class EntityReader:
         self,
         entity_type: str,
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         max_results: int | None = 100,
         *,
         expected_type: type[EntityT],
@@ -245,14 +250,14 @@ class EntityReader:
         self,
         entity_type: str,
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         max_results: int | None = 100,
     ) -> dict[EntityUri, Entity]: ...
     def query(
         self,
         entity_type: str | type[EntityT],
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         max_results: int | None = 100,
         *,
         expected_type: type[EntityT] = Entity,
@@ -292,26 +297,26 @@ class EntityReader:
 
     @overload
     def query_one(
-        self, entity_type: type[EntityT], obj: ApiRequestObjectType, bfabric_instance: str | None = None
+        self, entity_type: type[EntityT], obj: ApiRequestObjectType, bfabric_instance: BaseUrl | None = None
     ) -> EntityT | None: ...
     @overload
     def query_one(
         self,
         entity_type: str,
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT],
     ) -> EntityT | None: ...
     @overload
     def query_one(
-        self, entity_type: str, obj: ApiRequestObjectType, bfabric_instance: str | None = None
+        self, entity_type: str, obj: ApiRequestObjectType, bfabric_instance: BaseUrl | None = None
     ) -> Entity | None: ...
     def query_one(
         self,
         entity_type: str | type[EntityT],
         obj: ApiRequestObjectType,
-        bfabric_instance: str | None = None,
+        bfabric_instance: BaseUrl | None = None,
         *,
         expected_type: type[EntityT] = Entity,
     ) -> EntityT | None:
@@ -367,7 +372,7 @@ class EntityReader:
         if not _is_id_dict(result_by_id):
             raise ValueError("All entity IDs must be integers")
 
-        bfabric_instance = str(uris[0].components.bfabric_instance)
+        bfabric_instance = uris[0].components.bfabric_instance
         return {
             id_to_uri_map[id]: instantiate_entity(data_dict=data_dict, bfabric_instance=bfabric_instance)
             for id, data_dict in result_by_id.items()

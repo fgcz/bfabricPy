@@ -15,7 +15,7 @@ from pytest_mock import MockFixture
 @pytest.fixture
 def mock_client(mocker):
     client = mocker.MagicMock(spec=Bfabric)
-    client.config.base_url = "http://test-bfabric.com"
+    client.config.base_url = "http://test-bfabric.com/bfabric"
     return client
 
 
