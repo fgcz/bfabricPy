@@ -1,18 +1,65 @@
-# Creating a Client for Server and Webapp Usage
+# Server and Webapp Usage
 
-This guide covers how to create a `Bfabric` client for server-side applications and webapps that integrate with B-Fabric,
-using token-based authentication.
+This guide covers how to connect a `Bfabric` client in server-side applications and webapps that integrate with
+B-Fabric, where there is no config file to log in from interactively.
 
 ## Overview
 
-For server and webapp usage, bfabricPy provides token-based authentication methods. These are designed for situations
-where:
+Three situations, three methods:
 
-- You're building a web server or application that integrates with B-Fabric
-- Users authenticate via B-Fabric webapp tokens
-- You need to validate and restrict which B-Fabric instances tokens can come from
-- You're using async web frameworks (e.g., FastAPI, asyncio)
-- You need to perform operations on behalf of users
+| Situation | Method |
+| ----------------------------------------------------------- | ------------------------------------------------- |
+| A background job or server acting as itself, with no user | [`connect_oauth()`](#service-accounts) |
+| A webapp launched from B-Fabric, acting for the current user | [`WebappClient.create()`](#apps-launched-from-b-fabric) |
+| A webapp receiving a B-Fabric webapp token | [`connect_token()`](#token-based-authentication-methods) |
+
+## Service Accounts
+
+`connect_oauth()` authenticates as a registered OAuth client rather than as a person, using the client credentials
+grant. This is what background jobs, feeders and servers should use:
+
+```python
+from bfabric import Bfabric
+
+client = Bfabric.connect_oauth(
+    client_id="my-service",
+    client_secret="...",
+    base_url="https://fgcz-bfabric.uzh.ch/bfabric",
+    scope="api:read api:write",
+)
+```
+
+Tokens are fetched and refreshed automatically. Pass `token_cache_path` to keep them across restarts.
+
+```{important}
+A client credentials token carries no user identity. Anything authorized by the *caller's* container membership — file
+downloads, for instance — needs a token from a user flow instead. See
+[OAuth Usage & Troubleshooting](../../design/oauth_usage_and_troubleshooting.md).
+```
+
+## Apps Launched From B-Fabric
+
+An app that B-Fabric opens with a `jwt` URL parameter can exchange that short-lived launch token for a client that holds
+both identities at once:
+
+```python
+from bfabric.oauth import WebappClient
+
+webapp = WebappClient.create(
+    "https://fgcz-bfabric.uzh.ch/bfabric",
+    launch_token,
+    client_id="my-webapp",
+    client_secret="...",
+    scope="api:read api:write",
+)
+
+webapp.user.read(endpoint="sample", obj={})  # as the logged-in user
+webapp.service.save(endpoint="workunit", obj={})  # as the service account
+print(webapp.context.entity_class_name, webapp.context.entity_id)  # what was clicked on
+```
+
+`webapp.context` also carries `application_id`, `job_id`, the user's `email`, `name` and `groups`, and the token's
+expiry.
 
 ## Token-Based Authentication Methods
 
@@ -29,10 +76,10 @@ from bfabric.experimental.webapp_integration_settings import TokenValidationSett
 
 # Configure which B-Fabric instances are allowed
 settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
     supported_bfabric_instances=[
-        "https://fgcz-bfabric.uzh.ch/bfabric/",
-        "https://fgcz-bfabric-test.uzh.ch/bfabric/",
+        "https://fgcz-bfabric.uzh.ch/bfabric",
+        "https://fgcz-bfabric-test.uzh.ch/bfabric",
     ],
 )
 
@@ -61,12 +108,12 @@ from bfabric import Bfabric
 from bfabric.rest.token_data import get_token_data
 
 # Validate token first
-base_url = "https://fgcz-bfabric.uzh.ch/bfabric/"
+base_url = "https://fgcz-bfabric.uzh.ch/bfabric"
 token = "your_token_here"
 token_data = get_token_data(base_url=base_url, token=token)
 
 # Check if the token is from an allowed instance
-allowed_instances = ["https://fgcz-bfabric.uzh.ch/bfabric/"]
+allowed_instances = ["https://fgcz-bfabric.uzh.ch/bfabric"]
 if token_data.caller not in allowed_instances:
     raise ValueError(f"Token from {token_data.caller} is not allowed")
 
@@ -84,10 +131,10 @@ The `TokenValidationSettings` class configures which B-Fabric instances are allo
 from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
 
 settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
     supported_bfabric_instances=[
-        "https://fgcz-bfabric.uzh.ch/bfabric/",
-        "https://fgcz-bfabric-test.uzh.ch/bfabric/",
+        "https://fgcz-bfabric.uzh.ch/bfabric",
+        "https://fgcz-bfabric-test.uzh.ch/bfabric",
     ],
 )
 ```
@@ -110,10 +157,10 @@ from bfabric.experimental.webapp_integration_settings import WebappIntegrationSe
 from bfabric.config import BfabricAuth
 
 settings = WebappIntegrationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
-    supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric/"],
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
+    supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric"],
     feeder_user_credentials={
-        "https://fgcz-bfabric.uzh.ch/bfabric/": BfabricAuth(
+        "https://fgcz-bfabric.uzh.ch/bfabric": BfabricAuth(
             login="feeder_user", password="feeder_user_password"
         ),
     },
@@ -137,10 +184,10 @@ Always restrict `supported_bfabric_instances` to only the instances you trust:
 
 ```python
 settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
     supported_bfabric_instances=[
-        "https://fgcz-bfabric.uzh.ch/bfabric/",  # Only allow production
-        # "https://fgcz-bfabric-test.uzh.ch/bfabric/",  # Commented out to prevent test tokens
+        "https://fgcz-bfabric.uzh.ch/bfabric",  # Only allow production
+        # "https://fgcz-bfabric-test.uzh.ch/bfabric",  # Commented out to prevent test tokens
     ],
 )
 ```

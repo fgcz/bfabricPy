@@ -28,9 +28,10 @@ from loguru import logger
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN, BfabricAuth
 from bfabric.errors import BfabricOAuthError
-from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
+from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
 
 if TYPE_CHECKING:
+    from bfabric.config.base_url import BaseUrl
     from pathlib import Path
 
 
@@ -120,7 +121,7 @@ class OAuthCredentialProvider:
             self._persist()
 
     @classmethod
-    def cache_login_token(cls, base_url: str, *, client_id: str, token: dict[str, object], env_name: str) -> Path:
+    def cache_login_token(cls, base_url: BaseUrl, *, client_id: str, token: dict[str, object], env_name: str) -> Path:
         """Normalize and cache a freshly obtained login *token*, returning its cache path.
 
         Ingesting the token derives its absolute ``expires_at`` (from ``expires_in``) and writes the

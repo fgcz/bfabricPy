@@ -6,7 +6,8 @@ import stat
 
 import pytest
 
-from bfabric._oauth.token_cache import TokenCache, compute_token_cache_path
+from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
+from bfabric.config import BfabricClientConfig
 
 
 @pytest.fixture
@@ -67,10 +68,13 @@ class TestComputeTokenCachePath:
         p2 = compute_token_cache_path("https://example.com/bfabric", "my-client", "PROD")
         assert p1 == p2
 
-    def test_trailing_slash_ignored(self):
-        p1 = compute_token_cache_path("https://example.com/bfabric", "c", "PROD")
-        p2 = compute_token_cache_path("https://example.com/bfabric/", "c", "PROD")
-        assert p1 == p2
+    def test_canonical_base_url_keeps_the_key_stable(self):
+        # The key is not slash-insensitive by itself; canonicalising upstream is what makes a cache
+        # written from a slashed config still resolve, so an existing login survives.
+        config = BfabricClientConfig(base_url="https://example.com/bfabric/")
+        assert compute_token_cache_path(config.base_url, "c", "PROD") == compute_token_cache_path(
+            "https://example.com/bfabric", "c", "PROD"
+        )
 
     def test_different_client_id_gives_different_path(self):
         p1 = compute_token_cache_path("https://example.com/bfabric", "client-a", "PROD")

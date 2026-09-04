@@ -3,6 +3,7 @@ from bfabric.operations.workunit.upload import (
     FileDoneCallback,
     FileFailure,
     FileProgressCallback,
+    FileUrlCallback,
     FileSkip,
     FileUpload,
     OnDuplicate,
@@ -10,6 +11,7 @@ from bfabric.operations.workunit.upload import (
     UploadFilesParams,
     UploadStartCallback,
     UploadSummary,
+    WorkunitCompletionError,
     upload_files,
 )
 
@@ -18,6 +20,7 @@ __all__ = [
     "FileDoneCallback",
     "FileFailure",
     "FileProgressCallback",
+    "FileUrlCallback",
     "FileSkip",
     "FileUpload",
     "OnDuplicate",
@@ -25,6 +28,7 @@ __all__ = [
     "UploadFilesParams",
     "UploadStartCallback",
     "UploadSummary",
+    "WorkunitCompletionError",
     "WorkunitDataset",
     "create_workunit",
     "upload_files",

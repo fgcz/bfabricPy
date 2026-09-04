@@ -41,6 +41,7 @@ from bfabric.transfer.errors import (
     BfabricTransferError,
     ScopeError,
 )
+from bfabric.transfer.resume_cache import DEFAULT_RESUME_TTL_SECONDS, ResumeCache
 from bfabric.transfer.sources import http_source, ssh_source
 from bfabric.transfer.tokens import (
     check_download_scope,
@@ -51,20 +52,23 @@ from bfabric.transfer.tokens import (
 )
 from bfabric.transfer.upload import (
     CreatedResource,
+    DuplicateAction,
     DuplicateResult,
     UploadRestClient,
     UploadTokenResult,
-    api_to_rest_url,
     require_tus,
     tus_sink_for_resource,
 )
 
 __all__ = [
+    "DEFAULT_RESUME_TTL_SECONDS",
     "BfabricTransferError",
     "CreatedResource",
     "Credentials",
+    "DuplicateAction",
     "DuplicateResult",
     "FileInfo",
+    "ResumeCache",
     "ScopeError",
     "TransferError",
     "TransferSink",
@@ -78,7 +82,6 @@ __all__ = [
     "UploadOutcome",
     "UploadRestClient",
     "UploadTokenResult",
-    "api_to_rest_url",
     "check_download_scope",
     "check_upload_scope",
     "collect_file_infos",

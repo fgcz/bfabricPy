@@ -9,48 +9,80 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
-- `setup_script_logging` now guards against repeated setup with a process-local flag instead of the `BFABRICPY_SCRIPT_LOGGING_SETUP` environment variable. Children inherited that variable, so any subprocess (e.g. the `bfabric-app-runner action` invoked by a prepared workunit's Makefile) skipped setup entirely and fell back to loguru's default handler — full timestamp/source format, at DEBUG level. Subprocesses now configure their own sinks and honor `BFABRICPY_LOG_LEVEL`.
-- `use_client` now logs the traceback of the error it reports at DEBUG, so `BFABRICPY_LOG_LEVEL=DEBUG` recovers it. Previously the traceback of a `RuntimeError`-derived error was discarded unconditionally. The one-line `Error: <message>` output and exit code 1 are unchanged.
-- Config: new `scope` environment field recording the scope *requested* at login (not the granted one), so a login can be replayed from disk without retyping it. CLI-only — excluded from `BfabricClientConfig` and `ConfigData`.
-- `write_environment_to_config` now **merges** into an existing environment instead of replacing it, so unrelated keys (`application_ids`, `engine`, hand-written extras) survive a re-login. Auth-owned keys (`login`, `password`, `pat`, `auth_method`, `client_id`, `scope`) are replaced wholesale, so a stale `pat` cannot outlive the auth method that wrote it.
-- New `config_writer.clear_environment_credentials` — strip inline secrets (`login` / `password` / `pat`) from an environment while keeping it configured, returning the keys removed. Backs `bfabric-cli auth logout`.
-- PKCE: the printed-URL fallback and the timeout error now name the loopback redirect target and point at the device-code flow, for the remote-host case a browser elsewhere cannot complete.
-- `Bfabric.connect()` now raises a clear error when an `auth_method: oauth` config has no `env_name` (reachable via `BFABRICPY_CONFIG_OVERRIDE`), instead of deriving a token-cache key that could never match a cached token.
-- Packaging: `project.readme` now points at a package-local `README.md` instead of the repository root's. hatchling 1.32.0 rejects readme paths that resolve outside the project directory, which broke every build from source (CI and git-pinned installs); the previous setting also produced an sdist containing a `../README.md` member that tar refuses to extract. Installing the published wheels was never affected.
-- `MultiQuery.read_multi` now reserves query elements for the other fields of `obj` when chunking, since the API counts every value in a query towards its limit of 100 elements. Previously e.g. `read_multi("importresource", {"containerid": cid}, "relativepath", paths)` failed with "Query has 101 elements and exceeds the maximum of 100 allowed elements" as soon as 100 paths were passed. A query whose other fields already use up the limit now raises `ValueError` instead of being sent.
-- `import bfabric` no longer imports `polars` eagerly (~296 ms → ~184 ms). The three modules on the import path that pulled it in at module scope — `HasMany.polars`, `Dataset.to_polars`, `MultiplexKit.ids` — now import it inside the function, as `ResultContainer.to_polars` already did. `polars` remains a hard dependency and every API is unchanged; it is simply not loaded until a `DataFrame` is actually requested.
-- `upload_files` and `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. a caller's sentinel file, `.DS_Store`). Filtering here rather than pre-filtering the path list preserves the relative resource names of nested files.
-- **Breaking:** `upload_files` takes its file list inside `params` and decides duplicate handling **per file**. The signature is now `upload_files(client, params)` — the positional `files` argument is gone — and `UploadFilesParams.files` is a list of `UploadFileParam(path=..., on_duplicate=...)`. `on_duplicate` is one of `upload` / `skip` / `link` (the same three words as the server's `check-duplicates` verdict), replacing the mutually-interfering `force` and `link_duplicates` booleans, both of which are removed. **It defaults to `upload`, so the duplicate check no longer runs unless asked for**: callers that relied on duplicates being skipped must now say so. A directory applies its policy to every file under it, and a file with `on_duplicate="upload"` is left out of the `check-duplicates` request entirely.
+### Added
 
-  ```python
-  # before
-  upload_files(
-      client,
-      [Path("a.raw"), Path("run/")],
-      UploadFilesParams(container_id=1, application_id=2),
-  )
-  # after — same behaviour (duplicates skipped)
-  upload_files(
-      client,
-      UploadFilesParams(
-          files=[
-              UploadFileParam(path=Path("a.raw"), on_duplicate="skip"),
-              UploadFileParam(path=Path("run/"), on_duplicate="skip"),
-          ],
-          container_id=1,
-          application_id=2,
-      ),
-  )
-  ```
-- `on_duplicate="link"` registers a content-duplicate as a link instead of skipping it. Any duplicate verdict naming an `existingResourceId` — in practice a `skip` on an `exact_duplicate` / `renamed_duplicate` — has that id passed back as `linkFromResourceId`, and the server creates an `AVAILABLE` resource pointing at the existing bytes with no transfer. The workunit then holds a resource for every input file, rather than silently omitting the duplicates. A duplicate with no `existingResourceId` stays a plain skip.
-- Two input files mapping to the same resource name are now rejected *before* the workunit is created, rather than after (verdicts and resources are keyed by name alone, so nothing downstream could disambiguate them). The error is unchanged; only its timing is, so a rejected upload no longer leaves a `failed` workunit behind.
-- **Breaking:** `UploadSummary` now holds one list per outcome and nothing else — `uploads`, `skips`, `failures`, `links` — so a count is `len(summary.uploads)`. The `uploaded`, `skipped` and `failed` counters (released in 1.20.0) are removed, along with the never-released `linked`; each was only ever the length of its list, with no consumer needing it independently, and keeping both invited the two to drift.
-- `skips` is new detail rather than a renamed counter: a skipped file now arrives as `FileSkip(filename, category, existing_resource_id)`, naming the duplicate it lost out to (`exact_duplicate` / `renamed_duplicate` / …, plus the resource already holding those bytes). Previously a skip was only a number, so which files were dropped — and what they matched — was unrecoverable.
-- `links` records files registered as links to already-stored bytes, reported separately from `uploads` and `skips`: a linked file *has* a resource but transferred no bytes, whereas a skipped one has no resource at all. A workunit whose files were all linked now completes instead of being marked failed by the "nothing uploaded" check.
-- `FileInfo` gains `link_from_resource_id`, and `CreatedResource` exposes the `linked` field from `create-resources`. Server-side linked resources are excluded from the `initiate` id lists and never transferred. Both default to `None`/`False`, so servers that omit the field behave exactly as before.
-- Uploading a folder with sub-directories now works against servers that echo the resource name verbatim. The duplicate-check and resource-pairing guards previously fired on nested names (`sub/nested.raw`) because the server replied with the basename; the fix is server-side, and no duplicate-policy workaround is needed for it. Note a nested re-upload is now reported as `renamed_duplicate` rather than `exact_duplicate` (name matching misses on a subpath, so detection falls back to MD5) — both still carry the `skip` action, so branch on `action`, not `category`.
-- `operations.workunit.create_workunit` gained two ways to attach a dataset to the new workunit: `dataset` (a `WorkunitDataset` of name + base64-encoded `csv`/`tsv`/`parquet`, created as the workunit's output dataset via `operations.dataset.create_dataset`) and `input_dataset_id` (an existing dataset referenced as the workunit's input, `inputdatasetid`). A dataset alone now satisfies the "no workunit data was provided" check, and the new step runs inside the existing failure cleanup, so a dataset failure flips the workunit to `failed` instead of leaving it `available`. `params` additionally accepts a plain mapping in place of a `CreateWorkunitParams`, validated internally so an invalid mapping raises `ValidationError` before any write.
-- `operations.workunit.create_workunit` also accepts `executables` (name → base64-encoded content), saved as `context: "WORKUNIT"` executables of the new workunit — e.g. the script that generated it. Executables alone satisfy the "no workunit data was provided" check.
+- `create_workunit` accepts `executables` (name → base64-encoded content), saved as `context: "WORKUNIT"` executables of the new workunit — e.g. the script that generated it. Executables alone count as workunit data.
+- `bfabric.oauth.AuthorizationRequest.create` starts an authorization-code login, returning the URL to redirect a user to along with the CSRF state and PKCE verifier to keep until they return. A web app can now run the flow without deriving a code challenge itself.
+- `bfabric.oauth.exchange_code` redeems the returned code for tokens. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
+- `bfabric.oauth.token_url` builds the token endpoint URL for an instance.
+
+## \[1.22.0\] - 2026-08-25
+
+### Added
+
+- `upload_files` resumes interrupted transfers by default, keeping each file's tus URL under `~/.bfabric/resume` per server, keyed by the file's MD5 and source path. Pass `resume_cache` to choose another path, or `resume_cache=None` to keep no state and never resume.
+
+### Changed
+
+- **Breaking: new `bfabric.BaseUrl`**, a `str` subclass replacing the pydantic `HttpUrl` on `BfabricClientConfig.base_url`, `Entity.bfabric_instance` and `EntityUriComponents.bfabric_instance`, which always ends with `/bfabric`. `UrlTokenContext.base_url`, `TokenValidationSettings` and `WebappIntegrationSettings` hold their instance URLs as `BaseUrl` too.
+- `connect_oauth` / `connect_pkce` / `connect_device_code` / `connect_pat` and `WebappClient.create` normalise host case and a default port, and reject a non-HTTP URL with a `ValueError`.
+- **Breaking:** `on_duplicate="link"` requires a B-Fabric that reports `linkable` and only links a duplicate reported as linkable; one whose resource is still `pending` or `failed` is uploaded instead. `DuplicateResult` carries `linkable` and `existingResourceStatus`.
+- `DuplicateResult.action` is a `Literal["upload", "skip", "link", "unsupported"]`; an action the client does not recognise is normalised to `unsupported` and refused per file.
+- `upload_files` raises `WorkunitCompletionError`, carrying the `UploadSummary`, when every transfer succeeded but marking the workunit `available` failed.
+- A resumed upload continues into its original workunit, resource and tracked job instead of creating a second one, and an interrupted upload that saved a resume URL leaves its workunit `processing` rather than `failed`.
+- `upload_files` documents that a successful return means the transfer completed, not that the file is stored — a caller that deletes its local copy must re-read the resource status and require `available` first.
+
+### Fixed
+
+- The SUDS WSDL URL, and the `show.html` links printed by `bfabric_read` and `bfabric-cli api read`, no longer contain a doubled slash.
+
+### Removed
+
+- **Breaking:** `bfabric.transfer.api_to_rest_url` — use `client.config.base_url`.
+
+## \[1.21.0\] - 2026-08-20
+
+### Added
+
+- `create_workunit` attaches a `dataset` (a `WorkunitDataset` of name + base64-encoded `csv`/`tsv`/`parquet`) as the workunit's output dataset, and references an existing one as its input via `input_dataset_id`. A dataset alone counts as workunit data, so neither resources nor files are required.
+- `on_duplicate="link"` registers a duplicate as a resource pointing at the existing bytes instead of omitting the file, transferring nothing. See `FileInfo.link_from_resource_id`.
+- `upload_files` / `collect_file_infos` accept `exclude_names`, dropping files by basename at any depth (e.g. `.DS_Store`).
+- `upload_files` accepts an `on_url` callback, reporting each file's resumable tus URL as soon as it exists (including for a transfer that then fails), so a caller can persist it for a later `send_to_sink(resume_url=...)`.
+- Config: new CLI-only `scope` field recording the scope *requested* at login, so a login can be replayed from disk; `config_writer.clear_environment_credentials` strips inline secrets while keeping the environment configured.
+
+### Changed
+
+- `upload_files(client, params)` takes its files as `UploadFilesParams.files`, a list of `UploadFileParam(path=..., on_duplicate=...)`; the `force` / `link_duplicates` booleans are gone.
+- **`on_duplicate` defaults to `upload`, so the duplicate check no longer runs unless asked for** — pass `skip` for the old behaviour.
+- `UploadSummary` holds one list per outcome — `uploads`, `skips`, `failures`, `links` — replacing the 1.20.0 counters; skips carry the duplicate they lost out to.
+- A workunit whose files were all linked now completes instead of failing the "nothing uploaded" check.
+- Two input files mapping to the same resource name are rejected before the workunit is created, not after.
+- `create_workunit` accepts a plain mapping for `params`, validated internally so an invalid mapping raises `ValidationError` before any write.
+- The OAuth module moved from `bfabric._oauth` to `bfabric.oauth`.
+- `import bfabric` no longer imports `polars` eagerly (~296 ms → ~184 ms); it loads on first use.
+- PKCE's printed-URL fallback and timeout error now name the loopback redirect target and point at the device-code flow.
+- `use_client` logs the reported error's traceback at DEBUG; the `Error: <message>` line and exit code 1 are unchanged.
+
+### Removed
+
+- **Breaking:** the zeep engine, which had stopped working against B-Fabric. `EngineSUDS` is the only engine, `BfabricAPIEngineType.ZEEP` is gone, and so is the `bfabric[zeep]` extra. An environment setting `engine: ZEEP` no longer loads — drop the key.
+- **Breaking:** the `engine` parameter of `Bfabric.from_config` (which never applied it) and of `BfabricClientConfig.copy_with`.
+
+### Fixed
+
+- An unreachable B-Fabric instance raises `BfabricUnavailableError` (a `BfabricRequestError`) naming the instance and the transport failure, instead of leaking `suds.transport.TransportError`, `urllib.error.URLError` or `httpx.TransportError`. Covers the SOAP engine and the OAuth/REST calls (JWKS, device code, registration, token exchange, introspection, PKCE).
+- `ResultContainer.assert_success` raises `BfabricRequestError` instead of a bare `RuntimeError`; it remains a `RuntimeError` subclass, so existing `except RuntimeError` handlers keep working.
+- `MultiQuery.read_multi` reserves query elements for `obj`'s other fields when chunking, instead of overflowing the API's 100-element limit. A query that already exhausts it raises `ValueError`.
+- Uploading a folder with sub-directories now works against servers that echo the resource name verbatim.
+- A nested re-upload reports `renamed_duplicate` rather than `exact_duplicate`; both carry the `skip` action, so branch on `action`, not `category`.
+- Device-code login reports a non-JSON token-endpoint response (e.g. an app-server 404 page during a redeploy) as `BfabricOAuthError` instead of a traceback.
+- `write_environment_to_config` merges into an existing environment instead of replacing it, so unrelated keys survive a re-login; auth-owned keys are still replaced wholesale.
+- `Bfabric.connect()` errors clearly when an `auth_method: oauth` config has no `env_name`.
+- `created_by` / `modified_by` raise a `ValueError` naming the login instead of returning `None`.
+- `setup_script_logging` no longer skips setup in subprocesses, which fell back to loguru's verbose DEBUG default; its repeat guard is now process-local.
+- The "could not find the config file" and "empty list provided for deletion" diagnostics go through loguru at WARNING instead of `print()`, so they honour the configured log level and sink.
+- Packaging: `project.readme` points at a package-local `README.md`, fixing builds from source with hatchling 1.32.0.
+- Internal: owner typing corrected across the `entities/core` descriptors and mixins; `HasMany(bfabric_field=...)` is now required and class-level access raises like `HasOne`.
 
 ## \[1.20.0\] - 2026-08-03
 

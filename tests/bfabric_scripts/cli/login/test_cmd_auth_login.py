@@ -139,7 +139,7 @@ class TestCmdAuthLogin:
     def test_refuses_to_run_under_a_config_override(self, tmp_path, mocker, monkeypatch, capsys):
         config_file = tmp_path / "config.yml"
         mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login")
-        monkeypatch.setenv("BFABRICPY_CONFIG_OVERRIDE", '{"base_url": "https://example.com"}')
+        monkeypatch.setenv("BFABRICPY_CONFIG_OVERRIDE", '{"base_url": "https://example.com/bfabric"}')
         cmd_auth_login(base_url="https://example.com/bfabric", scope="api:read", config_file=config_file)
         mock_pkce.assert_not_called()
         assert not config_file.exists()
@@ -242,13 +242,15 @@ class TestZeroArgumentReLogin:
 
     def test_preserves_unrelated_environment_keys(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
-        self._write_env(config_file, scope="api:read", application_ids={"app": 7}, engine="ZEEP")
+        self._write_env(
+            config_file, scope="api:read", application_ids={"app": 7}, job_notification_emails="me@example.com"
+        )
         mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login", return_value=oauth_token)
         mocker.patch("bfabric_scripts.cli.login._common.is_interactive", return_value=False)
         cmd_auth_login(config_file=config_file)
         env = yaml.safe_load(config_file.read_text())["PROD"]
         assert env["application_ids"] == {"app": 7}
-        assert env["engine"] == "ZEEP"
+        assert env["job_notification_emails"] == "me@example.com"
 
 
 class TestRepointGuard:
@@ -371,5 +373,5 @@ class TestBaseUrl:
         mock_pkce.assert_not_called()
         assert not config_file.exists()
         err = capsys.readouterr().err
-        assert "http or https" in err
+        assert "Not a valid http(s) URL" in err
         assert "Login aborted." in err

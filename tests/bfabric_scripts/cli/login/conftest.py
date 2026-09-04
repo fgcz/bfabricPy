@@ -43,5 +43,5 @@ def oauth_session(mocker):
     session = mocker.MagicMock()
     session.token = None
     session.metadata = {"token_endpoint": "https://example.com/bfabric/rest/oauth/token"}
-    mocker.patch("bfabric._oauth.credential_provider.OAuth2Session", return_value=session)
+    mocker.patch("bfabric.oauth._credential_provider.OAuth2Session", return_value=session)
     return session

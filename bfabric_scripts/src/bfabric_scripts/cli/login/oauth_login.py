@@ -12,9 +12,7 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric._oauth.credential_provider import OAuthCredentialProvider
-from bfabric._oauth.device_code import device_code_login
-from bfabric._oauth.pkce import pkce_login
+from bfabric.oauth import OAuthCredentialProvider, device_code_login, pkce_login
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
 from bfabric_scripts.cli.interactive import confirm, is_interactive
@@ -27,6 +25,7 @@ from bfabric_scripts.cli.login._common import (
     resolve_set_default,
 )
 from bfabric_scripts.cli.login._constants import DEFAULT_CLIENT_ID
+from bfabric.config import BaseUrl
 from bfabric_scripts.cli.login._urls import normalize_base_url, suggest_env_name
 
 _SCOPE_HELP = (
@@ -45,7 +44,7 @@ class _LoginParams:
     """Everything a login needs, resolved from the command line, config, or a prompt."""
 
     config_env: str
-    base_url: str
+    base_url: BaseUrl
     client_id: str
     scope: str
     set_default: bool

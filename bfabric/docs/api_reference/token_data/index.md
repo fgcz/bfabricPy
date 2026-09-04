@@ -36,8 +36,8 @@ from bfabric import Bfabric
 from bfabric.experimental.webapp_integration_settings import TokenValidationSettings
 
 settings = TokenValidationSettings(
-    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric/",
-    supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric/"],
+    validation_bfabric_instance="https://fgcz-bfabric.uzh.ch/bfabric",
+    supported_bfabric_instances=["https://fgcz-bfabric.uzh.ch/bfabric"],
 )
 
 client, token_data = Bfabric.connect_token(token=token, settings=settings)
@@ -82,4 +82,4 @@ print(f"Loaded entity: {entity}")
 
 ## See Also
 
-- [Server/Webapp Usage](../../user_guides/creating_a_client/server_webapp_usage.md) - Server authentication guide
+- [Server/Webapp Usage](../../user_guides/connecting/server_webapp_usage.md) - Server authentication guide

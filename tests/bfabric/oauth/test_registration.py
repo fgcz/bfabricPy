@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from bfabric._oauth.registration import register_client, register_webapp
+from bfabric.oauth._registration import register_client, register_webapp
 
 # register_client/register_webapp now require an explicit scope; tests pass this.
 _TEST_SCOPE = "api:read api:write"
@@ -10,7 +10,7 @@ _TEST_SCOPE = "api:read api:write"
 
 @pytest.fixture
 def mock_httpx_post(mocker):
-    mock_post = mocker.patch("bfabric._oauth.registration.httpx.post")
+    mock_post = mocker.patch("bfabric.oauth._registration.httpx.post")
     mock_response = mocker.MagicMock()
     mock_response.json.return_value = {
         "client_id": "new-client-id",
@@ -120,7 +120,7 @@ class TestRegisterClient:
 
     def test_normalizes_trailing_slash(self, mock_httpx_post):
         register_client(
-            base_url="https://example.com/bfabric/",
+            base_url="https://example.com/bfabric",
             token="tok",
             client_name="app",
             redirect_uri="http://localhost/cb",
@@ -133,7 +133,7 @@ class TestRegisterClient:
     def test_raises_on_http_error(self, mocker):
         import httpx
 
-        mock_post = mocker.patch("bfabric._oauth.registration.httpx.post")
+        mock_post = mocker.patch("bfabric.oauth._registration.httpx.post")
         mock_response = mocker.MagicMock()
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
             "Forbidden", request=mocker.MagicMock(), response=mocker.MagicMock()
@@ -150,14 +150,14 @@ class TestRegisterClient:
             )
 
 
-_PATCH_REGISTER_CLIENT = "bfabric._oauth.registration.register_client"
+_PATCH_REGISTER_CLIENT = "bfabric.oauth._registration.register_client"
 
 
 class TestRegisterWebapp:
     @pytest.fixture
     def mock_client(self, mocker):
         client = mocker.MagicMock(name="bfabric_client")
-        client.config.base_url = "https://example.com/bfabric/"
+        client.config.base_url = "https://example.com/bfabric"
         client.save.return_value = mocker.MagicMock(name="save_result")
         return client
 

@@ -52,7 +52,7 @@ Paths are resolved relative to the directory containing the `app.yml` (see [Path
 
 ```yaml
 bfabric:
-  app_runner: 0.1.0
+  app_runner: 0.8.0
 versions:
   - version:
       - 4.7.8.dev2

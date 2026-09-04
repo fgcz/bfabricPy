@@ -12,7 +12,7 @@ from bfabric_scripts.cli.login.register import cmd_login_register
 
 def seed_token_cache(base_url: str, env_name: str, access_token: str, *, client_id: str = "my-app") -> None:
     """Write a valid cached token where ``connect()`` looks for it (``$HOME`` is isolated per test)."""
-    from bfabric._oauth.token_cache import compute_token_cache_path
+    from bfabric.oauth import compute_token_cache_path
 
     path = compute_token_cache_path(base_url, client_id, env_name).expanduser()
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -329,9 +329,7 @@ class TestCmdLoginRegisterResolvesEnvironment:
         assert mock_register.call_args.kwargs["base_url"] == "https://prod.example.com/bfabric"
         assert mock_register.call_args.kwargs["token"] == "prod-jwt"
 
-    def test_config_env_var_takes_precedence_over_default(
-        self, oauth_config_file, cached_tokens, mocker, monkeypatch
-    ):
+    def test_config_env_var_takes_precedence_over_default(self, oauth_config_file, cached_tokens, mocker, monkeypatch):
         monkeypatch.setenv("BFABRICPY_CONFIG_ENV", "STAGE")
         mock_register = mocker.patch(
             "bfabric_scripts.cli.login.register.register_client",
@@ -345,9 +343,7 @@ class TestCmdLoginRegisterResolvesEnvironment:
         )
         assert mock_register.call_args.kwargs["base_url"] == "https://stage.example.com/bfabric"
 
-    def test_explicit_config_env_beats_env_var_and_default(
-        self, oauth_config_file, cached_tokens, mocker, monkeypatch
-    ):
+    def test_explicit_config_env_beats_env_var_and_default(self, oauth_config_file, cached_tokens, mocker, monkeypatch):
         monkeypatch.setenv("BFABRICPY_CONFIG_ENV", "PROD")
         mock_register = mocker.patch(
             "bfabric_scripts.cli.login.register.register_client",

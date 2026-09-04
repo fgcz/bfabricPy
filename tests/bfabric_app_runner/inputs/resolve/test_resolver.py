@@ -1,6 +1,9 @@
+from typing import get_args
+
 import pytest
 from bfabric_app_runner.inputs.resolve.resolved_inputs import ResolvedInputs
 from bfabric_app_runner.inputs.resolve.resolver import Resolver
+from bfabric_app_runner.specs.inputs_spec import InputSpecType
 from bfabric_app_runner.specs.inputs.bfabric_annotation_spec import (
     BfabricAnnotationSpec,
     BfabricAnnotationResourceSampleSpec,
@@ -80,11 +83,25 @@ def test_resolver_initialization(
     mock_annotation_resolver,
 ):
     assert resolver._client == mock_bfabric
-    assert resolver._resolve_bfabric_dataset_specs == mock_dataset_resolver
-    assert resolver._resolve_bfabric_resource_specs == mock_resource_resolver
-    assert resolver._resolve_static_yaml_specs == mock_yaml_resolver
-    assert resolver._resolve_bfabric_order_fasta_specs == mock_order_fasta_resolver
-    assert resolver._resolve_bfabric_annotation_specs == mock_annotation_resolver
+    assert resolver._registry[BfabricDatasetSpec] == mock_dataset_resolver
+    assert resolver._registry[BfabricResourceSpec] == mock_resource_resolver
+    assert resolver._registry[StaticYamlSpec] == mock_yaml_resolver
+    assert resolver._registry[BfabricOrderFastaSpec] == mock_order_fasta_resolver
+    assert resolver._registry[BfabricAnnotationSpec] == mock_annotation_resolver
+
+
+def test_resolver_registry_covers_every_input_spec_type(resolver) -> None:
+    """Every InputSpecType union member must have a registry entry."""
+    members = get_args(get_args(InputSpecType)[0])
+    assert set(members) <= set(resolver._registry)
+
+
+def test_resolver_rejects_incomplete_registry(resolver) -> None:
+    """A spec type missing from the registry is named, rather than failing mid-resolve."""
+    del resolver._registry[BfabricDatasetSpec]
+
+    with pytest.raises(TypeError, match="missing entries for input spec types"):
+        resolver._check_registry_exhaustive()
 
 
 def test_group_specs_by_type(mocker) -> None:

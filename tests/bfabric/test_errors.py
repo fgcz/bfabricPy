@@ -2,8 +2,13 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import httpx
+import pytest
+
 from bfabric.errors import (
     BfabricRequestError,
+    BfabricUnavailableError,
+    raise_if_unavailable,
     BfabricTokenExpiredError,
     BfabricTokenInvalidError,
     BfabricTokenValidationFailedError,
@@ -140,3 +145,53 @@ class TestGetResponseErrorsNoMatch:
         result = get_response_errors(response, "getDataset")
 
         assert result == []
+
+
+def test_unavailable_error_is_caught_as_a_request_error() -> None:
+    """The CLI catches RuntimeError, so an unreachable server must arrive as one.
+
+    Subclassing BfabricRequestError additionally lets a caller that already handles "the request
+    failed" treat unreachability as a special case of it rather than a separate axis.
+    """
+    error = BfabricUnavailableError("https://example.com/bfabric", ConnectionRefusedError(111, "nope"))
+
+    assert isinstance(error, BfabricRequestError)
+    assert isinstance(error, RuntimeError)
+
+
+def test_unavailable_error_names_the_instance_and_the_cause() -> None:
+    error = BfabricUnavailableError("https://example.com/bfabric", ConnectionRefusedError(111, "nope"))
+
+    message = str(error)
+    assert "https://example.com/bfabric" in message
+    assert "nope" in message
+
+
+class TestRaiseIfUnavailable:
+    """The transport boundary for the httpx-based REST calls.
+
+    `httpx.TransportError` covers everything that never got a reply -- connect, read and timeout
+    failures -- so it is the right axis to translate. An HTTP *status* is left alone: the instance
+    answered, and each caller reads that response differently.
+    """
+
+    def test_transport_failure_becomes_unavailable(self) -> None:
+        with pytest.raises(BfabricUnavailableError, match="Could not reach"):
+            with raise_if_unavailable("https://example.com/bfabric"):
+                raise httpx.ConnectError("connection refused")
+
+    def test_timeout_becomes_unavailable(self) -> None:
+        with pytest.raises(BfabricUnavailableError):
+            with raise_if_unavailable("https://example.com/bfabric"):
+                raise httpx.ReadTimeout("too slow")
+
+    def test_http_status_error_passes_through(self) -> None:
+        """A 4xx/5xx is not unreachability, and callers inspect the response themselves."""
+        error = httpx.HTTPStatusError("404", request=httpx.Request("GET", "https://x"), response=httpx.Response(404))
+        with pytest.raises(httpx.HTTPStatusError):
+            with raise_if_unavailable("https://example.com/bfabric"):
+                raise error
+
+    def test_success_is_transparent(self) -> None:
+        with raise_if_unavailable("https://example.com/bfabric"):
+            pass

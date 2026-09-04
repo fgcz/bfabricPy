@@ -46,7 +46,7 @@ def render_output(
         results = [{k: x.get(k) for k in columns} for x in results]
 
     if output_format == OutputFormat.JSON:
-        # default=str makes the output engine-agnostic: the Zeep engine can return
+        # default=str keeps the output robust: the API can return
         # datetime/Decimal objects that are not natively JSON-serialisable.
         result = json.dumps(results, indent=2, default=str)
     elif output_format == OutputFormat.YAML:

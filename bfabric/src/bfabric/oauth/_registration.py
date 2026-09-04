@@ -7,8 +7,11 @@ from typing import TYPE_CHECKING, TypedDict, cast
 import httpx
 from loguru import logger
 
+from bfabric.errors import raise_if_unavailable
+
 if TYPE_CHECKING:
     from bfabric.bfabric import Bfabric
+    from bfabric.config.base_url import BaseUrl
     from bfabric.results.result_container import ResultContainer
     from bfabric.typing import ApiRequestDataType
 
@@ -32,7 +35,7 @@ def _default_grant_types(service_user: str | None) -> list[str]:
 
 
 def register_client(
-    base_url: str,
+    base_url: BaseUrl,
     token: str,
     client_name: str,
     redirect_uri: str,
@@ -49,7 +52,6 @@ def register_client(
     ``token-exchange``, ``refresh_token`` and ``authorization_code`` always, plus
     ``client_credentials`` when *service_user* is provided. Pass *grant_types* to override.
 
-    :param base_url: B-Fabric instance URL (e.g. ``https://bfabric.example.com/bfabric``)
     :param token: Employee Bearer token for authorization
     :param client_name: Human-readable name for the client
     :param redirect_uri: OAuth redirect URI for the client
@@ -58,7 +60,7 @@ def register_client(
     :param grant_types: Explicit list of grant types to request (overrides the default)
     :returns: Registration response containing ``client_id``, ``client_secret``, etc.
     """
-    url = f"{base_url.rstrip('/')}/rest/oauth/register"
+    url = f"{base_url}/rest/oauth/register"
     resolved_grant_types = grant_types if grant_types is not None else _default_grant_types(service_user)
     body: dict[str, object] = {
         "client_name": client_name,
@@ -70,12 +72,13 @@ def register_client(
         body["service_user_login"] = service_user
 
     logger.debug("Registering OAuth client '{}' at {} with body: {}", client_name, url, body)
-    response = httpx.post(
-        url,
-        json=body,
-        headers={"Authorization": f"Bearer {token}"},
-        timeout=30,
-    )
+    with raise_if_unavailable(base_url):
+        response = httpx.post(
+            url,
+            json=body,
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=30,
+        )
     _ = response.raise_for_status()
     result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
     logger.debug("Registration response: {}", result)
@@ -115,10 +118,8 @@ def register_webapp(
     :returns: Dict with ``"oauth"`` (registration response) and ``"application"``
         (save response) keys
     """
-    base_url = client.config.base_url.rstrip("/")
-
     oauth_result = register_client(
-        base_url=base_url,
+        base_url=client.config.base_url,
         token=token,
         client_name=app_name,
         redirect_uri=web_url,

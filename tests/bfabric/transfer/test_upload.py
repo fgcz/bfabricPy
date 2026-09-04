@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from logot import logged
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.transfer.errors import BfabricTransferError, ScopeError
@@ -11,7 +12,6 @@ from bfabric.transfer.upload import (
     DuplicateResult,
     UploadRestClient,
     UploadTokenResult,
-    api_to_rest_url,
     require_tus,
     tus_sink_for_resource,
 )
@@ -20,7 +20,7 @@ from bfabric.transfer import FileInfo, TransferSinkTus
 
 def _rest_client(mocker, make_jwt, *, scope: str = "api:read tus containers"):
     client = mocker.MagicMock()
-    client.config.base_url = "https://host/bfabric/api/"
+    client.config.base_url = "https://host/bfabric"
     client.auth = mocker.MagicMock(login=OAUTH_LOGIN, password=mocker.MagicMock())
     client.auth.password.get_secret_value.return_value = make_jwt({"scope": scope})
     return UploadRestClient(client)
@@ -36,12 +36,10 @@ def _mock_post(mocker, *, is_success: bool, payload=None, status_code: int = 200
     return mocker.patch("bfabric.transfer.upload.httpx.post", return_value=response)
 
 
-class TestApiToRestUrl:
-    def test_strips_api_suffix_and_trailing_slash(self):
-        assert api_to_rest_url("https://host/bfabric/api/") == "https://host/bfabric"
-
-    def test_no_api_suffix_only_strips_trailing_slash(self):
-        assert api_to_rest_url("https://host/bfabric/") == "https://host/bfabric"
+class TestRestBaseUrl:
+    def test_is_the_configured_instance_url(self, mocker, make_jwt):
+        # The REST endpoints hang off the servlet root, which is what base_url is required to be.
+        assert _rest_client(mocker, make_jwt).rest_base_url == "https://host/bfabric"
 
 
 class TestRequireTus:
@@ -83,6 +81,33 @@ class TestCheckDuplicates:
             {"name": "a.txt", "md5": "abc123", "size": 42},
             {"name": "b.txt", "md5": "abc123", "size": 42},
         ]
+
+    def test_an_unrecognised_action_becomes_the_unsupported_sentinel(self, mocker, make_jwt, logot):
+        # ``action`` is a strict Literal so the type checker verifies the branches that switch on it.
+        # An action this client does not know must still parse -- upload_files rejects it per file
+        # with a remedy naming the file, which a parse-time failure of the whole batch would replace
+        # with a generic ValidationError -- so it is normalised to the sentinel that guard refuses.
+        payload = [{"name": "a.txt", "category": "quarantined", "action": "quarantine"}]
+        _ = _mock_post(mocker, is_success=True, payload=payload)
+        rest = _rest_client(mocker, make_jwt)
+
+        result = rest.check_duplicates(container_id=4, files=[_file_info("a.txt")])
+
+        assert result[0].action == "unsupported"
+        # The server's own word is logged rather than silently dropped.
+        logot.assert_logged(
+            logged.info("check-duplicates returned the unrecognised action 'quarantine'; treating it as unsupported.")
+        )
+
+    @pytest.mark.parametrize("action", ["upload", "skip", "link"])
+    def test_a_known_action_passes_through_unchanged(self, mocker, make_jwt, action):
+        payload = [{"name": "a.txt", "category": "new", "action": action}]
+        _ = _mock_post(mocker, is_success=True, payload=payload)
+        rest = _rest_client(mocker, make_jwt)
+
+        result = rest.check_duplicates(container_id=4, files=[_file_info("a.txt")])
+
+        assert result[0].action == action
 
     def test_failure_raises_transfer_error(self, mocker, make_jwt):
         _mock_post(mocker, is_success=False, status_code=500, text="boom")

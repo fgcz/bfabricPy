@@ -4,7 +4,7 @@ Practical guides for common tasks and workflows with bfabricPy.
 
 ```{toctree}
 :maxdepth: 2
-creating_a_client/index
+connecting/index
 reading_data/index
 writing_data/index
 working_with_entities/index
@@ -16,7 +16,7 @@ error_handling
 
 | Guide | Description | Skill Level |
 | ------------------------------------------------------- | ---------------------------------------------- | ------------ |
-| [Creating a Client](creating_a_client/index.md) | Set up authentication for scripts and web apps | Beginner |
+| [Connecting](connecting/index.md) | Set up authentication for scripts and web apps | Beginner |
 | [Reading Data](reading_data/index.md) | Query B-Fabric and retrieve data | Beginner |
 | [Writing Data](writing_data/index.md) | Create, update, and delete entities | Intermediate |
 | [Working with Entities](working_with_entities/index.md) | Use typed entities and relationships | Intermediate |

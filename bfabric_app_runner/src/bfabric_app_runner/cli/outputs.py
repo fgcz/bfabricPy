@@ -24,8 +24,6 @@ def cmd_outputs_register(
     ssh_user: str | None = None,
     force_storage: Path | None = None,
     client: Bfabric,
-    # TODO
-    reuse_default_resource: bool = True,
 ) -> None:
     """Register the output files of a workunit."""
     register_outputs(
@@ -33,7 +31,6 @@ def cmd_outputs_register(
         workunit_definition=_get_workunit_definition(client, workunit_ref),
         client=client,
         ssh_user=ssh_user,
-        reuse_default_resource=reuse_default_resource,
         force_storage=force_storage,
     )
 
@@ -48,7 +45,6 @@ def cmd_outputs_register_single_file(
     update_existing: UpdateExisting = UpdateExisting.NO,
     ssh_user: str | None = None,
     force_storage: Path | None = None,
-    reuse_default_resource: bool = False,
     client: Bfabric,
 ) -> None:
     """Register a single file in the workunit.
@@ -70,6 +66,5 @@ def cmd_outputs_register_single_file(
         workunit_definition=_get_workunit_definition(client, workunit_ref),
         specs_list=[spec],
         ssh_user=ssh_user,
-        reuse_default_resource=reuse_default_resource,
         force_storage=force_storage,
     )

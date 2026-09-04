@@ -64,12 +64,6 @@ def test_params_requires_at_least_one_data_kind():
         CreateWorkunitParams(container_id=1, application_id=2, workunit_name="x")
 
 
-def test_params_accepts_executables_only():
-    params = CreateWorkunitParams(container_id=1, application_id=2, workunit_name="x", executables={"s.py": "eA=="})
-
-    assert params.executables == {"s.py": "eA=="}
-
-
 def test_create_workunit_happy_path(mock_client):
     _arm_happy_path(mock_client, workunit_id=42)
     params = _params()
@@ -146,15 +140,6 @@ def test_create_workunit_save_payloads(mock_client):
     )
 
 
-def test_create_workunit_skips_executable_save_when_absent(mock_client):
-    _arm_happy_path(mock_client, workunit_id=42)
-
-    create_workunit(mock_client, _params(executables={}))
-
-    endpoints = [call.args[0] for call in mock_client.save.call_args_list]
-    assert "executable" not in endpoints
-
-
 def test_create_workunit_audit_attributes_round_trip(mock_client):
     _arm_happy_path(mock_client, workunit_id=7)
     audit = {"WebApp User": "alice", "Source": "proxy"}
@@ -174,7 +159,7 @@ def test_create_workunit_returned_entity_has_usable_uri(mock_client, bfabric_ins
 
     workunit = create_workunit(mock_client, _params())
 
-    assert str(workunit.uri) == f"{bfabric_instance}workunit/show.html?id=42"
+    assert str(workunit.uri) == f"{bfabric_instance}/workunit/show.html?id=42"
 
 
 def test_create_workunit_returns_metadata_only_entity(mock_client):
@@ -300,6 +285,25 @@ class TestDataset:
 
         payload = mock_client.save.call_args_list[4].args[1]
         assert payload["attribute"][1] == {"name": "value", "position": 2, "type": "String"}
+
+
+class TestExecutables:
+    """`executables` are saved as `context: "WORKUNIT"` executables of the new workunit."""
+
+    def test_params_accepts_executables_only(self):
+        params = CreateWorkunitParams(
+            container_id=1, application_id=2, workunit_name="x", executables={"s.py": "eA=="}
+        )
+
+        assert params.executables == {"s.py": "eA=="}
+
+    def test_skips_executable_save_when_absent(self, mock_client):
+        _arm_happy_path(mock_client, workunit_id=42)
+
+        create_workunit(mock_client, _params(executables={}))
+
+        endpoints = [call.args[0] for call in mock_client.save.call_args_list]
+        assert "executable" not in endpoints
 
 
 class TestInputDataset:
