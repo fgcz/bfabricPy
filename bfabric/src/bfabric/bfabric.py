@@ -23,7 +23,7 @@ from datetime import datetime
 from functools import cached_property
 from pathlib import Path
 from pprint import pprint
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal
 
 from loguru import logger
 from rich.console import Console
@@ -569,30 +569,25 @@ class Bfabric:
             logger.info(capture.get())
 
     def __repr__(self) -> str:
-        config_data = ConfigData(client=self._config, auth=self._auth)
+        config_data = self.config_data
         return f"Bfabric({config_data=})"
 
     __str__ = __repr__
 
     def __getstate__(self) -> dict[str, Any]:
         return {
-            "config": self._config,
-            "auth": self._auth,
-            "config_data": self._config_data,
+            "config_data": self.config_data,
             "query_counter": self.query_counter,
             "credential_provider": self._credential_provider,
         }
 
     def __setstate__(self, state: dict[str, Any]) -> None:
-        config = cast("BfabricClientConfig", state["config"])
-        auth = cast("BfabricAuth | None", state["auth"])
-        self._config = config
-        self._auth = auth
+        config_data: ConfigData = state["config_data"]
+        self._config_data = config_data
+        self._config = config_data.client
+        self._auth = config_data.auth
         self.query_counter = state["query_counter"]
-        # .get for backward compatibility with pickles created before these were retained.
-        self._credential_provider = state.get("credential_provider")
-        stored = cast("ConfigData | None", state.get("config_data"))
-        self._config_data = stored if stored is not None else ConfigData(client=config, auth=auth)
+        self._credential_provider = state["credential_provider"]
 
 
 def get_system_auth(
