@@ -118,9 +118,11 @@ The flat YAML above is the wire format (see the compatibility rules below for wh
 it); in memory each auth method is its own model
 (`PasswordAuth`, `PatAuth`, `InteractiveOAuthAuth`, `ClientCredentialsAuth`, `NoAuth`,
 `UnknownAuth`), discriminated on `kind` and exposed as `EnvironmentConfig.auth_config`. Each variant
-declares the flat keys it owns and knows how to produce its own credentials — a static `BfabricAuth`
-or a refreshing `OAuthCredentialProvider` — so `Bfabric.connect()` and the `auth` CLI ask the method
-instead of switching on a string.
+is parsed data declaring the flat keys it owns; two module-level resolvers match on it to produce
+credentials — `resolve_static_auth` for a `BfabricAuth` held in the file, `resolve_credential_provider`
+for a refreshing `OAuthCredentialProvider` — so `Bfabric.connect()` and the `auth` CLI match on the
+variant instead of switching on a string. The two stay apart because static auth has to be
+answerable from the environment alone, without a base URL, an environment name or a token-cache read.
 
 The translation is one-way: `auth_method_from_flat` in `config/auth_methods.py` is the only place the
 flat keys are interpreted, and the variants never serialise themselves back — writers pass the flat
@@ -181,7 +183,7 @@ the 1.19.0 schema, so the boundary is executable rather than folklore.
 
 ### `ConfigData` / `EnvironmentConfig`
 
-Both hold the auth-method union described above as `auth_config`, and expose `auth_method`, `client_id`, `client_secret` and `scope` as read-only properties derived from it. `Bfabric.connect()` asks the method for a credential provider rather than switching on a string: `"oauth"` returns one backed by the disk token cache, `"client_credentials"` one backed by the inline secret, and `"pat"` / `"password"` return none, carrying their credential in the config and using the normal auth path.
+Both hold the auth-method union described above as `auth_config`, and expose `auth_method`, `client_id`, `client_secret` and `scope` as read-only properties derived from it. `Bfabric.connect()` resolves a credential provider from the method rather than switching on a string: `"oauth"` yields one backed by the disk token cache, `"client_credentials"` one backed by the inline secret, and `"pat"` / `"password"` yield none, carrying their credential in the config and using the normal auth path.
 
 ---
 
