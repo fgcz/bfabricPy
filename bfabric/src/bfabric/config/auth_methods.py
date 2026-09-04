@@ -13,7 +13,7 @@ environment name or a look at the token cache.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, ClassVar, Literal, get_args
+from typing import TYPE_CHECKING, Annotated, ClassVar, Literal, assert_never, get_args
 
 from loguru import logger
 from pydantic import BaseModel, Field, SecretStr
@@ -93,19 +93,13 @@ class ClientRegistration(BaseModel):
     owned_keys: ClassVar[frozenset[str]] = frozenset({"registration_access_token", "registration_client_uri"})
 
 
-AuthMethod = Annotated[
-    PasswordAuth | PatAuth | InteractiveOAuthAuth | ClientCredentialsAuth | NoAuth | UnknownAuth,
-    Field(discriminator="kind"),
-]
+AnyAuthMethod = PasswordAuth | PatAuth | InteractiveOAuthAuth | ClientCredentialsAuth | NoAuth | UnknownAuth
+"""The variants as a plain union, so a ``match`` over them can be checked for exhaustiveness."""
 
-AUTH_METHOD_CLASSES: tuple[type[AuthMethodBase], ...] = (
-    PasswordAuth,
-    PatAuth,
-    InteractiveOAuthAuth,
-    ClientCredentialsAuth,
-    NoAuth,
-    UnknownAuth,
-)
+AuthMethod = Annotated[AnyAuthMethod, Field(discriminator="kind")]
+"""The same union as a pydantic field type, discriminated on ``kind``."""
+
+AUTH_METHOD_CLASSES: tuple[type[AuthMethodBase], ...] = get_args(AnyAuthMethod)
 
 _KNOWN_METHODS: frozenset[str] = frozenset(get_args(AuthMethodName))
 
@@ -150,7 +144,7 @@ def registration_from_flat(values: Mapping[str, object]) -> ClientRegistration |
     return ClientRegistration(registration_access_token=secret, registration_client_uri=str(uri))
 
 
-def auth_method_from_flat(values: Mapping[str, object]) -> AuthMethodBase:
+def auth_method_from_flat(values: Mapping[str, object]) -> AnyAuthMethod:
     """Parse a flat YAML environment into an auth method, tolerating incoherent stored state."""
     raw_name = values.get("auth_method")
     declared = str(raw_name) if raw_name is not None else None
@@ -190,21 +184,29 @@ def auth_method_from_flat(values: Mapping[str, object]) -> AuthMethodBase:
     return NoAuth()
 
 
-def resolve_static_auth(method: AuthMethodBase) -> BfabricAuth | None:
-    """The credentials *method* carries in the config file, without a network round trip."""
+def resolve_static_auth(method: AnyAuthMethod) -> BfabricAuth | None:
+    """The credentials *method* carries in the config file, without a network round trip.
+
+    Every variant is listed rather than defaulted, so adding one that carries credentials fails
+    type checking here instead of silently yielding an unauthenticated client.
+    """
     match method:
         case PasswordAuth(login=login, password=password):
             return BfabricAuth(login=login, password=password)
         case PatAuth(pat=pat):
             return BfabricAuth(login=OAUTH_LOGIN, password=pat)
-        case _:
+        case InteractiveOAuthAuth() | ClientCredentialsAuth() | NoAuth() | UnknownAuth():
             return None
+        case _:
+            assert_never(method)
 
 
 def resolve_credential_provider(
-    method: AuthMethodBase, *, base_url: BaseUrl, env_name: str | None
+    method: AnyAuthMethod, *, base_url: BaseUrl, env_name: str | None
 ) -> OAuthCredentialProvider | None:
     """The token-refreshing provider *method* needs, or ``None`` if it authenticates statically.
+
+    Exhaustive for the same reason as :func:`resolve_static_auth`.
 
     :raises ValueError: if *method* is unsupported, or is an OAuth method whose keys are incomplete.
     """
@@ -213,13 +215,15 @@ def resolve_credential_provider(
             return _interactive_oauth_provider(method, base_url=base_url, env_name=env_name)
         case ClientCredentialsAuth():
             return _client_credentials_provider(method, base_url=base_url)
+        case PasswordAuth() | PatAuth() | NoAuth():
+            return None
         case UnknownAuth(unknown_name=name):
             raise ValueError(
                 f"Unknown auth_method {name!r} in the config environment. Upgrade bfabricPy "
                 f"or set a supported auth_method."
             )
         case _:
-            return None
+            assert_never(method)
 
 
 def _interactive_oauth_provider(
