@@ -11,21 +11,26 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Added
 
-- `upload_files` resumes interrupted transfers by default, keeping each file's tus URL under `~/.bfabric/resume` (per server), keyed by the file's MD5 and source path so byte-identical files from separate runs stay separate uploads. Pass `resume_cache` to choose another path, or `resume_cache=None` to keep no state and never resume.
+- `create_workunit` accepts `executables` (name → base64-encoded content), saved as `context: "WORKUNIT"` executables of the new workunit — e.g. the script that generated it. Executables alone count as workunit data.
+- `bfabric.oauth.AuthorizationRequest.create` starts an authorization-code login, returning the URL to redirect a user to along with the CSRF state and PKCE verifier to keep until they return. A web app can now run the flow without deriving a code challenge itself.
+- `bfabric.oauth.exchange_code` redeems the returned code for tokens. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
+- `bfabric.oauth.token_url` builds the token endpoint URL for an instance.
+
+## \[1.22.0\] - 2026-08-25
+
+### Added
+
+- `upload_files` resumes interrupted transfers by default, keeping each file's tus URL under `~/.bfabric/resume` per server, keyed by the file's MD5 and source path. Pass `resume_cache` to choose another path, or `resume_cache=None` to keep no state and never resume.
 
 ### Changed
 
-- **Breaking: new `bfabric.BaseUrl`**, a `str` subclass replacing the pydantic `HttpUrl` on `BfabricClientConfig.base_url`, `Entity.bfabric_instance` and `EntityUriComponents.bfabric_instance` it ensures the base_url always ends with `/bfabric`.
-- `connect_oauth` / `connect_pkce` / `connect_device_code` / `connect_pat` and `WebappClient.create` also normalise host case and a default port, and reject a non-HTTP URL with a `ValueError`.
-- `UrlTokenContext.base_url` returns a `BaseUrl`.
-- `TokenValidationSettings` / `WebappIntegrationSettings` hold their instance URLs as `BaseUrl`, so a non-http one is rejected on parse and a trailing slash no longer has to match exactly.
-- `DuplicateResult` carries the `check-duplicates` response's `linkable` and `existingResourceStatus`, and `linkable` decides whether a duplicate may be linked. **Breaking:** `on_duplicate="link"` now requires a B-Fabric that reports `linkable`; a response omitting it is refused rather than guessed.
-- `on_duplicate="link"` only links to a duplicate the server reports as linkable; one whose resource is still `pending` or `failed` is uploaded instead, so a retry after a failed transfer no longer fails until B-Fabric's orphan cleanup runs.
-- `upload_files` raises `WorkunitCompletionError` when every transfer succeeded but marking the workunit `available` failed. It carries the `UploadSummary`, so a caller can record what landed and retry only the status flip rather than creating a second workunit.
-- `DuplicateResult.action` is a `Literal["upload", "skip", "link", "unsupported"]` instead of a bare `str`. An action the client does not recognise is logged and normalised to `unsupported`, so a server that adds one is still refused per file with a remedy rather than failing the whole response.
-- A `resume_cache` run continues an interrupted upload into its original workunit and resource instead of creating a second pair. A tus URL's metadata is fixed when the upload is created, so bytes sent to a saved URL always land on the first resource; the previous behaviour reported a newly created resource the bytes never reached. A tracked upload (`track_job`) reuses its original job for the same reason.
-- An interrupted upload that saved a resume URL leaves its workunit `processing` rather than flipping it to `failed`, so the next run can continue into it.
-- `upload_files` documents that a successful return means the transfer completed, not that the file is stored: the storage service's post-finish checks run afterwards and report to B-Fabric, so a resource can end up `failed` after being reported in `summary.uploads`. A caller that deletes its local copy must re-read the resource status and require `available` first.
+- **Breaking: new `bfabric.BaseUrl`**, a `str` subclass replacing the pydantic `HttpUrl` on `BfabricClientConfig.base_url`, `Entity.bfabric_instance` and `EntityUriComponents.bfabric_instance`, which always ends with `/bfabric`. `UrlTokenContext.base_url`, `TokenValidationSettings` and `WebappIntegrationSettings` hold their instance URLs as `BaseUrl` too.
+- `connect_oauth` / `connect_pkce` / `connect_device_code` / `connect_pat` and `WebappClient.create` normalise host case and a default port, and reject a non-HTTP URL with a `ValueError`.
+- **Breaking:** `on_duplicate="link"` requires a B-Fabric that reports `linkable` and only links a duplicate reported as linkable; one whose resource is still `pending` or `failed` is uploaded instead. `DuplicateResult` carries `linkable` and `existingResourceStatus`.
+- `DuplicateResult.action` is a `Literal["upload", "skip", "link", "unsupported"]`; an action the client does not recognise is normalised to `unsupported` and refused per file.
+- `upload_files` raises `WorkunitCompletionError`, carrying the `UploadSummary`, when every transfer succeeded but marking the workunit `available` failed.
+- A resumed upload continues into its original workunit, resource and tracked job instead of creating a second one, and an interrupted upload that saved a resume URL leaves its workunit `processing` rather than `failed`.
+- `upload_files` documents that a successful return means the transfer completed, not that the file is stored — a caller that deletes its local copy must re-read the resource status and require `available` first.
 
 ### Fixed
 
@@ -33,7 +38,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Removed
 
-- **Breaking:** `bfabric.transfer.api_to_rest_url`. The REST endpoints hang off the instance URL, which `base_url` now always is, so it had become the identity function — use `client.config.base_url`.
+- **Breaking:** `bfabric.transfer.api_to_rest_url` — use `client.config.base_url`.
 
 ## \[1.21.0\] - 2026-08-20
 

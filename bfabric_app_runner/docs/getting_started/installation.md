@@ -26,7 +26,7 @@ uv tool upgrade bfabric-app-runner
 You can run a specific version without installing it globally:
 
 ```bash
-uv tool run bfabric-app-runner@0.2.1 --help
+uv tool run bfabric-app-runner@0.8.0 --help
 ```
 
 This is useful when an app's `app.yml` specifies a particular `app_runner` version.

@@ -21,6 +21,7 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 ### Fixed
 
 - `api create` now rejects an `id` attribute as documented; the check never fired before.
+- `bfabric-cli api update` and `api delete` explain that there is no terminal to confirm on, and name `--no-confirm`, instead of failing with an `EOFError` traceback when run from a script or cron job.
 
 ## \[1.17.0\] - 2026-08-20
 
