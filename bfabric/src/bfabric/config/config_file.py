@@ -18,6 +18,7 @@ from bfabric.config.auth_methods import (
     auth_method_from_flat,
     auth_owned_keys,
     registration_from_flat,
+    resolve_static_auth,
 )
 
 # Canonical default location of the bfabricPy config file. The tilde is kept unexpanded here;
@@ -52,7 +53,7 @@ class EnvironmentConfig(BaseModel):
 
     @property
     def auth(self) -> BfabricAuth | None:
-        return self.auth_config.static_auth()
+        return resolve_static_auth(self.auth_config)
 
     @property
     def auth_method(self) -> AuthMethodName | None:

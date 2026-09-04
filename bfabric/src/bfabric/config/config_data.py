@@ -10,7 +10,13 @@ from loguru import logger
 from pydantic import BaseModel, Field, model_validator
 
 from bfabric.config import BfabricClientConfig, BfabricAuth
-from bfabric.config.auth_methods import AuthMethod, AuthMethodName, NoAuth, auth_method_from_flat
+from bfabric.config.auth_methods import (
+    AuthMethod,
+    AuthMethodName,
+    NoAuth,
+    auth_method_from_flat,
+    resolve_credential_provider,
+)
 from bfabric.config.config_file import ConfigFile
 
 if TYPE_CHECKING:
@@ -52,7 +58,7 @@ class ConfigData(BaseModel):
 
         ``password`` and ``pat`` authenticate from :attr:`auth` and need none.
         """
-        return self.auth_config.credential_provider(base_url=self.client.base_url, env_name=self.env_name)
+        return resolve_credential_provider(self.auth_config, base_url=self.client.base_url, env_name=self.env_name)
 
     def with_auth(self, auth: BfabricAuth | None) -> ConfigData:
         """Returns a shallow copy of self with the auth field set to the specified value."""

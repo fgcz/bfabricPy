@@ -15,6 +15,8 @@ from bfabric.config.auth_methods import (
     auth_method_from_flat,
     auth_owned_keys,
     registration_from_flat,
+    resolve_credential_provider,
+    resolve_static_auth,
 )
 
 OAUTH_ENV = {"auth_method": "oauth", "client_id": "CLI", "scope": "api:read"}
@@ -48,6 +50,7 @@ class TestAuthOwnedKeys:
     def test_excludes_non_yaml_fields(self):
         assert "auth_method_written" not in auth_owned_keys()
         assert "kind" not in auth_owned_keys()
+        assert "declared_name" not in auth_owned_keys()
         assert "extra" not in auth_owned_keys()
 
     def test_every_variant_is_registered(self):
@@ -95,7 +98,7 @@ class TestParsing:
         """1.20.0rc1 wrote login: __oauth__ with a short inline password."""
         parsed = auth_method_from_flat({"login": "__oauth__", "password": "short"})
         assert isinstance(parsed, PasswordAuth)
-        assert parsed.static_auth().password.get_secret_value() == "short"
+        assert resolve_static_auth(parsed).password.get_secret_value() == "short"
 
     def test_oauth_without_client_id_still_parses(self):
         parsed = auth_method_from_flat({"auth_method": "oauth"})
@@ -114,41 +117,42 @@ class TestParsing:
         assert isinstance(auth_method_from_flat({"auth_method": "password"}), NoAuth)
 
 
-class TestStaticAuth:
+class TestResolveStaticAuth:
     def test_password(self):
-        auth = auth_method_from_flat(PASSWORD_ENV).static_auth()
+        auth = resolve_static_auth(auth_method_from_flat(PASSWORD_ENV))
         assert auth.login == "user"
         assert auth.password.get_secret_value() == "p" * 32
 
     def test_pat_uses_oauth_login(self):
-        auth = auth_method_from_flat(PAT_ENV).static_auth()
+        auth = resolve_static_auth(auth_method_from_flat(PAT_ENV))
         assert auth.login == "__oauth__"
         assert auth.password.get_secret_value() == "short-token"
 
     @pytest.mark.parametrize("flat", [OAUTH_ENV, SVCACCT_ENV, {}], ids=["oauth", "svcacct", "none"])
     def test_none_without_network(self, flat):
-        assert auth_method_from_flat(flat).static_auth() is None
+        assert resolve_static_auth(auth_method_from_flat(flat)) is None
 
 
-class TestCredentialProvider:
+class TestResolveCredentialProvider:
+    @staticmethod
+    def _resolve(flat):
+        return resolve_credential_provider(auth_method_from_flat(flat), base_url="https://x.test", env_name="PROD")
+
     @pytest.mark.parametrize("flat", [PASSWORD_ENV, PAT_ENV, {}], ids=["password", "pat", "none"])
     def test_static_methods_need_no_provider(self, flat):
-        assert auth_method_from_flat(flat).credential_provider(base_url="https://x.test", env_name="PROD") is None
+        assert self._resolve(flat) is None
 
     def test_unknown_method_raises_only_when_used(self):
-        parsed = auth_method_from_flat({"auth_method": "device_code"})
         with pytest.raises(ValueError, match="device_code"):
-            parsed.credential_provider(base_url="https://x.test", env_name="PROD")
+            self._resolve({"auth_method": "device_code"})
 
     def test_oauth_without_client_id_raises(self):
-        parsed = auth_method_from_flat({"auth_method": "oauth"})
         with pytest.raises(ValueError, match="client_id"):
-            parsed.credential_provider(base_url="https://x.test", env_name="PROD")
+            self._resolve({"auth_method": "oauth"})
 
     def test_client_credentials_without_secret_raises(self):
-        parsed = auth_method_from_flat({"auth_method": "client_credentials", "client_id": "svc"})
         with pytest.raises(ValueError, match="client_secret"):
-            parsed.credential_provider(base_url="https://x.test", env_name="PROD")
+            self._resolve({"auth_method": "client_credentials", "client_id": "svc"})
 
 
 class TestRegistration:

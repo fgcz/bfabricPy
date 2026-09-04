@@ -465,7 +465,7 @@ def test_repr(bfabric_instance, variant):
         variant(bfabric_instance) == "Bfabric(config_data=ConfigData("
         "client=BfabricClientConfig(base_url='https://example.com/bfabric', application_ids={}, "
         "job_notification_emails='', engine=BfabricAPIEngineType.SUDS), auth=None, "
-        "auth_config=NoAuth(declared=False, kind='none'), env_name=None))"
+        "auth_config=NoAuth(declared_name=None, kind='none'), env_name=None))"
     )
 
 

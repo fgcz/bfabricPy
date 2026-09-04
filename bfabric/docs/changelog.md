@@ -18,7 +18,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Changed
 
-- An environment's authentication is modelled as a discriminated union (`config/auth_methods.py`), and each auth method builds its own credentials. `EnvironmentConfig.auth`, `auth_method`, `client_id`, `client_secret` and `scope` are now read-only properties over it; the config file format is unchanged.
+- An environment's authentication is modelled as a discriminated union (`config/auth_methods.py`), which `resolve_static_auth` and `resolve_credential_provider` turn into credentials. `EnvironmentConfig.auth`, `auth_method`, `client_id`, `client_secret` and `scope` are now read-only properties over it; the config file format is unchanged.
 - `write_environment_to_config` takes a required `auth="merge"|"replace"` mode. `replace` keeps the previous behaviour of replacing every auth-owned key; `merge` keeps the ones the payload does not mention, and a key set to `None` is removed.
 - An `auth_method` the client does not recognise is preserved and reported rather than silently discarded along with its sibling keys, and it only fails when that environment is used.
 - `Bfabric.connect()` and the `connect_*` methods share one credential-provider seam, so loading an OAuth environment reads the token cache once instead of twice.
