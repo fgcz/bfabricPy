@@ -16,6 +16,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `bfabric.oauth.exchange_code` redeems the returned code for tokens. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
 - `bfabric.oauth.token_url` builds the token endpoint URL for an instance.
 
+### Fixed
+
+- `Bfabric.read` no longer skips or shifts results when a non-zero `offset` is combined with a `max_results` smaller than that offset; the first requested page is now sliced at `offset % 100` independent of `max_results`.
+
 ## \[1.22.0\] - 2026-08-25
 
 ### Added
