@@ -45,7 +45,9 @@ def compute_requested_pages(
     idx_max_return = math.ceil((n_item_return_max + n_item_offset) / n_item_per_page)
     idx_arr = [idx + index_start for idx in range(n_item_offset // n_item_per_page, min(n_page_total, idx_max_return))]
 
-    # Determine the initial offset on the first page
-    initial_offset = min(n_item_offset, n_item_return_max) % n_item_per_page
+    # Determine the initial offset on the first page. This is where the caller's window starts
+    # within the first requested page, so it depends only on n_item_offset -- n_item_return_max
+    # governs where the window ends (via idx_max_return above and the caller's own truncation).
+    initial_offset = n_item_offset % n_item_per_page
 
     return idx_arr, initial_offset
