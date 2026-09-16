@@ -29,6 +29,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Fixed
 
+- `Bfabric.connect(include_auth=False)` no longer attaches a credential provider, which made a service-account environment authenticate anyway and fetch a token on the first request.
 - Unpickling a `Bfabric` client saved by an earlier version works again; it raised `KeyError: 'config_data'` since the client started storing its config as one object.
 - `register_client` and the RFC 7592 client-management calls no longer log the whole response at debug level, which put `client_secret` and `registration_access_token` into any enabled log sink.
 - `Bfabric.read` no longer skips or shifts results when a non-zero `offset` is combined with a `max_results` smaller than that offset; the first requested page is now sliced at `offset % 100` independent of `max_results`.
