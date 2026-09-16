@@ -516,7 +516,7 @@ client, so the resource server refuses it.</p>
 <tbody>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_oauth(client_id,</span> <span class="pre">client_secret,</span> <span class="pre">base_url,</span> <span class="pre">scope=…)</span></code></p></td>
 <td><p>client_credentials</p></td>
-<td><p><strong>service</strong> (no user <code class="docutils literal notranslate"><span class="pre">sub</span></code>)</p></td>
+<td><p><strong>service user</strong> the client is registered to</p></td>
 <td><p>background jobs, servers</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_pkce(base_url,</span> <span class="pre">client_id=…,</span> <span class="pre">scope=…,</span> <span class="pre">port=…)</span></code></p></td>
@@ -532,9 +532,14 @@ client, so the resource server refuses it.</p>
 </tbody>
 </table>
 </div>
-<p>Key identity difference: <strong>client_credentials tokens carry no user <code class="docutils literal notranslate"><span class="pre">sub</span></code> and no user-scoped claims
-like <code class="docutils literal notranslate"><span class="pre">containers</span></code>.</strong> If a resource server authorizes by <em>your</em> container membership, a service
-token won’t do — you need a user flow (PKCE or device code).</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">client_credentials</span></code> client can also be recorded in the config file, so the <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> commands
+use it without any Python — see
+<a class="reference internal" href="../user_guides/bfabric-cli/authentication.html#unattended-scripts-and-cron-jobs"><span class="std std-ref">Authentication</span></a>.</p>
+<p>Key identity difference: a <code class="docutils literal notranslate"><span class="pre">client_credentials</span></code> token acts as the <strong>service user the client was
+registered with</strong> (<code class="docutils literal notranslate"><span class="pre">--service-user</span></code> at registration), not as whoever runs the script. So its reach is
+that account’s permissions: to widen what a background job can do, grant the access to the service
+user in B-Fabric rather than to yourself. A user flow (PKCE or device code) is what you want when the
+job should act as the <em>calling</em> user instead.</p>
 <p>The core <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> OAuth methods take <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code> as <strong>required</strong> arguments — there is
 no baked-in default. The <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> login commands (<code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">login</span></code> / <code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">device-code</span></code>) likewise
 <strong>require</strong> an explicit <code class="docutils literal notranslate"><span class="pre">--scope</span></code>: pick a named preset — <code class="docutils literal notranslate"><span class="pre">read-only</span></code> (<code class="docutils literal notranslate"><span class="pre">api:read</span></code>), <code class="docutils literal notranslate"><span class="pre">read-write</span></code>
@@ -709,6 +714,11 @@ membership grants file access.)</p></li>
 <li><p><strong>Need specific containers as a non-employee?</strong> You need the <strong><code class="docutils literal notranslate"><span class="pre">containers</span></code> claim</strong>, which isn’t
 PKCE-requestable — it must come from a client with “Always Include Claims: containers”.</p></li>
 <li><p><strong>On a remote host / notebook?</strong> <code class="docutils literal notranslate"><span class="pre">connect_device_code</span></code>, not <code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code>.</p></li>
+<li><p><strong>A cron job or shell script with nobody watching?</strong> A service account
+(<code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">service-account</span></code>), not a user flow — there is no one to re-login when a token
+expires.</p></li>
+<li><p><strong>Registered a client with the wrong redirect URI?</strong> <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">client-update</span></code> fixes it in
+place, if the client was saved with <code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span> <span class="pre">--save-env</span></code>.</p></li>
 <li><p><strong>Getting HTTP 401 at <code class="docutils literal notranslate"><span class="pre">/rest/oauth/token</span></code> after login?</strong> Check the client’s grant types
 (<code class="docutils literal notranslate"><span class="pre">authorization_code</span></code> + <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> enabled?) and whether it’s confidential (has a secret →
 <code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> can’t authenticate it). Capture the OAuth <code class="docutils literal notranslate"><span class="pre">error</span></code> body to be sure.</p></li>

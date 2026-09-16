@@ -478,8 +478,9 @@ grant. This is what background jobs, feeders and servers should use:</p>
 <p>Tokens are fetched and refreshed automatically. Pass <code class="docutils literal notranslate"><span class="pre">token_cache_path</span></code> to keep them across restarts.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>A client credentials token carries no user identity. Anything authorized by the <em>caller’s</em> container membership — file
-downloads, for instance — needs a token from a user flow instead. See
+<p>A client credentials token acts as the service user the client was registered with, not as whoever
+called your server. Anything that has to be authorized by the <em>caller’s</em> own container membership — file
+downloads on their behalf, for instance — needs a token from a user flow instead. See
 <a class="reference internal" href="../../design/oauth_usage_and_troubleshooting.html"><span class="std std-doc">OAuth Usage &amp; Troubleshooting</span></a>.</p>
 </div>
 </section>

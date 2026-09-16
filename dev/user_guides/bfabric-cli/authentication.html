@@ -408,6 +408,12 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#several-instances-or-several-logins">Several instances or several logins</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-out-vs-removing">Logging out vs removing</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#remote-hosts-and-headless-machines">Remote hosts and headless machines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unattended-scripts-and-cron-jobs">Unattended scripts and cron jobs</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rotating-the-secret">Rotating the secret</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#several-instances">Several instances</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixing-a-misconfigured-client">Fixing a misconfigured client</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#personal-access-tokens">Personal access tokens</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables">Environment variables</a></li>
 </ul>
@@ -562,6 +568,88 @@ when no browser is configured — the redirect still reaches the CLI.</p></li>
 hijacking the login and rendering the page into your shell.</p></li>
 </ul>
 </section>
+<section id="unattended-scripts-and-cron-jobs">
+<h2>Unattended scripts and cron jobs<a class="headerlink" href="#unattended-scripts-and-cron-jobs" title="Link to this heading">#</a></h2>
+<p>A browser login is wrong for a script that nobody is watching: its token expires and there is no one
+to re-login. A <strong>service account</strong> authenticates from a stored secret instead, so it never expires
+and needs no browser.</p>
+<p>Register the client once (as an employee, with the instance you are logged in to):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>register<span class="w"> </span><span class="s2">"sysadmin-cron"</span><span class="w"> </span><span class="s2">"https://sysadmin-cron.invalid/unused"</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--service-user<span class="w"> </span>svc-admin<span class="w"> </span>--save-env<span class="w"> </span>CRON
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--service-user</span> <span class="pre">svc-admin</span></code> is what enables the <code class="docutils literal notranslate"><span class="pre">client_credentials</span></code> grant, and it is also <em>whose</em>
+account the client acts as: tokens it obtains carry that service user’s identity and permissions, so
+give it a B-Fabric user with exactly the access the script needs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--save-env</span> <span class="pre">CRON</span></code> records the new client, its secret, and the credentials needed to edit it later.</p>
+<p>The redirect URI is a positional argument of <code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register</span></code> because the command also registers
+interactive clients, where it is the <code class="docutils literal notranslate"><span class="pre">authorization_code</span></code> callback. A <code class="docutils literal notranslate"><span class="pre">client_credentials</span></code> client
+never redirects, so the value is unused — pass any placeholder.</p>
+<p>From then on every command works unattended:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>user<span class="w"> </span><span class="m">12345</span><span class="w"> </span>computerloginenabled<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--config-env<span class="w"> </span>CRON
+</pre></div>
+</div>
+<p>If the client was created for you in the B-Fabric UI instead, record it by hand:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>service-account<span class="w"> </span>https://fgcz-bfabric.uzh.ch/bfabric<span class="w"> </span>--client-id<span class="w"> </span>sysadmin-cron
+<span class="c1"># Client secret: ‹prompted›</span>
+</pre></div>
+</div>
+<p>The secret is stored in <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> (mode <code class="docutils literal notranslate"><span class="pre">0600</span></code>). Passing it with <code class="docutils literal notranslate"><span class="pre">--client-secret</span></code> works but
+is visible in <code class="docutils literal notranslate"><span class="pre">ps</span></code> and your shell history.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The token acts as the service user the client was registered with — not as you. What the script can
+reach is that account’s access, so a permission it is missing has to be granted to the service user
+in B-Fabric. See <a class="reference internal" href="../../design/oauth_usage_and_troubleshooting.html"><span class="std std-doc">OAuth Usage &amp; Troubleshooting</span></a>.</p>
+</div>
+<section id="rotating-the-secret">
+<h3>Rotating the secret<a class="headerlink" href="#rotating-the-secret" title="Link to this heading">#</a></h3>
+<p>When the secret is rotated in the B-Fabric UI, store the new one by re-running the same command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>service-account<span class="w"> </span>https://fgcz-bfabric.uzh.ch/bfabric<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--client-id<span class="w"> </span>sysadmin-cron<span class="w"> </span>--config-env<span class="w"> </span>CRON
+<span class="c1"># Client secret: ‹paste the new secret›</span>
+</pre></div>
+</div>
+<p>There is nothing else to clear — this grant keeps no cached token, so the next command fetches a
+fresh one. The environment’s other recorded values are kept.</p>
+</section>
+<section id="several-instances">
+<h3>Several instances<a class="headerlink" href="#several-instances" title="Link to this heading">#</a></h3>
+<p>Each environment holds its own client and secret, so a script can address either instance by name:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>service-account<span class="w"> </span>https://fgcz-bfabric.uzh.ch/bfabric<span class="w"> </span>--client-id<span class="w"> </span>prod-cron<span class="w"> </span>--config-env<span class="w"> </span>PROD
+bfabric-cli<span class="w"> </span>auth<span class="w"> </span>service-account<span class="w"> </span>https://fgcz-bfabric-test.uzh.ch/bfabric<span class="w"> </span>--client-id<span class="w"> </span>test-cron<span class="w"> </span>--config-env<span class="w"> </span>TEST
+
+bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>user<span class="w"> </span><span class="m">12345</span><span class="w"> </span>computerloginenabled<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--config-env<span class="w"> </span>PROD
+</pre></div>
+</div>
+</section>
+</section>
+<section id="fixing-a-misconfigured-client">
+<h2>Fixing a misconfigured client<a class="headerlink" href="#fixing-a-misconfigured-client" title="Link to this heading">#</a></h2>
+<p>A client registered with the wrong redirect URI can be corrected in place, using the registration
+credentials that <code class="docutils literal notranslate"><span class="pre">--save-env</span></code> recorded:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>client-show<span class="w">   </span>--config-env<span class="w"> </span>CRON<span class="w">     </span><span class="c1"># what the server has</span>
+bfabric-cli<span class="w"> </span>auth<span class="w"> </span>client-update<span class="w"> </span>--config-env<span class="w"> </span>CRON<span class="w"> </span>--redirect-uri<span class="w"> </span>https://correct.example.com/callback
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">client-update</span></code> can also change <code class="docutils literal notranslate"><span class="pre">--client-name</span></code> and <code class="docutils literal notranslate"><span class="pre">--scope</span></code>. B-Fabric issues a new secret and a new
+registration token on every such edit; both are saved automatically, so repeated edits keep working.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This changes the OAuth client only. A webapp registered with <code class="docutils literal notranslate"><span class="pre">auth</span> <span class="pre">register-webapp</span></code> also has the URL
+in its B-Fabric <em>application</em> record (<code class="docutils literal notranslate"><span class="pre">weburl</span></code>), which this does not touch — update that separately
+with <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">update</span> <span class="pre">application</span> <span class="pre">&lt;id&gt;</span> <span class="pre">weburl</span> <span class="pre">&lt;url&gt;</span></code>.</p>
+</div>
+<p>A client that is no longer needed can be revoked outright:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>auth<span class="w"> </span>client-delete<span class="w"> </span>--config-env<span class="w"> </span>CRON
+</pre></div>
+</div>
+<p>It stops being able to obtain tokens and cannot be restored, so this asks for confirmation first
+(<code class="docutils literal notranslate"><span class="pre">--no-confirm</span></code> to skip, which a script needs). The environment stays configured, minus the
+credentials that died with the client.</p>
+<p>Only a client registered through <code class="docutils literal notranslate"><span class="pre">--save-env</span></code> can be managed this way; the registration token is
+issued once, at registration, and is not recoverable afterwards.</p>
+</section>
 <section id="personal-access-tokens">
 <h2>Personal access tokens<a class="headerlink" href="#personal-access-tokens" title="Link to this heading">#</a></h2>
 <p>For a non-interactive login without an OAuth flow:</p>
@@ -633,6 +721,12 @@ writing a change that has no effect.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#several-instances-or-several-logins">Several instances or several logins</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-out-vs-removing">Logging out vs removing</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#remote-hosts-and-headless-machines">Remote hosts and headless machines</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#unattended-scripts-and-cron-jobs">Unattended scripts and cron jobs</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#rotating-the-secret">Rotating the secret</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#several-instances">Several instances</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fixing-a-misconfigured-client">Fixing a misconfigured client</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#personal-access-tokens">Personal access tokens</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#environment-variables">Environment variables</a></li>
 </ul>
