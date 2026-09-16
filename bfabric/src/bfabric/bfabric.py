@@ -562,12 +562,17 @@ class Bfabric:
         }
 
     def __setstate__(self, state: dict[str, Any]) -> None:
-        config_data: ConfigData = state["config_data"]  # pyright: ignore[reportAny]
+        if "config_data" in state:
+            config_data: ConfigData = state["config_data"]  # pyright: ignore[reportAny]
+        else:
+            # Pickles from before 1.23.0 stored the client and auth as separate keys, and ones
+            # older than that predate the retained credential provider.
+            config_data = ConfigData(client=state["config"], auth=state["auth"])  # pyright: ignore[reportAny]
         self._config_data = config_data
         self._config = config_data.client
         self._auth = config_data.auth
         self.query_counter = state["query_counter"]
-        self._credential_provider = state["credential_provider"]
+        self._credential_provider = state.get("credential_provider")
 
 
 def get_system_auth(
