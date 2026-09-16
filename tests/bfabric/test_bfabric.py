@@ -1006,6 +1006,26 @@ class TestConfigDataRoundTrip:
         client = Bfabric(config_data=oauth_config_data)
         assert pickle.loads(pickle.dumps(client)).config_data == oauth_config_data
 
+    def test_setstate_reads_legacy_config_auth_keys(self, mocker):
+        """A client pickled before 1.23.0 stored ``config``/``auth`` instead of ``config_data``."""
+        mocker.patch.object(Bfabric, "_log_version_message")
+        config = BfabricClientConfig(base_url="https://example.com/bfabric")
+        auth = BfabricAuth(login="legacy", password="p" * 32)
+        client = Bfabric.__new__(Bfabric)
+        client.__setstate__({"config": config, "auth": auth, "query_counter": 7, "credential_provider": None})
+        assert client.config_data.client == config
+        assert client.config_data.auth == auth
+        assert client.query_counter == 7
+
+    def test_setstate_reads_legacy_pickle_without_provider(self, mocker):
+        """Pickles older still predate ``credential_provider`` entirely."""
+        mocker.patch.object(Bfabric, "_log_version_message")
+        config = BfabricClientConfig(base_url="https://example.com/bfabric")
+        client = Bfabric.__new__(Bfabric)
+        client.__setstate__({"config": config, "auth": None, "query_counter": 1})
+        assert client.config_data.client == config
+        assert client.config_data.auth is None
+
 
 class TestClientCredentialsMultiInstance:
     """Two service accounts in one config file: --config-env picks which one authenticates."""

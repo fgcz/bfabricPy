@@ -81,7 +81,7 @@ def register_client(
         )
     _ = response.raise_for_status()
     result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
-    logger.debug("Registration response: {}", result)
+    logger.debug("Registered OAuth client, client_id={}", result.get("client_id"))
     return result
 
 
@@ -104,7 +104,7 @@ def _client_management_request(
         )
     _ = response.raise_for_status()
     result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
-    logger.debug("Client management response: {}", result)
+    logger.debug("Client management {} returned keys: {}", method, sorted(result))
     return result
 
 

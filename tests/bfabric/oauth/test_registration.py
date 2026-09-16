@@ -337,3 +337,49 @@ class TestDeleteClient:
             registration_access_token="reg-tok",
         )
         mock_httpx_request.return_value.json.assert_not_called()
+
+
+class TestResponsesAreNotLoggedWholesale:
+    """Registration responses carry reusable credentials, so they must not reach a log sink."""
+
+    @staticmethod
+    def _debug_messages(mocker):
+        calls = []
+
+        def record(msg, *args, **kwargs):
+            # loguru uses brace style; render positionally the way the sink would.
+            try:
+                calls.append(msg.format(*args, **kwargs))
+            except (IndexError, KeyError):
+                calls.append(" ".join([msg, *(str(a) for a in args)]))
+
+        mocker.patch("bfabric.oauth._registration.logger.debug", side_effect=record)
+        return calls
+
+    def test_register_client_does_not_log_client_secret(self, mocker, mock_httpx_post):
+        calls = self._debug_messages(mocker)
+        register_client(
+            "https://example.com/bfabric",
+            "token",
+            client_name="app",
+            redirect_uri="https://example.com/cb",
+            scope=_TEST_SCOPE,
+        )
+        assert not any("new-client-secret" in c for c in calls), calls
+
+    def test_client_management_does_not_log_credentials(self, mocker):
+        mock_request = mocker.patch("bfabric.oauth._registration.httpx.request")
+        response = mocker.MagicMock()
+        response.json.return_value = {
+            "client_id": "cid",
+            "client_secret": "top-secret-value",
+            "registration_access_token": "rat-secret-value",
+        }
+        response.raise_for_status.return_value = None
+        mock_request.return_value = response
+
+        calls = self._debug_messages(mocker)
+        read_client("https://example.com/bfabric/rest/oauth/register/cid", "rat")
+        joined = "\n".join(calls)
+        assert "top-secret-value" not in joined, joined
+        assert "rat-secret-value" not in joined, joined
