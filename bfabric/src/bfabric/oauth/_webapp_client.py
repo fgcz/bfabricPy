@@ -44,7 +44,6 @@ class WebappClient:
         """
         from bfabric.bfabric import Bfabric
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
-        from bfabric.oauth._endpoints import token_url
         from bfabric.oauth._token_exchange import exchange_token
         from bfabric.oauth._url_token import UrlTokenContext, verify_jwt
         from bfabric.config import BfabricClientConfig, BaseUrl
@@ -62,13 +61,11 @@ class WebappClient:
         claims = verify_jwt(base_url, str(token_dict["access_token"]))
         context = UrlTokenContext.model_validate(claims)
 
-        user_provider = OAuthCredentialProvider(
+        user_provider = OAuthCredentialProvider.for_refresh(
+            base_url=base_url,
             client_id=client_id,
             client_secret=client_secret,
-            token_url=token_url(base_url),
-            scope="",
             token=token_dict,
-            grant_type="refresh_token",
             token_cache_path=user_token_cache_path,
         )
         config = BfabricClientConfig(base_url=base_url)

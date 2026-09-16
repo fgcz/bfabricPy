@@ -57,7 +57,7 @@ class TestWebappClientCreate:
         assert wc.service is mock_service_client
         assert wc.context.entity_id == 123
         assert wc.context.subject == "jdoe"
-        assert wc.user._credential_provider is mock_provider_cls.return_value
+        assert wc.user._credential_provider is mock_provider_cls.for_refresh.return_value
 
     def test_forwards_parameters_to_exchange_token(self, mocker, mock_token_dict):
         mock_exchange = mocker.patch(_PATCH_EXCHANGE, return_value=mock_token_dict)
@@ -117,13 +117,11 @@ class TestWebappClientCreate:
             user_token_cache_path="/tmp/user_cache",
         )
 
-        mock_provider_cls.assert_called_once_with(
+        mock_provider_cls.for_refresh.assert_called_once_with(
+            base_url="https://bfabric.example.com/bfabric",
             client_id="cid",
             client_secret="csecret",
-            token_url="https://bfabric.example.com/bfabric/rest/oauth/token",
-            scope="",
             token=mock_token_dict,
-            grant_type="refresh_token",
             token_cache_path="/tmp/user_cache",
         )
 

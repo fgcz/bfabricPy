@@ -53,6 +53,6 @@ def cmd_auth_pat(
     # Store under ``pat``, not ``login``/``password``: a PAT isn't 32 chars, so an old (<=1.19.0)
     # client validating every environment would reject it and poison the shared config.
     env_data = {"base_url": normalize_base_url(base_url), "auth_method": "pat", "pat": pat}
-    write_environment_to_config(config_file, config_env, env_data, set_default=set_default)
+    write_environment_to_config(config_file, config_env, env_data, auth="replace", set_default=set_default)
     print("Authenticated successfully.")
     print(f"Config saved to environment '{config_env}' in {config_file}")

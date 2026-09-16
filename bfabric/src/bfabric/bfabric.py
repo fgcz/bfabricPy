@@ -56,6 +56,7 @@ class Bfabric:
     """
 
     _credential_provider: OAuthCredentialProvider | None
+    _config_data: ConfigData
 
     def __init__(
         self,
@@ -64,6 +65,7 @@ class Bfabric:
         _credential_provider: OAuthCredentialProvider | None = None,
     ) -> None:
         self.query_counter = 0
+        self._config_data = config_data
         self._config = config_data.client
         self._auth = config_data.auth
         self._credential_provider = _credential_provider
@@ -103,47 +105,12 @@ class Bfabric:
         config_data = load_config_data(
             config_file_path=config_file_path, include_auth=include_auth, config_file_env=config_file_env
         )
-        if config_data.auth_method == "oauth":
-            return cls._connect_oauth_from_config(config_data)
-        return cls(config_data=config_data)
+        return cls.from_config_data(config_data)
 
     @classmethod
-    def _connect_oauth_from_config(cls, config_data: ConfigData) -> Bfabric:
-        """Create a Bfabric instance from a config with ``auth_method: oauth``.
-
-        Loads tokens from the disk cache keyed on ``base_url`` + ``client_id`` + ``env_name``.
-        """
-        from bfabric.oauth._credential_provider import OAuthCredentialProvider
-        from bfabric.oauth._endpoints import token_url
-        from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
-
-        base_url = config_data.client.base_url
-        if not config_data.client_id:
-            raise ValueError(
-                "OAuth config is missing 'client_id'. Set it in the config environment "
-                "(e.g. re-run 'bfabric-cli auth login' or 'bfabric-cli auth device-code')."
-            )
-        client_id = config_data.client_id
-        if not config_data.env_name:
-            # The cache key includes the environment name, and "default" (the old fallback here) is a
-            # name the config layer forbids outright — so it could never match a CLI-written cache.
-            raise ValueError(
-                "OAuth config is missing 'env_name', so the token cache cannot be located. When "
-                "configuring via BFABRICPY_CONFIG_OVERRIDE, include 'env_name' naming the "
-                "environment whose cached token should be used."
-            )
-        cache_path = compute_token_cache_path(base_url, client_id, config_data.env_name).expanduser()
-        if not TokenCache(cache_path).load():
-            raise ValueError("No OAuth tokens found. Run 'bfabric-cli auth login' or 'bfabric-cli auth device-code'.")
-        provider = OAuthCredentialProvider(
-            client_id=client_id,
-            client_secret="",
-            token_url=token_url(base_url),
-            scope="",
-            grant_type="refresh_token",
-            token_cache_path=cache_path,
-        )
-        return cls(config_data=config_data, _credential_provider=provider)
+    def from_config_data(cls, config_data: ConfigData) -> Bfabric:
+        """Build a client from *config_data*, wiring a credential provider if its auth method needs one."""
+        return cls(config_data=config_data, _credential_provider=config_data.credential_provider())
 
     @classmethod
     def from_config(
@@ -244,15 +211,13 @@ class Bfabric:
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
         from bfabric.oauth._credential_provider import OAuthCredentialProvider
-        from bfabric.oauth._endpoints import token_url
 
         base_url = BaseUrl(base_url)
-        provider = OAuthCredentialProvider(
+        provider = OAuthCredentialProvider.for_client_credentials(
+            base_url=base_url,
             client_id=client_id,
             client_secret=client_secret,
-            token_url=token_url(base_url),
             scope=scope,
-            grant_type="client_credentials",
             token_cache_path=token_cache_path,
         )
         config_data = ConfigData(client=BfabricClientConfig(base_url=base_url), auth=None)
@@ -277,6 +242,7 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to complete login
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
         from bfabric.oauth._pkce import pkce_login
 
         base_url = BaseUrl(base_url)
@@ -288,9 +254,15 @@ class Bfabric:
             open_browser=open_browser,
             timeout=timeout,
         )
-        return cls._connect_refreshing(
-            base_url, client_id=client_id, scope=scope, token=token, token_cache_path=token_cache_path
+        provider = OAuthCredentialProvider.for_refresh(
+            base_url=base_url,
+            client_id=client_id,
+            token=token,
+            scope=scope,
+            token_cache_path=token_cache_path,
         )
+        config_data = ConfigData(client=BfabricClientConfig(base_url=base_url), auth=None)
+        return cls(config_data=config_data, _credential_provider=provider)
 
     @classmethod
     def connect_device_code(
@@ -310,34 +282,15 @@ class Bfabric:
         :param timeout: Seconds to wait for the user to authorize
         :param token_cache_path: Optional path to cache tokens on disk (survives restarts)
         """
+        from bfabric.oauth._credential_provider import OAuthCredentialProvider
         from bfabric.oauth._device_code import device_code_login
 
         base_url = BaseUrl(base_url)
         token = device_code_login(base_url, client_id=client_id, scope=scope, timeout=timeout)
-        return cls._connect_refreshing(
-            base_url, client_id=client_id, scope=scope, token=token, token_cache_path=token_cache_path
-        )
-
-    @classmethod
-    def _connect_refreshing(
-        cls,
-        base_url: BaseUrl,
-        *,
-        client_id: str,
-        scope: str,
-        token: dict[str, object],
-        token_cache_path: Path | None,
-    ) -> Bfabric:
-        """Wrap an interactive login's token in a public client that refreshes it."""
-        from bfabric.oauth._credential_provider import OAuthCredentialProvider
-        from bfabric.oauth._endpoints import token_url
-
-        provider = OAuthCredentialProvider(
+        provider = OAuthCredentialProvider.for_refresh(
+            base_url=base_url,
             client_id=client_id,
-            client_secret="",
-            token_url=token_url(base_url),
             token=token,
-            grant_type="refresh_token",
             scope=scope,
             token_cache_path=token_cache_path,
         )
@@ -392,8 +345,8 @@ class Bfabric:
 
     @property
     def config_data(self) -> ConfigData:
-        """Returns the config data object."""
-        return ConfigData(client=self._config, auth=self._auth)
+        """Returns the config data object, reflecting the auth currently in effect."""
+        return self._config_data.with_auth(self._auth)
 
     @contextmanager
     def with_auth(self, auth: BfabricAuth) -> Generator[None, None, None]:
@@ -596,25 +549,25 @@ class Bfabric:
             logger.info(capture.get())
 
     def __repr__(self) -> str:
-        config_data = ConfigData(client=self._config, auth=self._auth)
+        config_data = self.config_data
         return f"Bfabric({config_data=})"
 
     __str__ = __repr__
 
     def __getstate__(self) -> dict[str, Any]:
         return {
-            "config": self._config,
-            "auth": self._auth,
+            "config_data": self.config_data,
             "query_counter": self.query_counter,
             "credential_provider": self._credential_provider,
         }
 
     def __setstate__(self, state: dict[str, Any]) -> None:
-        self._config = state["config"]
-        self._auth = state["auth"]
+        config_data: ConfigData = state["config_data"]  # pyright: ignore[reportAny]
+        self._config_data = config_data
+        self._config = config_data.client
+        self._auth = config_data.auth
         self.query_counter = state["query_counter"]
-        # .get for backward compatibility with pickles created before the provider was retained.
-        self._credential_provider = state.get("credential_provider")
+        self._credential_provider = state["credential_provider"]
 
 
 def get_system_auth(
