@@ -10,6 +10,8 @@ Versioning currently follows `X.Y.Z` semantic versioning, independent of the `bf
 
 ## \[Unreleased\]
 
+## \[1.18.0\] - 2026-09-16
+
 ### Added
 
 - `api read`, `api create` and `api update` accept `--json` and `--json-file`, which is the only way to pass nested or non-string attribute values. Both are merged with any key-value pairs, and a key given in both is an error.

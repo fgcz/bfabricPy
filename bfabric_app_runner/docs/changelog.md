@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.9.0\] - 2026-09-16
+
 ### Changed
 
 - An app spec that defines exactly one version no longer needs the workunit's `application_version` parameter; a workunit without one resolves to that version. A parameter that is present must still name a defined version.
