@@ -242,3 +242,38 @@ class TestClientCredentialsConfigData:
             env_name="PROD",
         )
         assert original.with_auth(None).client_secret is not None
+
+
+class TestIncludeAuthFalseDropsCredentials:
+    """``include_auth=False`` is for servers: the client must not authenticate at all."""
+
+    @staticmethod
+    def _write(tmp_path, body):
+        path = tmp_path / "config.yml"
+        path.write_text(f"GENERAL:\n  default_config: test\ntest:\n  base_url: https://example.com/bfabric\n{body}")
+        return path
+
+    def test_service_account_gets_no_credential_provider(self, tmp_path):
+        path = self._write(
+            tmp_path,
+            "  auth_method: client_credentials\n  client_id: svc\n" f"  client_secret: {'s' * 32}\n  scope: api:read\n",
+        )
+        config_data = load_config_data(config_file_path=path, config_file_env="test", include_auth=False)
+        assert config_data.auth is None
+        assert config_data.credential_provider() is None
+        assert config_data.auth_method is None
+
+    def test_password_environment_drops_auth(self, tmp_path):
+        path = self._write(tmp_path, f"  login: user\n  password: {'p' * 32}\n")
+        config_data = load_config_data(config_file_path=path, config_file_env="test", include_auth=False)
+        assert config_data.auth is None
+        assert config_data.credential_provider() is None
+
+    def test_include_auth_true_still_resolves(self, tmp_path):
+        path = self._write(
+            tmp_path,
+            "  auth_method: client_credentials\n  client_id: svc\n" f"  client_secret: {'s' * 32}\n  scope: api:read\n",
+        )
+        config_data = load_config_data(config_file_path=path, config_file_env="test", include_auth=True)
+        assert config_data.credential_provider() is not None
+        assert config_data.auth_method == "client_credentials"
