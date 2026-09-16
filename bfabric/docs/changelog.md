@@ -27,6 +27,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Fixed
 
 - `Bfabric.read` no longer skips or shifts results when a non-zero `offset` is combined with a `max_results` smaller than that offset; the first requested page is now sliced at `offset % 100` independent of `max_results`.
+- Parsing an environment whose secret is already a `SecretStr` keeps the secret instead of replacing it with the masked `**********`.
+- `Bfabric.config_data` no longer drops `auth_method`, `client_id` and `env_name`, which silently degraded an OAuth client's config to no-auth when it was round-tripped (for example through `BFABRICPY_CONFIG_OVERRIDE`).
+- The config file is written atomically, so an interrupted write can no longer truncate it. Note the inode changes, which matters when the file itself rather than its directory is bind-mounted.
+- `ConfigFile.model_validate` no longer mutates the mapping passed to it; it was inserting an `environments` key that callers then persisted to YAML.
 
 ## \[1.22.0\] - 2026-08-25
 
@@ -47,10 +51,6 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Fixed
 
 - The SUDS WSDL URL, and the `show.html` links printed by `bfabric_read` and `bfabric-cli api read`, no longer contain a doubled slash.
-- Parsing an environment whose secret is already a `SecretStr` keeps the secret instead of replacing it with the masked `**********`.
-- `Bfabric.config_data` no longer drops `auth_method`, `client_id` and `env_name`, which silently degraded an OAuth client's config to no-auth when it was round-tripped (for example through `BFABRICPY_CONFIG_OVERRIDE`).
-- The config file is written atomically, so an interrupted write can no longer truncate it. Note the inode changes, which matters when the file itself rather than its directory is bind-mounted.
-- `ConfigFile.model_validate` no longer mutates the mapping passed to it; it was inserting an `environments` key that callers then persisted to YAML.
 
 ### Removed
 
