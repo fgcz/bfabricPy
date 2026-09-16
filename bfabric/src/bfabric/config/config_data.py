@@ -77,6 +77,10 @@ class ConfigData(BaseModel):
         """Returns a shallow copy of self with the auth field set to the specified value."""
         return self.model_copy(update={"auth": auth})
 
+    def without_credentials(self) -> ConfigData:
+        """A copy that cannot authenticate: no auth, and no auth method to build a provider from."""
+        return self.model_copy(update={"auth": None, "auth_config": NoAuth()})
+
 
 def _load_environment_config_data(config_path: Path | str, force_config_env: str | None) -> ConfigData:
     """Reads the config file and returns the config data."""
@@ -112,7 +116,7 @@ def load_config_data(
     else:
         msg = "No configuration was found and config_file_env is set to None."
         raise ValueError(msg)
-    return config_data if include_auth else config_data.with_auth(None)
+    return config_data if include_auth else config_data.without_credentials()
 
 
 def export_config_data(config_data: ConfigData) -> str:

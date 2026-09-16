@@ -220,6 +220,20 @@ class TestCmdAuthClientDelete:
         assert "client_secret" not in env
         assert env["base_url"] == "https://example.com/bfabric"
 
+    def test_clears_the_oauth_selectors_so_the_env_reads_as_unconfigured(self, mocker, config_file):
+        """client_id/scope alone parse as an interactive OAuth environment, which would send the
+        next connect() to a stale token cache instead of reporting the client as gone."""
+        import yaml
+
+        from bfabric.config.auth_methods import NoAuth, auth_method_from_flat
+
+        mocker.patch("bfabric_scripts.cli.login.client_manage.delete_client")
+        cmd_auth_client_delete(config_env="CRON", config_file=config_file, no_confirm=True)
+        env = yaml.safe_load(config_file.read_text())["CRON"]
+        assert "client_id" not in env
+        assert "scope" not in env
+        assert isinstance(auth_method_from_flat(env), NoAuth)
+
     def test_leaves_config_alone_when_the_delete_fails(self, mocker, config_file):
         before = config_file.read_text()
         mocker.patch(

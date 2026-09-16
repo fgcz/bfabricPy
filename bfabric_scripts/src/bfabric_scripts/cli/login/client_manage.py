@@ -162,12 +162,20 @@ def cmd_auth_client_delete(
 
     # Only after the server confirmed: the credentials are dead, and leaving them would let a later
     # command fail with a confusing 401 instead of "not configured".
-    # auth_method goes too: a client_credentials environment without its secret cannot authenticate,
-    # and leaving it would claim an auth method the environment can no longer perform.
+    # The OAuth selectors go too: client_id or scope left behind parse as an undeclared interactive
+    # OAuth environment, so the next connect() would read a stale token cache instead of reporting
+    # the client as gone. auth_method goes with them, since it can no longer be performed.
     dead: dict[str, object] = {
-        key: None for key in ("client_secret", "registration_access_token", "registration_client_uri")
+        key: None
+        for key in (
+            "client_secret",
+            "registration_access_token",
+            "registration_client_uri",
+            "client_id",
+            "scope",
+        )
     }
-    if read_environment_auth_keys(config_file, env_name).get("auth_method") == "client_credentials":
+    if read_environment_auth_keys(config_file, env_name).get("auth_method") in ("client_credentials", "oauth"):
         dead["auth_method"] = None
     write_environment_to_config(config_file, env_name, dead, auth="merge", set_default=False)
     print(f"Deleted the OAuth client registered for '{env_name}'.")
