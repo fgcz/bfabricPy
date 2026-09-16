@@ -293,3 +293,110 @@ class TestEnvironmentConfigOAuth:
 
 if __name__ == "__main__":
     pytest.main()
+
+
+class TestClientCredentialsEnvironment:
+    """A service-account environment: ``client_credentials`` with an inline ``client_secret``."""
+
+    def test_parses_client_credentials_environment(self):
+        config = ConfigFile.model_validate(
+            {
+                "GENERAL": {"default_config": "PROD"},
+                "PROD": {
+                    "base_url": "https://example.com/bfabric",
+                    "auth_method": "client_credentials",
+                    "client_id": "sysadmin-cron",
+                    "client_secret": "s3cret",
+                    "scope": "read-write",
+                },
+            }
+        )
+        env = config.environments["PROD"]
+        assert env.auth_method == "client_credentials"
+        assert env.client_id == "sysadmin-cron"
+        assert env.client_secret is not None
+        assert env.client_secret.get_secret_value() == "s3cret"
+
+    def test_client_secret_is_not_leaked_into_client_config(self):
+        # ``client_secret`` is auth-owned; it must not fall through into BfabricClientConfig's extras.
+        config = ConfigFile.model_validate(
+            {
+                "GENERAL": {"default_config": "PROD"},
+                "PROD": {
+                    "base_url": "https://example.com/bfabric",
+                    "auth_method": "client_credentials",
+                    "client_id": "cron",
+                    "client_secret": "s3cret",
+                },
+            }
+        )
+        assert "client_secret" not in config.environments["PROD"].config.model_dump()
+
+    def test_client_secret_is_not_leaked_by_repr(self):
+        config = ConfigFile.model_validate(
+            {
+                "GENERAL": {"default_config": "PROD"},
+                "PROD": {
+                    "base_url": "https://example.com/bfabric",
+                    "auth_method": "client_credentials",
+                    "client_id": "cron",
+                    "client_secret": "s3cret",
+                },
+            }
+        )
+        assert "s3cret" not in repr(config.environments["PROD"])
+
+
+class TestRegistrationCredentials:
+    """RFC 7591 registration credentials, kept so a misconfigured client can be edited later."""
+
+    def test_parses_registration_fields(self):
+        config = ConfigFile.model_validate(
+            {
+                "GENERAL": {"default_config": "PROD"},
+                "PROD": {
+                    "base_url": "https://example.com/bfabric",
+                    "auth_method": "client_credentials",
+                    "client_id": "cron",
+                    "client_secret": "s3cret",
+                    "registration_access_token": "reg-tok",
+                    "registration_client_uri": "https://example.com/bfabric/rest/oauth/register/cron",
+                },
+            }
+        )
+        env = config.environments["PROD"]
+        assert env.registration_access_token is not None
+        assert env.registration_access_token.get_secret_value() == "reg-tok"
+        assert env.registration_client_uri == "https://example.com/bfabric/rest/oauth/register/cron"
+
+    def test_registration_fields_do_not_leak_into_client_config(self):
+        config = ConfigFile.model_validate(
+            {
+                "GENERAL": {"default_config": "PROD"},
+                "PROD": {
+                    "base_url": "https://example.com/bfabric",
+                    "auth_method": "client_credentials",
+                    "client_id": "cron",
+                    "client_secret": "s3cret",
+                    "registration_access_token": "reg-tok",
+                    "registration_client_uri": "https://example.com/bfabric/rest/oauth/register/cron",
+                },
+            }
+        )
+        dumped = config.environments["PROD"].config.model_dump()
+        assert "registration_access_token" not in dumped
+        assert "registration_client_uri" not in dumped
+
+    def test_registration_token_is_not_leaked_by_repr(self):
+        config = ConfigFile.model_validate(
+            {
+                "GENERAL": {"default_config": "PROD"},
+                "PROD": {
+                    "base_url": "https://example.com/bfabric",
+                    "auth_method": "client_credentials",
+                    "client_id": "cron",
+                    "registration_access_token": "reg-tok",
+                },
+            }
+        )
+        assert "reg-tok" not in repr(config.environments["PROD"])

@@ -373,3 +373,185 @@ class TestCmdLoginRegisterResolvesEnvironment:
         )
         assert mock_register.call_args.kwargs["token"] == "flag-token"
         assert "insecure" in capsys.readouterr().err
+
+
+class TestSaveRegistration:
+    """``--save-env`` records the new client so it is usable, and editable, from the CLI."""
+
+    @staticmethod
+    def _result():
+        return {
+            "client_id": "sysadmin-cron",
+            "client_secret": "s3cret",
+            "registration_access_token": "reg-tok",
+            "registration_client_uri": "https://example.com/bfabric/rest/oauth/register/sysadmin-cron",
+        }
+
+    def test_saves_service_account_environment(self, mocker, tmp_path):
+        mocker.patch("bfabric_scripts.cli.login.register.register_client", return_value=self._result())
+        config_file = tmp_path / "config.yml"
+        cmd_login_register(
+            base_url="https://example.com/bfabric",
+            token="bearer-tok",
+            client_name="Cron",
+            redirect_uri="http://localhost/callback",
+            service_user="svc-admin",
+            config_file=config_file,
+            save_env="CRON",
+        )
+        data = yaml.safe_load(config_file.read_text())
+        assert data["CRON"]["auth_method"] == "client_credentials"
+        assert data["CRON"]["client_id"] == "sysadmin-cron"
+        assert data["CRON"]["client_secret"] == "s3cret"
+        assert data["CRON"]["registration_access_token"] == "reg-tok"
+        assert (
+            data["CRON"]["registration_client_uri"] == "https://example.com/bfabric/rest/oauth/register/sysadmin-cron"
+        )
+        assert data["CRON"]["base_url"] == "https://example.com/bfabric"
+
+    def test_does_not_write_without_save_env(self, mocker, tmp_path):
+        mocker.patch("bfabric_scripts.cli.login.register.register_client", return_value=self._result())
+        config_file = tmp_path / "config.yml"
+        cmd_login_register(
+            base_url="https://example.com/bfabric",
+            token="bearer-tok",
+            client_name="Cron",
+            redirect_uri="http://localhost/callback",
+            service_user="svc-admin",
+            config_file=config_file,
+        )
+        assert not config_file.exists()
+
+    def test_saves_registration_without_service_user(self, mocker, tmp_path):
+        """A client with no client_credentials grant still records its registration credentials,
+        so a wrong redirect URI can be fixed — but it is not marked as a usable auth method."""
+        result = {
+            "client_id": "webapp",
+            "registration_access_token": "reg-tok",
+            "registration_client_uri": "https://example.com/bfabric/rest/oauth/register/webapp",
+        }
+        mocker.patch("bfabric_scripts.cli.login.register.register_client", return_value=result)
+        config_file = tmp_path / "config.yml"
+        cmd_login_register(
+            base_url="https://example.com/bfabric",
+            token="bearer-tok",
+            client_name="Webapp",
+            redirect_uri="http://localhost/callback",
+            no_service_user=True,
+            config_file=config_file,
+            save_env="WEBAPP",
+        )
+        data = yaml.safe_load(config_file.read_text())
+        assert data["WEBAPP"]["registration_access_token"] == "reg-tok"
+        assert data["WEBAPP"]["client_id"] == "webapp"
+        assert "auth_method" not in data["WEBAPP"]
+
+
+class TestSaveRegistrationIntoExistingEnvironment:
+    """``--save-env`` must not silently destroy an environment that already authenticates."""
+
+    @staticmethod
+    def _result():
+        return {
+            "client_id": "new-cid",
+            "registration_access_token": "reg-tok",
+            "registration_client_uri": "https://example.com/bfabric/rest/oauth/register/new-cid",
+        }
+
+    def test_refuses_to_overwrite_a_configured_environment(self, mocker, tmp_path, capsys):
+        mocker.patch("bfabric_scripts.cli.login.register.register_client", return_value=self._result())
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            "GENERAL:\n"
+            "  default_config: TEST\n"
+            "TEST:\n"
+            "  base_url: https://example.com/bfabric\n"
+            "  auth_method: password\n"
+            "  login: u\n"
+            f"  password: {'p' * 32}\n"
+        )
+        before = config_file.read_text()
+        with pytest.raises(SystemExit):
+            cmd_login_register(
+                base_url="https://example.com/bfabric",
+                token="bearer-tok",
+                client_name="Cron",
+                redirect_uri="http://localhost/callback",
+                no_service_user=True,
+                config_file=config_file,
+                save_env="TEST",
+            )
+        assert config_file.read_text() == before
+        err = capsys.readouterr().err
+        assert "TEST" in err
+        assert "--force" in err
+
+    def test_force_overwrites_but_keeps_untouched_auth_keys(self, mocker, tmp_path):
+        mocker.patch("bfabric_scripts.cli.login.register.register_client", return_value=self._result())
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            "GENERAL:\n"
+            "  default_config: TEST\n"
+            "TEST:\n"
+            "  base_url: https://example.com/bfabric\n"
+            "  scope: api:read\n"
+        )
+        cmd_login_register(
+            base_url="https://example.com/bfabric",
+            token="bearer-tok",
+            client_name="Cron",
+            redirect_uri="http://localhost/callback",
+            no_service_user=True,
+            config_file=config_file,
+            save_env="TEST",
+            force=True,
+        )
+        env = yaml.safe_load(config_file.read_text())["TEST"]
+        assert env["client_id"] == "new-cid"
+        assert env["registration_access_token"] == "reg-tok"
+        # An auth-owned key the response did not supply is carried over, not dropped.
+        assert env["scope"] == "api:read"
+
+    def test_force_into_an_oauth_env_is_what_the_guard_prevents(self, mocker, tmp_path):
+        """The guard's reason: an interactive OAuth env keys its token cache on client_id, so
+        replacing it leaves auth_method: oauth pointing at a client with no cached token."""
+        mocker.patch("bfabric_scripts.cli.login.register.register_client", return_value=self._result())
+        config_file = tmp_path / "config.yml"
+        config_file.write_text(
+            "GENERAL:\n"
+            "  default_config: PROD\n"
+            "PROD:\n"
+            "  base_url: https://example.com/bfabric\n"
+            "  auth_method: oauth\n"
+            "  client_id: CLI\n"
+        )
+        cmd_login_register(
+            base_url="https://example.com/bfabric",
+            token="bearer-tok",
+            client_name="Cron",
+            redirect_uri="http://localhost/callback",
+            no_service_user=True,
+            config_file=config_file,
+            save_env="PROD",
+            force=True,
+        )
+        env = yaml.safe_load(config_file.read_text())["PROD"]
+        assert env["auth_method"] == "oauth"
+        assert env["client_id"] == "new-cid"
+
+    def test_new_environment_needs_no_force(self, mocker, tmp_path):
+        mocker.patch("bfabric_scripts.cli.login.register.register_client", return_value=self._result())
+        config_file = tmp_path / "config.yml"
+        config_file.write_text("GENERAL:\n  default_config: OTHER\nOTHER:\n  base_url: https://example.com/bfabric\n")
+        cmd_login_register(
+            base_url="https://example.com/bfabric",
+            token="bearer-tok",
+            client_name="Cron",
+            redirect_uri="http://localhost/callback",
+            no_service_user=True,
+            config_file=config_file,
+            save_env="FRESH",
+        )
+        data = yaml.safe_load(config_file.read_text())
+        assert data["FRESH"]["client_id"] == "new-cid"
+        assert data["OTHER"]["base_url"] == "https://example.com/bfabric"

@@ -53,6 +53,23 @@ PRODUCTION:
   pat: yourPersonalAccessToken
 ```
 
+### Service accounts
+
+`bfabric-cli auth service-account` records an OAuth client that authenticates from a stored secret,
+for cron jobs and scripts that run unattended:
+
+```yaml
+CRON:
+  base_url: https://fgcz-bfabric.uzh.ch/bfabric/
+  auth_method: client_credentials
+  client_id: sysadmin-cron
+  client_secret: yourClientSecret
+```
+
+No token is cached: each run fetches a fresh one, so nothing expires between runs. Each environment
+holds its own client, so several instances can be addressed with `--config-env`. See
+[CLI Authentication](../user_guides/bfabric-cli/authentication.md#unattended-scripts-and-cron-jobs).
+
 ### Web Service Password (Legacy)
 
 ```{note}

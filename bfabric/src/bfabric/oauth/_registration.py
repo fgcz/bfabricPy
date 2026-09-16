@@ -85,6 +85,79 @@ def register_client(
     return result
 
 
+def _client_management_request(
+    method: str,
+    registration_client_uri: str,
+    registration_access_token: str,
+    *,
+    json_body: dict[str, object] | None = None,
+) -> dict[str, object]:
+    """Send an RFC 7592 client-management request authorized by the registration access token."""
+    logger.debug("Client management {} on {}", method, registration_client_uri)
+    with raise_if_unavailable(registration_client_uri):
+        response = httpx.request(
+            method,
+            registration_client_uri,
+            json=json_body,
+            headers={"Authorization": f"Bearer {registration_access_token}"},
+            timeout=30,
+        )
+    _ = response.raise_for_status()
+    result: dict[str, object] = response.json()  # pyright: ignore[reportAny]
+    logger.debug("Client management response: {}", result)
+    return result
+
+
+def read_client(registration_client_uri: str, registration_access_token: str) -> dict[str, object]:
+    """Read an OAuth client's current registration (RFC 7592).
+
+    :param registration_client_uri: The client's registration endpoint, as returned at registration
+    :param registration_access_token: The registration access token issued for that client
+    :returns: The client's current metadata
+    """
+    return _client_management_request("GET", registration_client_uri, registration_access_token)
+
+
+def update_client(
+    registration_client_uri: str,
+    registration_access_token: str,
+    *,
+    metadata: dict[str, object],
+) -> dict[str, object]:
+    """Update an OAuth client's registration (RFC 7592), e.g. to correct a wrong redirect URI.
+
+    *metadata* is sent as given, so pass a full metadata document unless the server supports partial
+    updates — RFC 7592 defines PUT as a replacement of the client's metadata.
+
+    :param registration_client_uri: The client's registration endpoint, as returned at registration
+    :param registration_access_token: The registration access token issued for that client
+    :param metadata: The client metadata to write
+    :returns: The updated client metadata
+    """
+    return _client_management_request("PUT", registration_client_uri, registration_access_token, json_body=metadata)
+
+
+def delete_client(registration_client_uri: str, registration_access_token: str) -> None:
+    """Delete an OAuth client's registration (RFC 7592), revoking the client entirely.
+
+    The client can no longer obtain tokens afterwards and the deletion cannot be undone; a
+    replacement has to be registered from scratch. Succeeds quietly, as the endpoint returns
+    ``204 No Content`` with no body.
+
+    :param registration_client_uri: The client's registration endpoint, as returned at registration
+    :param registration_access_token: The registration access token issued for that client
+    """
+    logger.debug("Client management DELETE on {}", registration_client_uri)
+    with raise_if_unavailable(registration_client_uri):
+        response = httpx.request(
+            "DELETE",
+            registration_client_uri,
+            headers={"Authorization": f"Bearer {registration_access_token}"},
+            timeout=30,
+        )
+    _ = response.raise_for_status()
+
+
 def register_webapp(
     client: Bfabric,
     token: str,

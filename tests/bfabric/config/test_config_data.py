@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 
 import pytest
+from pydantic import SecretStr
+
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.config.config_data import ConfigData, export_config_data, load_config_data
 
@@ -123,6 +125,22 @@ def test_export_roundtrip_preserves_oauth_fields(client_config):
     assert loaded_config == config_data
 
 
+def test_export_roundtrip_preserves_scope(client_config):
+    """A dropped scope would silently widen a service account's token across the override var."""
+    config_data = ConfigData(
+        client=client_config,
+        auth=None,
+        auth_method="client_credentials",
+        client_id="cron",
+        client_secret=SecretStr("s3cret"),
+        scope="api:read",
+        env_name="PRODUCTION",
+    )
+    loaded_config = ConfigData.model_validate_json(export_config_data(config_data))
+    assert loaded_config.scope == "api:read"
+    assert loaded_config == config_data
+
+
 class TestConfigDataOAuthFields:
     def test_defaults_none(self, client_config, auth_config):
         cd = ConfigData(client=client_config, auth=auth_config)
@@ -173,3 +191,54 @@ class TestCredentialProvider:
         config_data = self._config_data(auth=None, auth_method="oauth", env_name="PROD")
         with pytest.raises(ValueError, match="client_id"):
             _ = config_data.credential_provider()
+
+
+class TestClientCredentialsConfigData:
+    """``client_credentials`` environments must survive the load and the JSON override round-trip."""
+
+    def test_load_carries_client_secret(self, tmp_path):
+        config_path = tmp_path / "config.yml"
+        config_path.write_text(
+            "GENERAL:\n"
+            "  default_config: PROD\n"
+            "PROD:\n"
+            "  base_url: https://example.com/bfabric\n"
+            "  auth_method: client_credentials\n"
+            "  client_id: cron\n"
+            "  client_secret: s3cret\n"
+        )
+        config_data = load_config_data(config_file_path=config_path, config_file_env="PROD", include_auth=True)
+        assert config_data.auth_method == "client_credentials"
+        assert config_data.client_id == "cron"
+        assert config_data.client_secret is not None
+        assert config_data.client_secret.get_secret_value() == "s3cret"
+
+    def test_export_import_round_trip(self):
+        from pydantic import SecretStr
+
+        original = ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=None,
+            auth_method="client_credentials",
+            client_id="cron",
+            client_secret=SecretStr("s3cret"),
+            env_name="PROD",
+        )
+        restored = ConfigData.model_validate_json(export_config_data(original))
+        assert restored.auth_method == "client_credentials"
+        assert restored.client_id == "cron"
+        assert restored.client_secret is not None
+        assert restored.client_secret.get_secret_value() == "s3cret"
+
+    def test_with_auth_preserves_client_secret(self):
+        from pydantic import SecretStr
+
+        original = ConfigData(
+            client=BfabricClientConfig(base_url="https://example.com/bfabric"),
+            auth=None,
+            auth_method="client_credentials",
+            client_id="cron",
+            client_secret=SecretStr("s3cret"),
+            env_name="PROD",
+        )
+        assert original.with_auth(None).client_secret is not None
