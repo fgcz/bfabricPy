@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>OAuth Integration &#8212; bfabricPy 1.22.0 documentation</title>
+    <title>OAuth Integration &#8212; bfabricPy 1.23.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=ad9d765f"></script>
+    <script src="../_static/documentation_options.js?v=514743b3"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="bfabric.operations Module Design" href="operations_module.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.22.0" />
+  <meta name="docsearch:version" content="1.23.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.22.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.23.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -411,6 +411,9 @@
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#config-file-changes">Config file changes</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-fields-in-environment-config">New fields in environment config</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#in-memory-model-the-auth-method-union">In-memory model: the auth-method union</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-config-writer-py">New: <code class="docutils literal notranslate"><span class="pre">config_writer.py</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configdata-environmentconfig"><code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig</span></code></a></li>
 </ul>
@@ -444,7 +447,7 @@
 <section id="new-bfabric-oauth-module">
 <h2>New: <code class="docutils literal notranslate"><span class="pre">bfabric.oauth</span></code> module<a class="headerlink" href="#new-bfabric-oauth-module" title="Link to this heading">#</a></h2>
 <p>Package under <code class="docutils literal notranslate"><span class="pre">bfabric/src/bfabric/oauth/</span></code> implementing all OAuth primitives.</p>
-<p>The package root is the entire public surface: every submodule is underscore-prefixed, so the only supported import is <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">bfabric.oauth</span> <span class="pre">import</span> <span class="pre">...</span></code>. <code class="docutils literal notranslate"><span class="pre">__init__</span></code> exports <code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code>, <code class="docutils literal notranslate"><span class="pre">pkce_login</span></code>, <code class="docutils literal notranslate"><span class="pre">device_code_login</span></code>, <code class="docutils literal notranslate"><span class="pre">register_client</span></code>, <code class="docutils literal notranslate"><span class="pre">register_webapp</span></code>, <code class="docutils literal notranslate"><span class="pre">TokenCache</span></code>, <code class="docutils literal notranslate"><span class="pre">compute_token_cache_path</span></code>, <code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> and <code class="docutils literal notranslate"><span class="pre">WebappClient</span></code> — enough that nothing outside the package, including <code class="docutils literal notranslate"><span class="pre">bfabric_scripts</span></code>, ever names a module. Those names are provisional while the asgi-auth OAuth migration is in flight and may change without a deprecation cycle.</p>
+<p>The package root is the entire public surface: every submodule is underscore-prefixed, so the only supported import is <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">bfabric.oauth</span> <span class="pre">import</span> <span class="pre">...</span></code>. <code class="docutils literal notranslate"><span class="pre">__init__</span></code> exports <code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code>, <code class="docutils literal notranslate"><span class="pre">pkce_login</span></code>, <code class="docutils literal notranslate"><span class="pre">AuthorizationRequest</span></code>, <code class="docutils literal notranslate"><span class="pre">exchange_code</span></code>, <code class="docutils literal notranslate"><span class="pre">device_code_login</span></code>, <code class="docutils literal notranslate"><span class="pre">token_url</span></code>, <code class="docutils literal notranslate"><span class="pre">register_client</span></code>, <code class="docutils literal notranslate"><span class="pre">register_webapp</span></code>, <code class="docutils literal notranslate"><span class="pre">TokenCache</span></code>, <code class="docutils literal notranslate"><span class="pre">compute_token_cache_path</span></code>, <code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> and <code class="docutils literal notranslate"><span class="pre">WebappClient</span></code> — enough that nothing outside the package, including <code class="docutils literal notranslate"><span class="pre">bfabric_scripts</span></code>, ever names a module. Those names are provisional while the asgi-auth OAuth migration is in flight and may change without a deprecation cycle.</p>
 <p><code class="docutils literal notranslate"><span class="pre">bfabric.py</span></code> is the one place that names the private submodules, and only because <code class="docutils literal notranslate"><span class="pre">__init__</span></code> re-exports <code class="docutils literal notranslate"><span class="pre">WebappClient</span></code>, whose module imports <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> — routing <code class="docutils literal notranslate"><span class="pre">connect_*</span></code> through the root makes that a static import cycle. It is an intra-package import, not a consumer reaching in.</p>
 <p>Separately, those <code class="docutils literal notranslate"><span class="pre">connect_*</span></code> imports are <em>function-local</em>: the OAuth code pulls <code class="docutils literal notranslate"><span class="pre">authlib</span></code> and <code class="docutils literal notranslate"><span class="pre">joserfc</span></code>, and <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">bfabric</span></code> must stay free of both. Note that targeting a submodule does not by itself avoid this — importing <code class="docutils literal notranslate"><span class="pre">bfabric.oauth.&lt;anything&gt;</span></code> executes <code class="docutils literal notranslate"><span class="pre">__init__</span></code> first — so laziness, not module choice, is what keeps the base import clean.</p>
 <div class="pst-scrollable-table-container"><table class="table">
@@ -458,21 +461,24 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> — thread-safe token management with automatic refresh and disk caching. Supports both <code class="docutils literal notranslate"><span class="pre">client_credentials</span></code> and <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> grant types.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_pkce.py</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">pkce_login()</span></code> — browser-based PKCE flow. Starts a local HTTP server, opens the browser, exchanges the authorization code for tokens.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pkce_login()</span></code> — browser-based PKCE flow. Starts a local HTTP server, opens the browser, exchanges the authorization code for tokens. <code class="docutils literal notranslate"><span class="pre">AuthorizationRequest</span></code> + <code class="docutils literal notranslate"><span class="pre">exchange_code()</span></code> expose the same two legs separately, for a web app whose callback lands on its own redirect URI; <code class="docutils literal notranslate"><span class="pre">exchange_code()</span></code> also takes an optional <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> for a confidential client.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_device_code.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_endpoints.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">token_url()</span></code> — the token endpoint URL for an instance, plus the (unexported) <code class="docutils literal notranslate"><span class="pre">authorize_url()</span></code> behind <code class="docutils literal notranslate"><span class="pre">AuthorizationRequest</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_device_code.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">device_code_login()</span></code> — RFC 8628 device authorization flow for headless environments.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_registration.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_registration.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">register_client()</span></code> — RFC 7591 dynamic client registration via HTTP POST.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_token_cache.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_token_cache.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">TokenCache</span></code> — JSON file cache at <code class="docutils literal notranslate"><span class="pre">~/.bfabric/tokens/{hash}.json</span></code> with 0o600 permissions. <code class="docutils literal notranslate"><span class="pre">compute_token_cache_path()</span></code> derives a unique path from <code class="docutils literal notranslate"><span class="pre">(base_url,</span> <span class="pre">client_id,</span> <span class="pre">env_name)</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_url_token.py</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_url_token.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> + <code class="docutils literal notranslate"><span class="pre">verify_jwt()</span></code> — verifies a B-Fabric URL token JWT against the instance JWKS (cached 1 h) and returns its claims.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">_webapp_client.py</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">_webapp_client.py</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">WebappClient</span></code> — dual-identity client bundling a <code class="docutils literal notranslate"><span class="pre">user</span></code> (from URL token) and <code class="docutils literal notranslate"><span class="pre">service</span></code> (from client credentials) <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> instance.</p></td>
 </tr>
 </tbody>
@@ -617,9 +623,36 @@ rather than the granted one: the server drops scopes the client isn’t register
 granted scope would bake that drop in permanently. Only the CLI reads the key — it is excluded from
 <code class="docutils literal notranslate"><span class="pre">BfabricClientConfig</span></code> and not plumbed through <code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">export_config_data</span></code>.</p>
 <p>A re-login <strong>merges</strong> into an existing environment section rather than replacing it, so hand-written
-keys (<code class="docutils literal notranslate"><span class="pre">application_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">engine</span></code>, <code class="docutils literal notranslate"><span class="pre">job_notification_emails</span></code>, …) survive. The auth-owned keys
-(<code class="docutils literal notranslate"><span class="pre">login</span></code>, <code class="docutils literal notranslate"><span class="pre">password</span></code>, <code class="docutils literal notranslate"><span class="pre">pat</span></code>, <code class="docutils literal notranslate"><span class="pre">auth_method</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, <code class="docutils literal notranslate"><span class="pre">scope</span></code>) are replaced wholesale, so a stale
-<code class="docutils literal notranslate"><span class="pre">pat</span></code> cannot outlive the auth method that wrote it and be resurrected by <code class="docutils literal notranslate"><span class="pre">gather_auth</span></code>.</p>
+keys (<code class="docutils literal notranslate"><span class="pre">application_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">engine</span></code>, <code class="docutils literal notranslate"><span class="pre">job_notification_emails</span></code>, …) survive. What happens to the
+auth-owned keys is the caller’s choice: <code class="docutils literal notranslate"><span class="pre">write_environment_to_config(...,</span> <span class="pre">auth=&quot;replace&quot;)</span></code> treats the
+payload as the complete auth state, so a stale <code class="docutils literal notranslate"><span class="pre">pat</span></code> cannot outlive the method that wrote it, while
+<code class="docutils literal notranslate"><span class="pre">auth=&quot;merge&quot;</span></code> keeps the ones the payload does not mention, for a partial update such as a rotated
+secret. The mode is required, because the two directions corrupt in opposite ways. The auth-owned key
+set itself is derived from the auth-method variants in <code class="docutils literal notranslate"><span class="pre">config/auth_methods.py</span></code>.</p>
+</section>
+</section>
+<section id="in-memory-model-the-auth-method-union">
+<h2>In-memory model: the auth-method union<a class="headerlink" href="#in-memory-model-the-auth-method-union" title="Link to this heading">#</a></h2>
+<p>The flat YAML above is the wire format (see the compatibility rules below for what may be added to
+it); in memory each auth method is its own model
+(<code class="docutils literal notranslate"><span class="pre">PasswordAuth</span></code>, <code class="docutils literal notranslate"><span class="pre">PatAuth</span></code>, <code class="docutils literal notranslate"><span class="pre">InteractiveOAuthAuth</span></code>, <code class="docutils literal notranslate"><span class="pre">ClientCredentialsAuth</span></code>, <code class="docutils literal notranslate"><span class="pre">NoAuth</span></code>,
+<code class="docutils literal notranslate"><span class="pre">UnknownAuth</span></code>), discriminated on <code class="docutils literal notranslate"><span class="pre">kind</span></code> and exposed as <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig.auth_config</span></code>. Each variant
+is parsed data declaring the flat keys it owns; two module-level resolvers match on it to produce
+credentials — <code class="docutils literal notranslate"><span class="pre">resolve_static_auth</span></code> for a <code class="docutils literal notranslate"><span class="pre">BfabricAuth</span></code> held in the file, <code class="docutils literal notranslate"><span class="pre">resolve_credential_provider</span></code>
+for a refreshing <code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> — so <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> and the <code class="docutils literal notranslate"><span class="pre">auth</span></code> CLI match on the
+variant instead of switching on a string. The two stay apart because static auth has to be
+answerable from the environment alone, without a base URL, an environment name or a token-cache read.</p>
+<p>The translation is one-way: <code class="docutils literal notranslate"><span class="pre">auth_method_from_flat</span></code> in <code class="docutils literal notranslate"><span class="pre">config/auth_methods.py</span></code> is the only place the
+flat keys are interpreted, and the variants never serialise themselves back — writers pass the flat
+keys to <code class="docutils literal notranslate"><span class="pre">write_environment_to_config</span></code> directly. Adding an auth method means adding a variant there;
+do not reintroduce a parallel list of auth keys elsewhere. <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig</span></code> keeps <code class="docutils literal notranslate"><span class="pre">auth</span></code>,
+<code class="docutils literal notranslate"><span class="pre">auth_method</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code> as read-only properties over the union, so
+existing readers are unaffected.</p>
+<p>Reading is deliberately tolerant and writing is strict: 1.21.0 wrote environments without any
+cross-field validation, so a config already on disk must keep loading even if its keys contradict
+each other, while <code class="docutils literal notranslate"><span class="pre">validate_writable_environment</span></code> refuses to persist a new one that does.
+<code class="docutils literal notranslate"><span class="pre">auth_method</span></code> values this version does not recognise parse to <code class="docutils literal notranslate"><span class="pre">UnknownAuth</span></code>, which keeps the
+unrecognised keys verbatim and raises only when that environment is the one being connected.</p>
 <p>For PAT (Personal Access Token) logins the token is stored inline under <code class="docutils literal notranslate"><span class="pre">pat</span></code> (with
 <code class="docutils literal notranslate"><span class="pre">auth_method:</span> <span class="pre">pat</span></code>), never as <code class="docutils literal notranslate"><span class="pre">login:</span> <span class="pre">__oauth__</span></code> / <code class="docutils literal notranslate"><span class="pre">password:</span> <span class="pre">&lt;token&gt;</span></code>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">PRODUCTION</span><span class="p">:</span>
@@ -635,14 +668,33 @@ inline <code class="docutils literal notranslate"><span class="pre">login:</span
 means old clients silently ignore it and keep reading the rest of the file; no fleet-wide
 upgrade is required. The reader still accepts the legacy <code class="docutils literal notranslate"><span class="pre">login:</span> <span class="pre">__oauth__</span></code> shape written by
 <code class="docutils literal notranslate"><span class="pre">1.20.0rc1</span></code>.</p>
-</section>
+<p>Generalised, since this is narrower than “the format is frozen” and it is easy to be too cautious:
+<strong>new config options are free; the envelope is not.</strong> app_runner bind-mounts the host’s
+<code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> into containers whose image may ship an older bfabric, so old readers are live,
+not hypothetical — and a version field cannot help, because those readers are already deployed and
+will never look for one.</p>
+<p>Safe to add:</p>
+<ul class="simple">
+<li><p>any new key <strong>inside</strong> an environment — old readers sweep unknown keys into their client config and ignore them</p></li>
+<li><p>a whole new environment using a new <code class="docutils literal notranslate"><span class="pre">auth_method</span></code> — old readers see it as unauthenticated</p></li>
+<li><p>a new key inside <code class="docutils literal notranslate"><span class="pre">GENERAL</span></code></p></li>
+</ul>
+<p>Breaks every old client on the machine, for the whole file:</p>
+<ul class="simple">
+<li><p>a new <strong>top-level</strong> key (<code class="docutils literal notranslate"><span class="pre">version:</span></code> at the root) — anything outside <code class="docutils literal notranslate"><span class="pre">GENERAL</span></code> is read as an environment name and must parse as one</p></li>
+<li><p>nesting credentials under <code class="docutils literal notranslate"><span class="pre">auth</span></code> — that is the old reader’s own field name</p></li>
+<li><p>an environment with no <code class="docutils literal notranslate"><span class="pre">base_url</span></code></p></li>
+<li><p>a <code class="docutils literal notranslate"><span class="pre">login</span></code> paired with a non-32-character <code class="docutils literal notranslate"><span class="pre">password</span></code></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">tests/bfabric/config/test_backward_compat.py</span></code> asserts each of these against a vendored replica of
+the 1.19.0 schema, so the boundary is executable rather than folklore.</p>
 <section id="new-config-writer-py">
 <h3>New: <code class="docutils literal notranslate"><span class="pre">config_writer.py</span></code><a class="headerlink" href="#new-config-writer-py" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">write_environment_to_config()</span></code> — creates or updates a YAML environment section with atomic writes (0o600 permissions). Used by all login commands.</p>
 </section>
 <section id="configdata-environmentconfig">
 <h3><code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig</span></code><a class="headerlink" href="#configdata-environmentconfig" title="Link to this heading">#</a></h3>
-<p>Both models gained <code class="docutils literal notranslate"><span class="pre">auth_method</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;password&quot;</span></code> | <code class="docutils literal notranslate"><span class="pre">&quot;oauth&quot;</span></code> | <code class="docutils literal notranslate"><span class="pre">&quot;pat&quot;</span></code>) and <code class="docutils literal notranslate"><span class="pre">client_id</span></code> fields. <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> checks <code class="docutils literal notranslate"><span class="pre">auth_method</span> <span class="pre">==</span> <span class="pre">&quot;oauth&quot;</span></code> to route to <code class="docutils literal notranslate"><span class="pre">_connect_oauth_from_config()</span></code> (token loaded from the disk cache); <code class="docutils literal notranslate"><span class="pre">&quot;pat&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;password&quot;</span></code> environments carry their credential in the config and use the normal auth path.</p>
+<p>Both hold the auth-method union described above as <code class="docutils literal notranslate"><span class="pre">auth_config</span></code>, and expose <code class="docutils literal notranslate"><span class="pre">auth_method</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code> as read-only properties derived from it. <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> resolves a credential provider from the method rather than switching on a string: <code class="docutils literal notranslate"><span class="pre">&quot;oauth&quot;</span></code> yields one backed by the disk token cache, <code class="docutils literal notranslate"><span class="pre">&quot;client_credentials&quot;</span></code> one backed by the inline secret, and <code class="docutils literal notranslate"><span class="pre">&quot;pat&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;password&quot;</span></code> yield none, carrying their credential in the config and using the normal auth path.</p>
 </section>
 </section>
 <hr class="docutils" />
@@ -760,6 +812,9 @@ uv<span class="w"> </span>tool<span class="w"> </span>install<span class="w"> </
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#config-file-changes">Config file changes</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-fields-in-environment-config">New fields in environment config</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#in-memory-model-the-auth-method-union">In-memory model: the auth-method union</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#new-config-writer-py">New: <code class="docutils literal notranslate"><span class="pre">config_writer.py</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configdata-environmentconfig"><code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig</span></code></a></li>
 </ul>

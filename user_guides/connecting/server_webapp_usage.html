@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Server and Webapp Usage &#8212; bfabricPy 1.22.0 documentation</title>
+    <title>Server and Webapp Usage &#8212; bfabricPy 1.23.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=ad9d765f"></script>
+    <script src="../../_static/documentation_options.js?v=514743b3"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="Interactive and Scripted Usage" href="interactive_scripted_usage.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.22.0" />
+  <meta name="docsearch:version" content="1.23.0" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.22.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.23.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -478,8 +478,9 @@ grant. This is what background jobs, feeders and servers should use:</p>
 <p>Tokens are fetched and refreshed automatically. Pass <code class="docutils literal notranslate"><span class="pre">token_cache_path</span></code> to keep them across restarts.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>A client credentials token carries no user identity. Anything authorized by the <em>caller’s</em> container membership — file
-downloads, for instance — needs a token from a user flow instead. See
+<p>A client credentials token acts as the service user the client was registered with, not as whoever
+called your server. Anything that has to be authorized by the <em>caller’s</em> own container membership — file
+downloads on their behalf, for instance — needs a token from a user flow instead. See
 <a class="reference internal" href="../../design/oauth_usage_and_troubleshooting.html"><span class="std std-doc">OAuth Usage &amp; Troubleshooting</span></a>.</p>
 </div>
 </section>

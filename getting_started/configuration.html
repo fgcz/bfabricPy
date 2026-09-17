@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Configuration &#8212; bfabricPy 1.22.0 documentation</title>
+    <title>Configuration &#8212; bfabricPy 1.23.0 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=ad9d765f"></script>
+    <script src="../_static/documentation_options.js?v=514743b3"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="Quick Start" href="quick_start.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.22.0" />
+  <meta name="docsearch:version" content="1.23.0" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.22.0 documentation</p>
+    <p class="title logo__title">bfabricPy 1.23.0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -405,6 +405,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-file-recommended">Configuration File (Recommended)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#base-url">base_url</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#personal-access-tokens">Personal Access Tokens</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#service-accounts">Service accounts</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#web-service-password-legacy">Web Service Password (Legacy)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-environments">Multiple Environments</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-multiple-config-files">Using Multiple Config Files</a></li>
@@ -478,6 +479,21 @@ accepted and dropped. <code class="docutils literal notranslate"><span class="pr
 <span class="w">  </span><span class="nt">pat</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourPersonalAccessToken</span>
 </pre></div>
 </div>
+</section>
+<section id="service-accounts">
+<h3>Service accounts<a class="headerlink" href="#service-accounts" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">service-account</span></code> records an OAuth client that authenticates from a stored secret,
+for cron jobs and scripts that run unattended:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">CRON</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">base_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://fgcz-bfabric.uzh.ch/bfabric/</span>
+<span class="w">  </span><span class="nt">auth_method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">client_credentials</span>
+<span class="w">  </span><span class="nt">client_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sysadmin-cron</span>
+<span class="w">  </span><span class="nt">client_secret</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yourClientSecret</span>
+</pre></div>
+</div>
+<p>No token is cached: each run fetches a fresh one, so nothing expires between runs. Each environment
+holds its own client, so several instances can be addressed with <code class="docutils literal notranslate"><span class="pre">--config-env</span></code>. See
+<a class="reference internal" href="../user_guides/bfabric-cli/authentication.html#unattended-scripts-and-cron-jobs"><span class="std std-ref">CLI Authentication</span></a>.</p>
 </section>
 <section id="web-service-password-legacy">
 <h3>Web Service Password (Legacy)<a class="headerlink" href="#web-service-password-legacy" title="Link to this heading">#</a></h3>
@@ -657,6 +673,7 @@ python<span class="w"> </span>script.py<span class="w">  </span><span class="c1"
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-file-recommended">Configuration File (Recommended)</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#base-url">base_url</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#personal-access-tokens">Personal Access Tokens</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#service-accounts">Service accounts</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#web-service-password-legacy">Web Service Password (Legacy)</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#multiple-environments">Multiple Environments</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-multiple-config-files">Using Multiple Config Files</a></li>
