@@ -11,7 +11,7 @@ The specification can be provided in a YAML file with the following structure:
 
 ```yaml
 bfabric:
-  app_runner: "0.0.17"  # or a git reference
+  app_runner: "0.8.0"  # or a git reference
   workflow_template_step_id: null  # optional
 versions:
   - version: "1.0.0"

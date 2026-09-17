@@ -125,6 +125,107 @@ Two smaller escape hatches for the browser flow:
 - `BROWSER=/bin/true bfabric-cli auth login` stops a *terminal* browser (`w3m`, `lynx`, …) from
   hijacking the login and rendering the page into your shell.
 
+## Unattended scripts and cron jobs
+
+A browser login is wrong for a script that nobody is watching: its token expires and there is no one
+to re-login. A **service account** authenticates from a stored secret instead, so it never expires
+and needs no browser.
+
+Register the client once (as an employee, with the instance you are logged in to):
+
+```bash
+bfabric-cli auth register "sysadmin-cron" "https://sysadmin-cron.invalid/unused" \
+    --service-user svc-admin --save-env CRON
+```
+
+`--service-user svc-admin` is what enables the `client_credentials` grant, and it is also *whose*
+account the client acts as: tokens it obtains carry that service user's identity and permissions, so
+give it a B-Fabric user with exactly the access the script needs.
+
+`--save-env CRON` records the new client, its secret, and the credentials needed to edit it later.
+
+The redirect URI is a positional argument of `auth register` because the command also registers
+interactive clients, where it is the `authorization_code` callback. A `client_credentials` client
+never redirects, so the value is unused — pass any placeholder.
+
+From then on every command works unattended:
+
+```bash
+bfabric-cli api update user 12345 computerloginenabled true --config-env CRON
+```
+
+If the client was created for you in the B-Fabric UI instead, record it by hand:
+
+```bash
+bfabric-cli auth service-account https://fgcz-bfabric.uzh.ch/bfabric --client-id sysadmin-cron
+# Client secret: ‹prompted›
+```
+
+The secret is stored in `~/.bfabricpy.yml` (mode `0600`). Passing it with `--client-secret` works but
+is visible in `ps` and your shell history.
+
+```{note}
+The token acts as the service user the client was registered with — not as you. What the script can
+reach is that account's access, so a permission it is missing has to be granted to the service user
+in B-Fabric. See [OAuth Usage & Troubleshooting](../../design/oauth_usage_and_troubleshooting.md).
+```
+
+### Rotating the secret
+
+When the secret is rotated in the B-Fabric UI, store the new one by re-running the same command:
+
+```bash
+bfabric-cli auth service-account https://fgcz-bfabric.uzh.ch/bfabric \
+    --client-id sysadmin-cron --config-env CRON
+# Client secret: ‹paste the new secret›
+```
+
+There is nothing else to clear — this grant keeps no cached token, so the next command fetches a
+fresh one. The environment's other recorded values are kept.
+
+### Several instances
+
+Each environment holds its own client and secret, so a script can address either instance by name:
+
+```bash
+bfabric-cli auth service-account https://fgcz-bfabric.uzh.ch/bfabric --client-id prod-cron --config-env PROD
+bfabric-cli auth service-account https://fgcz-bfabric-test.uzh.ch/bfabric --client-id test-cron --config-env TEST
+
+bfabric-cli api update user 12345 computerloginenabled true --config-env PROD
+```
+
+## Fixing a misconfigured client
+
+A client registered with the wrong redirect URI can be corrected in place, using the registration
+credentials that `--save-env` recorded:
+
+```bash
+bfabric-cli auth client-show   --config-env CRON     # what the server has
+bfabric-cli auth client-update --config-env CRON --redirect-uri https://correct.example.com/callback
+```
+
+`client-update` can also change `--client-name` and `--scope`. B-Fabric issues a new secret and a new
+registration token on every such edit; both are saved automatically, so repeated edits keep working.
+
+```{important}
+This changes the OAuth client only. A webapp registered with `auth register-webapp` also has the URL
+in its B-Fabric *application* record (`weburl`), which this does not touch — update that separately
+with `bfabric-cli api update application <id> weburl <url>`.
+```
+
+A client that is no longer needed can be revoked outright:
+
+```bash
+bfabric-cli auth client-delete --config-env CRON
+```
+
+It stops being able to obtain tokens and cannot be restored, so this asks for confirmation first
+(`--no-confirm` to skip, which a script needs). The environment stays configured, minus the
+credentials that died with the client.
+
+Only a client registered through `--save-env` can be managed this way; the registration token is
+issued once, at registration, and is not recoverable afterwards.
+
 ## Personal access tokens
 
 For a non-interactive login without an OAuth flow:

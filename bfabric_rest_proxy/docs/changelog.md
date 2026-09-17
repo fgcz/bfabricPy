@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Initial implementation of bfabric_rest_proxy.
 - `POST /user/is_employee` — returns `{"is_employee": bool}` for the authenticated user based on their `empdegree` field. The lookup uses the feeder credentials, since `empdegree` is typically not readable with a regular user's web-service credentials.
 - `POST /create/workunit/v1` accepts optional `dataset` (name + base64-encoded csv/tsv/parquet, created as the workunit's output dataset) and `input_dataset_id` (existing dataset referenced as the workunit's input), both inherited from `CreateWorkunitParams`.
+- `POST /create/workunit/v1` accepts optional `executables` (name → base64-encoded content), attached to the created workunit, inherited from `CreateWorkunitParams`.
 - `POST /create/workunit/v1` accepts an optional `created_using` field (e.g. calling-app identifier), recorded as the `Created Using` custom attribute alongside the server-stamped `Created For` attribute.
 
 ### Changed

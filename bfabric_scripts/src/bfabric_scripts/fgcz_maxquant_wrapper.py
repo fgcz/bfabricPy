@@ -507,7 +507,7 @@ if __name__ == "__main__":
         help="MaxQuant mqpar template xml parameter filename.",
     )
 
-    (options, args) = parser.parse_args()
+    options, args = parser.parse_args()
 
     if not os.path.isfile(options.yaml_filename):
         print(f"ERROR: no such file '{options.yaml_filename}'")

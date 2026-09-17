@@ -9,6 +9,37 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.23.0\] - 2026-09-16
+
+### Added
+
+- `create_workunit` accepts `executables` (name → base64-encoded content), saved as `context: "WORKUNIT"` executables of the new workunit — e.g. the script that generated it. Executables alone count as workunit data.
+- `bfabric.oauth.AuthorizationRequest.create` starts an authorization-code login, returning the URL to redirect a user to along with the CSRF state and PKCE verifier to keep until they return. A web app can now run the flow without deriving a code challenge itself.
+- `bfabric.oauth.exchange_code` redeems the returned code for tokens. An optional `client_secret` authenticates a confidential client as `client_secret_basic`; omitting it makes the request as a public client relying on PKCE.
+- `bfabric.oauth.token_url` builds the token endpoint URL for an instance.
+- An environment with `auth_method: client_credentials` authenticates a service account from its inline `client_secret`, so `Bfabric.connect()` works unattended without a browser or a cached token. Its recorded `scope` is requested on every token request, narrowing the service account's token; without one the server applies the client's default. Interactive OAuth is unaffected — its scope is fixed at authorization time and the refresh inherits it.
+- `read_client`, `update_client` and `delete_client` read, correct and revoke an OAuth client's own registration (RFC 7592) using its registration access token.
+- Config environments record `registration_access_token` and `registration_client_uri`, so a client registered through the CLI can be edited later.
+
+### Changed
+
+- An environment's authentication is modelled as a discriminated union (`config/auth_methods.py`), which `resolve_static_auth` and `resolve_credential_provider` turn into credentials. `EnvironmentConfig.auth`, `auth_method`, `client_id`, `client_secret` and `scope` are now read-only properties over it; the config file format is unchanged.
+- `write_environment_to_config` takes a required `auth="merge"|"replace"` mode. `replace` keeps the previous behaviour of replacing every auth-owned key; `merge` keeps the ones the payload does not mention, and a key set to `None` is removed.
+- An `auth_method` the client does not recognise is preserved and reported rather than silently discarded along with its sibling keys, and it only fails when that environment is used.
+- `Bfabric.connect()` and the `connect_*` methods share one credential-provider seam, so loading an OAuth environment reads the token cache once instead of twice.
+- New `validate_writable_environment` refuses to write an environment whose auth keys contradict each other (for example `auth_method: client_credentials` without a `client_secret`). Reading stays tolerant, so existing config files keep loading.
+
+### Fixed
+
+- `Bfabric.connect(include_auth=False)` no longer attaches a credential provider, which made a service-account environment authenticate anyway and fetch a token on the first request.
+- Unpickling a `Bfabric` client saved by an earlier version works again; it raised `KeyError: 'config_data'` since the client started storing its config as one object.
+- `register_client` and the RFC 7592 client-management calls no longer log the whole response at debug level, which put `client_secret` and `registration_access_token` into any enabled log sink.
+- `Bfabric.read` no longer skips or shifts results when a non-zero `offset` is combined with a `max_results` smaller than that offset; the first requested page is now sliced at `offset % 100` independent of `max_results`.
+- Parsing an environment whose secret is already a `SecretStr` keeps the secret instead of replacing it with the masked `**********`.
+- `Bfabric.config_data` no longer drops `auth_method`, `client_id` and `env_name`, which silently degraded an OAuth client's config to no-auth when it was round-tripped (for example through `BFABRICPY_CONFIG_OVERRIDE`).
+- The config file is written atomically, so an interrupted write can no longer truncate it. Note the inode changes, which matters when the file itself rather than its directory is bind-mounted.
+- `ConfigFile.model_validate` no longer mutates the mapping passed to it; it was inserting an `environments` key that callers then persisted to YAML.
+
 ## \[1.22.0\] - 2026-08-25
 
 ### Added

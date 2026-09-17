@@ -23,6 +23,13 @@ def save_result():
     )
 
 
+class TestCreateRejectsId:
+    @pytest.mark.parametrize("attributes", [[("name", "foo"), ("id", "5")], {"json_input": '{"name": "foo", "id": 5}'}])
+    def test_id_in_attributes_is_rejected(self, attributes):
+        with pytest.raises(ValueError, match="not allowed in the attributes"):
+            Params(endpoint="workunit", attributes=attributes)
+
+
 class TestCreateOutputFormat:
     def test_default_format_is_json(self):
         params = Params(endpoint="workunit", attributes=[("name", "foo")])
@@ -64,6 +71,14 @@ class TestCreateOutputFormat:
         parsed = yaml.safe_load(captured.out)
         assert isinstance(parsed, list)
         assert parsed[0]["id"] == 42
+
+    def test_create_passes_json_attributes_to_save(self, mock_client, save_result):
+        mock_client.save.return_value = save_result
+        params = Params(endpoint="workunit", attributes={"json_input": '{"containerid": 1234}'})
+
+        cmd_api_create(params, client=mock_client)
+
+        mock_client.save.assert_called_once_with("workunit", {"containerid": 1234})
 
     def test_create_passes_correct_args_to_save(self, mock_client, save_result):
         mock_client.save.return_value = save_result

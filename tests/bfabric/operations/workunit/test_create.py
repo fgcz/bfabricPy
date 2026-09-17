@@ -39,6 +39,7 @@ def _arm_happy_path(mock_client, workunit_id: int = 42) -> None:
         [{}],  # parameters
         [{}],  # links
         [{}],  # dataset
+        [{}],  # executables
         _complete_response(workunit_id),
     ]
 
@@ -52,6 +53,7 @@ def _params(**overrides) -> CreateWorkunitParams:
         resources={"r": "base64"},
         links={"GitHub": "https://example.com"},
         dataset=WorkunitDataset(name="results", base64=_b64(DATASET_CSV)),
+        executables={"generate.py": "c2NyaXB0"},
     )
     defaults.update(overrides)
     return CreateWorkunitParams(**defaults)
@@ -70,13 +72,14 @@ def test_create_workunit_happy_path(mock_client):
 
     assert workunit.id == 42
     save_calls = mock_client.save.call_args_list
-    assert len(save_calls) == 6
+    assert len(save_calls) == 7
     assert save_calls[0].args[0] == "workunit"
     assert save_calls[1].args[0] == "resource"
     assert save_calls[2].args[0] == "parameter"
     assert save_calls[3].args[0] == "link"
     assert save_calls[4].args[0] == "dataset"
-    assert save_calls[5].args == ("workunit", {"id": 42, "status": "available"})
+    assert save_calls[5].args[0] == "executable"
+    assert save_calls[6].args == ("workunit", {"id": 42, "status": "available"})
 
 
 def test_create_workunit_save_payloads(mock_client):
@@ -130,6 +133,10 @@ def test_create_workunit_save_payloads(mock_client):
             "containerid": 100,
             "workunitid": 42,
         },
+    )
+    assert save_calls[5].args == (
+        "executable",
+        [{"name": "generate.py", "context": "WORKUNIT", "workunitid": 42, "base64": "c2NyaXB0"}],
     )
 
 
@@ -186,11 +193,12 @@ def test_create_workunit_audit_attributes_default_empty(mock_client):
         (2, ["workunit", "resource", "parameter"]),
         (3, ["workunit", "resource", "parameter", "link"]),
         (4, ["workunit", "resource", "parameter", "link", "dataset"]),
+        (5, ["workunit", "resource", "parameter", "link", "dataset", "executable"]),
     ],
 )
 def test_create_workunit_cleanup_on_failure(mock_client, fail_step, expected_endpoints_before_failure):
     boom = RuntimeError("boom")
-    responses: list = [_initial_response(99), [{}], [{}], [{}], [{}]]
+    responses: list = [_initial_response(99), [{}], [{}], [{}], [{}], [{}]]
     responses[fail_step] = boom
     # cleanup save returns something innocuous
     responses.append([{}])
@@ -277,6 +285,23 @@ class TestDataset:
 
         payload = mock_client.save.call_args_list[4].args[1]
         assert payload["attribute"][1] == {"name": "value", "position": 2, "type": "String"}
+
+
+class TestExecutables:
+    """`executables` are saved as `context: "WORKUNIT"` executables of the new workunit."""
+
+    def test_params_accepts_executables_only(self):
+        params = CreateWorkunitParams(container_id=1, application_id=2, workunit_name="x", executables={"s.py": "eA=="})
+
+        assert params.executables == {"s.py": "eA=="}
+
+    def test_skips_executable_save_when_absent(self, mock_client):
+        _arm_happy_path(mock_client, workunit_id=42)
+
+        create_workunit(mock_client, _params(executables={}))
+
+        endpoints = [call.args[0] for call in mock_client.save.call_args_list]
+        assert "executable" not in endpoints
 
 
 class TestInputDataset:

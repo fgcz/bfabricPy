@@ -8,7 +8,6 @@ import argparse
 
 from bfabric import Bfabric
 
-
 # Copyright (C) 2014 Functional Genomics Center Zurich ETHZ|UZH. All rights reserved.
 #
 # Authors:

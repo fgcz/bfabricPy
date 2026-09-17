@@ -8,7 +8,7 @@ An `app.yml` has two top-level sections:
 
 ```yaml
 bfabric:
-  app_runner: "0.2.1"
+  app_runner: "0.8.0"
 
 versions:
   - version: "1.0.0"

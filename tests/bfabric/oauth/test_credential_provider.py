@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import pickle
 import threading
 import time
 
@@ -395,3 +396,49 @@ class TestCacheLoginToken:
         assert cached["scope"] == "api:read"
         # expires_in is normalized to an absolute expires_at so `auth status` can report freshness.
         assert isinstance(cached["expires_at"], (int, float))
+
+
+class TestPickle:
+    """The provider is pickled as part of a Bfabric client, so both grants must survive a round trip.
+
+    Constructed without the mocked session: pickling exercises the real ``OAuth2Session`` rebuild.
+    """
+
+    def test_client_credentials_round_trip(self):
+        provider = OAuthCredentialProvider(
+            client_id="test-id",
+            client_secret="test-secret",
+            token_url="https://example.com/rest/oauth/token",
+            scope="api:read",
+        )
+        restored = pickle.loads(pickle.dumps(provider))
+        assert restored._client_id == "test-id"
+        assert restored._client_secret == "test-secret"
+        assert restored._grant_type == "client_credentials"
+        assert restored._scope == "api:read"
+        assert restored._token_url == "https://example.com/rest/oauth/token"
+
+    def test_refresh_token_round_trip_keeps_token(self):
+        provider = OAuthCredentialProvider(
+            client_id="test-id",
+            client_secret="",
+            token_url="https://example.com/rest/oauth/token",
+            scope="",
+            grant_type="refresh_token",
+            token={"access_token": "access", "refresh_token": "refresh"},
+        )
+        restored = pickle.loads(pickle.dumps(provider))
+        assert restored._grant_type == "refresh_token"
+        assert dict(restored._session.token)["access_token"] == "access"
+        assert dict(restored._session.token)["refresh_token"] == "refresh"
+
+    def test_cache_path_survives(self, tmp_path):
+        cache_path = tmp_path / "token.json"
+        provider = OAuthCredentialProvider(
+            client_id="test-id",
+            client_secret="test-secret",
+            token_url="https://example.com/rest/oauth/token",
+            scope="",
+            token_cache_path=cache_path,
+        )
+        assert pickle.loads(pickle.dumps(provider))._token_cache_path == cache_path

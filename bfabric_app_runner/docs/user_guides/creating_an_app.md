@@ -8,7 +8,7 @@ An `app.yml` file has two top-level sections:
 
 ```yaml
 bfabric:
-  app_runner: 0.2.1
+  app_runner: 0.8.0
 
 versions:
   - version:
@@ -28,7 +28,7 @@ versions:
 : Top-level configuration for B-Fabric integration.
 
 `app_runner`
-: The app-runner version to pull from PyPI (e.g. `"0.2.1"`).
+: The app-runner version to pull from PyPI (e.g. `"0.8.0"`).
 
 `workflow_template_step_id`
 : Optional. An integer identifying a workflow template step.

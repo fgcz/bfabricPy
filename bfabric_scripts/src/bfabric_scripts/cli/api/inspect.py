@@ -26,10 +26,8 @@ def _collect_namespaces(signature: dict[str, ParameterModel]) -> dict[str, str]:
     for param in signature.values():
         _collect_namespaces_from_fields(param.children, namespaces_set)
 
-    # Start with known namespaces
     namespaces = {prefix: uri for prefix, uri in NAMESPACES.items() if uri in namespaces_set}
 
-    # Add unknown namespaces with generic prefixes
     counter = 0
     for ns in sorted(namespaces_set - set(NAMESPACE_URIS.keys())):
         namespaces[f"ns{counter}"] = ns
@@ -39,12 +37,7 @@ def _collect_namespaces(signature: dict[str, ParameterModel]) -> dict[str, str]:
 
 
 def _collect_namespaces_from_fields(fields: list[FieldModel], namespaces_set: set[str]) -> None:
-    """Recursively collect namespaces from fields.
-
-    Args:
-        fields: List of FieldModel instances
-        namespaces_set: Set to collect namespace URIs
-    """
+    """Recursively collects namespace URIs from *fields* into *namespaces_set*."""
     for field in fields:
         if isinstance(field.type, tuple) and len(field.type) == 2:
             _, namespace = field.type
@@ -64,15 +57,9 @@ def _format_type(field_type: str | tuple[str, str]) -> str:
 
 
 def display_signature(signature: dict[str, ParameterModel]) -> None:
-    """Pretty-print a parsed method signature with Rich formatting.
-
-    Args:
-        signature: Dictionary mapping parameter names to ParameterModel instances
-    """
-    # Collect all namespaces used in the signature
+    """Pretty-prints a parsed method signature with Rich formatting."""
     namespaces = _collect_namespaces(signature)
 
-    # Display namespace mappings
     if namespaces:
         console.print("\n[bold]Namespaces:[/bold]")
         for prefix, uri in sorted(namespaces.items()):
@@ -93,14 +80,11 @@ def _display_fields(fields: list[FieldModel], indent: int) -> None:
     prefix = "  " * indent
 
     for field in fields:
-        # Format the type with namespace prefix
         formatted_type = _format_type(field.type)
 
-        # Add [] suffix for multi-occurrence fields (lists)
         if field.multi_occurrence:
             formatted_type = f"{formatted_type}[]"
 
-        # Add red asterisk for required fields
         required_marker = " [red]*[/red]" if field.required else ""
 
         console.print(f"{prefix}- {field.name}: [italic]{formatted_type}[/italic]{required_marker}")
