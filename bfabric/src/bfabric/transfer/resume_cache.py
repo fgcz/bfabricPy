@@ -26,7 +26,7 @@ import hashlib
 import json
 import os
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, final
 
@@ -35,7 +35,7 @@ from loguru import logger
 from bfabric.transfer._generic.origin import same_origin
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
 DEFAULT_RESUME_TTL_SECONDS = 2 * 24 * 60 * 60
 """How long a saved URL is considered usable, matching a typical tusd upload-expiry configuration.
@@ -76,6 +76,7 @@ class ResumeEntry:
     """One interrupted upload: where to continue it, and which records it belongs to."""
 
     url: str
+    """Where to continue the upload; empty when its resource exists but no transfer has started."""
     workunit_id: int
     resource_id: int
     container_id: int
@@ -89,7 +90,32 @@ class ResumeEntry:
     Reused rather than recreated on adoption: the hooks key status off ``jobId``, and the URL's copy
     of it cannot be repointed.
     """
+    import_resource_id: int | None = None
+    """The import record ``create-resources`` made for the resource; the token request needs it again on resume."""
+    completed: bool = False
+    """The file finished transferring, but its run has not ended yet.
+
+    Kept so a run interrupted later still knows this file is done: without it the next run sees a file
+    with no entry, asks ``create-resources`` for a resource that already exists, and the server
+    answers 409.
+    """
     stored_at: float = 0.0
+
+
+@final
+@dataclass(frozen=True)
+class PendingUpload:
+    """A resource created for a file whose transfer has not started, so no tus URL exists yet."""
+
+    md5: str
+    path: str
+    workunit_id: int
+    resource_id: int
+    container_id: int
+    application_id: int | None = None
+    storage_path: str | None = None
+    job_id: int | None = None
+    import_resource_id: int | None = None
 
 
 @final
@@ -162,6 +188,7 @@ class ResumeCache:
         application_id: int | None = None,
         storage_path: str | None = None,
         job_id: int | None = None,
+        import_resource_id: int | None = None,
     ) -> None:
         """Save the resume point for ``md5``, pruning entries past the TTL.
 
@@ -178,8 +205,44 @@ class ResumeCache:
             application_id=application_id,
             storage_path=storage_path,
             job_id=job_id,
+            import_resource_id=import_resource_id,
             stored_at=self._now(),
         )
+        self._write(entries)
+
+    def store_pending(self, uploads: Sequence[PendingUpload]) -> None:
+        """Record resources that exist but have no upload URL yet, as entries with an empty ``url``.
+
+        ``create-resources`` makes them all up front, so a run interrupted before reaching some file
+        leaves resources the server will refuse to create again (409). Without an entry the next run
+        cannot tell those files already have one.
+        """
+        if not uploads:
+            return
+        now = self._now()
+        entries = {key: value for key, value in self._load().items() if not self._expired(value.stored_at)}
+        for upload in uploads:
+            entries[_entry_key(upload.md5, upload.path)] = ResumeEntry(
+                url="",
+                path=upload.path,
+                workunit_id=upload.workunit_id,
+                resource_id=upload.resource_id,
+                container_id=upload.container_id,
+                application_id=upload.application_id,
+                storage_path=upload.storage_path,
+                job_id=upload.job_id,
+                import_resource_id=upload.import_resource_id,
+                stored_at=now,
+            )
+        self._write(entries)
+
+    def mark_completed(self, *, md5: str, path: str) -> None:
+        """Record that this file's transfer finished, keeping its entry until :meth:`discard`."""
+        entries = self._load()
+        entry = entries.get(_entry_key(md5, path))
+        if entry is None:
+            return
+        entries[_entry_key(md5, path)] = replace(entry, completed=True)
         self._write(entries)
 
     def discard(self, *, md5: str, path: str) -> None:
@@ -225,6 +288,8 @@ class ResumeCache:
             application_id = fields.get("application_id")
             storage_path = fields.get("storage_path")
             job_id = fields.get("job_id")
+            import_resource_id = fields.get("import_resource_id")
+            completed = fields.get("completed")
             if (
                 isinstance(url, str)
                 and isinstance(stored_at, int | float)
@@ -241,6 +306,8 @@ class ResumeCache:
                     application_id=application_id if isinstance(application_id, int) else None,
                     storage_path=storage_path if isinstance(storage_path, str) else None,
                     job_id=job_id if isinstance(job_id, int) else None,
+                    import_resource_id=import_resource_id if isinstance(import_resource_id, int) else None,
+                    completed=completed is True,
                     stored_at=float(stored_at),
                 )
         return parsed
@@ -259,6 +326,8 @@ class ResumeCache:
                     "application_id": entry.application_id,
                     "storage_path": entry.storage_path,
                     "job_id": entry.job_id,
+                    "import_resource_id": entry.import_resource_id,
+                    "completed": entry.completed,
                     "stored_at": entry.stored_at,
                 }
                 for md5, entry in entries.items()

@@ -8,6 +8,7 @@ import pytest
 
 from bfabric.transfer.resume_cache import (
     DEFAULT_RESUME_TTL_SECONDS,
+    PendingUpload,
     ResumeCache,
     compute_resume_cache_path,
 )
@@ -19,7 +20,17 @@ APPLICATION_ID = 5
 PATH = "/data/probe.raw"
 
 
-def _store(cache, *, md5, url=URL, workunit_id=900, resource_id=700, container_id=CONTAINER_ID, path=PATH):
+def _store(
+    cache,
+    *,
+    md5,
+    url=URL,
+    workunit_id=900,
+    resource_id=700,
+    container_id=CONTAINER_ID,
+    path=PATH,
+    import_resource_id=800,
+):
     """Store an entry, defaulting the records a resumed upload must continue into."""
     cache.store(
         md5=md5,
@@ -29,6 +40,7 @@ def _store(cache, *, md5, url=URL, workunit_id=900, resource_id=700, container_i
         resource_id=resource_id,
         container_id=container_id,
         application_id=APPLICATION_ID,
+        import_resource_id=import_resource_id,
     )
 
 
@@ -96,6 +108,51 @@ class TestRoundTrip:
         _store(cache, md5="aaa", url=URL + "-new")
 
         assert _url(cache, md5="aaa", endpoint=ENDPOINT) == URL + "-new"
+
+    def test_import_resource_id_round_trips(self, cache_path, clock):
+        cache = ResumeCache(cache_path, now=clock)
+        _store(cache, md5="aaa", import_resource_id=812)
+        entry = _lookup(cache, md5="aaa")
+        assert entry is not None and entry.import_resource_id == 812
+
+    def test_store_pending_records_resources_without_a_url(self, cache_path, clock):
+        cache = ResumeCache(cache_path, now=clock)
+        cache.store_pending(
+            [
+                PendingUpload(
+                    md5="aaa",
+                    path=PATH,
+                    workunit_id=900,
+                    resource_id=700,
+                    container_id=CONTAINER_ID,
+                    application_id=APPLICATION_ID,
+                    import_resource_id=800,
+                )
+            ]
+        )
+
+        entry = _lookup(ResumeCache(cache_path, now=clock), md5="aaa")
+        assert entry is not None
+        assert (entry.url, entry.workunit_id, entry.resource_id, entry.import_resource_id) == ("", 900, 700, 800)
+
+    def test_store_pending_with_nothing_writes_nothing(self, cache_path, clock):
+        ResumeCache(cache_path, now=clock).store_pending([])
+        assert not cache_path.exists()
+
+    def test_mark_completed_keeps_the_entry_and_flags_it(self, cache_path, clock):
+        cache = ResumeCache(cache_path, now=clock)
+        _store(cache, md5="aaa")
+        assert _lookup(cache, md5="aaa").completed is False
+
+        cache.mark_completed(md5="aaa", path=PATH)
+
+        entry = _lookup(ResumeCache(cache_path, now=clock), md5="aaa")
+        assert entry is not None and entry.completed is True and entry.url == URL
+
+    def test_mark_completed_on_an_absent_entry_is_a_no_op(self, cache_path, clock):
+        cache = ResumeCache(cache_path, now=clock)
+        cache.mark_completed(md5="missing", path=PATH)
+        assert not cache_path.exists()
 
 
 class TestInvalidation:

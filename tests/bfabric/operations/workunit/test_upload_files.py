@@ -8,6 +8,8 @@ are touched. The tests exercise the orchestration and the failure-cleanup path.
 
 from __future__ import annotations
 
+import json
+
 from pathlib import Path
 
 import pytest
@@ -24,6 +26,7 @@ from bfabric.operations.workunit import (
 from bfabric.operations.workunit.upload import _describe_dropped
 from bfabric.transfer import CreatedResource, DuplicateResult, FileInfo, TransferError, UploadTokenResult
 from bfabric.transfer.errors import BfabricTransferError, ScopeError
+from bfabric.transfer.hash_cache import HashCache
 from bfabric.transfer.resume_cache import ResumeCache
 
 WORKUNIT_ID = 555
@@ -69,6 +72,9 @@ def isolate_resume_cache(mocker, tmp_path):
     Autouse because resuming is on by default: any test that transfers a file would otherwise write
     to the developer's home directory and leak state between runs.
     """
+    mocker.patch(
+        "bfabric.operations.workunit.upload.compute_hash_cache_path", return_value=tmp_path / "default-hashes.json"
+    )
     return mocker.patch(
         "bfabric.operations.workunit.upload.compute_resume_cache_path",
         return_value=tmp_path / "default-resume.json",
@@ -194,6 +200,68 @@ class TestHappyPath:
         assert upload.resource_id == 10
         assert upload.storage_path == "/store/a.txt"
         assert upload.import_resource_id == 90
+
+
+class TestHashing:
+    @staticmethod
+    def _setup(rest, *names):
+        rest.create_resources.return_value = _created(*names)
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+    def test_parallel_hashing_keeps_input_order(self, mock_client, rest, mock_collect, mock_send):
+        names = ["a.txt", "b.txt", "c.txt", "d.txt"]
+        self._setup(rest, *names)
+
+        _ = upload_files(mock_client, _params(*(f"/src/{n}" for n in names)), hash_workers=4)
+
+        assert _created_names(rest) == names
+
+    def test_hash_cache_is_passed_to_the_collector(self, tmp_path, mock_client, rest, mock_collect, mock_send):
+        self._setup(rest, "a.txt")
+        cache_path = tmp_path / "hashes.json"
+
+        _ = upload_files(mock_client, _params("/src/a.txt"), hash_cache=cache_path)
+
+        assert isinstance(mock_collect.call_args.kwargs["hash_cache"], HashCache)
+
+    def test_on_hash_start_gets_the_totals_before_hashing(self, mocker, mock_client, rest, mock_collect, mock_send):
+        self._setup(rest, "a.txt")
+        mocker.patch("bfabric.operations.workunit.upload.total_size", return_value=(3, 300))
+        events: list[object] = []
+        mock_collect.side_effect = lambda paths, **_kw: events.append("hash") or _file_infos("a.txt")
+
+        _ = upload_files(
+            mock_client, _params("/src/a.txt"), on_hash_start=lambda files, size: events.append((files, size))
+        )
+
+        assert events == [(3, 300), "hash"]
+
+    def test_no_hash_cache_passes_none(self, mock_client, rest, mock_collect, mock_send):
+        self._setup(rest, "a.txt")
+
+        _ = upload_files(mock_client, _params("/src/a.txt"), hash_cache=None)
+
+        assert mock_collect.call_args.kwargs["hash_cache"] is None
+
+    def test_cache_is_flushed_when_hashing_is_interrupted(self, tmp_path, mocker, mock_client, rest, mock_collect):
+        flush = mocker.patch("bfabric.operations.workunit.upload.HashCache.flush")
+        mock_collect.side_effect = KeyboardInterrupt
+
+        with pytest.raises(KeyboardInterrupt):
+            upload_files(mock_client, _params("/src/a.txt"), hash_cache=tmp_path / "hashes.json")
+
+        flush.assert_called_once()
+
+
+class TestChunkSize:
+    @pytest.mark.parametrize(("chunk_size", "expected"), [(None, 32 * 1024 * 1024), (8 * 1024 * 1024, 8 * 1024 * 1024)])
+    def test_forwarded_to_the_transfer(self, mock_client, rest, mock_send, chunk_size, expected):
+        rest.create_resources.return_value = _created("a.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        _ = upload_files(mock_client, _params("/src/a.txt"), chunk_size=chunk_size)
+
+        assert mock_send.call_args.kwargs["chunk_size"] == expected
 
 
 class TestExcludeNames:
@@ -1041,6 +1109,124 @@ class TestResumeCache:
 
         assert mock_send.call_args.kwargs.get("resume_url") == "https://tus/abc"
 
+    def test_resumed_run_requests_a_token_with_the_original_import_resource_ids(
+        self, tmp_path, mock_client, rest, mock_send
+    ):
+        """The token request needs one import id per resource id; a resumed file has no
+        ``create-resources`` record to take it from, so the cache must carry it."""
+        self._setup(rest)
+        cache = tmp_path / "resume.json"
+
+        def _report_then_fail(*a, **kw):
+            kw["on_url"]("https://tus/abc")
+            raise TransferError("connection reset")
+
+        mock_send.side_effect = _report_then_fail
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+        mock_send.side_effect = None
+        rest.get_upload_token.reset_mock()
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+        assert rest.get_upload_token.call_args.args[1:3] == ([10], [90])
+
+    def test_entry_without_import_resource_id_is_not_resumed(self, tmp_path, mock_client, rest, mock_send):
+        """Entries saved before the id was recorded cannot mint a valid token; upload afresh."""
+        self._setup(rest)
+        cache = tmp_path / "resume.json"
+
+        def _report_then_fail(*a, **kw):
+            kw["on_url"]("https://tus/abc")
+            raise TransferError("connection reset")
+
+        mock_send.side_effect = _report_then_fail
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+        document = json.loads(cache.read_text())
+        for entry in document["entries"].values():
+            del entry["import_resource_id"]
+        cache.write_text(json.dumps(document))
+
+        mock_send.side_effect = None
+        rest.create_resources.reset_mock()
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+        rest.create_resources.assert_called_once()
+        assert mock_send.call_args.kwargs.get("resume_url") is None
+
+    def test_resuming_never_creates_a_resource_twice(self, tmp_path, mock_client, rest, mock_send):
+        """a.txt finished, b.txt was in flight, c.txt never started -- all three were created up front.
+
+        The server answers 409 to a second ``create-resources`` for a path, so a resumed run must
+        not ask again for any of them, including the file that never got a transfer URL.
+        """
+        cache = tmp_path / "resume.json"
+        params = _params("/src/a.txt", "/src/b.txt", "/src/c.txt")
+        created = {c.name: c for c in _created("a.txt", "b.txt", "c.txt")}
+        already_created: set[str] = set()
+
+        def _create(_workunit_id, infos):
+            for fi in infos:
+                if fi.name in already_created:
+                    raise BfabricTransferError(f"create-resources REST call failed (409): {fi.name} exists")
+            already_created.update(fi.name for fi in infos)
+            return [created[fi.name] for fi in infos]
+
+        rest.create_resources.side_effect = _create
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        def _first_run(sink, path, *args, **kw):
+            if path.name == "c.txt":
+                raise AssertionError("c.txt must not be reached")
+            kw["on_url"](f"https://tus/{path.name}")
+            if path.name == "b.txt":
+                raise KeyboardInterrupt
+
+        mock_send.side_effect = _first_run
+        with pytest.raises(KeyboardInterrupt):
+            upload_files(mock_client, params, resume_cache=cache)
+
+        mock_send.reset_mock(side_effect=True)
+        rest.get_upload_token.reset_mock()
+        summary = upload_files(mock_client, params, resume_cache=cache)
+
+        assert rest.create_resources.call_count == 1
+        assert [call.args[1].name for call in mock_send.call_args_list] == ["b.txt", "c.txt"]
+        assert mock_send.call_args_list[0].kwargs["resume_url"] == "https://tus/b.txt"
+        assert mock_send.call_args_list[1].kwargs["resume_url"] is None
+        assert rest.get_upload_token.call_args.args[1:3] == ([11, 12], [91, 92])
+        assert sorted(u.filename for u in summary.uploads) == ["a.txt", "b.txt", "c.txt"]
+        assert json.loads(cache.read_text())["entries"] == {}
+
+    def test_a_failed_run_keeps_the_workunit_adoptable_while_a_resume_url_remains(
+        self, tmp_path, mock_client, rest, mock_send
+    ):
+        """One file failed mid-transfer (URL saved), another failed before it got one: both stay in the
+        workunit, so the retry must adopt both instead of creating either again."""
+        cache = tmp_path / "resume.json"
+        rest.create_resources.return_value = _created("a.txt", "b.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        def _send(sink, path, *args, **kw):
+            if path.name == "a.txt":
+                kw["on_url"]("https://tus/a")
+            raise TransferError("connection reset")
+
+        mock_send.side_effect = _send
+        _ = upload_files(mock_client, _params("/src/a.txt", "/src/b.txt"), resume_cache=cache)
+
+        entries = json.loads(cache.read_text())["entries"]
+        assert len(entries) == 2
+
+    def test_a_run_that_ends_without_any_resume_url_forgets_its_entries(self, tmp_path, mock_client, rest, mock_send):
+        cache = tmp_path / "resume.json"
+        rest.create_resources.return_value = _created("a.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+        mock_send.side_effect = TransferError("refused")
+
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+        assert json.loads(cache.read_text())["entries"] == {}
+
     def test_entry_is_discarded_once_the_file_transfers(self, tmp_path, mock_client, rest, mock_send):
         self._setup(rest)
         cache = tmp_path / "resume.json"
@@ -1062,6 +1248,7 @@ class TestResumeCache:
             workunit_id=WORKUNIT_ID,
             resource_id=10,
             container_id=100,
+            import_resource_id=90,
         )
         attempts: list[str | None] = []
 
@@ -1098,6 +1285,7 @@ class TestResumeCache:
             workunit_id=WORKUNIT_ID,
             resource_id=10,
             container_id=100,
+            import_resource_id=90,
         )
 
         _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
@@ -1304,6 +1492,7 @@ class TestResumeTargetsTheRecordedResource:
             container_id=100,
             application_id=5,
             storage_path=f"/store/{name}",
+            import_resource_id=resource_id + 80,
         )
 
     def test_two_files_with_identical_bytes_keep_their_own_resources(

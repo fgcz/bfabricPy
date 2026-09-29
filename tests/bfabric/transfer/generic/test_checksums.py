@@ -9,6 +9,7 @@ from bfabric.transfer._generic.checksums import (
     compute_file_info,
     md5_checksum,
     resolve_paths,
+    total_size,
 )
 
 
@@ -18,6 +19,68 @@ def test_md5_checksum(tmp_path: Path) -> None:
 
     # Literal md5 of b"some bytes to hash" -- an independent oracle, not a re-run of the code.
     assert md5_checksum(f) == "03d01978f780dc8c34c0e279df48a8ce"
+
+
+class TestHashProgress:
+    def test_md5_reports_progress_and_same_digest(self, tmp_path: Path, mocker) -> None:
+        mocker.patch("bfabric.transfer._generic.checksums._HASH_CHUNK_SIZE", 4)
+        f = tmp_path / "data.bin"
+        f.write_bytes(b"some bytes to hash")
+        calls: list[tuple[int, int]] = []
+
+        digest = md5_checksum(f, lambda done, total: calls.append((done, total)))
+
+        assert digest == "03d01978f780dc8c34c0e279df48a8ce"
+        assert calls == [(4, 18), (8, 18), (12, 18), (16, 18), (18, 18)]
+
+    def test_collect_file_infos_reports_relative_name(self, tmp_path: Path) -> None:
+        (tmp_path / "sub").mkdir()
+        (tmp_path / "sub" / "a.txt").write_bytes(b"abc")
+        calls: list[tuple[str, int, int]] = []
+
+        collect_file_infos([tmp_path], on_hash_progress=lambda *args: calls.append(args))
+
+        assert calls == [("sub/a.txt", 3, 3)]
+
+
+class TestHashCacheUse:
+    def test_second_call_does_not_re_read_the_file(self, tmp_path: Path, mocker) -> None:
+        from bfabric.transfer.hash_cache import HashCache
+
+        f = tmp_path / "data.bin"
+        f.write_bytes(b"some bytes to hash")
+        cache = HashCache(tmp_path / "hashes.json")
+        first = compute_file_info(f, hash_cache=cache)
+
+        spy = mocker.patch("bfabric.transfer._generic.checksums.md5_checksum")
+        second = compute_file_info(f, hash_cache=cache)
+
+        spy.assert_not_called()
+        assert second == first
+
+    def test_cache_hit_reports_the_file_as_fully_hashed(self, tmp_path: Path) -> None:
+        from bfabric.transfer.hash_cache import HashCache
+
+        f = tmp_path / "data.bin"
+        f.write_bytes(b"some bytes to hash")
+        cache = HashCache(tmp_path / "hashes.json")
+        _ = compute_file_info(f, hash_cache=cache)
+        calls: list[tuple[str, int, int]] = []
+
+        _ = compute_file_info(f, on_hash_progress=lambda *args: calls.append(args), hash_cache=cache)
+
+        assert calls == [("data.bin", 18, 18)]
+
+    def test_modified_file_is_re_hashed(self, tmp_path: Path) -> None:
+        from bfabric.transfer.hash_cache import HashCache
+
+        f = tmp_path / "data.bin"
+        f.write_bytes(b"one")
+        cache = HashCache(tmp_path / "hashes.json")
+        before = compute_file_info(f, hash_cache=cache)
+        f.write_bytes(b"three")
+
+        assert compute_file_info(f, hash_cache=cache).md5 != before.md5
 
 
 def test_compute_file_info_basename(tmp_path: Path) -> None:
@@ -116,3 +179,18 @@ def test_collect_file_infos_dir_excluded_to_empty_raises(tmp_path: Path) -> None
     # silently creating a workunit with no resources.
     with pytest.raises(ValueError):
         collect_file_infos([d], exclude_names={".marker"})
+
+
+class TestTotalSize:
+    def test_counts_files_and_bytes_across_files_and_directories(self, tmp_path: Path) -> None:
+        (tmp_path / "d").mkdir()
+        (tmp_path / "d" / "a.txt").write_bytes(b"abc")
+        (tmp_path / "b.txt").write_bytes(b"12345")
+
+        assert total_size([tmp_path / "d", tmp_path / "b.txt"]) == (2, 8)
+
+    def test_exclude_names_are_left_out(self, tmp_path: Path) -> None:
+        (tmp_path / "a.txt").write_bytes(b"abc")
+        (tmp_path / ".marker").write_bytes(b"zz")
+
+        assert total_size([tmp_path], exclude_names={".marker"}) == (1, 3)
