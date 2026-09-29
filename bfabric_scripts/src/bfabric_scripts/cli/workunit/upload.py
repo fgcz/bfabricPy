@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import threading
 from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, final
@@ -19,6 +20,7 @@ from rich.progress import (
     TaskProgressColumn,
     TextColumn,
     TimeElapsedColumn,
+    TimeRemainingColumn,
     TransferSpeedColumn,
 )
 
@@ -104,6 +106,7 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
             ),
             on_progress=reporter.on_progress if reporter else None,
             on_hash_progress=reporter.on_hash_progress if reporter else None,
+            on_hash_start=reporter.on_hash_start if reporter else None,
             hash_workers=params.hash_workers,
             chunk_size=params.chunk_size * 1024 * 1024 if params.chunk_size is not None else None,
             hash_cache=compute_hash_cache_path().expanduser() if params.hash_cache else None,
@@ -149,12 +152,23 @@ class _UploadProgressReporter:
         self._file_tasks: dict[str, TaskID] = {}
         self._total_files = 0
         self._done = 0
+        # Hashing runs on several threads, so its overall total is guarded.
+        self._hash_lock = threading.Lock()
+        self._hash_total_task: TaskID | None = None
+        self._hash_total = 0
+        self._hash_done = 0
+        self._hash_file_done: dict[str, int] = {}
 
     def on_start(self, total_files: int, _total_bytes: int) -> None:
         # _total_bytes is part of the on_start contract but unused: the overall bar is file-count only
         # (a byte-% / ETA bar would consume it -- see the CLI plan). Underscore marks it intentional.
         self._total_files = total_files
         self._overall_task = self._overall.add_task("Overall", total=total_files)
+
+    def on_hash_start(self, _total_files: int, total_bytes: int) -> None:
+        if total_bytes > 0:
+            self._hash_total = total_bytes
+            self._hash_total_task = self._current.add_task("Hashing (all files)", total=total_bytes)
 
     def on_hash_progress(self, filename: str, bytes_done: int, total: int) -> None:
         key = f"hash:{filename}"
@@ -165,6 +179,15 @@ class _UploadProgressReporter:
         self._current.update(task_id, completed=bytes_done, total=total)
         if bytes_done >= total:
             self._current.remove_task(self._file_tasks.pop(key))
+        if self._hash_total_task is not None:
+            with self._hash_lock:
+                delta = bytes_done - self._hash_file_done.get(filename, 0)
+                self._hash_file_done[filename] = bytes_done
+                self._hash_done += delta
+                self._current.advance(self._hash_total_task, delta)
+                if self._hash_done >= self._hash_total:
+                    self._current.remove_task(self._hash_total_task)
+                    self._hash_total_task = None
 
     def on_progress(self, filename: str, bytes_done: int, total: int) -> None:
         task_id = self._file_tasks.get(filename)
@@ -209,6 +232,7 @@ def _upload_progress(*, enabled: bool) -> Iterator[_UploadProgressReporter | Non
         TaskProgressColumn(),
         DownloadColumn(),
         TransferSpeedColumn(),
+        TimeRemainingColumn(),
         console=console,
     )
     with Live(Group(overall, current), console=console, transient=True) as live:

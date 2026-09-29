@@ -24,6 +24,7 @@ from bfabric.transfer import (
     send_to_sink,
     tus_sink_for_resource,
 )
+from bfabric.transfer._generic.checksums import total_size
 from bfabric.transfer._generic.origin import same_origin
 from bfabric.transfer.hash_cache import HashCache, compute_hash_cache_path
 from bfabric.transfer.resume_cache import ResumeCache, ResumeEntry, compute_resume_cache_path
@@ -194,6 +195,7 @@ def upload_files(
     *,
     on_progress: FileProgressCallback | None = None,
     on_hash_progress: FileProgressCallback | None = None,
+    on_hash_start: UploadStartCallback | None = None,
     on_start: UploadStartCallback | None = None,
     on_file_done: FileDoneCallback | None = None,
     on_url: FileUrlCallback | None = None,
@@ -241,6 +243,9 @@ def upload_files(
     :param on_progress: optional ``(filename, bytes_done, total)`` per-chunk progress callback.
     :param on_hash_progress: optional ``(filename, bytes_done, total)`` callback fired while each file's MD5 is
         computed, before anything is created or transferred.
+    :param on_hash_start: optional ``(total_files, total_bytes)`` callback fired once before any file is hashed,
+        for an overall hashing total. Every file, including one whose MD5 comes from the hash cache, then
+        reaches ``bytes_done == total`` in ``on_hash_progress``.
     :param on_start: optional ``(total_files, total_bytes)`` callback fired once after dedup, just
         before the first transfer (never fired when everything is skipped as a duplicate). It reports
         the post-dedup file set, which is decided before ``create-resources`` runs: should the server
@@ -293,6 +298,8 @@ def upload_files(
     check_upload_scope(client)
     hash_cache_path = compute_hash_cache_path().expanduser() if hash_cache is _USE_DEFAULT_HASH_CACHE else hash_cache
     hashes = HashCache(hash_cache_path) if hash_cache_path is not None else None
+    if on_hash_start is not None:
+        on_hash_start(*total_size([entry.path for entry in params.files], exclude_names=exclude_names))
     try:
         file_infos, policies = _collect_entries(params, exclude_names, on_hash_progress, hashes, hash_workers)
     finally:

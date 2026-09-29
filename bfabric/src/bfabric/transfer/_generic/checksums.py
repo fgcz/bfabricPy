@@ -61,6 +61,16 @@ def resolve_paths(paths: list[Path]) -> list[Path]:
     return result
 
 
+def total_size(paths: list[Path], *, exclude_names: Collection[str] | None = None) -> tuple[int, int]:
+    """The number of files and total bytes :func:`collect_file_infos` would hash for ``paths``.
+
+    Only stats the files, so it is cheap next to hashing them; it lets a caller show an overall progress bar.
+    """
+    excluded = frozenset(exclude_names or ())
+    files = [f for f in resolve_paths(paths) if f.name not in excluded]
+    return len(files), sum(f.stat().st_size for f in files)
+
+
 def collect_file_infos(
     paths: list[Path],
     *,
@@ -114,7 +124,11 @@ def compute_file_info(
     # Stat before reading: a file that changes mid-hash then mismatches on the next lookup.
     stat = path.stat()
     md5 = hash_cache.get(path, size=stat.st_size, mtime_ns=stat.st_mtime_ns) if hash_cache is not None else None
-    if md5 is None:
+    if md5 is not None:
+        # Report the file as fully hashed, so an overall progress total still reaches 100%.
+        if on_hash_progress is not None:
+            on_hash_progress(name, stat.st_size, stat.st_size)
+    else:
         progress = (lambda done, total: on_hash_progress(name, done, total)) if on_hash_progress else None
         md5 = md5_checksum(path, progress)
         if hash_cache is not None:

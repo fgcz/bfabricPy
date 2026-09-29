@@ -224,6 +224,18 @@ class TestHashing:
 
         assert isinstance(mock_collect.call_args.kwargs["hash_cache"], HashCache)
 
+    def test_on_hash_start_gets_the_totals_before_hashing(self, mocker, mock_client, rest, mock_collect, mock_send):
+        self._setup(rest, "a.txt")
+        mocker.patch("bfabric.operations.workunit.upload.total_size", return_value=(3, 300))
+        events: list[object] = []
+        mock_collect.side_effect = lambda paths, **_kw: events.append("hash") or _file_infos("a.txt")
+
+        _ = upload_files(
+            mock_client, _params("/src/a.txt"), on_hash_start=lambda files, size: events.append((files, size))
+        )
+
+        assert events == [(3, 300), "hash"]
+
     def test_no_hash_cache_passes_none(self, mock_client, rest, mock_collect, mock_send):
         self._setup(rest, "a.txt")
 
