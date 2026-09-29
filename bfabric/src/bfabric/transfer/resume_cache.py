@@ -35,7 +35,7 @@ from loguru import logger
 from bfabric.transfer._generic.origin import same_origin
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
 
 DEFAULT_RESUME_TTL_SECONDS = 2 * 24 * 60 * 60
 """How long a saved URL is considered usable, matching a typical tusd upload-expiry configuration.
@@ -76,6 +76,7 @@ class ResumeEntry:
     """One interrupted upload: where to continue it, and which records it belongs to."""
 
     url: str
+    """Where to continue the upload; empty when its resource exists but no transfer has started."""
     workunit_id: int
     resource_id: int
     container_id: int
@@ -99,6 +100,22 @@ class ResumeEntry:
     answers 409.
     """
     stored_at: float = 0.0
+
+
+@final
+@dataclass(frozen=True)
+class PendingUpload:
+    """A resource created for a file whose transfer has not started, so no tus URL exists yet."""
+
+    md5: str
+    path: str
+    workunit_id: int
+    resource_id: int
+    container_id: int
+    application_id: int | None = None
+    storage_path: str | None = None
+    job_id: int | None = None
+    import_resource_id: int | None = None
 
 
 @final
@@ -191,6 +208,32 @@ class ResumeCache:
             import_resource_id=import_resource_id,
             stored_at=self._now(),
         )
+        self._write(entries)
+
+    def store_pending(self, uploads: Sequence[PendingUpload]) -> None:
+        """Record resources that exist but have no upload URL yet, as entries with an empty ``url``.
+
+        ``create-resources`` makes them all up front, so a run interrupted before reaching some file
+        leaves resources the server will refuse to create again (409). Without an entry the next run
+        cannot tell those files already have one.
+        """
+        if not uploads:
+            return
+        now = self._now()
+        entries = {key: value for key, value in self._load().items() if not self._expired(value.stored_at)}
+        for upload in uploads:
+            entries[_entry_key(upload.md5, upload.path)] = ResumeEntry(
+                url="",
+                path=upload.path,
+                workunit_id=upload.workunit_id,
+                resource_id=upload.resource_id,
+                container_id=upload.container_id,
+                application_id=upload.application_id,
+                storage_path=upload.storage_path,
+                job_id=upload.job_id,
+                import_resource_id=upload.import_resource_id,
+                stored_at=now,
+            )
         self._write(entries)
 
     def mark_completed(self, *, md5: str, path: str) -> None:

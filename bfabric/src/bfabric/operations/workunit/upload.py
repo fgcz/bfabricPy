@@ -27,7 +27,7 @@ from bfabric.transfer import (
 from bfabric.transfer._generic.checksums import total_size
 from bfabric.transfer._generic.origin import same_origin
 from bfabric.transfer.hash_cache import HashCache, compute_hash_cache_path
-from bfabric.transfer.resume_cache import ResumeCache, ResumeEntry, compute_resume_cache_path
+from bfabric.transfer.resume_cache import PendingUpload, ResumeCache, ResumeEntry, compute_resume_cache_path
 
 if TYPE_CHECKING:
     from collections.abc import Collection
@@ -360,7 +360,27 @@ def upload_files(
         resources_by_name = _adopted_resources(adopted, to_upload)
         if to_create:
             resources = rest.create_resources(workunit_id, to_create)
-            resources_by_name |= _pair_resources_to_files(resources, to_create)
+            created_by_name = _pair_resources_to_files(resources, to_create)
+            resources_by_name |= created_by_name
+            if cache is not None:
+                # Remember them now: they all exist from here on, whether or not this run reaches them.
+                cache.store_pending(
+                    [
+                        PendingUpload(
+                            md5=fi.md5,
+                            path=str(fi.path),
+                            workunit_id=workunit_id,
+                            resource_id=resource.id,
+                            container_id=container_id,
+                            application_id=params.application_id,
+                            storage_path=resource.storage_path,
+                            job_id=job_id,
+                            import_resource_id=resource.import_resource_id,
+                        )
+                        for fi in to_create
+                        if not (resource := created_by_name[fi.name]).linked
+                    ]
+                )
         # A linked resource already points at stored bytes and is created AVAILABLE, so it must be kept
         # out of both the token request and the transfer loop; sending it would push bytes for a
         # resource the server never expects an upload for.
@@ -437,8 +457,8 @@ def upload_files(
                 f"Upload to workunit {workunit_id} succeeded but marking it 'available' failed: {error}",
                 summary,
             ) from error
-    # The run has ended, so its finished files no longer need remembering; a rerun starts afresh.
-    _forget_completed(cache, to_upload, params, container_id)
+    # The run has ended: unless something is left to resume, a rerun starts afresh.
+    _forget_finished_run(cache, to_upload, params, container_id)
     return summary
 
 
@@ -489,18 +509,18 @@ def _adopted_uploads(
     return kept
 
 
-def _forget_completed(
+def _forget_finished_run(
     cache: ResumeCache | None, to_upload: list[FileInfo], params: UploadFilesParams, container_id: int
 ) -> None:
-    """Drop the entries of files that finished transferring, once the run that made them has ended."""
-    if cache is None:
+    """Drop this run's entries once it has ended, unless a saved URL still makes its workunit worth resuming.
+
+    While any URL remains, the next run adopts this workunit, and then needs every entry -- the
+    finished files and the never-started ones too -- to avoid creating their resources a second time.
+    """
+    if cache is None or _has_resumable(cache, to_upload, params, container_id):
         return
     for fi in to_upload:
-        entry = cache.lookup(
-            md5=fi.md5, path=str(fi.path), container_id=container_id, application_id=params.application_id
-        )
-        if entry is not None and entry.completed:
-            cache.discard(md5=fi.md5, path=str(fi.path))
+        cache.discard(md5=fi.md5, path=str(fi.path))
 
 
 def _adopted_job_id(adopted: Mapping[str, ResumeEntry]) -> int | None:
@@ -533,12 +553,18 @@ def _has_resumable(
     params: UploadFilesParams,
     container_id: int,
 ) -> bool:
-    """Whether any file left a resume URL behind, making this workunit worth keeping for a retry."""
+    """Whether any file left an unfinished resume URL behind, making this workunit worth keeping for a retry."""
     if cache is None:
         return False
     return any(
-        cache.lookup(md5=fi.md5, path=str(fi.path), container_id=container_id, application_id=params.application_id)
+        (
+            entry := cache.lookup(
+                md5=fi.md5, path=str(fi.path), container_id=container_id, application_id=params.application_id
+            )
+        )
         is not None
+        and bool(entry.url)
+        and not entry.completed
         for fi in to_upload
     )
 
@@ -943,7 +969,7 @@ def _resume_url_for(entry: ResumeEntry | None, filename: str, tus_endpoint: str)
     The same-origin check lives here rather than in the adoption lookup because the tus endpoint is
     only minted after the workunit to adopt has been chosen; a cross-origin URL costs a fresh upload.
     """
-    if entry is None:
+    if entry is None or not entry.url:
         return None
     if not same_origin(entry.url, tus_endpoint):
         logger.info("Saved URL for {} is cross-origin with {}; starting afresh.", filename, tus_endpoint)

@@ -8,6 +8,7 @@ import pytest
 
 from bfabric.transfer.resume_cache import (
     DEFAULT_RESUME_TTL_SECONDS,
+    PendingUpload,
     ResumeCache,
     compute_resume_cache_path,
 )
@@ -113,6 +114,30 @@ class TestRoundTrip:
         _store(cache, md5="aaa", import_resource_id=812)
         entry = _lookup(cache, md5="aaa")
         assert entry is not None and entry.import_resource_id == 812
+
+    def test_store_pending_records_resources_without_a_url(self, cache_path, clock):
+        cache = ResumeCache(cache_path, now=clock)
+        cache.store_pending(
+            [
+                PendingUpload(
+                    md5="aaa",
+                    path=PATH,
+                    workunit_id=900,
+                    resource_id=700,
+                    container_id=CONTAINER_ID,
+                    application_id=APPLICATION_ID,
+                    import_resource_id=800,
+                )
+            ]
+        )
+
+        entry = _lookup(ResumeCache(cache_path, now=clock), md5="aaa")
+        assert entry is not None
+        assert (entry.url, entry.workunit_id, entry.resource_id, entry.import_resource_id) == ("", 900, 700, 800)
+
+    def test_store_pending_with_nothing_writes_nothing(self, cache_path, clock):
+        ResumeCache(cache_path, now=clock).store_pending([])
+        assert not cache_path.exists()
 
     def test_mark_completed_keeps_the_entry_and_flags_it(self, cache_path, clock):
         cache = ResumeCache(cache_path, now=clock)
