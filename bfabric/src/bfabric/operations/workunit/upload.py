@@ -202,6 +202,7 @@ def upload_files(
     resume_cache: Path | None = _USE_DEFAULT_RESUME_CACHE,
     hash_cache: Path | None = _USE_DEFAULT_HASH_CACHE,
     hash_workers: int = 1,
+    chunk_size: int | None = None,
 ) -> UploadSummary:
     """Upload files to a B-Fabric workunit over tus, end to end.
 
@@ -269,6 +270,8 @@ def upload_files(
     :param hash_workers: how many entries are hashed concurrently (``1`` = sequentially). Each entry
         (a file or a directory) is hashed by one worker, so this only helps with several entries.
         ``on_hash_progress`` is then called from worker threads.
+    :param chunk_size: bytes per tus ``PATCH`` request (``None`` uses the mover's default of 4 MiB). Larger
+        chunks mean fewer round trips but more bytes re-sent when a chunk fails.
     :param exclude_names: basenames to skip at any depth (e.g. a sentinel file the caller drops in
         the folder, or ``.DS_Store``). Filter here rather than pre-filtering ``files`` yourself: a
         flat file list loses the directory that gives nested files their relative resource name.
@@ -381,6 +384,7 @@ def upload_files(
                 on_url=on_url,
                 resume_cache=cache,
                 application_id=params.application_id,
+                chunk_size=chunk_size,
             )
     except BaseException:
         # Mark the workunit failed (do NOT delete) so the partial state is diagnosable — see the
@@ -799,6 +803,7 @@ def _transfer_files(
     on_url: FileUrlCallback | None = None,
     resume_cache: ResumeCache | None = None,
     application_id: int | None = None,
+    chunk_size: int | None = None,
 ) -> tuple[list[FileUpload], list[FileFailure]]:
     """Transfer each file over tus, recording per-file success/failure.
 
@@ -839,6 +844,7 @@ def _transfer_files(
                 file_url,
                 resume_cache,
                 _resume_url_for(adopted.get(file_info.name), file_info.name, token_result.tus_endpoint),
+                chunk_size,
             )
         except TransferError as error:
             logger.warning("Upload failed for {}: {}", file_info.name, error)
@@ -863,6 +869,7 @@ def _transfer_one(
     on_url: Callable[[str], None] | None,
     resume_cache: ResumeCache | None,
     resume_url: str | None,
+    chunk_size: int | None = None,
 ) -> None:
     """Send one file, resuming from ``resume_url`` when the caller supplied one.
 
@@ -871,14 +878,30 @@ def _transfer_one(
     rather than a recorded failure. A failure without a resume URL is genuine and propagates.
     """
     try:
-        _ = send_to_sink(sink, file_info.path, creds, on_progress=on_progress, on_url=on_url, resume_url=resume_url)
+        _ = send_to_sink(
+            sink,
+            file_info.path,
+            creds,
+            on_progress=on_progress,
+            on_url=on_url,
+            resume_url=resume_url,
+            chunk_size=chunk_size,
+        )
     except TransferError:
         if resume_url is None:
             raise
         logger.info("Resume URL for {} is no longer usable; restarting the upload.", file_info.name)
         assert resume_cache is not None
         resume_cache.discard(md5=file_info.md5, path=str(file_info.path))
-        _ = send_to_sink(sink, file_info.path, creds, on_progress=on_progress, on_url=on_url, resume_url=None)
+        _ = send_to_sink(
+            sink,
+            file_info.path,
+            creds,
+            on_progress=on_progress,
+            on_url=on_url,
+            resume_url=None,
+            chunk_size=chunk_size,
+        )
 
 
 def _resume_url_for(entry: ResumeEntry | None, filename: str, tus_endpoint: str) -> str | None:

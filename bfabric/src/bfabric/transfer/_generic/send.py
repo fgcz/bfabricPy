@@ -30,6 +30,7 @@ def send_to_sink(
     on_progress: ProgressCallback | None = None,
     resume_url: str | None = None,
     on_url: UrlCallback | None = None,
+    chunk_size: int | None = None,
 ) -> UploadOutcome:
     """Pushes the bytes of ``src`` to ``sink``.
 
@@ -37,6 +38,8 @@ def send_to_sink(
     resume an interrupted transfer. scp and local copies are not resumable, so ``resume_url`` /
     ``on_url`` are ignored for them and the returned ``UploadOutcome.upload_url`` is ``None``. Raises
     :class:`~bfabric.transfer._generic.errors.TransferError` on failure.
+
+    ``chunk_size`` is the bytes per tus ``PATCH`` request (``None`` uses the mover's default); other sinks ignore it.
     """
     match sink:
         case TransferSinkLocal():
@@ -63,6 +66,7 @@ def send_to_sink(
                 on_progress=on_progress,
                 resume_url=resume_url,
                 on_url=on_url,
+                **({} if chunk_size is None else {"chunk_size": chunk_size}),
             )
 
 

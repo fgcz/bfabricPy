@@ -241,6 +241,17 @@ class TestHashing:
         flush.assert_called_once()
 
 
+class TestChunkSize:
+    @pytest.mark.parametrize("chunk_size", [None, 8 * 1024 * 1024])
+    def test_forwarded_to_the_transfer(self, mock_client, rest, mock_send, chunk_size):
+        rest.create_resources.return_value = _created("a.txt")
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        _ = upload_files(mock_client, _params("/src/a.txt"), chunk_size=chunk_size)
+
+        assert mock_send.call_args.kwargs["chunk_size"] == chunk_size
+
+
 class TestExcludeNames:
     def test_forwarded_to_collector(self, mock_client, rest, mock_collect, mock_send):
         rest.create_resources.return_value = _created("src")

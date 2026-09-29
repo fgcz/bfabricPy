@@ -85,6 +85,17 @@ def test_send_tus_delegates_to_mover(mocker, tmp_path):
     assert outcome is sentinel
 
 
+def test_send_tus_forwards_chunk_size(mocker, tmp_path):
+    src = tmp_path / "src.bin"
+    src.write_bytes(b"payload")
+    mock_upload = mocker.patch.object(_tus_mover, "upload_file")
+
+    sink = TransferSinkTus(endpoint="https://tus.example/", metadata={}, token="tus-tok")
+    send_to_sink(sink, src, Credentials(), chunk_size=32 * 1024 * 1024)
+
+    assert mock_upload.call_args.kwargs["chunk_size"] == 32 * 1024 * 1024
+
+
 def test_send_tus_missing_extra_raises_transfererror(mocker, tmp_path):
     # A base install lacks tuspy, so importing the mover fails; the user should get a clear pointer
     # to the extra, not a bare ModuleNotFoundError. Setting the module to None makes the lazy

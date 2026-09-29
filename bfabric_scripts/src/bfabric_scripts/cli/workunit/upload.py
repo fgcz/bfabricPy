@@ -58,12 +58,17 @@ class UploadParams(BaseModel):
 
     hash_workers: Annotated[int, cyclopts.Parameter(name="--hash-workers")] = 4
     """How many files to compute checksums for at the same time (``1`` = one at a time)."""
+    chunk_size: Annotated[int | None, cyclopts.Parameter(name="--chunk-size")] = None
+    """Upload chunk size in MiB (``None`` uses the built-in 4). Larger chunks mean fewer round trips, which
+    can raise throughput on fast links, but more data is re-sent when a chunk fails."""
     hash_cache: bool = True
     """Reuse checksums of files whose size and modification time are unchanged since a previous run
     (``~/.bfabric/hashes.json``). Pass ``--no-hash-cache`` to always re-read every file."""
 
     @model_validator(mode="after")
     def _validate_target(self) -> UploadParams:
+        if self.chunk_size is not None and self.chunk_size < 1:
+            raise ValueError("--chunk-size must be at least 1 (MiB).")
         if self.workunit_id is not None:
             if self.workunit_name is not None:
                 raise ValueError("--workunit-name and --workunit-id are mutually exclusive.")
@@ -100,6 +105,7 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
             on_progress=reporter.on_progress if reporter else None,
             on_hash_progress=reporter.on_hash_progress if reporter else None,
             hash_workers=params.hash_workers,
+            chunk_size=params.chunk_size * 1024 * 1024 if params.chunk_size is not None else None,
             hash_cache=compute_hash_cache_path().expanduser() if params.hash_cache else None,
             on_start=reporter.on_start if reporter else None,
             on_file_done=reporter.on_file_done if reporter else None,
