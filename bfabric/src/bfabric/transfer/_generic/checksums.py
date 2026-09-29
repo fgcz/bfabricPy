@@ -9,6 +9,8 @@ if TYPE_CHECKING:
     from collections.abc import Collection
     from pathlib import Path
 
+    from bfabric.transfer.hash_cache import HashCache
+
 _HASH_CHUNK_SIZE = 8 * 1024 * 1024
 
 HashProgressCallback = Callable[[str, int, int], None]
@@ -64,6 +66,7 @@ def collect_file_infos(
     *,
     exclude_names: Collection[str] | None = None,
     on_hash_progress: HashProgressCallback | None = None,
+    hash_cache: HashCache | None = None,
 ) -> list[FileInfo]:
     """Expand any directories and compute a FileInfo for every resulting file.
 
@@ -75,7 +78,9 @@ def collect_file_infos(
     Excluding is done here rather than by the caller pre-filtering, because passing a flat file list
     loses the ``base_dir`` that gives nested files their relative resource name.
 
-    ``on_hash_progress`` receives ``(name, bytes_done, total)`` while each file is hashed.
+    ``on_hash_progress`` receives ``(name, bytes_done, total)`` while each file is hashed. ``hash_cache``
+    supplies the MD5 of a file whose size and mtime are unchanged, skipping the read; new hashes are
+    added to it but not flushed.
     """
     excluded = frozenset(exclude_names or ())
     infos: list[FileInfo] = []
@@ -85,24 +90,33 @@ def collect_file_infos(
             if not expanded:
                 raise ValueError(f"Directory '{p}' contains no files.")
             for ep in expanded:
-                infos.append(compute_file_info(ep, base_dir=p, on_hash_progress=on_hash_progress))
+                infos.append(
+                    compute_file_info(ep, base_dir=p, on_hash_progress=on_hash_progress, hash_cache=hash_cache)
+                )
         elif p.name not in excluded:
-            infos.append(compute_file_info(p, on_hash_progress=on_hash_progress))
+            infos.append(compute_file_info(p, on_hash_progress=on_hash_progress, hash_cache=hash_cache))
     return infos
 
 
 def compute_file_info(
-    path: Path, base_dir: Path | None = None, on_hash_progress: HashProgressCallback | None = None
+    path: Path,
+    base_dir: Path | None = None,
+    on_hash_progress: HashProgressCallback | None = None,
+    hash_cache: HashCache | None = None,
 ) -> FileInfo:
     """Compute MD5 checksum and size for a file.
 
     When base_dir is provided, the file name is set to the path relative to base_dir
-    (e.g. "subdir/file.txt"). Otherwise, just the basename is used.
+    (e.g. "subdir/file.txt"). Otherwise, just the basename is used. With a ``hash_cache``, a file whose
+    size and mtime match a recorded entry is not re-read.
     """
     name = str(path.relative_to(base_dir)) if base_dir is not None else path.name
-    return FileInfo(
-        name=name,
-        md5=md5_checksum(path, (lambda done, total: on_hash_progress(name, done, total)) if on_hash_progress else None),
-        size=path.stat().st_size,
-        path=path,
-    )
+    # Stat before reading: a file that changes mid-hash then mismatches on the next lookup.
+    stat = path.stat()
+    md5 = hash_cache.get(path, size=stat.st_size, mtime_ns=stat.st_mtime_ns) if hash_cache is not None else None
+    if md5 is None:
+        progress = (lambda done, total: on_hash_progress(name, done, total)) if on_hash_progress else None
+        md5 = md5_checksum(path, progress)
+        if hash_cache is not None:
+            hash_cache.put(path, size=stat.st_size, mtime_ns=stat.st_mtime_ns, md5=md5)
+    return FileInfo(name=name, md5=md5, size=stat.st_size, path=path)

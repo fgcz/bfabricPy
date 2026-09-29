@@ -24,6 +24,7 @@ from rich.progress import (
 
 from bfabric import Bfabric
 from bfabric.operations.workunit import OnDuplicate, UploadFileParam, UploadFilesParams, upload_files
+from bfabric.transfer.hash_cache import compute_hash_cache_path
 from bfabric.utils.cli_integration import use_client
 
 if TYPE_CHECKING:
@@ -54,6 +55,12 @@ class UploadParams(BaseModel):
     progress: bool = True
     """Show a live upload progress bar. Pass ``--no-progress`` to disable; it is also
     auto-disabled when stderr is not an interactive terminal."""
+
+    hash_workers: Annotated[int, cyclopts.Parameter(name="--hash-workers")] = 4
+    """How many files to compute checksums for at the same time (``1`` = one at a time)."""
+    hash_cache: bool = True
+    """Reuse checksums of files whose size and modification time are unchanged since a previous run
+    (``~/.bfabric/hashes.json``). Pass ``--no-hash-cache`` to always re-read every file."""
 
     @model_validator(mode="after")
     def _validate_target(self) -> UploadParams:
@@ -92,6 +99,8 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
             ),
             on_progress=reporter.on_progress if reporter else None,
             on_hash_progress=reporter.on_hash_progress if reporter else None,
+            hash_workers=params.hash_workers,
+            hash_cache=compute_hash_cache_path().expanduser() if params.hash_cache else None,
             on_start=reporter.on_start if reporter else None,
             on_file_done=reporter.on_file_done if reporter else None,
         )

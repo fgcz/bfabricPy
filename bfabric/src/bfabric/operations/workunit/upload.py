@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -24,6 +25,7 @@ from bfabric.transfer import (
     tus_sink_for_resource,
 )
 from bfabric.transfer._generic.origin import same_origin
+from bfabric.transfer.hash_cache import HashCache, compute_hash_cache_path
 from bfabric.transfer.resume_cache import ResumeCache, ResumeEntry, compute_resume_cache_path
 
 if TYPE_CHECKING:
@@ -53,6 +55,9 @@ _USE_DEFAULT_RESUME_CACHE: Final = Path("<default>")
 A plain ``None`` default cannot express this -- ``None`` already means "keep no state", which a
 caller must still be able to ask for.
 """
+
+_USE_DEFAULT_HASH_CACHE: Final = Path("<default>")
+"""Sentinel for ``hash_cache``, for the same reason as ``_USE_DEFAULT_RESUME_CACHE``."""
 
 OnDuplicate = Literal["upload", "skip", "link"]
 """What to do with a file whose content the target container already stores.
@@ -195,6 +200,8 @@ def upload_files(
     audit_attributes: dict[str, str] | None = None,
     exclude_names: Collection[str] | None = None,
     resume_cache: Path | None = _USE_DEFAULT_RESUME_CACHE,
+    hash_cache: Path | None = _USE_DEFAULT_HASH_CACHE,
+    hash_workers: int = 1,
 ) -> UploadSummary:
     """Upload files to a B-Fabric workunit over tus, end to end.
 
@@ -256,6 +263,12 @@ def upload_files(
         dropped once its file transfers, and ignored when it is stale, past its TTL, no longer
         same-origin with the tus endpoint, or was stored for a different container/application -- in
         each of those cases the file is uploaded afresh.
+    :param hash_cache: path to a JSON file remembering each file's MD5 by path, size and mtime, so a re-run
+        (a retry, or resuming an interrupted upload) does not re-read unchanged files. Left unset,
+        ``~/.bfabric/hashes.json`` is used; ``None`` keeps no state and always hashes.
+    :param hash_workers: how many entries are hashed concurrently (``1`` = sequentially). Each entry
+        (a file or a directory) is hashed by one worker, so this only helps with several entries.
+        ``on_hash_progress`` is then called from worker threads.
     :param exclude_names: basenames to skip at any depth (e.g. a sentinel file the caller drops in
         the folder, or ``.DS_Store``). Filter here rather than pre-filtering ``files`` yourself: a
         flat file list loses the directory that gives nested files their relative resource name.
@@ -275,7 +288,14 @@ def upload_files(
     require_tus()
     rest = UploadRestClient(client)
     check_upload_scope(client)
-    file_infos, policies = _collect_entries(params, exclude_names, on_hash_progress)
+    hash_cache_path = compute_hash_cache_path().expanduser() if hash_cache is _USE_DEFAULT_HASH_CACHE else hash_cache
+    hashes = HashCache(hash_cache_path) if hash_cache_path is not None else None
+    try:
+        file_infos, policies = _collect_entries(params, exclude_names, on_hash_progress, hashes, hash_workers)
+    finally:
+        # Also on interrupt: the files hashed so far are the point of keeping the cache.
+        if hashes is not None:
+            hashes.flush()
 
     # Resolve the target container up front: it feeds both the duplicate check and the tus sink
     # metadata. On the reuse path it comes from the existing workunit, not from params.
@@ -491,18 +511,31 @@ def _collect_entries(
     params: UploadFilesParams,
     exclude_names: Collection[str] | None,
     on_hash_progress: FileProgressCallback | None = None,
+    hash_cache: HashCache | None = None,
+    hash_workers: int = 1,
 ) -> tuple[list[FileInfo], dict[str, OnDuplicate]]:
     """Every file to consider, in input order, plus the ``on_duplicate`` of the entry each came from.
 
     The collector is called per entry because it flattens directories, losing which entry a file came
-    from -- and that is what carries the policy.
+    from -- and that is what carries the policy. Entries are hashed by up to ``hash_workers`` threads;
+    the result order is the input order regardless.
     """
+
+    def collect(entry: UploadFileParam) -> list[FileInfo]:
+        return collect_file_infos(
+            [entry.path], exclude_names=exclude_names, on_hash_progress=on_hash_progress, hash_cache=hash_cache
+        )
+
+    if hash_workers > 1 and len(params.files) > 1:
+        with ThreadPoolExecutor(max_workers=min(hash_workers, len(params.files))) as pool:
+            collected = list(pool.map(collect, params.files))
+    else:
+        collected = [collect(entry) for entry in params.files]
+
     file_infos: list[FileInfo] = []
     policies: dict[str, OnDuplicate] = {}
-    for entry in params.files:
-        for file_info in collect_file_infos(
-            [entry.path], exclude_names=exclude_names, on_hash_progress=on_hash_progress
-        ):
+    for entry, infos in zip(params.files, collected, strict=True):
+        for file_info in infos:
             file_infos.append(file_info)
             policies[file_info.name] = entry.on_duplicate
     _reject_duplicate_names(file_infos)

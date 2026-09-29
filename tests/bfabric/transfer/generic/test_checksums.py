@@ -42,6 +42,33 @@ class TestHashProgress:
         assert calls == [("sub/a.txt", 3, 3)]
 
 
+class TestHashCacheUse:
+    def test_second_call_does_not_re_read_the_file(self, tmp_path: Path, mocker) -> None:
+        from bfabric.transfer.hash_cache import HashCache
+
+        f = tmp_path / "data.bin"
+        f.write_bytes(b"some bytes to hash")
+        cache = HashCache(tmp_path / "hashes.json")
+        first = compute_file_info(f, hash_cache=cache)
+
+        spy = mocker.patch("bfabric.transfer._generic.checksums.md5_checksum")
+        second = compute_file_info(f, hash_cache=cache)
+
+        spy.assert_not_called()
+        assert second == first
+
+    def test_modified_file_is_re_hashed(self, tmp_path: Path) -> None:
+        from bfabric.transfer.hash_cache import HashCache
+
+        f = tmp_path / "data.bin"
+        f.write_bytes(b"one")
+        cache = HashCache(tmp_path / "hashes.json")
+        before = compute_file_info(f, hash_cache=cache)
+        f.write_bytes(b"three")
+
+        assert compute_file_info(f, hash_cache=cache).md5 != before.md5
+
+
 def test_compute_file_info_basename(tmp_path: Path) -> None:
     f = tmp_path / "hello.txt"
     f.write_bytes(b"hello world")

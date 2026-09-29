@@ -26,6 +26,7 @@ from bfabric.operations.workunit import (
 from bfabric.operations.workunit.upload import _describe_dropped
 from bfabric.transfer import CreatedResource, DuplicateResult, FileInfo, TransferError, UploadTokenResult
 from bfabric.transfer.errors import BfabricTransferError, ScopeError
+from bfabric.transfer.hash_cache import HashCache
 from bfabric.transfer.resume_cache import ResumeCache
 
 WORKUNIT_ID = 555
@@ -71,6 +72,9 @@ def isolate_resume_cache(mocker, tmp_path):
     Autouse because resuming is on by default: any test that transfers a file would otherwise write
     to the developer's home directory and leak state between runs.
     """
+    mocker.patch(
+        "bfabric.operations.workunit.upload.compute_hash_cache_path", return_value=tmp_path / "default-hashes.json"
+    )
     return mocker.patch(
         "bfabric.operations.workunit.upload.compute_resume_cache_path",
         return_value=tmp_path / "default-resume.json",
@@ -196,6 +200,45 @@ class TestHappyPath:
         assert upload.resource_id == 10
         assert upload.storage_path == "/store/a.txt"
         assert upload.import_resource_id == 90
+
+
+class TestHashing:
+    @staticmethod
+    def _setup(rest, *names):
+        rest.create_resources.return_value = _created(*names)
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+    def test_parallel_hashing_keeps_input_order(self, mock_client, rest, mock_collect, mock_send):
+        names = ["a.txt", "b.txt", "c.txt", "d.txt"]
+        self._setup(rest, *names)
+
+        _ = upload_files(mock_client, _params(*(f"/src/{n}" for n in names)), hash_workers=4)
+
+        assert _created_names(rest) == names
+
+    def test_hash_cache_is_passed_to_the_collector(self, tmp_path, mock_client, rest, mock_collect, mock_send):
+        self._setup(rest, "a.txt")
+        cache_path = tmp_path / "hashes.json"
+
+        _ = upload_files(mock_client, _params("/src/a.txt"), hash_cache=cache_path)
+
+        assert isinstance(mock_collect.call_args.kwargs["hash_cache"], HashCache)
+
+    def test_no_hash_cache_passes_none(self, mock_client, rest, mock_collect, mock_send):
+        self._setup(rest, "a.txt")
+
+        _ = upload_files(mock_client, _params("/src/a.txt"), hash_cache=None)
+
+        assert mock_collect.call_args.kwargs["hash_cache"] is None
+
+    def test_cache_is_flushed_when_hashing_is_interrupted(self, tmp_path, mocker, mock_client, rest, mock_collect):
+        flush = mocker.patch("bfabric.operations.workunit.upload.HashCache.flush")
+        mock_collect.side_effect = KeyboardInterrupt
+
+        with pytest.raises(KeyboardInterrupt):
+            upload_files(mock_client, _params("/src/a.txt"), hash_cache=tmp_path / "hashes.json")
+
+        flush.assert_called_once()
 
 
 class TestExcludeNames:
