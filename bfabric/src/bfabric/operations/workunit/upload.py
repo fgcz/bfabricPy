@@ -428,8 +428,13 @@ def _adopted_uploads(
             container_id=container_id,
             application_id=params.application_id,
         )
-        if entry is not None:
-            found[file_info.name] = entry
+        if entry is None:
+            continue
+        if entry.import_resource_id is None:
+            # Saved before the id was recorded: the token request cannot be rebuilt, so it cannot resume.
+            logger.info("Saved upload of {} predates resume support for tokens; uploading afresh.", file_info.name)
+            continue
+        found[file_info.name] = entry
     if not found:
         return {}
     workunit_id = next(iter(found.values())).workunit_id
@@ -455,7 +460,12 @@ def _adopted_resources(adopted: Mapping[str, ResumeEntry], to_upload: list[FileI
     needed downstream, and the saved tus URL already carries the rest.
     """
     return {
-        fi.name: CreatedResource(id=entry.resource_id, name=fi.name, storagePath=entry.storage_path)
+        fi.name: CreatedResource(
+            id=entry.resource_id,
+            name=fi.name,
+            storagePath=entry.storage_path,
+            importResourceId=entry.import_resource_id,
+        )
         for fi in to_upload
         if (entry := adopted.get(fi.name)) is not None
     }
@@ -885,6 +895,7 @@ def _make_resume_url_callback(
             application_id=application_id,
             storage_path=resource.storage_path,
             job_id=job_id,
+            import_resource_id=resource.import_resource_id,
         )
         if forward is not None:
             forward(url)

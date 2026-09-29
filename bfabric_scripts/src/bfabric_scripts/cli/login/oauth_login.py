@@ -12,7 +12,7 @@ from typing import Annotated
 
 import cyclopts
 
-from bfabric.oauth import OAuthCredentialProvider, device_code_login, pkce_login
+from bfabric.oauth import OAuthCredentialProvider, device_code_login, graphical_browser_available, pkce_login
 from bfabric.config import DEFAULT_CONFIG_FILE
 from bfabric.config.config_writer import write_environment_to_config
 from bfabric_scripts.cli.interactive import confirm, is_interactive
@@ -36,6 +36,7 @@ _CONFIG_ENV_HELP = "Environment name (defaults to BFABRICPY_CONFIG_ENV or the co
 _SET_DEFAULT_HELP = "Set this environment as the default in the config file (prompted for a new environment)."
 _BASE_URL_HELP = "B-Fabric instance URL. Omit to reuse the environment's recorded URL."
 _NO_BROWSER_HELP = "Print the authorization URL instead of opening a browser."
+_DEVICE_CODE_TIMEOUT = 600.0
 _CLIENT_ID_HELP = "OAuth client ID. Omit to reuse the environment's recorded ID, or the default 'CLI'."
 
 
@@ -139,6 +140,15 @@ def _persist(token: dict[str, object], params: _LoginParams, config_file: Path) 
     print(f"Config saved to environment '{params.config_env}' in {config_file}")
 
 
+def _login_with_device_code(params: _LoginParams, config_file: Path, timeout: float) -> None:
+    try:
+        token = device_code_login(params.base_url, client_id=params.client_id, scope=params.scope, timeout=timeout)
+    except RuntimeError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        raise SystemExit(1) from None
+    _persist(token, params, config_file)
+
+
 def cmd_auth_login(
     base_url: Annotated[str | None, cyclopts.Parameter(help=_BASE_URL_HELP)] = None,
     *,
@@ -155,13 +165,21 @@ def cmd_auth_login(
 
     Run with no arguments to renew an expired login: the instance URL and scope are read back from
     the environment. The browser must be on this machine, because the login is completed through a
-    redirect to a local port — over SSH, use ``auth device-code`` instead.
+    redirect to a local port. Over SSH, without a display, or with only a text browser, the device-code
+    flow (``auth device-code``) is used instead, unless ``--no-browser`` is given.
     """
     params = _resolve_params(base_url, client_id, config_env, scope, set_default, config_file)
     if params is None:
         return
 
     print(f"Requesting scope: {params.scope}", file=sys.stderr)
+    if not no_browser and not graphical_browser_available():
+        print(
+            "No graphical browser on this machine (remote session or text browser); using the device-code flow.",
+            file=sys.stderr,
+        )
+        _login_with_device_code(params, config_file, _DEVICE_CODE_TIMEOUT)
+        return
     print("Waiting for login to complete...", file=sys.stderr)
     try:
         token = pkce_login(
@@ -185,7 +203,7 @@ def cmd_auth_device_code(
     config_env: Annotated[str | None, cyclopts.Parameter(help=_CONFIG_ENV_HELP)] = None,
     config_file: Annotated[Path, cyclopts.Parameter(help="Path to the config file.")] = DEFAULT_CONFIG_FILE,
     scope: Annotated[str | None, cyclopts.Parameter(help=_SCOPE_HELP)] = None,
-    timeout: Annotated[float, cyclopts.Parameter(help="Seconds to wait for authorization.")] = 600.0,
+    timeout: Annotated[float, cyclopts.Parameter(help="Seconds to wait for authorization.")] = _DEVICE_CODE_TIMEOUT,
     set_default: Annotated[bool | None, cyclopts.Parameter(help=_SET_DEFAULT_HELP)] = None,
 ) -> None:
     """Authenticate via device code flow, for headless and remote environments.
@@ -198,9 +216,4 @@ def cmd_auth_device_code(
         return
 
     print(f"Requesting scope: {params.scope}", file=sys.stderr)
-    try:
-        token = device_code_login(params.base_url, client_id=params.client_id, scope=params.scope, timeout=timeout)
-    except RuntimeError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        raise SystemExit(1) from None
-    _persist(token, params, config_file)
+    _login_with_device_code(params, config_file, timeout)

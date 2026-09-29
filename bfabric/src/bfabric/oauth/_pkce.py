@@ -232,7 +232,7 @@ def exchange_code(
 _TEXT_BROWSERS = frozenset({"www-browser", "links", "links2", "elinks", "lynx", "w3m", "browsh"})
 
 
-def _graphical_browser_available() -> bool:
+def graphical_browser_available() -> bool:
     """Whether opening a browser here would plausibly reach a GUI the user can see.
 
     ``webbrowser.open`` reports success for a text browser or a remote session, which only strands the user.
@@ -277,7 +277,7 @@ def pkce_login(
     )
 
     browser_opened = False
-    if open_browser and _graphical_browser_available():
+    if open_browser and graphical_browser_available():
         browser_opened = webbrowser.open(request.url)
     if not browser_opened:
         print(

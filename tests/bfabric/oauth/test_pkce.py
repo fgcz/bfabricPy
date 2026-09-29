@@ -14,7 +14,7 @@ from bfabric.oauth._pkce import (
     _CallbackServer,
     _generate_challenge,
     _generate_verifier,
-    _graphical_browser_available,
+    graphical_browser_available,
     exchange_code,
     pkce_login,
 )
@@ -227,35 +227,35 @@ class TestGraphicalBrowserAvailable:
     def test_false_over_ssh(self, monkeypatch):
         monkeypatch.setenv("DISPLAY", ":0")
         monkeypatch.setenv("SSH_CONNECTION", "1.2.3.4 1 5.6.7.8 22")
-        assert _graphical_browser_available() is False
+        assert graphical_browser_available() is False
 
     def test_false_without_display_on_linux(self):
-        assert _graphical_browser_available() is False
+        assert graphical_browser_available() is False
 
     def test_false_for_text_browser(self, mocker, monkeypatch):
         monkeypatch.setenv("DISPLAY", ":0")
         browser = mocker.MagicMock()
         browser.name = "w3m"
         mocker.patch("bfabric.oauth._pkce.webbrowser.get", return_value=browser)
-        assert _graphical_browser_available() is False
+        assert graphical_browser_available() is False
 
     def test_true_with_display_and_gui_browser(self, mocker, monkeypatch):
         monkeypatch.setenv("DISPLAY", ":0")
         browser = mocker.MagicMock()
         browser.name = "firefox"
         mocker.patch("bfabric.oauth._pkce.webbrowser.get", return_value=browser)
-        assert _graphical_browser_available() is True
+        assert graphical_browser_available() is True
 
     def test_false_when_no_browser_registered(self, mocker, monkeypatch):
         monkeypatch.setenv("DISPLAY", ":0")
         mocker.patch("bfabric.oauth._pkce.webbrowser.get", side_effect=webbrowser.Error)
-        assert _graphical_browser_available() is False
+        assert graphical_browser_available() is False
 
 
 class TestPkceLogin:
     @pytest.fixture(autouse=True)
     def graphical_browser(self, mocker):
-        mocker.patch("bfabric.oauth._pkce._graphical_browser_available", return_value=True)
+        mocker.patch("bfabric.oauth._pkce.graphical_browser_available", return_value=True)
 
     def test_happy_path(self, mocker):
         token_dict = {"access_token": "jwt_here", "refresh_token": "rt_here"}

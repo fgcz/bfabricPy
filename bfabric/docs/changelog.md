@@ -15,7 +15,11 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Changed
 
-- `pkce_login` no longer tries to open a browser over SSH, without a display, or when only a text browser is available; it prints the login URL instead.
+- `pkce_login` no longer tries to open a browser over SSH, without a display, or when only a text browser is available; it prints the login URL instead. `bfabric.oauth.graphical_browser_available` exposes that check.
+
+### Fixed
+
+- `upload_files` resuming an interrupted upload no longer fails with `importResourceIds count must match resourceIds count`. Interrupted uploads saved by an earlier version restart from byte 0 instead of resuming.
 
 ## \[1.23.0\] - 2026-09-16
 

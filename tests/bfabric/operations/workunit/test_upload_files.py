@@ -8,6 +8,8 @@ are touched. The tests exercise the orchestration and the failure-cleanup path.
 
 from __future__ import annotations
 
+import json
+
 from pathlib import Path
 
 import pytest
@@ -1041,6 +1043,50 @@ class TestResumeCache:
 
         assert mock_send.call_args.kwargs.get("resume_url") == "https://tus/abc"
 
+    def test_resumed_run_requests_a_token_with_the_original_import_resource_ids(
+        self, tmp_path, mock_client, rest, mock_send
+    ):
+        """The token request needs one import id per resource id; a resumed file has no
+        ``create-resources`` record to take it from, so the cache must carry it."""
+        self._setup(rest)
+        cache = tmp_path / "resume.json"
+
+        def _report_then_fail(*a, **kw):
+            kw["on_url"]("https://tus/abc")
+            raise TransferError("connection reset")
+
+        mock_send.side_effect = _report_then_fail
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+        mock_send.side_effect = None
+        rest.get_upload_token.reset_mock()
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+        assert rest.get_upload_token.call_args.args[1:3] == ([10], [90])
+
+    def test_entry_without_import_resource_id_is_not_resumed(self, tmp_path, mock_client, rest, mock_send):
+        """Entries saved before the id was recorded cannot mint a valid token; upload afresh."""
+        self._setup(rest)
+        cache = tmp_path / "resume.json"
+
+        def _report_then_fail(*a, **kw):
+            kw["on_url"]("https://tus/abc")
+            raise TransferError("connection reset")
+
+        mock_send.side_effect = _report_then_fail
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+        document = json.loads(cache.read_text())
+        for entry in document["entries"].values():
+            del entry["import_resource_id"]
+        cache.write_text(json.dumps(document))
+
+        mock_send.side_effect = None
+        rest.create_resources.reset_mock()
+        _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
+
+        rest.create_resources.assert_called_once()
+        assert mock_send.call_args.kwargs.get("resume_url") is None
+
     def test_entry_is_discarded_once_the_file_transfers(self, tmp_path, mock_client, rest, mock_send):
         self._setup(rest)
         cache = tmp_path / "resume.json"
@@ -1062,6 +1108,7 @@ class TestResumeCache:
             workunit_id=WORKUNIT_ID,
             resource_id=10,
             container_id=100,
+            import_resource_id=90,
         )
         attempts: list[str | None] = []
 
@@ -1098,6 +1145,7 @@ class TestResumeCache:
             workunit_id=WORKUNIT_ID,
             resource_id=10,
             container_id=100,
+            import_resource_id=90,
         )
 
         _ = upload_files(mock_client, _params("/src/a.txt"), resume_cache=cache)
@@ -1304,6 +1352,7 @@ class TestResumeTargetsTheRecordedResource:
             container_id=100,
             application_id=5,
             storage_path=f"/store/{name}",
+            import_resource_id=resource_id + 80,
         )
 
     def test_two_files_with_identical_bytes_keep_their_own_resources(

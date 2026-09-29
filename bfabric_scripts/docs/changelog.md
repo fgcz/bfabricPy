@@ -1,5 +1,9 @@
 ## \[Unreleased\]
 
+### Changed
+
+- `bfabric-cli login` switches to the device-code flow over SSH, without a display, or with only a text browser, unless `--no-browser` is given. The workunit upload command shows a progress bar while hashing files.
+
 ## \[1.18.0\] - 2026-09-16
 
 ### Added

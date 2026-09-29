@@ -19,7 +19,17 @@ APPLICATION_ID = 5
 PATH = "/data/probe.raw"
 
 
-def _store(cache, *, md5, url=URL, workunit_id=900, resource_id=700, container_id=CONTAINER_ID, path=PATH):
+def _store(
+    cache,
+    *,
+    md5,
+    url=URL,
+    workunit_id=900,
+    resource_id=700,
+    container_id=CONTAINER_ID,
+    path=PATH,
+    import_resource_id=800,
+):
     """Store an entry, defaulting the records a resumed upload must continue into."""
     cache.store(
         md5=md5,
@@ -29,6 +39,7 @@ def _store(cache, *, md5, url=URL, workunit_id=900, resource_id=700, container_i
         resource_id=resource_id,
         container_id=container_id,
         application_id=APPLICATION_ID,
+        import_resource_id=import_resource_id,
     )
 
 
@@ -96,6 +107,12 @@ class TestRoundTrip:
         _store(cache, md5="aaa", url=URL + "-new")
 
         assert _url(cache, md5="aaa", endpoint=ENDPOINT) == URL + "-new"
+
+    def test_import_resource_id_round_trips(self, cache_path, clock):
+        cache = ResumeCache(cache_path, now=clock)
+        _store(cache, md5="aaa", import_resource_id=812)
+        entry = _lookup(cache, md5="aaa")
+        assert entry is not None and entry.import_resource_id == 812
 
 
 class TestInvalidation:

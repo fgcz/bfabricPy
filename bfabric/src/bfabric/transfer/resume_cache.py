@@ -89,6 +89,8 @@ class ResumeEntry:
     Reused rather than recreated on adoption: the hooks key status off ``jobId``, and the URL's copy
     of it cannot be repointed.
     """
+    import_resource_id: int | None = None
+    """The import record ``create-resources`` made for the resource; the token request needs it again on resume."""
     stored_at: float = 0.0
 
 
@@ -162,6 +164,7 @@ class ResumeCache:
         application_id: int | None = None,
         storage_path: str | None = None,
         job_id: int | None = None,
+        import_resource_id: int | None = None,
     ) -> None:
         """Save the resume point for ``md5``, pruning entries past the TTL.
 
@@ -178,6 +181,7 @@ class ResumeCache:
             application_id=application_id,
             storage_path=storage_path,
             job_id=job_id,
+            import_resource_id=import_resource_id,
             stored_at=self._now(),
         )
         self._write(entries)
@@ -225,6 +229,7 @@ class ResumeCache:
             application_id = fields.get("application_id")
             storage_path = fields.get("storage_path")
             job_id = fields.get("job_id")
+            import_resource_id = fields.get("import_resource_id")
             if (
                 isinstance(url, str)
                 and isinstance(stored_at, int | float)
@@ -241,6 +246,7 @@ class ResumeCache:
                     application_id=application_id if isinstance(application_id, int) else None,
                     storage_path=storage_path if isinstance(storage_path, str) else None,
                     job_id=job_id if isinstance(job_id, int) else None,
+                    import_resource_id=import_resource_id if isinstance(import_resource_id, int) else None,
                     stored_at=float(stored_at),
                 )
         return parsed
@@ -259,6 +265,7 @@ class ResumeCache:
                     "application_id": entry.application_id,
                     "storage_path": entry.storage_path,
                     "job_id": entry.job_id,
+                    "import_resource_id": entry.import_resource_id,
                     "stored_at": entry.stored_at,
                 }
                 for md5, entry in entries.items()
