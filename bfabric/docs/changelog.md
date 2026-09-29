@@ -22,6 +22,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 ### Fixed
 
 - `upload_files` resuming an interrupted upload no longer fails with `importResourceIds count must match resourceIds count`. Interrupted uploads saved by an earlier version restart from byte 0 instead of resuming.
+- `upload_files` resuming an interrupted run no longer fails with a 409 conflict for files that already finished; they are reported as uploaded and not created again.
 
 ## \[1.23.0\] - 2026-09-16
 

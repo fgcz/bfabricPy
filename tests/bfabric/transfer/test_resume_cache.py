@@ -114,6 +114,21 @@ class TestRoundTrip:
         entry = _lookup(cache, md5="aaa")
         assert entry is not None and entry.import_resource_id == 812
 
+    def test_mark_completed_keeps_the_entry_and_flags_it(self, cache_path, clock):
+        cache = ResumeCache(cache_path, now=clock)
+        _store(cache, md5="aaa")
+        assert _lookup(cache, md5="aaa").completed is False
+
+        cache.mark_completed(md5="aaa", path=PATH)
+
+        entry = _lookup(ResumeCache(cache_path, now=clock), md5="aaa")
+        assert entry is not None and entry.completed is True and entry.url == URL
+
+    def test_mark_completed_on_an_absent_entry_is_a_no_op(self, cache_path, clock):
+        cache = ResumeCache(cache_path, now=clock)
+        cache.mark_completed(md5="missing", path=PATH)
+        assert not cache_path.exists()
+
 
 class TestInvalidation:
     def test_cross_origin_entry_is_not_returned(self, cache_path, clock):

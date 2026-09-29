@@ -1153,6 +1153,37 @@ class TestResumeCache:
         rest.create_resources.assert_called_once()
         assert mock_send.call_args.kwargs.get("resume_url") is None
 
+    def test_finished_files_of_an_interrupted_run_are_not_created_again(self, tmp_path, mock_client, rest, mock_send):
+        """a.txt finished, b.txt was in flight, c.txt never started: only c.txt needs a new resource.
+
+        Creating a.txt's again is a 409 from the server, since its path is already taken.
+        """
+        cache = tmp_path / "resume.json"
+        params = _params("/src/a.txt", "/src/b.txt", "/src/c.txt")
+        created = _created("a.txt", "b.txt", "c.txt")
+        rest.create_resources.return_value = created
+        rest.get_upload_token.return_value = UploadTokenResult(token="tok", tus_endpoint="https://tus/")
+
+        def _first_run(sink, path, *args, **kw):
+            kw["on_url"](f"https://tus/{path.name}")
+            if path.name == "b.txt":
+                raise KeyboardInterrupt
+
+        mock_send.side_effect = _first_run
+        with pytest.raises(KeyboardInterrupt):
+            upload_files(mock_client, params, resume_cache=cache)
+
+        mock_send.reset_mock(side_effect=True)
+        rest.create_resources.reset_mock()
+        rest.get_upload_token.reset_mock()
+        rest.create_resources.return_value = created[2:]
+        summary = upload_files(mock_client, params, resume_cache=cache)
+
+        assert _created_names(rest) == ["c.txt"]
+        assert [call.args[1].name for call in mock_send.call_args_list] == ["b.txt", "c.txt"]
+        assert sorted(u.filename for u in summary.uploads) == ["a.txt", "b.txt", "c.txt"]
+        assert json.loads(cache.read_text())["entries"] == {}
+
     def test_entry_is_discarded_once_the_file_transfers(self, tmp_path, mock_client, rest, mock_send):
         self._setup(rest)
         cache = tmp_path / "resume.json"

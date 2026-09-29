@@ -364,7 +364,8 @@ def upload_files(
         # A linked resource already points at stored bytes and is created AVAILABLE, so it must be kept
         # out of both the token request and the transfer loop; sending it would push bytes for a
         # resource the server never expects an upload for.
-        transferable = [fi for fi in to_upload if not resources_by_name[fi.name].linked]
+        finished = {name for name, entry in adopted.items() if entry.completed}
+        transferable = [fi for fi in to_upload if not resources_by_name[fi.name].linked and fi.name not in finished]
         links = [
             _as_file_upload(fi.name, resource) for fi in to_upload if (resource := resources_by_name[fi.name]).linked
         ]
@@ -372,13 +373,20 @@ def upload_files(
             logger.info("{} file(s) registered as links to existing content; not transferring them.", len(links))
         uploads: list[FileUpload] = []
         failures: list[FileFailure] = []
+        if finished:
+            logger.info("{} file(s) were already uploaded by the interrupted run.", len(finished))
+            for fi in to_upload:
+                if fi.name in finished:
+                    uploads.append(_as_file_upload(fi.name, resources_by_name[fi.name]))
+                    if on_file_done is not None:
+                        on_file_done(fi.name, True)
         if transferable:
             pending = [resources_by_name[fi.name] for fi in transferable]
             import_resource_ids = [r.import_resource_id for r in pending if r.import_resource_id is not None]
             token_result = rest.get_upload_token(
                 workunit_id, [r.id for r in pending], import_resource_ids, job_id=job_id
             )
-            uploads, failures = _transfer_files(
+            transferred, failures = _transfer_files(
                 transferable,
                 resources_by_name,
                 token_result,
@@ -393,6 +401,7 @@ def upload_files(
                 application_id=params.application_id,
                 chunk_size=chunk_size,
             )
+            uploads += transferred
     except BaseException:
         # Mark the workunit failed (do NOT delete) so the partial state is diagnosable — see the
         # "Failure cleanup pattern" in operations_module.md.
@@ -428,6 +437,8 @@ def upload_files(
                 f"Upload to workunit {workunit_id} succeeded but marking it 'available' failed: {error}",
                 summary,
             ) from error
+    # The run has ended, so its finished files no longer need remembering; a rerun starts afresh.
+    _forget_completed(cache, to_upload, params, container_id)
     return summary
 
 
@@ -476,6 +487,20 @@ def _adopted_uploads(
             len(found) - len(kept),
         )
     return kept
+
+
+def _forget_completed(
+    cache: ResumeCache | None, to_upload: list[FileInfo], params: UploadFilesParams, container_id: int
+) -> None:
+    """Drop the entries of files that finished transferring, once the run that made them has ended."""
+    if cache is None:
+        return
+    for fi in to_upload:
+        entry = cache.lookup(
+            md5=fi.md5, path=str(fi.path), container_id=container_id, application_id=params.application_id
+        )
+        if entry is not None and entry.completed:
+            cache.discard(md5=fi.md5, path=str(fi.path))
 
 
 def _adopted_job_id(adopted: Mapping[str, ResumeEntry]) -> int | None:
@@ -860,8 +885,9 @@ def _transfer_files(
                 on_file_done(file_info.name, False)
             continue
         if resume_cache is not None:
-            # The bytes are stored; a kept URL would only resume an upload that is already complete.
-            resume_cache.discard(md5=file_info.md5, path=str(file_info.path))
+            # The bytes are stored, so the URL is spent -- but keep the entry (flagged) until the run
+            # ends, so a later interruption doesn't make the next run create this resource again.
+            resume_cache.mark_completed(md5=file_info.md5, path=str(file_info.path))
         uploads.append(_as_file_upload(file_info.name, resource))
         if on_file_done is not None:
             on_file_done(file_info.name, True)

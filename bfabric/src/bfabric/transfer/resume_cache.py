@@ -26,7 +26,7 @@ import hashlib
 import json
 import os
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import TYPE_CHECKING, final
 
@@ -91,6 +91,13 @@ class ResumeEntry:
     """
     import_resource_id: int | None = None
     """The import record ``create-resources`` made for the resource; the token request needs it again on resume."""
+    completed: bool = False
+    """The file finished transferring, but its run has not ended yet.
+
+    Kept so a run interrupted later still knows this file is done: without it the next run sees a file
+    with no entry, asks ``create-resources`` for a resource that already exists, and the server
+    answers 409.
+    """
     stored_at: float = 0.0
 
 
@@ -186,6 +193,15 @@ class ResumeCache:
         )
         self._write(entries)
 
+    def mark_completed(self, *, md5: str, path: str) -> None:
+        """Record that this file's transfer finished, keeping its entry until :meth:`discard`."""
+        entries = self._load()
+        entry = entries.get(_entry_key(md5, path))
+        if entry is None:
+            return
+        entries[_entry_key(md5, path)] = replace(entry, completed=True)
+        self._write(entries)
+
     def discard(self, *, md5: str, path: str) -> None:
         """Forget this file's entry, e.g. once it has transferred successfully."""
         entries = self._load()
@@ -230,6 +246,7 @@ class ResumeCache:
             storage_path = fields.get("storage_path")
             job_id = fields.get("job_id")
             import_resource_id = fields.get("import_resource_id")
+            completed = fields.get("completed")
             if (
                 isinstance(url, str)
                 and isinstance(stored_at, int | float)
@@ -247,6 +264,7 @@ class ResumeCache:
                     storage_path=storage_path if isinstance(storage_path, str) else None,
                     job_id=job_id if isinstance(job_id, int) else None,
                     import_resource_id=import_resource_id if isinstance(import_resource_id, int) else None,
+                    completed=completed is True,
                     stored_at=float(stored_at),
                 )
         return parsed
@@ -266,6 +284,7 @@ class ResumeCache:
                     "storage_path": entry.storage_path,
                     "job_id": entry.job_id,
                     "import_resource_id": entry.import_resource_id,
+                    "completed": entry.completed,
                     "stored_at": entry.stored_at,
                 }
                 for md5, entry in entries.items()
