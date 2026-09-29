@@ -18,6 +18,7 @@ from bfabric.config.config_writer import write_environment_to_config
 from bfabric_scripts.cli.interactive import confirm, is_interactive, select_choice, select_or_input, text_input
 from bfabric_scripts.cli.login._constants import SCOPE_PRESETS, SCOPE_PRESETS_BY_NAME
 from bfabric.config import BaseUrl
+from bfabric.oauth import https_base_url
 from bfabric_scripts.cli.login._urls import KNOWN_INSTANCES, normalize_base_url
 
 if TYPE_CHECKING:
@@ -69,7 +70,21 @@ def _pick_or_type(message: str, labels: dict[str, str], prompt: str) -> str | No
 
 
 def resolve_base_url(base_url: str | None, env: EnvironmentConfig | None) -> BaseUrl | None:
-    """Resolve the instance URL: explicit, else the environment's recorded one, else a picker."""
+    """Resolve the instance URL: explicit, else the environment's recorded one, else a picker.
+
+    A plain ``http`` URL is upgraded to ``https`` (loopback excepted), so a login never sends its OAuth
+    requests unencrypted and the environment is saved with the corrected URL.
+    """
+    resolved = _resolve_raw_base_url(base_url, env)
+    if resolved is None:
+        return None
+    secure = BaseUrl(https_base_url(resolved))
+    if secure != resolved:
+        print(f"Using {secure} instead of {resolved}: OAuth requires https.", file=sys.stderr)
+    return secure
+
+
+def _resolve_raw_base_url(base_url: str | None, env: EnvironmentConfig | None) -> BaseUrl | None:
     if base_url is not None:
         return normalize_base_url(base_url)
     if env is not None:

@@ -1,5 +1,9 @@
 ## \[Unreleased\]
 
+### Fixed
+
+- `bfabric-cli login` and `auth device-code` no longer fail on an environment recorded with an `http://` base URL; they use `https://` and save the corrected URL.
+
 ### Changed
 
 - `bfabric-cli login` switches to the device-code flow over SSH, without a display, or with only a text browser, unless `--no-browser` is given. `bfabric-cli workunit upload` shows a progress bar while hashing, including an overall total and ETA, hashes 4 files at once (`--hash-workers`), and reuses checksums of unchanged files from earlier runs (`--no-hash-cache` to disable). `--chunk-size` (MiB) sets the upload chunk size; it defaults to 32 instead of 4, which is faster on fast links.

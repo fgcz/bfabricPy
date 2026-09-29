@@ -186,6 +186,17 @@ class TestResolveBaseUrl:
         env = EnvironmentConfig.model_validate({"base_url": "https://recorded.example.com/bfabric"})
         assert resolve_base_url(None, env) == "https://recorded.example.com/bfabric"
 
+    def test_recorded_http_url_is_upgraded_to_https(self, capsys):
+        env = EnvironmentConfig.model_validate({"base_url": "http://recorded.example.com/bfabric"})
+        assert resolve_base_url(None, env) == "https://recorded.example.com/bfabric"
+        assert "https" in capsys.readouterr().err
+
+    def test_explicit_http_url_is_upgraded_to_https(self):
+        assert resolve_base_url("http://typed.example.com/bfabric", None) == "https://typed.example.com/bfabric"
+
+    def test_explicit_loopback_http_url_is_kept(self):
+        assert resolve_base_url("http://localhost:8000/bfabric", None) == "http://localhost:8000/bfabric"
+
     def test_explicit_value_wins_over_the_recorded_one(self):
         env = EnvironmentConfig.model_validate({"base_url": "https://recorded.example.com/bfabric"})
         assert resolve_base_url("https://typed.example.com/bfabric", env) == "https://typed.example.com/bfabric"

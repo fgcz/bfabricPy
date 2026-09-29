@@ -41,6 +41,14 @@ class TestRequestDeviceCode:
         )
         assert result == mock_response.json.return_value
 
+    def test_upgrades_a_plain_http_base_url(self, mocker):
+        """A recorded ``http://`` URL would otherwise be sent in the clear, then fail on the server's redirect."""
+        mock_post = mocker.patch("bfabric.oauth._device_code.httpx.post")
+
+        _request_device_code("http://example.com/bfabric", client_id="c", scope="api:read")
+
+        assert mock_post.call_args.args[0] == "https://example.com/bfabric/rest/oauth/device_authorization"
+
     def test_raises_on_http_error(self, mocker):
         mock_response = mocker.MagicMock()
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(

@@ -10,7 +10,7 @@ import httpx
 from loguru import logger
 
 from bfabric.errors import BfabricOAuthError, raise_if_unavailable
-from bfabric.oauth._endpoints import token_url
+from bfabric.oauth._endpoints import https_base_url, token_url
 
 if TYPE_CHECKING:
     from bfabric.config.base_url import BaseUrl
@@ -31,7 +31,7 @@ def _request_device_code(
     logger.debug("Requesting device code from {}", base_url)
     with raise_if_unavailable(base_url):
         response = httpx.post(
-            f"{base_url}/rest/oauth/device_authorization",
+            f"{https_base_url(base_url)}/rest/oauth/device_authorization",
             data={
                 "client_id": client_id,
                 "scope": scope,
