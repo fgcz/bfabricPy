@@ -39,7 +39,6 @@ class ConfigData(BaseModel):
         """Accept the flat ``auth_method``/``client_id``/... kwargs the override JSON carries."""
         if not isinstance(values, dict):
             return values
-
         raw = cast("dict[str, object]", values)
         if "auth_config" in raw or not any(raw.get(key) is not None for key in _FLAT_AUTH_KEYS):
             return raw

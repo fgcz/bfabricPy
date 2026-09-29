@@ -16,7 +16,7 @@ import os
 import threading
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, final
+from typing import TYPE_CHECKING, cast, final
 
 from loguru import logger
 
@@ -102,16 +102,16 @@ class HashCache:
             raw: object = json.loads(self._path.read_text())  # pyright: ignore[reportAny]
         except (OSError, json.JSONDecodeError):
             return {}
-        if (
-            not isinstance(raw, dict) or raw.get("version") != _FORMAT_VERSION
-        ):  # pyright: ignore[reportUnknownMemberType]
+        if not isinstance(raw, dict):
             return {}
-        entries = raw.get("entries")  # pyright: ignore[reportUnknownMemberType]
+        document = cast("dict[str, object]", raw)
+        if document.get("version") != _FORMAT_VERSION:
+            return {}
+        entries = document.get("entries")
         if not isinstance(entries, dict):
             return {}
-        return {
-            key: entry for key, entry in entries.items() if isinstance(entry, dict)
-        }  # pyright: ignore[reportUnknownVariableType]
+        stored = cast("dict[str, object]", entries)
+        return {key: cast("dict[str, object]", entry) for key, entry in stored.items() if isinstance(entry, dict)}
 
     def _write(self, entries: dict[str, dict[str, object]]) -> bool:
         payload = {"version": _FORMAT_VERSION, "entries": entries}

@@ -129,8 +129,12 @@ def compute_file_info(
         if on_hash_progress is not None:
             on_hash_progress(name, stat.st_size, stat.st_size)
     else:
-        progress = (lambda done, total: on_hash_progress(name, done, total)) if on_hash_progress else None
-        md5 = md5_checksum(path, progress)
+
+        def report(done: int, total: int) -> None:
+            if on_hash_progress is not None:
+                on_hash_progress(name, done, total)
+
+        md5 = md5_checksum(path, report if on_hash_progress is not None else None)
         if hash_cache is not None:
             hash_cache.put(path, size=stat.st_size, mtime_ns=stat.st_mtime_ns, md5=md5)
     return FileInfo(name=name, md5=md5, size=stat.st_size, path=path)
