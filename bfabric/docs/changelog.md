@@ -9,6 +9,14 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Added
+
+- `upload_files` accepts `on_hash_progress`, called while each file's MD5 is computed; `bfabric-cli workunit upload` shows it as a progress bar.
+
+### Changed
+
+- `pkce_login` no longer tries to open a browser over SSH, without a display, or when only a text browser is available; it prints the login URL instead.
+
 ## \[1.23.0\] - 2026-09-16
 
 ### Added

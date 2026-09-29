@@ -20,6 +20,28 @@ def test_md5_checksum(tmp_path: Path) -> None:
     assert md5_checksum(f) == "03d01978f780dc8c34c0e279df48a8ce"
 
 
+class TestHashProgress:
+    def test_md5_reports_progress_and_same_digest(self, tmp_path: Path, mocker) -> None:
+        mocker.patch("bfabric.transfer._generic.checksums._HASH_CHUNK_SIZE", 4)
+        f = tmp_path / "data.bin"
+        f.write_bytes(b"some bytes to hash")
+        calls: list[tuple[int, int]] = []
+
+        digest = md5_checksum(f, lambda done, total: calls.append((done, total)))
+
+        assert digest == "03d01978f780dc8c34c0e279df48a8ce"
+        assert calls == [(4, 18), (8, 18), (12, 18), (16, 18), (18, 18)]
+
+    def test_collect_file_infos_reports_relative_name(self, tmp_path: Path) -> None:
+        (tmp_path / "sub").mkdir()
+        (tmp_path / "sub" / "a.txt").write_bytes(b"abc")
+        calls: list[tuple[str, int, int]] = []
+
+        collect_file_infos([tmp_path], on_hash_progress=lambda *args: calls.append(args))
+
+        assert calls == [("sub/a.txt", 3, 3)]
+
+
 def test_compute_file_info_basename(tmp_path: Path) -> None:
     f = tmp_path / "hello.txt"
     f.write_bytes(b"hello world")

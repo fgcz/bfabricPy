@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -8,11 +9,28 @@ if TYPE_CHECKING:
     from collections.abc import Collection
     from pathlib import Path
 
+_HASH_CHUNK_SIZE = 8 * 1024 * 1024
 
-def md5_checksum(path: Path) -> str:
-    """Returns the lowercase hex MD5 digest of the file at ``path``."""
+HashProgressCallback = Callable[[str, int, int], None]
+"""Called with (filename, bytes_done, total) while a file is hashed (absolute ``bytes_done``)."""
+
+
+def md5_checksum(path: Path, on_progress: Callable[[int, int], None] | None = None) -> str:
+    """Returns the lowercase hex MD5 digest of the file at ``path``.
+
+    :param on_progress: optional ``(bytes_done, total)`` callback, called after every chunk read
+    """
     with path.open("rb") as f:
-        return hashlib.file_digest(f, "md5").hexdigest()
+        if on_progress is None:
+            return hashlib.file_digest(f, "md5").hexdigest()
+        digest = hashlib.md5()  # noqa: S324
+        total = path.stat().st_size
+        done = 0
+        while chunk := f.read(_HASH_CHUNK_SIZE):
+            digest.update(chunk)
+            done += len(chunk)
+            on_progress(done, total)
+        return digest.hexdigest()
 
 
 @dataclass
@@ -41,7 +59,12 @@ def resolve_paths(paths: list[Path]) -> list[Path]:
     return result
 
 
-def collect_file_infos(paths: list[Path], *, exclude_names: Collection[str] | None = None) -> list[FileInfo]:
+def collect_file_infos(
+    paths: list[Path],
+    *,
+    exclude_names: Collection[str] | None = None,
+    on_hash_progress: HashProgressCallback | None = None,
+) -> list[FileInfo]:
     """Expand any directories and compute a FileInfo for every resulting file.
 
     Directories are expanded recursively, preserving the path relative to the
@@ -51,6 +74,8 @@ def collect_file_infos(paths: list[Path], *, exclude_names: Collection[str] | No
     ``exclude_names`` drops files by *basename* at any depth (e.g. a sentinel or ``.DS_Store``).
     Excluding is done here rather than by the caller pre-filtering, because passing a flat file list
     loses the ``base_dir`` that gives nested files their relative resource name.
+
+    ``on_hash_progress`` receives ``(name, bytes_done, total)`` while each file is hashed.
     """
     excluded = frozenset(exclude_names or ())
     infos: list[FileInfo] = []
@@ -60,13 +85,15 @@ def collect_file_infos(paths: list[Path], *, exclude_names: Collection[str] | No
             if not expanded:
                 raise ValueError(f"Directory '{p}' contains no files.")
             for ep in expanded:
-                infos.append(compute_file_info(ep, base_dir=p))
+                infos.append(compute_file_info(ep, base_dir=p, on_hash_progress=on_hash_progress))
         elif p.name not in excluded:
-            infos.append(compute_file_info(p))
+            infos.append(compute_file_info(p, on_hash_progress=on_hash_progress))
     return infos
 
 
-def compute_file_info(path: Path, base_dir: Path | None = None) -> FileInfo:
+def compute_file_info(
+    path: Path, base_dir: Path | None = None, on_hash_progress: HashProgressCallback | None = None
+) -> FileInfo:
     """Compute MD5 checksum and size for a file.
 
     When base_dir is provided, the file name is set to the path relative to base_dir
@@ -75,7 +102,7 @@ def compute_file_info(path: Path, base_dir: Path | None = None) -> FileInfo:
     name = str(path.relative_to(base_dir)) if base_dir is not None else path.name
     return FileInfo(
         name=name,
-        md5=md5_checksum(path),
+        md5=md5_checksum(path, (lambda done, total: on_hash_progress(name, done, total)) if on_hash_progress else None),
         size=path.stat().st_size,
         path=path,
     )

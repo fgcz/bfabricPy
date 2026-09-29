@@ -162,7 +162,6 @@ def cmd_auth_login(
         return
 
     print(f"Requesting scope: {params.scope}", file=sys.stderr)
-    print("Opening browser for authentication...", file=sys.stderr)
     print("Waiting for login to complete...", file=sys.stderr)
     try:
         token = pkce_login(

@@ -188,6 +188,7 @@ def upload_files(
     params: UploadFilesParams,
     *,
     on_progress: FileProgressCallback | None = None,
+    on_hash_progress: FileProgressCallback | None = None,
     on_start: UploadStartCallback | None = None,
     on_file_done: FileDoneCallback | None = None,
     on_url: FileUrlCallback | None = None,
@@ -230,6 +231,8 @@ def upload_files(
         workunit -- either an existing ``workunit_id`` or a ``container_id``/``application_id`` to
         create one under (see :class:`UploadFilesParams`).
     :param on_progress: optional ``(filename, bytes_done, total)`` per-chunk progress callback.
+    :param on_hash_progress: optional ``(filename, bytes_done, total)`` callback fired while each file's MD5 is
+        computed, before anything is created or transferred.
     :param on_start: optional ``(total_files, total_bytes)`` callback fired once after dedup, just
         before the first transfer (never fired when everything is skipped as a duplicate). It reports
         the post-dedup file set, which is decided before ``create-resources`` runs: should the server
@@ -272,7 +275,7 @@ def upload_files(
     require_tus()
     rest = UploadRestClient(client)
     check_upload_scope(client)
-    file_infos, policies = _collect_entries(params, exclude_names)
+    file_infos, policies = _collect_entries(params, exclude_names, on_hash_progress)
 
     # Resolve the target container up front: it feeds both the duplicate check and the tus sink
     # metadata. On the reuse path it comes from the existing workunit, not from params.
@@ -475,7 +478,9 @@ def _has_resumable(
 
 
 def _collect_entries(
-    params: UploadFilesParams, exclude_names: Collection[str] | None
+    params: UploadFilesParams,
+    exclude_names: Collection[str] | None,
+    on_hash_progress: FileProgressCallback | None = None,
 ) -> tuple[list[FileInfo], dict[str, OnDuplicate]]:
     """Every file to consider, in input order, plus the ``on_duplicate`` of the entry each came from.
 
@@ -485,7 +490,9 @@ def _collect_entries(
     file_infos: list[FileInfo] = []
     policies: dict[str, OnDuplicate] = {}
     for entry in params.files:
-        for file_info in collect_file_infos([entry.path], exclude_names=exclude_names):
+        for file_info in collect_file_infos(
+            [entry.path], exclude_names=exclude_names, on_hash_progress=on_hash_progress
+        ):
             file_infos.append(file_info)
             policies[file_info.name] = entry.on_duplicate
     _reject_duplicate_names(file_infos)

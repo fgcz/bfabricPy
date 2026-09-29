@@ -91,6 +91,7 @@ def cmd_workunit_upload(params: UploadParams, *, client: Bfabric) -> None:
                 track_job=params.track_job,
             ),
             on_progress=reporter.on_progress if reporter else None,
+            on_hash_progress=reporter.on_hash_progress if reporter else None,
             on_start=reporter.on_start if reporter else None,
             on_file_done=reporter.on_file_done if reporter else None,
         )
@@ -139,6 +140,16 @@ class _UploadProgressReporter:
         # (a byte-% / ETA bar would consume it -- see the CLI plan). Underscore marks it intentional.
         self._total_files = total_files
         self._overall_task = self._overall.add_task("Overall", total=total_files)
+
+    def on_hash_progress(self, filename: str, bytes_done: int, total: int) -> None:
+        key = f"hash:{filename}"
+        task_id = self._file_tasks.get(key)
+        if task_id is None:
+            task_id = self._current.add_task(f"Hashing {filename}", total=total)
+            self._file_tasks[key] = task_id
+        self._current.update(task_id, completed=bytes_done, total=total)
+        if bytes_done >= total:
+            self._current.remove_task(self._file_tasks.pop(key))
 
     def on_progress(self, filename: str, bytes_done: int, total: int) -> None:
         task_id = self._file_tasks.get(filename)
