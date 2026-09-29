@@ -61,8 +61,8 @@ class UploadParams(BaseModel):
     hash_workers: Annotated[int, cyclopts.Parameter(name="--hash-workers")] = 4
     """How many files to compute checksums for at the same time (``1`` = one at a time)."""
     chunk_size: Annotated[int | None, cyclopts.Parameter(name="--chunk-size")] = None
-    """Upload chunk size in MiB (``None`` uses the built-in 4). Larger chunks mean fewer round trips, which
-    can raise throughput on fast links, but more data is re-sent when a chunk fails."""
+    """Upload chunk size in MiB (``None`` uses 32). Larger chunks mean fewer round trips, which can raise
+    throughput on fast links, but a slow link may exceed a proxy's request timeout."""
     hash_cache: bool = True
     """Reuse checksums of files whose size and modification time are unchanged since a previous run
     (``~/.bfabric/hashes.json``). Pass ``--no-hash-cache`` to always re-read every file."""

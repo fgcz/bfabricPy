@@ -57,6 +57,14 @@ A plain ``None`` default cannot express this -- ``None`` already means "keep no 
 caller must still be able to ask for.
 """
 
+DEFAULT_UPLOAD_CHUNK_SIZE: Final = 32 * 1024 * 1024
+"""Bytes per tus ``PATCH`` request when the caller sets none.
+
+Well above the mover's own 4 MiB: on a fast link each round trip through the proxy costs more than the
+bytes it carries, and 32 MiB gets most of the gain. Kept below 64 MiB because a slow link then risks a
+single request outlasting a proxy timeout (Apache defaults to 60 s: 64 MiB needs about 1 MB/s to fit).
+"""
+
 _USE_DEFAULT_HASH_CACHE: Final = Path("<default>")
 """Sentinel for ``hash_cache``, for the same reason as ``_USE_DEFAULT_RESUME_CACHE``."""
 
@@ -275,7 +283,7 @@ def upload_files(
     :param hash_workers: how many entries are hashed concurrently (``1`` = sequentially). Each entry
         (a file or a directory) is hashed by one worker, so this only helps with several entries.
         ``on_hash_progress`` is then called from worker threads.
-    :param chunk_size: bytes per tus ``PATCH`` request (``None`` uses the mover's default of 4 MiB). Larger
+    :param chunk_size: bytes per tus ``PATCH`` request (``None`` uses :data:`DEFAULT_UPLOAD_CHUNK_SIZE`). Larger
         chunks mean fewer round trips but more bytes re-sent when a chunk fails.
     :param exclude_names: basenames to skip at any depth (e.g. a sentinel file the caller drops in
         the folder, or ``.DS_Store``). Filter here rather than pre-filtering ``files`` yourself: a
@@ -294,6 +302,8 @@ def upload_files(
     # 'failed' workunit behind. (The scope is also re-checked at initiate time for direct
     # UploadRestClient callers.)
     require_tus()
+    if chunk_size is None:
+        chunk_size = DEFAULT_UPLOAD_CHUNK_SIZE
     rest = UploadRestClient(client)
     check_upload_scope(client)
     hash_cache_path = compute_hash_cache_path().expanduser() if hash_cache is _USE_DEFAULT_HASH_CACHE else hash_cache

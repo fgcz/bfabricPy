@@ -13,7 +13,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 - `upload_files` accepts `on_hash_progress`, called while each file's MD5 is computed; `bfabric-cli workunit upload` shows it as a progress bar.
 - `upload_files` remembers each file's MD5 by path, size and mtime (`hash_cache`, default `~/.bfabric/hashes.json`), so a retry or resumed upload skips re-hashing unchanged files. `hash_workers` hashes several entries concurrently. `on_hash_start` reports the total files and bytes before hashing, and a file served from the hash cache is reported as fully hashed.
-- `upload_files` accepts `chunk_size` (bytes per tus request) and `send_to_sink` forwards it to the tus mover.
+- `upload_files` accepts `chunk_size` (bytes per tus request, default 32 MiB instead of the mover's 4 MiB) and `send_to_sink` forwards it to the tus mover.
 
 ### Changed
 
