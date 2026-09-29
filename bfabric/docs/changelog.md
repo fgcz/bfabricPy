@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.24.0\] - 2026-09-29
+
 ### Added
 
 - `upload_files` accepts `on_hash_progress`, called while each file's MD5 is computed; `bfabric-cli workunit upload` shows it as a progress bar.
