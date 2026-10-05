@@ -9,9 +9,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
-### Fixed
-
-- OAuth requests to an instance recorded with an `http://` base URL are sent over `https://` instead of failing on the server's redirect (loopback hosts excepted). `bfabric.oauth.https_base_url` exposes the upgrade.
+## \[1.24.0\] - 2026-10-05
 
 ### Added
 
@@ -27,6 +25,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 - `upload_files` resuming an interrupted upload no longer fails with `importResourceIds count must match resourceIds count`. Interrupted uploads saved by an earlier version restart from byte 0 instead of resuming.
 - `upload_files` resuming an interrupted run no longer fails with a 409 conflict: files that already finished are reported as uploaded, and files that never started reuse the resource created for them.
+- OAuth requests to an instance recorded with an `http://` base URL are sent over `https://` instead of failing on the server's redirect (loopback hosts excepted). `bfabric.oauth.https_base_url` exposes the upgrade.
 
 ## \[1.23.0\] - 2026-09-16
 

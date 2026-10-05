@@ -1,5 +1,7 @@
 ## \[Unreleased\]
 
+## \[1.19.0\] - 2026-10-05
+
 ### Fixed
 
 - `bfabric-cli login` and `auth device-code` no longer fail on an environment recorded with an `http://` base URL; they use `https://` and save the corrected URL.
