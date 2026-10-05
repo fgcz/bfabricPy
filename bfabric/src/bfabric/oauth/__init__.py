@@ -3,8 +3,8 @@
 # Importing this module pulls authlib, joserfc and httpx; ``import bfabric`` alone does not.
 from bfabric.oauth._credential_provider import OAuthCredentialProvider
 from bfabric.oauth._device_code import device_code_login
-from bfabric.oauth._endpoints import token_url
-from bfabric.oauth._pkce import AuthorizationRequest, exchange_code, pkce_login
+from bfabric.oauth._endpoints import https_base_url, token_url
+from bfabric.oauth._pkce import AuthorizationRequest, exchange_code, graphical_browser_available, pkce_login
 from bfabric.oauth._registration import (
     delete_client,
     read_client,
@@ -26,6 +26,8 @@ __all__ = [
     "delete_client",
     "device_code_login",
     "exchange_code",
+    "graphical_browser_available",
+    "https_base_url",
     "pkce_login",
     "read_client",
     "register_client",

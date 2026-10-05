@@ -10,7 +10,39 @@ from bfabric_scripts.cli.login._constants import SCOPE_PRESETS_BY_NAME
 from bfabric_scripts.cli.login.oauth_login import cmd_auth_login
 
 
+@pytest.fixture(autouse=True)
+def graphical_browser(mocker):
+    """Pretend a GUI browser exists, so the tests don't depend on the machine running them."""
+    mocker.patch("bfabric_scripts.cli.login.oauth_login.graphical_browser_available", return_value=True)
+
+
 class TestCmdAuthLogin:
+    def test_uses_device_code_without_graphical_browser(self, tmp_path, mocker, oauth_token, oauth_session):
+        mocker.patch("bfabric_scripts.cli.login.oauth_login.graphical_browser_available", return_value=False)
+        mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login")
+        mock_dc = mocker.patch("bfabric_scripts.cli.login.oauth_login.device_code_login", return_value=oauth_token)
+        config_file = tmp_path / "config.yml"
+        cmd_auth_login(
+            base_url="https://example.com/bfabric", scope="api:read", config_env="PROD", config_file=config_file
+        )
+        mock_dc.assert_called_once()
+        mock_pkce.assert_not_called()
+        assert yaml.safe_load(config_file.read_text())["PROD"]["auth_method"] == "oauth"
+
+    def test_no_browser_flag_keeps_pkce(self, tmp_path, mocker, oauth_token, oauth_session):
+        mocker.patch("bfabric_scripts.cli.login.oauth_login.graphical_browser_available", return_value=False)
+        mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login", return_value=oauth_token)
+        mock_dc = mocker.patch("bfabric_scripts.cli.login.oauth_login.device_code_login")
+        cmd_auth_login(
+            base_url="https://example.com/bfabric",
+            scope="api:read",
+            config_env="PROD",
+            config_file=tmp_path / "config.yml",
+            no_browser=True,
+        )
+        mock_pkce.assert_called_once()
+        mock_dc.assert_not_called()
+
     def test_writes_config_and_caches_token(self, tmp_path, mocker, oauth_token, oauth_session):
         config_file = tmp_path / "config.yml"
         mock_pkce = mocker.patch("bfabric_scripts.cli.login.oauth_login.pkce_login", return_value=oauth_token)

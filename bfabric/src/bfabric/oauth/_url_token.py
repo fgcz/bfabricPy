@@ -13,6 +13,7 @@ from loguru import logger
 
 from bfabric.config.base_url import BaseUrl
 from bfabric.errors import raise_if_unavailable
+from bfabric.oauth._endpoints import https_base_url
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -73,7 +74,7 @@ def _fetch_jwks(base_url: BaseUrl) -> dict[str, object]:
                 return jwks
 
     logger.debug("Fetching JWKS from {}", base_url)
-    url = f"{base_url}/rest/oauth/jwks"
+    url = f"{https_base_url(base_url)}/rest/oauth/jwks"
     with raise_if_unavailable(base_url):
         response = httpx.get(url, timeout=30)
     _ = response.raise_for_status()

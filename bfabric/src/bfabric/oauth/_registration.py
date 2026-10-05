@@ -8,6 +8,7 @@ import httpx
 from loguru import logger
 
 from bfabric.errors import raise_if_unavailable
+from bfabric.oauth._endpoints import https_base_url
 
 if TYPE_CHECKING:
     from bfabric.bfabric import Bfabric
@@ -60,7 +61,7 @@ def register_client(
     :param grant_types: Explicit list of grant types to request (overrides the default)
     :returns: Registration response containing ``client_id``, ``client_secret``, etc.
     """
-    url = f"{base_url}/rest/oauth/register"
+    url = f"{https_base_url(base_url)}/rest/oauth/register"
     resolved_grant_types = grant_types if grant_types is not None else _default_grant_types(service_user)
     body: dict[str, object] = {
         "client_name": client_name,

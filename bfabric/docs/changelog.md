@@ -9,6 +9,24 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.24.0\] - 2026-10-05
+
+### Added
+
+- `upload_files` accepts `on_hash_progress`, called while each file's MD5 is computed; `bfabric-cli workunit upload` shows it as a progress bar.
+- `upload_files` remembers each file's MD5 by path, size and mtime (`hash_cache`, default `~/.bfabric/hashes.json`), so a retry or resumed upload skips re-hashing unchanged files. `hash_workers` hashes several entries concurrently. `on_hash_start` reports the total files and bytes before hashing, and a file served from the hash cache is reported as fully hashed.
+- `upload_files` accepts `chunk_size` (bytes per tus request, default 32 MiB instead of the mover's 4 MiB) and `send_to_sink` forwards it to the tus mover.
+
+### Changed
+
+- `pkce_login` no longer tries to open a browser over SSH, without a display, or when only a text browser is available; it prints the login URL instead. `bfabric.oauth.graphical_browser_available` exposes that check.
+
+### Fixed
+
+- `upload_files` resuming an interrupted upload no longer fails with `importResourceIds count must match resourceIds count`. Interrupted uploads saved by an earlier version restart from byte 0 instead of resuming.
+- `upload_files` resuming an interrupted run no longer fails with a 409 conflict: files that already finished are reported as uploaded, and files that never started reuse the resource created for them.
+- OAuth requests to an instance recorded with an `http://` base URL are sent over `https://` instead of failing on the server's redirect (loopback hosts excepted). `bfabric.oauth.https_base_url` exposes the upgrade.
+
 ## \[1.23.0\] - 2026-09-16
 
 ### Added

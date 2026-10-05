@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from pathlib import Path
@@ -23,8 +24,10 @@ from bfabric.transfer import (
     send_to_sink,
     tus_sink_for_resource,
 )
+from bfabric.transfer._generic.checksums import total_size
 from bfabric.transfer._generic.origin import same_origin
-from bfabric.transfer.resume_cache import ResumeCache, ResumeEntry, compute_resume_cache_path
+from bfabric.transfer.hash_cache import HashCache, compute_hash_cache_path
+from bfabric.transfer.resume_cache import PendingUpload, ResumeCache, ResumeEntry, compute_resume_cache_path
 
 if TYPE_CHECKING:
     from collections.abc import Collection
@@ -53,6 +56,17 @@ _USE_DEFAULT_RESUME_CACHE: Final = Path("<default>")
 A plain ``None`` default cannot express this -- ``None`` already means "keep no state", which a
 caller must still be able to ask for.
 """
+
+DEFAULT_UPLOAD_CHUNK_SIZE: Final = 32 * 1024 * 1024
+"""Bytes per tus ``PATCH`` request when the caller sets none.
+
+Well above the mover's own 4 MiB: on a fast link each round trip through the proxy costs more than the
+bytes it carries, and 32 MiB gets most of the gain. Kept below 64 MiB because a slow link then risks a
+single request outlasting a proxy timeout (Apache defaults to 60 s: 64 MiB needs about 1 MB/s to fit).
+"""
+
+_USE_DEFAULT_HASH_CACHE: Final = Path("<default>")
+"""Sentinel for ``hash_cache``, for the same reason as ``_USE_DEFAULT_RESUME_CACHE``."""
 
 OnDuplicate = Literal["upload", "skip", "link"]
 """What to do with a file whose content the target container already stores.
@@ -188,12 +202,17 @@ def upload_files(
     params: UploadFilesParams,
     *,
     on_progress: FileProgressCallback | None = None,
+    on_hash_progress: FileProgressCallback | None = None,
+    on_hash_start: UploadStartCallback | None = None,
     on_start: UploadStartCallback | None = None,
     on_file_done: FileDoneCallback | None = None,
     on_url: FileUrlCallback | None = None,
     audit_attributes: dict[str, str] | None = None,
     exclude_names: Collection[str] | None = None,
     resume_cache: Path | None = _USE_DEFAULT_RESUME_CACHE,
+    hash_cache: Path | None = _USE_DEFAULT_HASH_CACHE,
+    hash_workers: int = 1,
+    chunk_size: int | None = None,
 ) -> UploadSummary:
     """Upload files to a B-Fabric workunit over tus, end to end.
 
@@ -230,6 +249,11 @@ def upload_files(
         workunit -- either an existing ``workunit_id`` or a ``container_id``/``application_id`` to
         create one under (see :class:`UploadFilesParams`).
     :param on_progress: optional ``(filename, bytes_done, total)`` per-chunk progress callback.
+    :param on_hash_progress: optional ``(filename, bytes_done, total)`` callback fired while each file's MD5 is
+        computed, before anything is created or transferred.
+    :param on_hash_start: optional ``(total_files, total_bytes)`` callback fired once before any file is hashed,
+        for an overall hashing total. Every file, including one whose MD5 comes from the hash cache, then
+        reaches ``bytes_done == total`` in ``on_hash_progress``.
     :param on_start: optional ``(total_files, total_bytes)`` callback fired once after dedup, just
         before the first transfer (never fired when everything is skipped as a duplicate). It reports
         the post-dedup file set, which is decided before ``create-resources`` runs: should the server
@@ -253,6 +277,14 @@ def upload_files(
         dropped once its file transfers, and ignored when it is stale, past its TTL, no longer
         same-origin with the tus endpoint, or was stored for a different container/application -- in
         each of those cases the file is uploaded afresh.
+    :param hash_cache: path to a JSON file remembering each file's MD5 by path, size and mtime, so a re-run
+        (a retry, or resuming an interrupted upload) does not re-read unchanged files. Left unset,
+        ``~/.bfabric/hashes.json`` is used; ``None`` keeps no state and always hashes.
+    :param hash_workers: how many entries are hashed concurrently (``1`` = sequentially). Each entry
+        (a file or a directory) is hashed by one worker, so this only helps with several entries.
+        ``on_hash_progress`` is then called from worker threads.
+    :param chunk_size: bytes per tus ``PATCH`` request (``None`` uses :data:`DEFAULT_UPLOAD_CHUNK_SIZE`). Larger
+        chunks mean fewer round trips but more bytes re-sent when a chunk fails.
     :param exclude_names: basenames to skip at any depth (e.g. a sentinel file the caller drops in
         the folder, or ``.DS_Store``). Filter here rather than pre-filtering ``files`` yourself: a
         flat file list loses the directory that gives nested files their relative resource name.
@@ -270,9 +302,20 @@ def upload_files(
     # 'failed' workunit behind. (The scope is also re-checked at initiate time for direct
     # UploadRestClient callers.)
     require_tus()
+    if chunk_size is None:
+        chunk_size = DEFAULT_UPLOAD_CHUNK_SIZE
     rest = UploadRestClient(client)
     check_upload_scope(client)
-    file_infos, policies = _collect_entries(params, exclude_names)
+    hash_cache_path = compute_hash_cache_path().expanduser() if hash_cache is _USE_DEFAULT_HASH_CACHE else hash_cache
+    hashes = HashCache(hash_cache_path) if hash_cache_path is not None else None
+    if on_hash_start is not None:
+        on_hash_start(*total_size([entry.path for entry in params.files], exclude_names=exclude_names))
+    try:
+        file_infos, policies = _collect_entries(params, exclude_names, on_hash_progress, hashes, hash_workers)
+    finally:
+        # Also on interrupt: the files hashed so far are the point of keeping the cache.
+        if hashes is not None:
+            hashes.flush()
 
     # Resolve the target container up front: it feeds both the duplicate check and the tus sink
     # metadata. On the reuse path it comes from the existing workunit, not from params.
@@ -327,11 +370,32 @@ def upload_files(
         resources_by_name = _adopted_resources(adopted, to_upload)
         if to_create:
             resources = rest.create_resources(workunit_id, to_create)
-            resources_by_name |= _pair_resources_to_files(resources, to_create)
+            created_by_name = _pair_resources_to_files(resources, to_create)
+            resources_by_name |= created_by_name
+            if cache is not None:
+                # Remember them now: they all exist from here on, whether or not this run reaches them.
+                cache.store_pending(
+                    [
+                        PendingUpload(
+                            md5=fi.md5,
+                            path=str(fi.path),
+                            workunit_id=workunit_id,
+                            resource_id=resource.id,
+                            container_id=container_id,
+                            application_id=params.application_id,
+                            storage_path=resource.storage_path,
+                            job_id=job_id,
+                            import_resource_id=resource.import_resource_id,
+                        )
+                        for fi in to_create
+                        if not (resource := created_by_name[fi.name]).linked
+                    ]
+                )
         # A linked resource already points at stored bytes and is created AVAILABLE, so it must be kept
         # out of both the token request and the transfer loop; sending it would push bytes for a
         # resource the server never expects an upload for.
-        transferable = [fi for fi in to_upload if not resources_by_name[fi.name].linked]
+        finished = {name for name, entry in adopted.items() if entry.completed}
+        transferable = [fi for fi in to_upload if not resources_by_name[fi.name].linked and fi.name not in finished]
         links = [
             _as_file_upload(fi.name, resource) for fi in to_upload if (resource := resources_by_name[fi.name]).linked
         ]
@@ -339,13 +403,20 @@ def upload_files(
             logger.info("{} file(s) registered as links to existing content; not transferring them.", len(links))
         uploads: list[FileUpload] = []
         failures: list[FileFailure] = []
+        if finished:
+            logger.info("{} file(s) were already uploaded by the interrupted run.", len(finished))
+            for fi in to_upload:
+                if fi.name in finished:
+                    uploads.append(_as_file_upload(fi.name, resources_by_name[fi.name]))
+                    if on_file_done is not None:
+                        on_file_done(fi.name, True)
         if transferable:
             pending = [resources_by_name[fi.name] for fi in transferable]
             import_resource_ids = [r.import_resource_id for r in pending if r.import_resource_id is not None]
             token_result = rest.get_upload_token(
                 workunit_id, [r.id for r in pending], import_resource_ids, job_id=job_id
             )
-            uploads, failures = _transfer_files(
+            transferred, failures = _transfer_files(
                 transferable,
                 resources_by_name,
                 token_result,
@@ -358,7 +429,9 @@ def upload_files(
                 on_url=on_url,
                 resume_cache=cache,
                 application_id=params.application_id,
+                chunk_size=chunk_size,
             )
+            uploads += transferred
     except BaseException:
         # Mark the workunit failed (do NOT delete) so the partial state is diagnosable — see the
         # "Failure cleanup pattern" in operations_module.md.
@@ -394,6 +467,8 @@ def upload_files(
                 f"Upload to workunit {workunit_id} succeeded but marking it 'available' failed: {error}",
                 summary,
             ) from error
+    # The run has ended: unless something is left to resume, a rerun starts afresh.
+    _forget_finished_run(cache, to_upload, params, container_id)
     return summary
 
 
@@ -425,8 +500,13 @@ def _adopted_uploads(
             container_id=container_id,
             application_id=params.application_id,
         )
-        if entry is not None:
-            found[file_info.name] = entry
+        if entry is None:
+            continue
+        if entry.import_resource_id is None:
+            # Saved before the id was recorded: the token request cannot be rebuilt, so it cannot resume.
+            logger.info("Saved upload of {} predates resume support for tokens; uploading afresh.", file_info.name)
+            continue
+        found[file_info.name] = entry
     if not found:
         return {}
     workunit_id = next(iter(found.values())).workunit_id
@@ -437,6 +517,20 @@ def _adopted_uploads(
             len(found) - len(kept),
         )
     return kept
+
+
+def _forget_finished_run(
+    cache: ResumeCache | None, to_upload: list[FileInfo], params: UploadFilesParams, container_id: int
+) -> None:
+    """Drop this run's entries once it has ended, unless a saved URL still makes its workunit worth resuming.
+
+    While any URL remains, the next run adopts this workunit, and then needs every entry -- the
+    finished files and the never-started ones too -- to avoid creating their resources a second time.
+    """
+    if cache is None or _has_resumable(cache, to_upload, params, container_id):
+        return
+    for fi in to_upload:
+        cache.discard(md5=fi.md5, path=str(fi.path))
 
 
 def _adopted_job_id(adopted: Mapping[str, ResumeEntry]) -> int | None:
@@ -452,7 +546,12 @@ def _adopted_resources(adopted: Mapping[str, ResumeEntry], to_upload: list[FileI
     needed downstream, and the saved tus URL already carries the rest.
     """
     return {
-        fi.name: CreatedResource(id=entry.resource_id, name=fi.name, storagePath=entry.storage_path)
+        fi.name: CreatedResource(
+            id=entry.resource_id,
+            name=fi.name,
+            storagePath=entry.storage_path,
+            importResourceId=entry.import_resource_id,
+        )
         for fi in to_upload
         if (entry := adopted.get(fi.name)) is not None
     }
@@ -464,28 +563,51 @@ def _has_resumable(
     params: UploadFilesParams,
     container_id: int,
 ) -> bool:
-    """Whether any file left a resume URL behind, making this workunit worth keeping for a retry."""
+    """Whether any file left an unfinished resume URL behind, making this workunit worth keeping for a retry."""
     if cache is None:
         return False
     return any(
-        cache.lookup(md5=fi.md5, path=str(fi.path), container_id=container_id, application_id=params.application_id)
+        (
+            entry := cache.lookup(
+                md5=fi.md5, path=str(fi.path), container_id=container_id, application_id=params.application_id
+            )
+        )
         is not None
+        and bool(entry.url)
+        and not entry.completed
         for fi in to_upload
     )
 
 
 def _collect_entries(
-    params: UploadFilesParams, exclude_names: Collection[str] | None
+    params: UploadFilesParams,
+    exclude_names: Collection[str] | None,
+    on_hash_progress: FileProgressCallback | None = None,
+    hash_cache: HashCache | None = None,
+    hash_workers: int = 1,
 ) -> tuple[list[FileInfo], dict[str, OnDuplicate]]:
     """Every file to consider, in input order, plus the ``on_duplicate`` of the entry each came from.
 
     The collector is called per entry because it flattens directories, losing which entry a file came
-    from -- and that is what carries the policy.
+    from -- and that is what carries the policy. Entries are hashed by up to ``hash_workers`` threads;
+    the result order is the input order regardless.
     """
+
+    def collect(entry: UploadFileParam) -> list[FileInfo]:
+        return collect_file_infos(
+            [entry.path], exclude_names=exclude_names, on_hash_progress=on_hash_progress, hash_cache=hash_cache
+        )
+
+    if hash_workers > 1 and len(params.files) > 1:
+        with ThreadPoolExecutor(max_workers=min(hash_workers, len(params.files))) as pool:
+            collected = list(pool.map(collect, params.files))
+    else:
+        collected = [collect(entry) for entry in params.files]
+
     file_infos: list[FileInfo] = []
     policies: dict[str, OnDuplicate] = {}
-    for entry in params.files:
-        for file_info in collect_file_infos([entry.path], exclude_names=exclude_names):
+    for entry, infos in zip(params.files, collected, strict=True):
+        for file_info in infos:
             file_infos.append(file_info)
             policies[file_info.name] = entry.on_duplicate
     _reject_duplicate_names(file_infos)
@@ -749,6 +871,7 @@ def _transfer_files(
     on_url: FileUrlCallback | None = None,
     resume_cache: ResumeCache | None = None,
     application_id: int | None = None,
+    chunk_size: int | None = None,
 ) -> tuple[list[FileUpload], list[FileFailure]]:
     """Transfer each file over tus, recording per-file success/failure.
 
@@ -789,6 +912,7 @@ def _transfer_files(
                 file_url,
                 resume_cache,
                 _resume_url_for(adopted.get(file_info.name), file_info.name, token_result.tus_endpoint),
+                chunk_size,
             )
         except TransferError as error:
             logger.warning("Upload failed for {}: {}", file_info.name, error)
@@ -797,8 +921,9 @@ def _transfer_files(
                 on_file_done(file_info.name, False)
             continue
         if resume_cache is not None:
-            # The bytes are stored; a kept URL would only resume an upload that is already complete.
-            resume_cache.discard(md5=file_info.md5, path=str(file_info.path))
+            # The bytes are stored, so the URL is spent -- but keep the entry (flagged) until the run
+            # ends, so a later interruption doesn't make the next run create this resource again.
+            resume_cache.mark_completed(md5=file_info.md5, path=str(file_info.path))
         uploads.append(_as_file_upload(file_info.name, resource))
         if on_file_done is not None:
             on_file_done(file_info.name, True)
@@ -813,6 +938,7 @@ def _transfer_one(
     on_url: Callable[[str], None] | None,
     resume_cache: ResumeCache | None,
     resume_url: str | None,
+    chunk_size: int | None = None,
 ) -> None:
     """Send one file, resuming from ``resume_url`` when the caller supplied one.
 
@@ -821,14 +947,30 @@ def _transfer_one(
     rather than a recorded failure. A failure without a resume URL is genuine and propagates.
     """
     try:
-        _ = send_to_sink(sink, file_info.path, creds, on_progress=on_progress, on_url=on_url, resume_url=resume_url)
+        _ = send_to_sink(
+            sink,
+            file_info.path,
+            creds,
+            on_progress=on_progress,
+            on_url=on_url,
+            resume_url=resume_url,
+            chunk_size=chunk_size,
+        )
     except TransferError:
         if resume_url is None:
             raise
         logger.info("Resume URL for {} is no longer usable; restarting the upload.", file_info.name)
         assert resume_cache is not None
         resume_cache.discard(md5=file_info.md5, path=str(file_info.path))
-        _ = send_to_sink(sink, file_info.path, creds, on_progress=on_progress, on_url=on_url, resume_url=None)
+        _ = send_to_sink(
+            sink,
+            file_info.path,
+            creds,
+            on_progress=on_progress,
+            on_url=on_url,
+            resume_url=None,
+            chunk_size=chunk_size,
+        )
 
 
 def _resume_url_for(entry: ResumeEntry | None, filename: str, tus_endpoint: str) -> str | None:
@@ -837,7 +979,7 @@ def _resume_url_for(entry: ResumeEntry | None, filename: str, tus_endpoint: str)
     The same-origin check lives here rather than in the adoption lookup because the tus endpoint is
     only minted after the workunit to adopt has been chosen; a cross-origin URL costs a fresh upload.
     """
-    if entry is None:
+    if entry is None or not entry.url:
         return None
     if not same_origin(entry.url, tus_endpoint):
         logger.info("Saved URL for {} is cross-origin with {}; starting afresh.", filename, tus_endpoint)
@@ -878,6 +1020,7 @@ def _make_resume_url_callback(
             application_id=application_id,
             storage_path=resource.storage_path,
             job_id=job_id,
+            import_resource_id=resource.import_resource_id,
         )
         if forward is not None:
             forward(url)

@@ -15,7 +15,7 @@ from loguru import logger
 
 from bfabric.errors import raise_if_unavailable
 
-from bfabric.oauth._endpoints import token_url
+from bfabric.oauth._endpoints import https_base_url, token_url
 from bfabric.oauth._url_token import UrlTokenContext
 
 if TYPE_CHECKING:
@@ -66,7 +66,7 @@ def introspect_token(
 
     :raises httpx.HTTPStatusError: On non-2xx responses
     """
-    url = f"{base_url}/rest/oauth/introspect"
+    url = f"{https_base_url(base_url)}/rest/oauth/introspect"
     logger.debug("Introspecting token at {}", url)
     with raise_if_unavailable(base_url):
         response = httpx.post(

@@ -50,6 +50,26 @@ class TestUploadProgressReporter:
         reporter._overall.add_task.assert_called_once()
         assert reporter._overall.add_task.call_args.kwargs["total"] == 3
 
+    def test_hashing_total_advances_by_deltas_and_disappears_when_complete(self, mocker):
+        reporter = self._reporter(mocker)
+        reporter._current.add_task.side_effect = [1, 2, 3, 4]
+
+        reporter.on_hash_start(2, 150)
+        reporter.on_hash_progress("a.raw", 50, 100)
+        reporter.on_hash_progress("a.raw", 100, 100)
+        reporter.on_hash_progress("b.raw", 50, 50)
+
+        advanced = [call.args[1] for call in reporter._current.advance.call_args_list]
+        assert advanced == [50, 50, 50]
+        reporter._current.remove_task.assert_any_call(1)
+
+    def test_hash_start_without_bytes_adds_no_total(self, mocker):
+        reporter = self._reporter(mocker)
+
+        reporter.on_hash_start(1, 0)
+
+        reporter._current.add_task.assert_not_called()
+
     def test_on_progress_adds_one_task_per_file_and_updates(self, mocker):
         reporter = self._reporter(mocker)
         reporter._current.add_task.side_effect = [10, 20]
@@ -184,6 +204,7 @@ class TestCmdWorkunitUpload:
         _, kwargs = upload_files.call_args
         assert kwargs["on_progress"] is reporter.on_progress
         assert kwargs["on_start"] is reporter.on_start
+        assert kwargs["on_hash_start"] is reporter.on_hash_start
         assert kwargs["on_file_done"] is reporter.on_file_done
         assert kwargs["params"].workunit_name == "WU"
 

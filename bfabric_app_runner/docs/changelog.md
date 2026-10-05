@@ -4,6 +4,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## \[Unreleased\]
 
+## \[0.9.1\] - 2026-10-05
+
+### Changed
+
+- Require `bfabric>=1.24.0,<1.25`.
+
 ## \[0.9.0\] - 2026-09-16
 
 ### Changed

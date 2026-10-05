@@ -11,11 +11,13 @@ from __future__ import annotations
 import base64
 import hashlib
 import html
+import os
 import secrets
 import sys
 import threading
 import webbrowser
 from dataclasses import dataclass
+from pathlib import Path
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import TYPE_CHECKING, ClassVar
 from urllib.parse import parse_qs, urlparse
@@ -227,6 +229,25 @@ def exchange_code(
     return result
 
 
+_TEXT_BROWSERS = frozenset({"www-browser", "links", "links2", "elinks", "lynx", "w3m", "browsh"})
+
+
+def graphical_browser_available() -> bool:
+    """Whether opening a browser here would plausibly reach a GUI the user can see.
+
+    ``webbrowser.open`` reports success for a text browser or a remote session, which only strands the user.
+    """
+    if os.environ.get("SSH_CONNECTION") or os.environ.get("SSH_TTY"):
+        return False
+    if sys.platform.startswith("linux") and not (os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY")):
+        return False
+    try:
+        name = getattr(webbrowser.get(), "name", "")
+    except webbrowser.Error:
+        return False
+    return Path(name).name not in _TEXT_BROWSERS
+
+
 def pkce_login(
     base_url: BaseUrl,
     *,
@@ -239,7 +260,8 @@ def pkce_login(
     """Perform an OAuth 2.0 Authorization Code flow with PKCE.
 
     :param port: Local port for the callback server (``0`` = auto-assign)
-    :param open_browser: If ``False``, or if the browser fails to open, the URL is printed to stderr
+    :param open_browser: If ``False``, over SSH, without a display or with only a text browser, or if the browser
+        fails to open, the URL is printed to stderr instead
     :param timeout: Seconds to wait for the user to complete login
     :returns: Token dict with ``access_token``, ``refresh_token``, etc.
     :raises BfabricOAuthError: On timeout, CSRF state mismatch, or authorization error
@@ -255,7 +277,7 @@ def pkce_login(
     )
 
     browser_opened = False
-    if open_browser:
+    if open_browser and graphical_browser_available():
         browser_opened = webbrowser.open(request.url)
     if not browser_opened:
         print(
