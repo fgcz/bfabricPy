@@ -9,6 +9,10 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+### Fixed
+
+- OAuth requests to an instance recorded with an `http://` base URL are sent over `https://` instead of failing on the server's redirect (loopback hosts excepted). `bfabric.oauth.https_base_url` exposes the upgrade.
+
 ### Added
 
 - `upload_files` accepts `on_hash_progress`, called while each file's MD5 is computed; `bfabric-cli workunit upload` shows it as a progress bar.

@@ -50,9 +50,9 @@ Run each package's suite in a **separate** `pytest` invocation, as nox does — 
 
 ### Type Checking
 ```bash
-nox -s basedpyright(bfabric)
-nox -s basedpyright(bfabric_scripts)
-nox -s basedpyright(bfabric_app_runner)
+nox -s "basedpyright(package='bfabric')"
+nox -s "basedpyright(package='bfabric_scripts')"
+nox -s "basedpyright(package='bfabric_app_runner')"
 ```
 
 ### Linting and formatting
