@@ -62,7 +62,7 @@ class EngineSUDS:
         }
         service = self._get_suds_service(endpoint)
         with self._translate_call_errors(endpoint):
-            response = service.read(full_query)
+            response = service.read(full_query)  # pyright: ignore[reportAny]
         return self._convert_results(response=response, endpoint=endpoint)
 
     def save(
@@ -82,11 +82,11 @@ class EngineSUDS:
         query = {"login": auth.login, "password": auth.password.get_secret_value(), endpoint: obj}
         service = self._get_suds_service(endpoint)
         try:
-            save_method = getattr(service, method)
+            save_method = getattr(service, method)  # pyright: ignore[reportAny]
         except MethodNotFound as e:
             raise BfabricRequestError(f"SUDS failed to find save method for the {endpoint} endpoint.") from e
         with self._translate_call_errors(endpoint):
-            response = save_method(query)
+            response = save_method(query)  # pyright: ignore[reportAny]
         return self._convert_results(response=response, endpoint=endpoint)
 
     def delete(self, endpoint: str, id: int | list[int], auth: BfabricAuth) -> ResultContainer:
@@ -100,7 +100,7 @@ class EngineSUDS:
         query = {"login": auth.login, "password": auth.password.get_secret_value(), "id": id}
         service = self._get_suds_service(endpoint)
         with self._translate_call_errors(endpoint):
-            response = service.delete(query)
+            response = service.delete(query)  # pyright: ignore[reportAny]
         return ResponseDelete.from_suds(suds_response=response, endpoint=endpoint)
 
     def _get_suds_service(self, endpoint: str) -> ServiceProxy:
