@@ -11,7 +11,11 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Fixed
 
+- An unknown query field (e.g. `status` on an endpoint without it), a SOAP server fault, or a connection lost mid-request now raise `BfabricRequestError` / `BfabricUnavailableError` instead of raw suds exceptions, so `bfabric-cli` reports them in one line instead of a traceback.
+- `use_client` reports a `ValueError`, `OSError`, YAML error or HTTP error status from the command or from loading the config (e.g. no config file yet) as one `Error:` line instead of a traceback; the new `report_user_errors` context manager applies the same handling elsewhere.
+- An unknown config environment (e.g. a typo in `--config-env`) raises a `ValueError` listing the available environments instead of a `KeyError`.
 - OAuth requests to an instance recorded with an `http://` base URL are sent over `https://` instead of failing on the server's redirect (loopback hosts excepted). `bfabric.oauth.https_base_url` exposes the upgrade.
+- On a CPU without the features polars needs (e.g. AVX2), importing polars through `bfabric` raises polars' `RuntimeWarning` telling you to install `polars[rtcompat]`, instead of the process dying with "Illegal instruction".
 
 ### Added
 
