@@ -138,19 +138,21 @@ class TestCmdDatasetDownload:
 
         mock_dataset.to_polars.return_value.write_excel.assert_called_once()
 
-    def test_download_auto_format_unknown_extension(self, mocker, mock_client, mock_dataset):
+    def test_download_auto_format_unknown_extension(self, mocker, mock_client, mock_dataset, capsys):
         mocker.patch.object(Dataset, "find", return_value=mock_dataset)
         params = Params(dataset_id=123, file=Path("output.txt"), format=OutputFormat.AUTO)
 
-        with pytest.raises(ValueError, match="Cannot infer format from file extension"):
+        with pytest.raises(SystemExit):
             cmd_dataset_download(params, client=mock_client)
+        assert "Cannot infer format from file extension" in capsys.readouterr().err
 
-    def test_download_dataset_not_found(self, mocker, mock_client):
+    def test_download_dataset_not_found(self, mocker, mock_client, capsys):
         mocker.patch.object(Dataset, "find", return_value=None)
         params = Params(dataset_id=999, file=Path("output.csv"), format=OutputFormat.CSV)
 
-        with pytest.raises(ValueError, match="Dataset with id 999 not found"):
+        with pytest.raises(SystemExit):
             cmd_dataset_download(params, client=mock_client)
+        assert capsys.readouterr().err == "Error: Dataset with id 999 not found.\n"
 
     def test_download_creates_directory(self, mocker, mock_client, mock_dataset, tmp_path):
         mocker.patch.object(Dataset, "find", return_value=mock_dataset)

@@ -136,8 +136,15 @@ class ConfigFile(BaseModel):
             return env
 
     def get_selected_config(self, explicit_config_env: str | None = None) -> EnvironmentConfig:
-        """Return the selected environment; see :meth:`get_selected_config_env`."""
-        return self.environments[self.get_selected_config_env(explicit_config_env=explicit_config_env)]
+        """Return the selected environment; see :meth:`get_selected_config_env`.
+
+        :raises ValueError: if no environment of that name is in the config
+        """
+        name = self.get_selected_config_env(explicit_config_env=explicit_config_env)
+        if name not in self.environments:
+            available = ", ".join(sorted(self.environments))
+            raise ValueError(f"Environment {name!r} not found in the config; available: {available}")
+        return self.environments[name]
 
 
 def read_config_file(

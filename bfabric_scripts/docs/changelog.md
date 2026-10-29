@@ -2,6 +2,7 @@
 
 ### Fixed
 
+- `bfabric-cli` reports user errors in one `Error:` line instead of a traceback: an unknown field (e.g. `api read ... --query status ...`), a missing file or config, a missing entity, a malformed config or JSON, an HTTP error from the OAuth endpoints, and an unknown method in `api inspect`. Set `BFABRICPY_LOG_LEVEL=DEBUG` to see the traceback.
 - `bfabric-cli login` and `auth device-code` no longer fail on an environment recorded with an `http://` base URL; they use `https://` and save the corrected URL.
 
 ### Changed
