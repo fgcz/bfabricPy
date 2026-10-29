@@ -5,9 +5,12 @@ import inspect
 import os
 import sys
 import traceback
+from contextlib import contextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Annotated, NoReturn, TypeVar, cast
 
+import httpx
+import yaml
 from loguru import logger
 from rich.highlighter import RegexHighlighter
 from rich.theme import Theme
@@ -15,7 +18,7 @@ from rich.theme import Theme
 from bfabric.config import DEFAULT_CONFIG_FILE
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterator
 
 T = TypeVar("T")
 
@@ -69,20 +72,26 @@ def use_client(fn: Callable[..., T], setup_logging: bool = True) -> Callable[...
         if "client" in kwargs:
             client = cast("Bfabric", kwargs.pop("client"))
         else:
-            try:
+            with report_user_errors():
                 client = Bfabric.connect(
                     config_file_path=config_file or DEFAULT_CONFIG_FILE,
                     config_file_env=config_env or "default",
                 )
-            except (ValueError, RuntimeError) as e:
-                _report_and_exit(e)
-        try:
+        with report_user_errors():
             return fn(*args, client=client, **kwargs)  # type: ignore[arg-type]
-        except RuntimeError as e:
-            _report_and_exit(e)
 
     wrapper.__signature__ = new_sig  # type: ignore[reportAttributeAccessIssue]
     return wrapper
+
+
+@contextmanager
+def report_user_errors() -> Iterator[None]:
+    """Report an error a user can cause (bad argument, missing file, unreadable config, entity not found,
+    HTTP error status) as one stderr line and exit 1."""
+    try:
+        yield
+    except (RuntimeError, ValueError, OSError, yaml.YAMLError, httpx.HTTPStatusError) as e:
+        _report_and_exit(e)
 
 
 def _report_and_exit(error: Exception) -> NoReturn:

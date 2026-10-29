@@ -3,7 +3,7 @@ from urllib.error import URLError
 import pytest
 import suds.transport
 from pydantic import SecretStr
-from suds import MethodNotFound
+from suds import MethodNotFound, TypeNotFound, WebFault
 from suds.client import Client
 
 from bfabric.engine.engine_suds import EngineSUDS
@@ -67,7 +67,8 @@ def test_save(engine_suds, mock_auth, mock_suds_service, mocker):
 
 
 def test_save_method_not_found(engine_suds, mock_auth, mock_suds_service, mocker):
-    mock_suds_service.save.side_effect = MethodNotFound("save")
+    # suds raises it on the attribute lookup, not on the call
+    type(mock_suds_service).save = mocker.PropertyMock(side_effect=MethodNotFound("save"))
 
     with pytest.raises(
         BfabricRequestError,
@@ -169,6 +170,46 @@ class TestUnreachableInstance:
             engine._get_suds_service("sample")
 
         assert not isinstance(exc_info.value, BfabricUnavailableError)
+
+
+class TestServiceCallErrors:
+    """Errors raised by suds during a service call must arrive as a RuntimeError, not a traceback."""
+
+    @pytest.fixture(params=["read", "save", "delete"])
+    def call(self, request, engine_suds, mock_auth, mock_suds_service):
+        method = request.param
+        args = {"read": {}, "save": {}, "delete": 1}[method]
+        return getattr(mock_suds_service, method), lambda: getattr(engine_suds, method)("sample", args, mock_auth)
+
+    def test_unknown_field(self, call):
+        service_method, run = call
+        service_method.side_effect = TypeNotFound("status")
+
+        with pytest.raises(BfabricRequestError) as exc_info:
+            run()
+        assert str(exc_info.value) == "Unknown field 'status' for the 'sample' endpoint."
+
+    def test_server_fault(self, call, mocker):
+        service_method, run = call
+        service_method.side_effect = WebFault(mocker.MagicMock(faultstring="boom"), None)
+
+        with pytest.raises(BfabricRequestError, match="boom"):
+            run()
+
+    def test_http_error_status(self, call):
+        """suds reports a non-SOAP HTTP error status from a call as a bare ``Exception((status, reason))``."""
+        service_method, run = call
+        service_method.side_effect = Exception((502, "Bad Gateway"))
+
+        with pytest.raises(BfabricRequestError, match="502"):
+            run()
+
+    def test_connection_failure(self, call):
+        service_method, run = call
+        service_method.side_effect = URLError(ConnectionResetError(104, "Connection reset"))
+
+        with pytest.raises(BfabricUnavailableError):
+            run()
 
 
 def test_convert_results_no_results(engine_suds, mocker):

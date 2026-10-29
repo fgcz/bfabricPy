@@ -31,7 +31,7 @@ class Application(Entity):
         if not _is_technology_list(technology_raw):
             raise ValueError("Technology must be a list of strings")
         technology = sorted(technology_raw)[0]
-        return TypeAdapter(PathSafeStr).validate_python(technology)
+        return TypeAdapter(PathSafeStr).validate_python(technology)  # pyright: ignore[reportArgumentType]
 
 
 def _is_technology_list(technology: ApiResponseDataType) -> TypeGuard[list[str]]:

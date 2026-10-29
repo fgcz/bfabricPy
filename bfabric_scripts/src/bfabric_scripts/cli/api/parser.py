@@ -9,6 +9,7 @@ Written against SUDS internals, whose limited type stubs are why this module run
 from typing import Any
 
 from pydantic import BaseModel, Field
+from suds import MethodNotFound  # pyright: ignore[reportMissingTypeStubs]
 from suds.xsd.query import TypeQuery  # pyright: ignore[reportMissingTypeStubs]
 
 from bfabric import Bfabric
@@ -45,7 +46,7 @@ def parse_method_signature(
     """Parses a SOAP method signature into reusable Pydantic models.
 
     :raises RuntimeError: If the client is not configured to use the SUDS engine.
-    :raises AttributeError: If the endpoint or method does not exist.
+    :raises ValueError: If the method does not exist on the endpoint.
     """
     # The WSDL introspection below is written against SUDS internals, so reject any other engine up
     # front instead of leaking an AttributeError from the private engine.
@@ -57,7 +58,10 @@ def parse_method_signature(
 
     service = client._engine._get_suds_service(endpoint)  # type: ignore[attr-defined]  # pyright: ignore[reportPrivateUsage,reportAttributeAccessIssue,reportUnknownVariableType,reportUnknownMemberType]
 
-    method = getattr(service, method_name)  # pyright: ignore[reportAny,reportUnknownArgumentType]
+    try:
+        method = getattr(service, method_name)  # pyright: ignore[reportAny,reportUnknownArgumentType]
+    except MethodNotFound as error:
+        raise ValueError(f"Unknown method {method_name!r} for the {endpoint!r} endpoint.") from error
 
     binding = method.method.binding.input  # pyright: ignore[reportAny]
     param_defs = binding.param_defs(method.method)  # pyright: ignore[reportAny]
