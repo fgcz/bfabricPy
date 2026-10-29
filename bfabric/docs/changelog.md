@@ -11,6 +11,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ### Fixed
 
+- On a CPU without the features polars needs (e.g. AVX2), importing polars through `bfabric` raises polars' `RuntimeWarning` telling you to install `polars[rtcompat]`, instead of the process dying with "Illegal instruction".
 - OAuth requests to an instance recorded with an `http://` base URL are sent over `https://` instead of failing on the server's redirect (loopback hosts excepted). `bfabric.oauth.https_base_url` exposes the upgrade.
 
 ### Added
