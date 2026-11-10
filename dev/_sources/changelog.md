@@ -9,6 +9,8 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.24.1\] - 2026-11-10
+
 ### Fixed
 
 - `BfabricSubmitter` (the legacy Slurm submitter) no longer lets text from a workunit run as shell commands in the job script: the job configuration is embedded base64-encoded, and a job is refused with a `ValueError` when its partition, nodelist, memory, log paths, output URLs or ids are not plain values, or when its executable is not the application's program.
