@@ -93,7 +93,7 @@ def _load_environment_config_data(config_path: Path | str, force_config_env: str
     logger.debug(f"Reading configuration from: {config_file_path} {config_env=}")
     config_file = ConfigFile.model_validate(yaml.safe_load(config_file_path.read_text()))
     resolved_env = config_file.get_selected_config_env(explicit_config_env=config_env)
-    env_config = config_file.environments[resolved_env]
+    env_config = config_file.get_selected_config(explicit_config_env=resolved_env)
     return ConfigData(
         client=env_config.config,
         auth=env_config.auth,

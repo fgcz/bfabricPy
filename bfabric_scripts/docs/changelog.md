@@ -1,5 +1,11 @@
 ## \[Unreleased\]
 
+## \[1.19.1\] - 2026-11-10
+
+### Fixed
+
+- `bfabric-cli` reports user errors in one `Error:` line instead of a traceback: an unknown field (e.g. `api read ... --query status ...`), a missing file or config, a missing entity, a malformed config or JSON, an HTTP error from the OAuth endpoints, and an unknown method in `api inspect`. Set `BFABRICPY_LOG_LEVEL=DEBUG` to see the traceback.
+
 ## \[1.19.0\] - 2026-10-05
 
 ### Fixed

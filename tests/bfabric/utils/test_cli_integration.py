@@ -9,7 +9,9 @@ import types
 import typing
 from pathlib import Path
 
+import httpx
 import pytest
+import yaml
 
 from bfabric.utils import cli_integration
 from bfabric.utils.cli_integration import setup_script_logging, use_client
@@ -325,6 +327,43 @@ class TestUseClientErrorReporting:
 
         assert exc_info.value.code == 1
         assert capsys.readouterr().err == "Error: no config\n"
+
+    @pytest.mark.parametrize(
+        "error",
+        [
+            ValueError("no such dataset"),
+            FileNotFoundError("missing.csv"),
+            httpx.HTTPStatusError(
+                "400 Bad Request", request=httpx.Request("POST", "https://x"), response=httpx.Response(400)
+            ),
+        ],
+    )
+    def test_user_error_from_the_command_is_reported_as_one_line(self, mocker, capsys, error):
+        mocker.patch("bfabric.Bfabric.connect", return_value=mocker.Mock())
+
+        @use_client
+        def my_function(*, client: Bfabric) -> None:
+            raise error
+
+        with pytest.raises(SystemExit) as exc_info:
+            my_function()
+
+        assert exc_info.value.code == 1
+        assert capsys.readouterr().err == f"Error: {error}\n"
+
+    @pytest.mark.parametrize("error", [OSError("no config file found"), yaml.YAMLError("bad yaml")])
+    def test_unreadable_config_is_reported_as_one_line(self, mocker, capsys, error):
+        mocker.patch("bfabric.Bfabric.connect", side_effect=error)
+
+        @use_client
+        def my_function(*, client: Bfabric) -> None:
+            raise AssertionError("must not be reached")
+
+        with pytest.raises(SystemExit) as exc_info:
+            my_function()
+
+        assert exc_info.value.code == 1
+        assert capsys.readouterr().err == f"Error: {error}\n"
 
     def test_traceback_is_kept_at_debug_level(self, mocker, mock_logger):
         """The traceback is still available for development via ``BFABRICPY_LOG_LEVEL=DEBUG``."""

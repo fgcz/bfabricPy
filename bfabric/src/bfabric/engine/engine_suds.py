@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import copy
+from contextlib import contextmanager
 from typing import TYPE_CHECKING, Any
 from urllib.error import URLError
 
 import suds.transport
-from suds import MethodNotFound
+from suds import MethodNotFound, TypeNotFound, WebFault
 from suds.client import Client
 
 from bfabric.engine.response_format_suds import suds_asdict_recursive
@@ -15,6 +16,8 @@ from bfabric.results.response_format_dict import clean_result
 from bfabric.results.result_container import ResultContainer
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from suds.serviceproxy import ServiceProxy
 
     from bfabric.config import BaseUrl, BfabricAuth
@@ -58,7 +61,8 @@ class EngineSUDS:
             "idonly": return_id_only,
         }
         service = self._get_suds_service(endpoint)
-        response = service.read(full_query)
+        with self._translate_call_errors(endpoint):
+            response = service.read(full_query)  # pyright: ignore[reportAny]
         return self._convert_results(response=response, endpoint=endpoint)
 
     def save(
@@ -78,9 +82,11 @@ class EngineSUDS:
         query = {"login": auth.login, "password": auth.password.get_secret_value(), endpoint: obj}
         service = self._get_suds_service(endpoint)
         try:
-            response = getattr(service, method)(query)
+            save_method = getattr(service, method)  # pyright: ignore[reportAny]
         except MethodNotFound as e:
             raise BfabricRequestError(f"SUDS failed to find save method for the {endpoint} endpoint.") from e
+        with self._translate_call_errors(endpoint):
+            response = save_method(query)  # pyright: ignore[reportAny]
         return self._convert_results(response=response, endpoint=endpoint)
 
     def delete(self, endpoint: str, id: int | list[int], auth: BfabricAuth) -> ResultContainer:
@@ -93,7 +99,8 @@ class EngineSUDS:
             return ResponseDelete.from_empty_request()
         query = {"login": auth.login, "password": auth.password.get_secret_value(), "id": id}
         service = self._get_suds_service(endpoint)
-        response = service.delete(query)
+        with self._translate_call_errors(endpoint):
+            response = service.delete(query)  # pyright: ignore[reportAny]
         return ResponseDelete.from_suds(suds_response=response, endpoint=endpoint)
 
     def _get_suds_service(self, endpoint: str) -> ServiceProxy:
@@ -115,6 +122,27 @@ class EngineSUDS:
             except URLError as error:
                 raise BfabricUnavailableError(self._base_url, error) from error
         return self._cl[endpoint].service
+
+    @contextmanager
+    def _translate_call_errors(self, endpoint: str) -> Iterator[None]:
+        """Translate the suds exceptions a service call raises into errors the callers handle.
+
+        None of them is a ``RuntimeError``, so untranslated a typo in a query field (``TypeNotFound``)
+        escapes the CLI's error handling as a traceback. suds reports an HTTP error status (e.g. a proxy's
+        502) as a bare ``Exception((status, reason))``, hence the catch-all.
+        """
+        try:
+            yield
+        except TypeNotFound as error:
+            # suds keeps the name only in its message, "Type not found: '<name>'"
+            name = str(error).removeprefix("Type not found: ")
+            raise BfabricRequestError(f"Unknown field {name} for the {endpoint!r} endpoint.") from error
+        except WebFault as error:
+            raise BfabricRequestError(f"B-Fabric server fault on the {endpoint!r} endpoint: {error}") from error
+        except OSError as error:
+            raise BfabricUnavailableError(self._base_url, error) from error
+        except Exception as error:
+            raise BfabricRequestError(f"Request to the {endpoint!r} endpoint failed: {error}") from error
 
     def _convert_results(self, response: Any, endpoint: str) -> ResultContainer:
         try:

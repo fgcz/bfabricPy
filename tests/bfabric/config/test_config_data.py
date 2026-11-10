@@ -105,6 +105,12 @@ class TestLoadConfigData:
         with pytest.raises(OSError, match="No explicit config provided, and no config file found at"):
             load_config_data(config_file_path="/dev/null", config_file_env="TEST", include_auth=True)
 
+    def test_from_file_unknown_env(self, mocker, example_config_path):
+        mock_env = mocker.patch.dict(os.environ)
+        mock_env.pop("BFABRICPY_CONFIG_OVERRIDE", None)
+        with pytest.raises(ValueError, match="Environment 'NOSUCHENV' not found in the config"):
+            load_config_data(config_file_path=example_config_path, config_file_env="NOSUCHENV", include_auth=True)
+
 
 def test_export_roundtrip(config_data):
     exported = export_config_data(config_data)

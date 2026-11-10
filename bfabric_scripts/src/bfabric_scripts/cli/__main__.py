@@ -2,7 +2,7 @@ import importlib.metadata
 
 import cyclopts
 
-from bfabric.utils.cli_integration import setup_script_logging
+from bfabric.utils.cli_integration import report_user_errors, setup_script_logging
 from bfabric_scripts.cli.cli_api import cmd_api
 from bfabric_scripts.cli.cli_dataset import cmd_dataset
 from bfabric_scripts.cli.cli_executable import cmd_executable
@@ -31,7 +31,8 @@ def main() -> None:
     """CLI entry point; sets logging up here because commands without ``@use_client`` would
     otherwise run at loguru's default DEBUG level."""
     setup_script_logging()
-    app()
+    with report_user_errors():
+        app()
 
 
 if __name__ == "__main__":

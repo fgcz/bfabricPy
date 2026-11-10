@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 from pytest_mock import MockerFixture
+from suds import MethodNotFound
 
 from bfabric.config.bfabric_client_config import BfabricAPIEngineType
 from bfabric_scripts.cli.api.parser import (
@@ -294,6 +295,17 @@ class TestParseMethodSignature:
 
         # Guard must fire before any private engine access.
         client_mock._engine._get_suds_service.assert_not_called()
+
+    def test_parse_method_signature_unknown_method(self, mocker: MockerFixture) -> None:
+        """suds raises ``MethodNotFound`` on the lookup; it must arrive as a one-line ``ValueError``."""
+        service_mock = mocker.MagicMock()
+        type(service_mock).raed = mocker.PropertyMock(side_effect=MethodNotFound("raed"))
+        client_mock = mocker.MagicMock()
+        client_mock.config.engine = BfabricAPIEngineType.SUDS
+        client_mock._engine._get_suds_service.return_value = service_mock
+
+        with pytest.raises(ValueError, match="'raed'.*'resource'"):
+            parse_method_signature(client_mock, "resource", "raed")
 
 
 if __name__ == "__main__":

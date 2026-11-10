@@ -68,7 +68,9 @@ def _parse_uri_components(uri: str, *, allow_extra_query: bool = False) -> Entit
 
 
 ValidatedEntityUri = Annotated[str, AfterValidator(_validate_entity_uri)]
-entity_uri_adapter: TypeAdapter[str] = TypeAdapter(ValidatedEntityUri)
+entity_uri_adapter: TypeAdapter[str] = TypeAdapter(  # pyright: ignore[reportUnknownVariableType]
+    ValidatedEntityUri  # pyright: ignore[reportArgumentType]
+)
 
 
 class EntityUri(str):

@@ -155,6 +155,12 @@ def test_get_selected_config(config_with_auth, mocker):
     mock_get_config_env.assert_called_once_with(explicit_config_env=None)
 
 
+def test_get_selected_config_unknown_env(config_with_auth):
+    """A typo in ``--config-env`` names the available environments instead of raising a bare KeyError."""
+    with pytest.raises(ValueError, match=r"Environment 'PRODUCTOIN' not found in the config; available: .*PRODUCTION"):
+        config_with_auth.get_selected_config("PRODUCTOIN")
+
+
 def test_reject_env_name_default(mocker, data_no_auth):
     data_no_auth["default"] = {"base_url": "https://example.com/bfabric"}
     with pytest.raises(ValueError) as error:
