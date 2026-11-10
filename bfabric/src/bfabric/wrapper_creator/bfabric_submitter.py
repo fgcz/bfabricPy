@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import re
 from pathlib import Path
 
 import yaml
@@ -9,6 +10,31 @@ from loguru import logger
 from bfabric.bfabric import Bfabric
 from bfabric.entities import ExternalJob, Executable
 from bfabric.wrapper_creator.slurm import SLURM
+
+# Every value below is pasted into the job script, which bash and sbatch then interpret. The values come from
+# workunit parameters and from the YAML executables of the workunit, both of which a B-Fabric user can write, so
+# anything that is not plainly a name, a number or a path is refused instead of being quoted.
+_SLURM_VALUE = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_,.\-\[\]]*")
+_LOG_PATH = re.compile(r"[A-Za-z0-9_./][A-Za-z0-9_@%+=,./-]*")
+_OUTPUT_URL = re.compile(r"(?:[A-Za-z0-9_][A-Za-z0-9_.-]*@)?[A-Za-z0-9][A-Za-z0-9.-]*:/[A-Za-z0-9_@%+=,./-]*")
+_INTEGER = re.compile(r"[0-9]+")
+
+
+def _checked(name: str, value: object, pattern: re.Pattern[str]) -> str:
+    """Returns ``value`` as text if all of it matches ``pattern``.
+
+    :raises ValueError: if it does not; nothing is written or submitted for such a job
+    """
+    text = str(value)
+    if isinstance(value, bool) or pattern.fullmatch(text) is None:
+        raise ValueError(f"Refusing to submit: {name} is not safe to place in a job script: {text[:80]!r}")
+    return text
+
+
+def _checked_output_list(outputs: object) -> str:
+    if not isinstance(outputs, list) or not outputs:
+        raise ValueError(f"Refusing to submit: application output is not a list of URLs: {str(outputs)[:80]!r}")
+    return ",".join(_checked("application output", output, _OUTPUT_URL) for output in outputs)
 
 
 class BfabricSubmitter:
@@ -103,6 +129,20 @@ class BfabricSubmitter:
 
         # assert isinstance(configuration, str)
         config = configuration_parser(configuration)
+        job_configuration = config["job_configuration"]
+
+        # The program comes from the application; a configuration naming another one was not written by the
+        # wrapper creator.
+        executable = str(self.application.executable["program"])
+        if str(job_configuration["executable"]) != executable:
+            raise ValueError(
+                "Refusing to submit: the executable in the job configuration is not the application's program: "
+                f"{str(job_configuration['executable'])[:80]!r}"
+            )
+
+        # base64 text holds no character that bash treats specially, and no line of it can be the delimiter:
+        # each line is 76 characters long, or a shorter last line whose length is a multiple of 4.
+        configuration_base64 = base64.encodebytes(configuration.encode()).decode().rstrip("\n")
 
         _cmd_template = """#!/bin/bash
 # Maria d'Errico
@@ -161,8 +201,9 @@ fi
 
 # job configuration set by B-Fabrics wrapper_creator executable
 # application parameter/configuration
-cat > $TEMPDIR/config_WU$WORKUNIT_ID.yaml <<EOF
-{configuration}
+# (base64 encoded, so that no text in it is evaluated by this shell)
+base64 -d > $TEMPDIR/config_WU$WORKUNIT_ID.yaml <<'EOF'
+{configuration_base64}
 EOF
 
 
@@ -208,19 +249,19 @@ bfabric_setResourceStatus_available.py $RESSOURCEID_STDOUT_STDERR
 
 exit 0
 """.format(
-            partition=self.partition,
-            stderr_url=config["job_configuration"]["stderr"]["url"],
-            stdout_url=config["job_configuration"]["stdout"]["url"],
-            external_job_id=config["job_configuration"]["external_job_id"],
-            resource_id_output=config["job_configuration"]["output"]["resource_id"],
-            resource_id_stderr=config["job_configuration"]["stderr"]["resource_id"],
-            resource_id_stdout=config["job_configuration"]["stdout"]["resource_id"],
-            output_list=",".join(config["application"]["output"]),
-            configuration=configuration,
-            executable=config["job_configuration"]["executable"],
-            workunit_id=config["job_configuration"]["workunit_id"],
-            nodelist=self.nodelist,
-            memory=self.memory,
+            partition=_checked("partition", self.partition, _SLURM_VALUE),
+            stderr_url=_checked("stderr url", job_configuration["stderr"]["url"], _LOG_PATH),
+            stdout_url=_checked("stdout url", job_configuration["stdout"]["url"], _LOG_PATH),
+            external_job_id=_checked("external_job_id", job_configuration["external_job_id"], _INTEGER),
+            resource_id_output=_checked("output resource_id", job_configuration["output"]["resource_id"], _INTEGER),
+            resource_id_stderr=_checked("stderr resource_id", job_configuration["stderr"]["resource_id"], _INTEGER),
+            resource_id_stdout=_checked("stdout resource_id", job_configuration["stdout"]["resource_id"], _INTEGER),
+            output_list=_checked_output_list(config["application"]["output"]),
+            configuration_base64=configuration_base64,
+            executable=executable,
+            workunit_id=_checked("workunit_id", job_configuration["workunit_id"], _INTEGER),
+            nodelist=_checked("nodelist", self.nodelist, _SLURM_VALUE),
+            memory=_checked("memory", self.memory, _SLURM_VALUE),
             job_notification_emails=self._client.config.job_notification_emails,
         )
 
