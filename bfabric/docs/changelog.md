@@ -14,8 +14,9 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - An unknown query field (e.g. `status` on an endpoint without it), a SOAP server fault, or a connection lost mid-request now raise `BfabricRequestError` / `BfabricUnavailableError` instead of raw suds exceptions, so `bfabric-cli` reports them in one line instead of a traceback.
 - `use_client` reports a `ValueError`, `OSError`, YAML error or HTTP error status from the command or from loading the config (e.g. no config file yet) as one `Error:` line instead of a traceback; the new `report_user_errors` context manager applies the same handling elsewhere.
 - An unknown config environment (e.g. a typo in `--config-env`) raises a `ValueError` listing the available environments instead of a `KeyError`.
-- OAuth requests to an instance recorded with an `http://` base URL are sent over `https://` instead of failing on the server's redirect (loopback hosts excepted). `bfabric.oauth.https_base_url` exposes the upgrade.
 - On a CPU without the features polars needs (e.g. AVX2), importing polars through `bfabric` raises polars' `RuntimeWarning` telling you to install `polars[rtcompat]`, instead of the process dying with "Illegal instruction".
+
+## \[1.24.0\] - 2026-10-05
 
 ### Added
 
@@ -31,6 +32,7 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 - `upload_files` resuming an interrupted upload no longer fails with `importResourceIds count must match resourceIds count`. Interrupted uploads saved by an earlier version restart from byte 0 instead of resuming.
 - `upload_files` resuming an interrupted run no longer fails with a 409 conflict: files that already finished are reported as uploaded, and files that never started reuse the resource created for them.
+- OAuth requests to an instance recorded with an `http://` base URL are sent over `https://` instead of failing on the server's redirect (loopback hosts excepted). `bfabric.oauth.https_base_url` exposes the upgrade.
 
 ## \[1.23.0\] - 2026-09-16
 
