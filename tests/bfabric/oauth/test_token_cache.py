@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import os
 import stat
+import threading
+from pathlib import Path
 
 import pytest
 
@@ -60,6 +62,40 @@ class TestTokenCache:
 
     def test_clear_when_no_file(self, cache):
         cache.clear()  # should not raise
+
+    def test_concurrent_saves_from_threads(self, tmp_path):
+        """Threads of one process saving the same cache must not share a temp file (one would rename it away)."""
+        cache = TokenCache(tmp_path / "token.json")
+        tokens = [{"access_token": f"t{i}"} for i in range(16)]
+        barrier = threading.Barrier(len(tokens))
+        errors = []
+
+        def save(token):
+            barrier.wait()
+            try:
+                for _ in range(20):
+                    cache.save(token)
+            except Exception as e:  # noqa: BLE001
+                errors.append(e)
+
+        threads = [threading.Thread(target=save, args=(token,)) for token in tokens]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+
+        assert errors == []
+        assert cache.load() in tokens
+        assert [p.name for p in tmp_path.iterdir()] == ["token.json"]
+
+    def test_failed_save_leaves_no_temp_file(self, tmp_path, mocker):
+        cache = TokenCache(tmp_path / "token.json")
+        mocker.patch.object(Path, "replace", side_effect=OSError("boom"))
+
+        with pytest.raises(OSError, match="boom"):
+            cache.save({"access_token": "x"})
+
+        assert list(tmp_path.iterdir()) == []
 
 
 class TestComputeTokenCachePath:
