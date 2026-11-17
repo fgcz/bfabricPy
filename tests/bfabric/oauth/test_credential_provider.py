@@ -1,16 +1,22 @@
 from __future__ import annotations
 
+import fcntl
+import json
+import multiprocessing
 import pickle
 import threading
 import time
+from types import SimpleNamespace
 
 import pytest
 from authlib.integrations.base_client.errors import OAuthError
+from authlib.integrations.requests_client import OAuth2Session
 from requests.exceptions import ConnectionError as RequestsConnectionError
 
 from bfabric.config.bfabric_auth import OAUTH_LOGIN
 from bfabric.errors import BfabricOAuthError
 from bfabric.oauth._credential_provider import OAuthCredentialProvider
+from bfabric.oauth._token_cache import TokenCache
 
 
 @pytest.fixture
@@ -349,14 +355,12 @@ class TestDiskCache:
         assert saved["access_token"] == "fresh"
 
     def test_supplied_token_preferred_over_disk_cache(self, tmp_path, mock_oauth2_session):
-        """Explicitly provided token takes precedence over stale disk cache."""
-        import json
-
+        """A freshly obtained token (expiring later than the cached one) wins and is persisted."""
         cache_path = tmp_path / "token.json"
         cached = {"access_token": "from_disk", "expires_at": time.time() + 3600}
         cache_path.write_text(json.dumps(cached))
 
-        supplied = {"access_token": "from_caller", "refresh_token": "rt", "expires_at": time.time() + 3600}
+        supplied = {"access_token": "from_caller", "refresh_token": "rt", "expires_at": time.time() + 7200}
         provider = OAuthCredentialProvider(
             client_id="id",
             client_secret="",
@@ -442,3 +446,136 @@ class TestPickle:
             token_cache_path=cache_path,
         )
         assert pickle.loads(pickle.dumps(provider))._token_cache_path == cache_path
+
+
+def _expired_token() -> dict[str, object]:
+    return {"access_token": "old", "refresh_token": "rt0", "token_type": "Bearer", "expires_at": int(time.time()) - 100}
+
+
+def _refreshed_token(n: object) -> dict[str, object]:
+    return {"access_token": f"at{n}", "refresh_token": f"rt{n}", "token_type": "Bearer", "expires_in": 3600}
+
+
+def _refresh_provider(cache_path, token=None) -> OAuthCredentialProvider:
+    return OAuthCredentialProvider(
+        client_id="app-id",
+        client_secret="",
+        token_url="https://example.com/rest/oauth/token",
+        scope="",
+        grant_type="refresh_token",
+        token=token,
+        token_cache_path=cache_path,
+    )
+
+
+class TestSharedTokenCache:
+    """Providers in several processes share one cache file; B-Fabric rotates refresh tokens and revokes all of
+    a user's tokens when a rotated one is reused, so only one of them may refresh and the others adopt its token.
+
+    Uses the real ``OAuth2Session`` with its HTTP POST to the token endpoint mocked.
+    """
+
+    @pytest.fixture
+    def token_endpoint(self, mocker):
+        calls = []
+
+        def post(url, data=None, **kwargs):
+            calls.append(data)
+            return SimpleNamespace(status_code=200, json=lambda: _refreshed_token(len(calls)))
+
+        return mocker.patch.object(OAuth2Session, "post", side_effect=post)
+
+    @pytest.fixture
+    def cache_path(self, tmp_path):
+        path = tmp_path / "tokens" / "token.json"
+        TokenCache(path).save(_expired_token())
+        return path
+
+    def test_second_provider_adopts_token_refreshed_by_first(self, cache_path, token_endpoint):
+        provider_a = _refresh_provider(cache_path)
+        provider_b = _refresh_provider(cache_path)
+
+        auth_a = provider_a.get_auth()
+        assert token_endpoint.call_count == 1
+        assert json.loads(cache_path.read_text())["access_token"] == "at1"
+
+        auth_b = provider_b.get_auth()
+        assert token_endpoint.call_count == 1
+        assert auth_b.password.get_secret_value() == auth_a.password.get_secret_value() == "at1"
+
+    def test_unpickled_stale_token_does_not_overwrite_newer_cache(self, cache_path, token_endpoint):
+        pickled = pickle.dumps(_refresh_provider(cache_path))
+        newer = {"access_token": "newer", "refresh_token": "rt-newer", "expires_at": int(time.time()) + 3600}
+        TokenCache(cache_path).save(newer)
+
+        restored = pickle.loads(pickled)
+
+        assert json.loads(cache_path.read_text()) == newer
+        assert restored.get_auth().password.get_secret_value() == "newer"
+        token_endpoint.assert_not_called()
+
+    def test_explicit_newer_token_is_persisted(self, cache_path, token_endpoint):
+        fresh = {"access_token": "fresh", "refresh_token": "rt-fresh", "expires_in": 3600}
+
+        provider = _refresh_provider(cache_path, token=fresh)
+
+        assert json.loads(cache_path.read_text())["access_token"] == "fresh"
+        assert provider.get_auth().password.get_secret_value() == "fresh"
+        token_endpoint.assert_not_called()
+
+    def test_valid_token_takes_no_file_lock(self, cache_path, token_endpoint, mocker):
+        provider = _refresh_provider(cache_path, token=_refreshed_token("valid"))
+        flock = mocker.patch("fcntl.flock")
+        load = mocker.spy(TokenCache, "load")
+
+        assert provider.get_auth().password.get_secret_value() == "atvalid"
+
+        flock.assert_not_called()
+        load.assert_not_called()
+
+    def test_expired_token_refreshes_under_file_lock(self, cache_path, token_endpoint, mocker):
+        provider = _refresh_provider(cache_path)
+        flock = mocker.spy(fcntl, "flock")
+
+        provider.get_auth()
+
+        flock.assert_called_once()
+        assert cache_path.with_name("token.json.lock").stat().st_mode & 0o777 == 0o600
+
+    @pytest.mark.slow
+    def test_concurrent_processes_refresh_once(self, cache_path, tmp_path):
+        ctx = multiprocessing.get_context("spawn")
+        n_processes = 3
+        barrier = ctx.Barrier(n_processes)
+        results = ctx.Queue()
+        counter_path = tmp_path / "refreshes.txt"
+        processes = [
+            ctx.Process(target=_refresh_in_child, args=(cache_path, counter_path, barrier, results))
+            for _ in range(n_processes)
+        ]
+        for process in processes:
+            process.start()
+        access_tokens = [results.get(timeout=30) for _ in processes]
+        for process in processes:
+            process.join(timeout=30)
+            assert process.exitcode == 0
+
+        assert counter_path.read_text().splitlines() == ["rt0"]
+        assert len(set(access_tokens)) == 1
+
+
+def _refresh_in_child(cache_path, counter_path, barrier, results) -> None:
+    """Child process: refresh through a fake token endpoint that records each refresh token presented."""
+
+    def post(self, url, data=None, **kwargs):
+        with counter_path.open("a") as f:
+            f.write(f"{data['refresh_token']}\n")
+        time.sleep(0.2)  # widen the race window
+        return SimpleNamespace(
+            status_code=200, json=lambda: _refreshed_token(f"-{multiprocessing.current_process().pid}")
+        )
+
+    OAuth2Session.post = post  # only patches this child process
+    provider = _refresh_provider(cache_path)
+    barrier.wait()
+    results.put(provider.get_auth().password.get_secret_value())
