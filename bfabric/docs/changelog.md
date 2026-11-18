@@ -9,6 +9,13 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.24.2\] - 2026-11-18
+
+### Fixed
+
+- `OAuthCredentialProvider` processes sharing one token cache file (web app workers, an unpickled client in a job worker, several CLI processes) no longer each refresh the same token: refreshes are serialised by a `<cache>.lock` file and the others adopt the refreshed token, so B-Fabric no longer rejects the reused refresh token and revokes all of the user's sessions. A token passed in (or restored by unpickling) only replaces the cached one if it expires later.
+- `TokenCache.save` uses a unique temporary file per write, so several threads saving the same cache at once no longer fail with `FileNotFoundError`.
+
 ## \[1.24.1\] - 2026-11-10
 
 ### Fixed
@@ -18,8 +25,6 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 - `use_client` reports a `ValueError`, `OSError`, YAML error or HTTP error status from the command or from loading the config (e.g. no config file yet) as one `Error:` line instead of a traceback; the new `report_user_errors` context manager applies the same handling elsewhere.
 - An unknown config environment (e.g. a typo in `--config-env`) raises a `ValueError` listing the available environments instead of a `KeyError`.
 - On a CPU without the features polars needs (e.g. AVX2), importing polars through `bfabric` raises polars' `RuntimeWarning` telling you to install `polars[rtcompat]`, instead of the process dying with "Illegal instruction".
-- `OAuthCredentialProvider` processes sharing one token cache file (web app workers, an unpickled client in a job worker, several CLI processes) no longer each refresh the same token: refreshes are serialised by a `<cache>.lock` file and the others adopt the refreshed token, so B-Fabric no longer rejects the reused refresh token and revokes all of the user's sessions. A token passed in (or restored by unpickling) only replaces the cached one if it expires later.
-- `TokenCache.save` uses a unique temporary file per write, so several threads saving the same cache at once no longer fail with `FileNotFoundError`.
 
 ## \[1.24.0\] - 2026-10-05
 
