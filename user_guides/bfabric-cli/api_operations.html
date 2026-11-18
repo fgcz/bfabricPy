@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API Operations &#8212; bfabricPy 1.24.1 documentation</title>
+    <title>API Operations &#8212; bfabricPy 1.24.2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=712e42e9"></script>
+    <script src="../../_static/documentation_options.js?v=665ac28f"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="Authentication" href="authentication.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.24.1" />
+  <meta name="docsearch:version" content="1.24.2" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.24.1 documentation</p>
+    <p class="title logo__title">bfabricPy 1.24.2 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -562,13 +562,13 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">r
 <section id="creating-entities">
 <h2>Creating Entities<a class="headerlink" href="#creating-entities" title="Link to this heading">#</a></h2>
 <section id="id1">
-<h3>Basic Usage<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<span id="basic-usage-1"></span><h3>Basic Usage<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class="w"> </span><span class="o">[</span>ENDPOINT<span class="o">]</span><span class="w"> </span><span class="o">[</span>ATTRIBUTES<span class="o">]</span>
 </pre></div>
 </div>
 </section>
 <section id="id2">
-<h3>Examples<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<span id="examples-1"></span><h3>Examples<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a resource</span>
 bfabric-cli<span class="w"> </span>api<span class="w"> </span>create<span class="w"> </span>resource<span class="w"> </span>name<span class="w"> </span><span class="s2">"hello.txt"</span><span class="w"> </span>workunitid<span class="w"> </span><span class="m">321802</span><span class="w"> </span>base64<span class="w"> </span><span class="nv">aGVsbG8</span><span class="o">=</span>
 
@@ -587,13 +587,13 @@ key-value pairs given alongside them, and a key present in both is an error.</p>
 <section id="updating-entities">
 <h2>Updating Entities<a class="headerlink" href="#updating-entities" title="Link to this heading">#</a></h2>
 <section id="id3">
-<h3>Basic Usage<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<span id="basic-usage-2"></span><h3>Basic Usage<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span><span class="o">[</span>ENDPOINT<span class="o">]</span><span class="w"> </span><span class="o">[</span>ENTITY_ID<span class="o">]</span><span class="w"> </span><span class="o">[</span>ATTRIBUTES<span class="o">]</span>
 </pre></div>
 </div>
 </section>
 <section id="id4">
-<h3>Examples<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<span id="examples-2"></span><h3>Examples<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Update a workunit</span>
 bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class="w"> </span>workunit<span class="w"> </span><span class="m">321802</span><span class="w"> </span>description<span class="w"> </span><span class="s2">"Updated description"</span>
 
@@ -609,13 +609,13 @@ bfabric-cli<span class="w"> </span>api<span class="w"> </span>update<span class=
 <section id="deleting-entities">
 <h2>Deleting Entities<a class="headerlink" href="#deleting-entities" title="Link to this heading">#</a></h2>
 <section id="id5">
-<h3>Basic Usage<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<span id="basic-usage-3"></span><h3>Basic Usage<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span>delete<span class="w"> </span><span class="o">[</span>ENDPOINT<span class="o">]</span><span class="w"> </span><span class="o">[</span>ID<span class="o">]</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
 </section>
 <section id="id6">
-<h3>Examples<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<span id="examples-3"></span><h3>Examples<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Delete a single entity</span>
 bfabric-cli<span class="w"> </span>api<span class="w"> </span>delete<span class="w"> </span>resource<span class="w"> </span><span class="m">12345</span>
 

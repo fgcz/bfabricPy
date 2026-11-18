@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>OAuth Integration &#8212; bfabricPy 1.24.1 documentation</title>
+    <title>OAuth Integration &#8212; bfabricPy 1.24.2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=712e42e9"></script>
+    <script src="../_static/documentation_options.js?v=665ac28f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="bfabric.operations Module Design" href="operations_module.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.24.1" />
+  <meta name="docsearch:version" content="1.24.2" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.24.1 documentation</p>
+    <p class="title logo__title">bfabricPy 1.24.2 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -445,7 +445,7 @@
 </section>
 <hr class="docutils" />
 <section id="new-bfabric-oauth-module">
-<h2>New: <code class="docutils literal notranslate"><span class="pre">bfabric.oauth</span></code> module<a class="headerlink" href="#new-bfabric-oauth-module" title="Link to this heading">#</a></h2>
+<span id="new-bfabricoauth-module"></span><h2>New: <code class="docutils literal notranslate"><span class="pre">bfabric.oauth</span></code> module<a class="headerlink" href="#new-bfabric-oauth-module" title="Link to this heading">#</a></h2>
 <p>Package under <code class="docutils literal notranslate"><span class="pre">bfabric/src/bfabric/oauth/</span></code> implementing all OAuth primitives.</p>
 <p>The package root is the entire public surface: every submodule is underscore-prefixed, so the only supported import is <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">bfabric.oauth</span> <span class="pre">import</span> <span class="pre">...</span></code>. <code class="docutils literal notranslate"><span class="pre">__init__</span></code> exports <code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code>, <code class="docutils literal notranslate"><span class="pre">pkce_login</span></code>, <code class="docutils literal notranslate"><span class="pre">AuthorizationRequest</span></code>, <code class="docutils literal notranslate"><span class="pre">exchange_code</span></code>, <code class="docutils literal notranslate"><span class="pre">device_code_login</span></code>, <code class="docutils literal notranslate"><span class="pre">token_url</span></code>, <code class="docutils literal notranslate"><span class="pre">register_client</span></code>, <code class="docutils literal notranslate"><span class="pre">register_webapp</span></code>, <code class="docutils literal notranslate"><span class="pre">TokenCache</span></code>, <code class="docutils literal notranslate"><span class="pre">compute_token_cache_path</span></code>, <code class="docutils literal notranslate"><span class="pre">UrlTokenContext</span></code> and <code class="docutils literal notranslate"><span class="pre">WebappClient</span></code> — enough that nothing outside the package, including <code class="docutils literal notranslate"><span class="pre">bfabric_scripts</span></code>, ever names a module. Those names are provisional while the asgi-auth OAuth migration is in flight and may change without a deprecation cycle.</p>
 <p><code class="docutils literal notranslate"><span class="pre">bfabric.py</span></code> is the one place that names the private submodules, and only because <code class="docutils literal notranslate"><span class="pre">__init__</span></code> re-exports <code class="docutils literal notranslate"><span class="pre">WebappClient</span></code>, whose module imports <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> — routing <code class="docutils literal notranslate"><span class="pre">connect_*</span></code> through the root makes that a static import cycle. It is an intra-package import, not a consumer reaching in.</p>
@@ -689,11 +689,11 @@ will never look for one.</p>
 <p><code class="docutils literal notranslate"><span class="pre">tests/bfabric/config/test_backward_compat.py</span></code> asserts each of these against a vendored replica of
 the 1.19.0 schema, so the boundary is executable rather than folklore.</p>
 <section id="new-config-writer-py">
-<h3>New: <code class="docutils literal notranslate"><span class="pre">config_writer.py</span></code><a class="headerlink" href="#new-config-writer-py" title="Link to this heading">#</a></h3>
+<span id="new-config_writerpy"></span><h3>New: <code class="docutils literal notranslate"><span class="pre">config_writer.py</span></code><a class="headerlink" href="#new-config-writer-py" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">write_environment_to_config()</span></code> — creates or updates a YAML environment section with atomic writes (0o600 permissions). Used by all login commands.</p>
 </section>
 <section id="configdata-environmentconfig">
-<h3><code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig</span></code><a class="headerlink" href="#configdata-environmentconfig" title="Link to this heading">#</a></h3>
+<span id="configdata--environmentconfig"></span><h3><code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> / <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig</span></code><a class="headerlink" href="#configdata-environmentconfig" title="Link to this heading">#</a></h3>
 <p>Both hold the auth-method union described above as <code class="docutils literal notranslate"><span class="pre">auth_config</span></code>, and expose <code class="docutils literal notranslate"><span class="pre">auth_method</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code> as read-only properties derived from it. <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> resolves a credential provider from the method rather than switching on a string: <code class="docutils literal notranslate"><span class="pre">&quot;oauth&quot;</span></code> yields one backed by the disk token cache, <code class="docutils literal notranslate"><span class="pre">&quot;client_credentials&quot;</span></code> one backed by the inline secret, and <code class="docutils literal notranslate"><span class="pre">&quot;pat&quot;</span></code> / <code class="docutils literal notranslate"><span class="pre">&quot;password&quot;</span></code> yield none, carrying their credential in the config and using the normal auth path.</p>
 </section>
 </section>

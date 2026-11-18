@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>OAuth Usage &amp; Troubleshooting &#8212; bfabricPy 1.24.1 documentation</title>
+    <title>OAuth Usage &amp; Troubleshooting &#8212; bfabricPy 1.24.2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=712e42e9"></script>
+    <script src="../_static/documentation_options.js?v=665ac28f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="OAuth Integration" href="oauth_integration.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.24.1" />
+  <meta name="docsearch:version" content="1.24.2" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.24.1 documentation</p>
+    <p class="title logo__title">bfabricPy 1.24.2 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -434,13 +434,13 @@
                 <article class="bd-article">
                   
   <section id="oauth-usage-troubleshooting">
-<h1>OAuth Usage &amp; Troubleshooting<a class="headerlink" href="#oauth-usage-troubleshooting" title="Link to this heading">#</a></h1>
+<span id="oauth-usage--troubleshooting"></span><h1>OAuth Usage &amp; Troubleshooting<a class="headerlink" href="#oauth-usage-troubleshooting" title="Link to this heading">#</a></h1>
 <p>A task-oriented companion to <a class="reference internal" href="oauth_integration.html"><span class="std std-doc">OAuth Integration</span></a>: how to obtain a working
 token from a <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client via OAuth, and the non-obvious failure modes observed on
 <code class="docutils literal notranslate"><span class="pre">fgcz-bfabric-demo</span></code>. For the architecture and module layout, see the integration doc.</p>
 <hr class="docutils" />
 <section id="which-token-do-i-actually-have">
-<h2>1. Which token do I actually have?<a class="headerlink" href="#which-token-do-i-actually-have" title="Link to this heading">#</a></h2>
+<span id="1-which-token-do-i-actually-have"></span><h2>1. Which token do I actually have?<a class="headerlink" href="#which-token-do-i-actually-have" title="Link to this heading">#</a></h2>
 <p>An OAuth-connected client exposes its <strong>access token</strong> (a JWT) through the <code class="docutils literal notranslate"><span class="pre">auth</span></code> property.
 Every read runs the credential provider, which refreshes first if the access token is near expiry:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">jwt</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">auth</span><span class="o">.</span><span class="n">password</span><span class="o">.</span><span class="n">get_secret_value</span><span class="p">()</span>  <span class="c1"># the OAuth access token, always fresh</span>
@@ -452,7 +452,7 @@ Every read runs the credential provider, which refreshes first if the access tok
 <li><p><strong>Do not cache the string</strong> — read it at point of use so you benefit from auto-refresh.</p></li>
 </ul>
 <section id="access-token-vs-id-token-do-not-confuse-them">
-<h3>access_token vs id_token — do not confuse them<a class="headerlink" href="#access-token-vs-id-token-do-not-confuse-them" title="Link to this heading">#</a></h3>
+<span id="access_token-vs-id_token--do-not-confuse-them"></span><h3>access_token vs id_token — do not confuse them<a class="headerlink" href="#access-token-vs-id-token-do-not-confuse-them" title="Link to this heading">#</a></h3>
 <p>Both are JWTs in the OIDC token response, but they are for different audiences:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -488,7 +488,7 @@ client, so the resource server refuses it.</p>
 </section>
 <hr class="docutils" />
 <section id="discovery-find-endpoints-and-supported-scopes-per-instance">
-<h2>2. Discovery: find endpoints and supported scopes per instance<a class="headerlink" href="#discovery-find-endpoints-and-supported-scopes-per-instance" title="Link to this heading">#</a></h2>
+<span id="2-discovery-find-endpoints-and-supported-scopes-per-instance"></span><h2>2. Discovery: find endpoints and supported scopes per instance<a class="headerlink" href="#discovery-find-endpoints-and-supported-scopes-per-instance" title="Link to this heading">#</a></h2>
 <p>Every B-Fabric instance publishes an OpenID Connect discovery document:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">base_url</span><span class="p">}</span><span class="o">/.</span><span class="n">well</span><span class="o">-</span><span class="n">known</span><span class="o">/</span><span class="n">openid</span><span class="o">-</span><span class="n">configuration</span>
 </pre></div>
@@ -504,7 +504,7 @@ client, so the resource server refuses it.</p>
 </section>
 <hr class="docutils" />
 <section id="choosing-a-connect-method">
-<h2>3. Choosing a connect method<a class="headerlink" href="#choosing-a-connect-method" title="Link to this heading">#</a></h2>
+<span id="3-choosing-a-connect-method"></span><h2>3. Choosing a connect method<a class="headerlink" href="#choosing-a-connect-method" title="Link to this heading">#</a></h2>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Method</p></th>
@@ -551,7 +551,7 @@ OIDC-inclusive default.</p>
 </section>
 <hr class="docutils" />
 <section id="scopes-and-claims-that-gate-resource-access">
-<h2>4. Scopes and claims that gate resource access<a class="headerlink" href="#scopes-and-claims-that-gate-resource-access" title="Link to this heading">#</a></h2>
+<span id="4-scopes-and-claims-that-gate-resource-access"></span><h2>4. Scopes and claims that gate resource access<a class="headerlink" href="#scopes-and-claims-that-gate-resource-access" title="Link to this heading">#</a></h2>
 <p>Resource servers gate on <em>claims</em>, and claims come from <em>scopes the client is authorized for</em>.
 File/download access is authorized by <strong>container membership</strong>, which a token can convey two ways:</p>
 <ul class="simple">
@@ -608,7 +608,7 @@ is the cause.</p>
 </section>
 <hr class="docutils" />
 <section id="pkce-mechanics-and-gotchas">
-<h2>5. PKCE mechanics and gotchas<a class="headerlink" href="#pkce-mechanics-and-gotchas" title="Link to this heading">#</a></h2>
+<span id="5-pkce-mechanics-and-gotchas"></span><h2>5. PKCE mechanics and gotchas<a class="headerlink" href="#pkce-mechanics-and-gotchas" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> → <code class="docutils literal notranslate"><span class="pre">pkce_login</span></code>:</p>
 <ol class="arabic simple">
 <li><p>Binds a local HTTP server on <code class="docutils literal notranslate"><span class="pre">127.0.0.1:{port}</span></code> (<code class="docutils literal notranslate"><span class="pre">port=0</span></code> ⇒ OS picks a random free port).</p></li>
@@ -624,14 +624,14 @@ UI, so the whole thing completes in a fraction of a second and <em>looks</em> no
 you’d see the cell hang on the login page.</p>
 </section>
 <section id="redirect-uri-must-match-exactly-127-0-0-1-not-localhost-and-the-right-port">
-<h3>Redirect URI must match exactly — <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>, not <code class="docutils literal notranslate"><span class="pre">localhost</span></code>, and the right port<a class="headerlink" href="#redirect-uri-must-match-exactly-127-0-0-1-not-localhost-and-the-right-port" title="Link to this heading">#</a></h3>
+<span id="redirect-uri-must-match-exactly--127001-not-localhost-and-the-right-port"></span><h3>Redirect URI must match exactly — <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>, not <code class="docutils literal notranslate"><span class="pre">localhost</span></code>, and the right port<a class="headerlink" href="#redirect-uri-must-match-exactly-127-0-0-1-not-localhost-and-the-right-port" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">pkce_login</span></code> builds its redirect as <code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:{port}/callback</span></code>. If you register a fixed
 redirect URI on the OAuth client, it must be <strong><code class="docutils literal notranslate"><span class="pre">http://127.0.0.1:8000/callback</span></code></strong> (127.0.0.1, not
 <code class="docutils literal notranslate"><span class="pre">localhost</span></code>) and you must call <code class="docutils literal notranslate"><span class="pre">connect_pkce(...,</span> <span class="pre">port=8000)</span></code> so the port matches. With <code class="docutils literal notranslate"><span class="pre">port=0</span></code> the
 port is random and cannot match a fixed registration.</p>
 </section>
 <section id="loopback-redirect-fails-on-remote-hosted-notebooks">
-<h3>Loopback redirect fails on remote/hosted notebooks<a class="headerlink" href="#loopback-redirect-fails-on-remote-hosted-notebooks" title="Link to this heading">#</a></h3>
+<span id="loopback-redirect-fails-on-remotehosted-notebooks"></span><h3>Loopback redirect fails on remote/hosted notebooks<a class="headerlink" href="#loopback-redirect-fails-on-remote-hosted-notebooks" title="Link to this heading">#</a></h3>
 <p>The callback server listens on the <em>notebook host’s</em> <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code>. If the browser runs on a different
 machine (a remote/hosted marimo, Jupyter on a server, SSH), the redirect to <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> hits the
 <em>user’s</em> machine where nothing is listening, so the code is never caught and PKCE times out.
@@ -649,7 +649,7 @@ make the flow work remotely. See the
 hatches.</p>
 </section>
 <section id="connect-pkce-only-supports-public-clients">
-<h3><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients<a class="headerlink" href="#connect-pkce-only-supports-public-clients" title="Link to this heading">#</a></h3>
+<span id="connect_pkce-only-supports-public-clients"></span><h3><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> only supports <strong>public</strong> clients<a class="headerlink" href="#connect-pkce-only-supports-public-clients" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> sends only <code class="docutils literal notranslate"><span class="pre">client_id</span></code> + PKCE <code class="docutils literal notranslate"><span class="pre">code_verifier</span></code> at the token endpoint — <strong>no
 <code class="docutils literal notranslate"><span class="pre">client_secret</span></code></strong>. So it works with <em>public</em> clients (like <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code>) but not with a
 <strong>confidential</strong> client that has a secret and requires client authentication.</p>
@@ -685,7 +685,7 @@ real round-trip. Isolate that cell or cache the token yourself if it becomes ann
 </section>
 <hr class="docutils" />
 <section id="refreshing-tokens-manually-rarely-needed">
-<h2>6. Refreshing tokens manually (rarely needed)<a class="headerlink" href="#refreshing-tokens-manually-rarely-needed" title="Link to this heading">#</a></h2>
+<span id="6-refreshing-tokens-manually-rarely-needed"></span><h2>6. Refreshing tokens manually (rarely needed)<a class="headerlink" href="#refreshing-tokens-manually-rarely-needed" title="Link to this heading">#</a></h2>
 <p>The provider auto-refreshes the <strong>access token</strong> based on the access token’s own expiry. If you need
 a fresh token out of band (e.g. an id_token whose expiry the provider does <em>not</em> track), drive the
 refresh grant directly:</p>
@@ -704,7 +704,7 @@ private and may change.</p>
 </section>
 <hr class="docutils" />
 <section id="quick-decision-tree">
-<h2>7. Quick decision tree<a class="headerlink" href="#quick-decision-tree" title="Link to this heading">#</a></h2>
+<span id="7-quick-decision-tree"></span><h2>7. Quick decision tree<a class="headerlink" href="#quick-decision-tree" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><strong>Need a token for the SOAP/REST API only?</strong> Any flow works; <code class="docutils literal notranslate"><span class="pre">client.auth.password.get_secret_value()</span></code>.</p></li>
 <li><p><strong>Need to download files / hit a resource server as an employee?</strong> Use a user flow

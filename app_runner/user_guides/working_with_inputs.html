@@ -443,7 +443,7 @@ is a list of specifications:</p>
 <p>Each type is shown below with a representative example. For the complete field reference — every option,
 its type, and default — see the <a class="reference internal" href="../specs/input_specification.html"><span class="std std-doc">Input specification</span></a>.</p>
 <section id="bfabric-resource">
-<h3>bfabric_resource<a class="headerlink" href="#bfabric-resource" title="Link to this heading">#</a></h3>
+<span id="bfabric_resource"></span><h3>bfabric_resource<a class="headerlink" href="#bfabric-resource" title="Link to this heading">#</a></h3>
 <p>Downloads a resource file from B-Fabric.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource</span>
@@ -454,7 +454,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 </div>
 </section>
 <section id="bfabric-dataset">
-<h3>bfabric_dataset<a class="headerlink" href="#bfabric-dataset" title="Link to this heading">#</a></h3>
+<span id="bfabric_dataset"></span><h3>bfabric_dataset<a class="headerlink" href="#bfabric-dataset" title="Link to this heading">#</a></h3>
 <p>Downloads a dataset from B-Fabric as a tabular file.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_dataset</span>
@@ -466,7 +466,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 </div>
 </section>
 <section id="bfabric-resource-archive">
-<h3>bfabric_resource_archive<a class="headerlink" href="#bfabric-resource-archive" title="Link to this heading">#</a></h3>
+<span id="bfabric_resource_archive"></span><h3>bfabric_resource_archive<a class="headerlink" href="#bfabric-resource-archive" title="Link to this heading">#</a></h3>
 <p>Downloads a resource and extracts it as an archive.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_resource_archive</span>
@@ -481,7 +481,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 </div>
 </section>
 <section id="bfabric-resource-dataset">
-<h3>bfabric_resource_dataset<a class="headerlink" href="#bfabric-resource-dataset" title="Link to this heading">#</a></h3>
+<span id="bfabric_resource_dataset"></span><h3>bfabric_resource_dataset<a class="headerlink" href="#bfabric-resource-dataset" title="Link to this heading">#</a></h3>
 <p>Downloads multiple resources referenced in a dataset column. The optional manifest
 (<code class="docutils literal notranslate"><span class="pre">output_dataset_filename</span></code>) is always written as Parquet, regardless of the extension you give it.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
@@ -496,7 +496,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 </div>
 </section>
 <section id="bfabric-order-fasta">
-<h3>bfabric_order_fasta<a class="headerlink" href="#bfabric-order-fasta" title="Link to this heading">#</a></h3>
+<span id="bfabric_order_fasta"></span><h3>bfabric_order_fasta<a class="headerlink" href="#bfabric-order-fasta" title="Link to this heading">#</a></h3>
 <p>Downloads FASTA data associated with an order or workunit.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_order_fasta</span>
@@ -508,7 +508,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 </div>
 </section>
 <section id="bfabric-annotation">
-<h3>bfabric_annotation<a class="headerlink" href="#bfabric-annotation" title="Link to this heading">#</a></h3>
+<span id="bfabric_annotation"></span><h3>bfabric_annotation<a class="headerlink" href="#bfabric-annotation" title="Link to this heading">#</a></h3>
 <p>Downloads annotation data linking resources to samples.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_annotation</span>
@@ -545,7 +545,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 </div>
 </section>
 <section id="static-file">
-<h3>static_file<a class="headerlink" href="#static-file" title="Link to this heading">#</a></h3>
+<span id="static_file"></span><h3>static_file<a class="headerlink" href="#static-file" title="Link to this heading">#</a></h3>
 <p>Creates a file with inline content.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_file</span>
@@ -555,7 +555,7 @@ its type, and default — see the <a class="reference internal" href="../specs/i
 </div>
 </section>
 <section id="static-yaml">
-<h3>static_yaml<a class="headerlink" href="#static-yaml" title="Link to this heading">#</a></h3>
+<span id="static_yaml"></span><h3>static_yaml<a class="headerlink" href="#static-yaml" title="Link to this heading">#</a></h3>
 <p>Creates a YAML file from inline structured data.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">inputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">static_yaml</span>

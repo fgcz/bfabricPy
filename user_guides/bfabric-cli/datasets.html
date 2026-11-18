@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Datasets &#8212; bfabricPy 1.24.1 documentation</title>
+    <title>Datasets &#8212; bfabricPy 1.24.2 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=712e42e9"></script>
+    <script src="../../_static/documentation_options.js?v=665ac28f"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
@@ -52,7 +52,7 @@
     <link rel="prev" title="API Inspection with CLI" href="api_inspection.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="1.24.1" />
+  <meta name="docsearch:version" content="1.24.2" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -177,7 +177,7 @@
   
   
   
-    <p class="title logo__title">bfabricPy 1.24.1 documentation</p>
+    <p class="title logo__title">bfabricPy 1.24.2 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item">
@@ -552,13 +552,13 @@
 <h2>Downloading Datasets<a class="headerlink" href="#downloading-datasets" title="Link to this heading">#</a></h2>
 <p>Download dataset data to a local file.</p>
 <section id="id1">
-<h3>Basic Usage<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<span id="basic-usage-1"></span><h3>Basic Usage<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>DATASET_ID<span class="o">]</span><span class="w"> </span><span class="o">[</span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
 </section>
 <section id="id2">
-<h3>Parameters<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<span id="parameters-1"></span><h3>Parameters<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Parameter</p></th>
@@ -584,7 +584,7 @@
 </div>
 </section>
 <section id="id3">
-<h3>Examples<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<span id="examples-1"></span><h3>Examples<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <p><strong>Download with automatic format detection (recommended):</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>download<span class="w"> </span><span class="m">12345</span><span class="w"> </span>my_data.parquet
 </pre></div>
@@ -663,7 +663,7 @@
 <h2>Uploading Datasets<a class="headerlink" href="#uploading-datasets" title="Link to this heading">#</a></h2>
 <p>Upload new datasets to B-Fabric from local files.</p>
 <section id="id4">
-<h3>Basic Usage<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
+<span id="basic-usage-2"></span><h3>Basic Usage<a class="headerlink" href="#id4" title="Link to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>upload<span class="w"> </span><span class="o">[</span>FORMAT<span class="o">]</span><span class="w"> </span><span class="o">[</span>INPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
 </pre></div>
 </div>
@@ -726,7 +726,7 @@
 </div>
 </section>
 <section id="id5">
-<h3>Examples<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<span id="examples-2"></span><h3>Examples<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <p><strong>Upload CSV:</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>upload<span class="w"> </span>csv<span class="w"> </span>my_data.csv<span class="w"> </span>--container-id<span class="w"> </span><span class="m">1234</span>
 </pre></div>
@@ -809,7 +809,7 @@ bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>show<span clas
 </div>
 </section>
 <section id="id6">
-<h3>Notes<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<span id="notes-1"></span><h3>Notes<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Container must exist and you must have write permissions</p></li>
 <li><p>File size is limited by B-Fabric configuration</p></li>
@@ -881,7 +881,7 @@ bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>upload<span cl
 <section id="common-issues">
 <h2>Common Issues<a class="headerlink" href="#common-issues" title="Link to this heading">#</a></h2>
 <section id="upload-fails-container-not-found">
-<h3>Upload Fails - Container Not Found<a class="headerlink" href="#upload-fails-container-not-found" title="Link to this heading">#</a></h3>
+<span id="upload-fails---container-not-found"></span><h3>Upload Fails - Container Not Found<a class="headerlink" href="#upload-fails-container-not-found" title="Link to this heading">#</a></h3>
 <p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">Container</span> <span class="pre">with</span> <span class="pre">ID</span> <span class="pre">X</span> <span class="pre">not</span> <span class="pre">found</span></code></p>
 <p><strong>Solution</strong>: Verify the container exists and you have access:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>api<span class="w"> </span><span class="nb">read</span><span class="w"> </span>project<span class="w"> </span>id<span class="w"> </span>&lt;container-id&gt;
@@ -889,7 +889,7 @@ bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>upload<span cl
 </div>
 </section>
 <section id="download-fails-format-not-supported">
-<h3>Download Fails - Format Not Supported<a class="headerlink" href="#download-fails-format-not-supported" title="Link to this heading">#</a></h3>
+<span id="download-fails---format-not-supported"></span><h3>Download Fails - Format Not Supported<a class="headerlink" href="#download-fails-format-not-supported" title="Link to this heading">#</a></h3>
 <p><strong>Error</strong>: <code class="docutils literal notranslate"><span class="pre">Dataset</span> <span class="pre">format</span> <span class="pre">not</span> <span class="pre">supported</span></code></p>
 <p><strong>Solution</strong>: Check available formats or use a different format:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bfabric-cli<span class="w"> </span>dataset<span class="w"> </span>show<span class="w"> </span>&lt;dataset-id&gt;
