@@ -426,7 +426,7 @@
 <p>Each type is shown below with a representative example. For the complete field reference, see the
 <a class="reference internal" href="../specs/output_specification.html"><span class="std std-doc">Output specification</span></a>.</p>
 <section id="bfabric-copy-resource">
-<h3>bfabric_copy_resource<a class="headerlink" href="#bfabric-copy-resource" title="Link to this heading">#</a></h3>
+<span id="bfabric_copy_resource"></span><h3>bfabric_copy_resource<a class="headerlink" href="#bfabric-copy-resource" title="Link to this heading">#</a></h3>
 <p>Copies a local file to the B-Fabric storage and registers it as a resource.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_copy_resource</span>
@@ -439,7 +439,7 @@
 </div>
 </section>
 <section id="bfabric-dataset">
-<h3>bfabric_dataset<a class="headerlink" href="#bfabric-dataset" title="Link to this heading">#</a></h3>
+<span id="bfabric_dataset"></span><h3>bfabric_dataset<a class="headerlink" href="#bfabric-dataset" title="Link to this heading">#</a></h3>
 <p>Registers a local tabular file as a B-Fabric dataset. The <code class="docutils literal notranslate"><span class="pre">format</span></code> field selects the reader
 (<code class="docutils literal notranslate"><span class="pre">csv</span></code>, the default, or <code class="docutils literal notranslate"><span class="pre">parquet</span></code>); <code class="docutils literal notranslate"><span class="pre">separator</span></code> and <code class="docutils literal notranslate"><span class="pre">has_header</span></code> apply to <code class="docutils literal notranslate"><span class="pre">csv</span></code> only.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
@@ -461,7 +461,7 @@
 </div>
 </section>
 <section id="bfabric-link">
-<h3>bfabric_link<a class="headerlink" href="#bfabric-link" title="Link to this heading">#</a></h3>
+<span id="bfabric_link"></span><h3>bfabric_link<a class="headerlink" href="#bfabric-link" title="Link to this heading">#</a></h3>
 <p>Creates a link resource in B-Fabric pointing to an external URL.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">outputs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bfabric_link</span>
@@ -473,7 +473,7 @@
 </section>
 </section>
 <section id="the-update-existing-field">
-<h2>The <code class="docutils literal notranslate"><span class="pre">update_existing</span></code> field<a class="headerlink" href="#the-update-existing-field" title="Link to this heading">#</a></h2>
+<span id="the-update_existing-field"></span><h2>The <code class="docutils literal notranslate"><span class="pre">update_existing</span></code> field<a class="headerlink" href="#the-update-existing-field" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">update_existing</span></code> controls what happens when an entry with the same identity already exists in B-Fabric;
 its accepted values (<code class="docutils literal notranslate"><span class="pre">&quot;no&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">if_exists</span></code>, <code class="docutils literal notranslate"><span class="pre">required</span></code>) are documented on the
 <a class="reference internal" href="../specs/output_specification.html"><span class="std std-doc">Output specification</span></a>. Two things trip people up:</p>

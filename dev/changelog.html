@@ -706,7 +706,7 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 <h2>[Unreleased]<a class="headerlink" href="#unreleased" title="Link to this heading">#</a></h2>
 </section>
 <section id="id1">
-<h2>[1.24.1] - 2026-11-10<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<span id="1241---2026-11-10"></span><h2>[1.24.1] - 2026-11-10<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
 <section id="fixed">
 <h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">#</a></h3>
 <ul class="simple">
@@ -715,11 +715,13 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 <li><p><code class="docutils literal notranslate"><span class="pre">use_client</span></code> reports a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, <code class="docutils literal notranslate"><span class="pre">OSError</span></code>, YAML error or HTTP error status from the command or from loading the config (e.g. no config file yet) as one <code class="docutils literal notranslate"><span class="pre">Error:</span></code> line instead of a traceback; the new <code class="docutils literal notranslate"><span class="pre">report_user_errors</span></code> context manager applies the same handling elsewhere.</p></li>
 <li><p>An unknown config environment (e.g. a typo in <code class="docutils literal notranslate"><span class="pre">--config-env</span></code>) raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> listing the available environments instead of a <code class="docutils literal notranslate"><span class="pre">KeyError</span></code>.</p></li>
 <li><p>On a CPU without the features polars needs (e.g. AVX2), importing polars through <code class="docutils literal notranslate"><span class="pre">bfabric</span></code> raises polars’ <code class="docutils literal notranslate"><span class="pre">RuntimeWarning</span></code> telling you to install <code class="docutils literal notranslate"><span class="pre">polars[rtcompat]</span></code>, instead of the process dying with “Illegal instruction”.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OAuthCredentialProvider</span></code> processes sharing one token cache file (web app workers, an unpickled client in a job worker, several CLI processes) no longer each refresh the same token: refreshes are serialised by a <code class="docutils literal notranslate"><span class="pre">&lt;cache&gt;.lock</span></code> file and the others adopt the refreshed token, so B-Fabric no longer rejects the reused refresh token and revokes all of the user’s sessions. A token passed in (or restored by unpickling) only replaces the cached one if it expires later.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TokenCache.save</span></code> uses a unique temporary file per write, so several threads saving the same cache at once no longer fail with <code class="docutils literal notranslate"><span class="pre">FileNotFoundError</span></code>.</p></li>
 </ul>
 </section>
 </section>
 <section id="id2">
-<h2>[1.24.0] - 2026-10-05<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<span id="1240---2026-10-05"></span><h2>[1.24.0] - 2026-10-05<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
 <section id="added">
 <h3>Added<a class="headerlink" href="#added" title="Link to this heading">#</a></h3>
 <ul class="simple">
@@ -735,7 +737,7 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id3">
-<h3>Fixed<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<span id="fixed-1"></span><h3>Fixed<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">upload_files</span></code> resuming an interrupted upload no longer fails with <code class="docutils literal notranslate"><span class="pre">importResourceIds</span> <span class="pre">count</span> <span class="pre">must</span> <span class="pre">match</span> <span class="pre">resourceIds</span> <span class="pre">count</span></code>. Interrupted uploads saved by an earlier version restart from byte 0 instead of resuming.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">upload_files</span></code> resuming an interrupted run no longer fails with a 409 conflict: files that already finished are reported as uploaded, and files that never started reuse the resource created for them.</p></li>
@@ -744,9 +746,9 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </section>
 </section>
 <section id="id4">
-<h2>[1.23.0] - 2026-09-16<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
+<span id="1230---2026-09-16"></span><h2>[1.23.0] - 2026-09-16<a class="headerlink" href="#id4" title="Link to this heading">#</a></h2>
 <section id="id5">
-<h3>Added<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
+<span id="added-1"></span><h3>Added<a class="headerlink" href="#id5" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">create_workunit</span></code> accepts <code class="docutils literal notranslate"><span class="pre">executables</span></code> (name → base64-encoded content), saved as <code class="docutils literal notranslate"><span class="pre">context:</span> <span class="pre">&quot;WORKUNIT&quot;</span></code> executables of the new workunit — e.g. the script that generated it. Executables alone count as workunit data.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.oauth.AuthorizationRequest.create</span></code> starts an authorization-code login, returning the URL to redirect a user to along with the CSRF state and PKCE verifier to keep until they return. A web app can now run the flow without deriving a code challenge itself.</p></li>
@@ -758,7 +760,7 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id6">
-<h3>Changed<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
+<span id="changed-1"></span><h3>Changed<a class="headerlink" href="#id6" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>An environment’s authentication is modelled as a discriminated union (<code class="docutils literal notranslate"><span class="pre">config/auth_methods.py</span></code>), which <code class="docutils literal notranslate"><span class="pre">resolve_static_auth</span></code> and <code class="docutils literal notranslate"><span class="pre">resolve_credential_provider</span></code> turn into credentials. <code class="docutils literal notranslate"><span class="pre">EnvironmentConfig.auth</span></code>, <code class="docutils literal notranslate"><span class="pre">auth_method</span></code>, <code class="docutils literal notranslate"><span class="pre">client_id</span></code>, <code class="docutils literal notranslate"><span class="pre">client_secret</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code> are now read-only properties over it; the config file format is unchanged.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">write_environment_to_config</span></code> takes a required <code class="docutils literal notranslate"><span class="pre">auth=&quot;merge&quot;|&quot;replace&quot;</span></code> mode. <code class="docutils literal notranslate"><span class="pre">replace</span></code> keeps the previous behaviour of replacing every auth-owned key; <code class="docutils literal notranslate"><span class="pre">merge</span></code> keeps the ones the payload does not mention, and a key set to <code class="docutils literal notranslate"><span class="pre">None</span></code> is removed.</p></li>
@@ -768,7 +770,7 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id7">
-<h3>Fixed<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
+<span id="fixed-2"></span><h3>Fixed<a class="headerlink" href="#id7" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect(include_auth=False)</span></code> no longer attaches a credential provider, which made a service-account environment authenticate anyway and fetch a token on the first request.</p></li>
 <li><p>Unpickling a <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client saved by an earlier version works again; it raised <code class="docutils literal notranslate"><span class="pre">KeyError:</span> <span class="pre">'config_data'</span></code> since the client started storing its config as one object.</p></li>
@@ -782,15 +784,15 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </section>
 </section>
 <section id="id8">
-<h2>[1.22.0] - 2026-08-25<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
+<span id="1220---2026-08-25"></span><h2>[1.22.0] - 2026-08-25<a class="headerlink" href="#id8" title="Link to this heading">#</a></h2>
 <section id="id9">
-<h3>Added<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
+<span id="added-2"></span><h3>Added<a class="headerlink" href="#id9" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">upload_files</span></code> resumes interrupted transfers by default, keeping each file’s tus URL under <code class="docutils literal notranslate"><span class="pre">~/.bfabric/resume</span></code> per server, keyed by the file’s MD5 and source path. Pass <code class="docutils literal notranslate"><span class="pre">resume_cache</span></code> to choose another path, or <code class="docutils literal notranslate"><span class="pre">resume_cache=None</span></code> to keep no state and never resume.</p></li>
 </ul>
 </section>
 <section id="id10">
-<h3>Changed<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
+<span id="changed-2"></span><h3>Changed<a class="headerlink" href="#id10" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>Breaking: new <code class="docutils literal notranslate"><span class="pre">bfabric.BaseUrl</span></code></strong>, a <code class="docutils literal notranslate"><span class="pre">str</span></code> subclass replacing the pydantic <code class="docutils literal notranslate"><span class="pre">HttpUrl</span></code> on <code class="docutils literal notranslate"><span class="pre">BfabricClientConfig.base_url</span></code>, <code class="docutils literal notranslate"><span class="pre">Entity.bfabric_instance</span></code> and <code class="docutils literal notranslate"><span class="pre">EntityUriComponents.bfabric_instance</span></code>, which always ends with <code class="docutils literal notranslate"><span class="pre">/bfabric</span></code>. <code class="docutils literal notranslate"><span class="pre">UrlTokenContext.base_url</span></code>, <code class="docutils literal notranslate"><span class="pre">TokenValidationSettings</span></code> and <code class="docutils literal notranslate"><span class="pre">WebappIntegrationSettings</span></code> hold their instance URLs as <code class="docutils literal notranslate"><span class="pre">BaseUrl</span></code> too.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">connect_oauth</span></code> / <code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> / <code class="docutils literal notranslate"><span class="pre">connect_device_code</span></code> / <code class="docutils literal notranslate"><span class="pre">connect_pat</span></code> and <code class="docutils literal notranslate"><span class="pre">WebappClient.create</span></code> normalise host case and a default port, and reject a non-HTTP URL with a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p></li>
@@ -802,7 +804,7 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id11">
-<h3>Fixed<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
+<span id="fixed-3"></span><h3>Fixed<a class="headerlink" href="#id11" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The SUDS WSDL URL, and the <code class="docutils literal notranslate"><span class="pre">show.html</span></code> links printed by <code class="docutils literal notranslate"><span class="pre">bfabric_read</span></code> and <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">read</span></code>, no longer contain a doubled slash.</p></li>
 </ul>
@@ -815,9 +817,9 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </section>
 </section>
 <section id="id12">
-<h2>[1.21.0] - 2026-08-20<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
+<span id="1210---2026-08-20"></span><h2>[1.21.0] - 2026-08-20<a class="headerlink" href="#id12" title="Link to this heading">#</a></h2>
 <section id="id13">
-<h3>Added<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
+<span id="added-3"></span><h3>Added<a class="headerlink" href="#id13" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">create_workunit</span></code> attaches a <code class="docutils literal notranslate"><span class="pre">dataset</span></code> (a <code class="docutils literal notranslate"><span class="pre">WorkunitDataset</span></code> of name + base64-encoded <code class="docutils literal notranslate"><span class="pre">csv</span></code>/<code class="docutils literal notranslate"><span class="pre">tsv</span></code>/<code class="docutils literal notranslate"><span class="pre">parquet</span></code>) as the workunit’s output dataset, and references an existing one as its input via <code class="docutils literal notranslate"><span class="pre">input_dataset_id</span></code>. A dataset alone counts as workunit data, so neither resources nor files are required.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">on_duplicate=&quot;link&quot;</span></code> registers a duplicate as a resource pointing at the existing bytes instead of omitting the file, transferring nothing. See <code class="docutils literal notranslate"><span class="pre">FileInfo.link_from_resource_id</span></code>.</p></li>
@@ -827,7 +829,7 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id14">
-<h3>Changed<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
+<span id="changed-3"></span><h3>Changed<a class="headerlink" href="#id14" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">upload_files(client,</span> <span class="pre">params)</span></code> takes its files as <code class="docutils literal notranslate"><span class="pre">UploadFilesParams.files</span></code>, a list of <code class="docutils literal notranslate"><span class="pre">UploadFileParam(path=...,</span> <span class="pre">on_duplicate=...)</span></code>; the <code class="docutils literal notranslate"><span class="pre">force</span></code> / <code class="docutils literal notranslate"><span class="pre">link_duplicates</span></code> booleans are gone.</p></li>
 <li><p><strong><code class="docutils literal notranslate"><span class="pre">on_duplicate</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">upload</span></code>, so the duplicate check no longer runs unless asked for</strong> — pass <code class="docutils literal notranslate"><span class="pre">skip</span></code> for the old behaviour.</p></li>
@@ -842,14 +844,14 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id15">
-<h3>Removed<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
+<span id="removed-1"></span><h3>Removed<a class="headerlink" href="#id15" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><strong>Breaking:</strong> the zeep engine, which had stopped working against B-Fabric. <code class="docutils literal notranslate"><span class="pre">EngineSUDS</span></code> is the only engine, <code class="docutils literal notranslate"><span class="pre">BfabricAPIEngineType.ZEEP</span></code> is gone, and so is the <code class="docutils literal notranslate"><span class="pre">bfabric[zeep]</span></code> extra. An environment setting <code class="docutils literal notranslate"><span class="pre">engine:</span> <span class="pre">ZEEP</span></code> no longer loads — drop the key.</p></li>
 <li><p><strong>Breaking:</strong> the <code class="docutils literal notranslate"><span class="pre">engine</span></code> parameter of <code class="docutils literal notranslate"><span class="pre">Bfabric.from_config</span></code> (which never applied it) and of <code class="docutils literal notranslate"><span class="pre">BfabricClientConfig.copy_with</span></code>.</p></li>
 </ul>
 </section>
 <section id="id16">
-<h3>Fixed<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
+<span id="fixed-4"></span><h3>Fixed<a class="headerlink" href="#id16" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>An unreachable B-Fabric instance raises <code class="docutils literal notranslate"><span class="pre">BfabricUnavailableError</span></code> (a <code class="docutils literal notranslate"><span class="pre">BfabricRequestError</span></code>) naming the instance and the transport failure, instead of leaking <code class="docutils literal notranslate"><span class="pre">suds.transport.TransportError</span></code>, <code class="docutils literal notranslate"><span class="pre">urllib.error.URLError</span></code> or <code class="docutils literal notranslate"><span class="pre">httpx.TransportError</span></code>. Covers the SOAP engine and the OAuth/REST calls (JWKS, device code, registration, token exchange, introspection, PKCE).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ResultContainer.assert_success</span></code> raises <code class="docutils literal notranslate"><span class="pre">BfabricRequestError</span></code> instead of a bare <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code>; it remains a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> subclass, so existing <code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">RuntimeError</span></code> handlers keep working.</p></li>
@@ -868,7 +870,7 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </section>
 </section>
 <section id="id17">
-<h2>[1.20.0] - 2026-08-03<a class="headerlink" href="#id17" title="Link to this heading">#</a></h2>
+<span id="1200---2026-08-03"></span><h2>[1.20.0] - 2026-08-03<a class="headerlink" href="#id17" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>OAuth 2.0 authentication: <code class="docutils literal notranslate"><span class="pre">connect_oauth</span></code> (client-credentials grant, auto-refresh + optional token cache), <code class="docutils literal notranslate"><span class="pre">connect_pkce</span></code> (interactive browser login, PKCE), <code class="docutils literal notranslate"><span class="pre">connect_device_code</span></code> (headless device grant), and <code class="docutils literal notranslate"><span class="pre">connect_pat</span></code> (Personal Access Token). <code class="docutils literal notranslate"><span class="pre">connect</span></code> auto-routes to OAuth when an environment sets <code class="docutils literal notranslate"><span class="pre">auth_method:</span> <span class="pre">oauth</span></code>. All three OAuth entry points require an explicit <code class="docutils literal notranslate"><span class="pre">client_id</span></code> and <code class="docutils literal notranslate"><span class="pre">scope</span></code> — the core library bakes in no defaults (those are CLI policy; <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">auth</span> <span class="pre">…</span></code> supplies its own), and <code class="docutils literal notranslate"><span class="pre">connect()</span></code> raises if an <code class="docutils literal notranslate"><span class="pre">auth_method:</span> <span class="pre">oauth</span></code> environment has no <code class="docutils literal notranslate"><span class="pre">client_id</span></code>. Token-acquisition failures (expired/revoked refresh token, unreachable token endpoint) raise <code class="docutils literal notranslate"><span class="pre">BfabricOAuthError</span></code> instead of leaking an <code class="docutils literal notranslate"><span class="pre">authlib</span></code>/<code class="docutils literal notranslate"><span class="pre">requests</span></code> traceback, and a failed PKCE login renders a distinct “Login failed” callback page showing the provider’s error (e.g. a two-factor-enrollment requirement) rather than always claiming success. Adds the <code class="docutils literal notranslate"><span class="pre">authlib</span></code> / <code class="docutils literal notranslate"><span class="pre">joserfc</span></code> dependencies.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">WebappClient</span></code> — a dual-identity client pairing a token-derived <code class="docutils literal notranslate"><span class="pre">user</span></code> identity with a <code class="docutils literal notranslate"><span class="pre">service</span></code> (client-credentials) identity, for apps launched from B-Fabric.</p></li>
@@ -887,9 +889,9 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id18">
-<h2>[1.19.0] - 2026-06-10<a class="headerlink" href="#id18" title="Link to this heading">#</a></h2>
+<span id="1190---2026-06-10"></span><h2>[1.19.0] - 2026-06-10<a class="headerlink" href="#id18" title="Link to this heading">#</a></h2>
 <section id="id19">
-<h3>Added<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
+<span id="added-4"></span><h3>Added<a class="headerlink" href="#id19" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Job</span></code> entity wrapping the B-Fabric <code class="docutils literal notranslate"><span class="pre">job</span></code> endpoint.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">BfabricTokenExpiredError</span></code> and <code class="docutils literal notranslate"><span class="pre">BfabricTokenInvalidError</span></code> in <code class="docutils literal notranslate"><span class="pre">bfabric.errors</span></code>: specific subclasses of <code class="docutils literal notranslate"><span class="pre">BfabricTokenValidationFailedError</span></code> raised instead of the generic error.</p></li>
@@ -910,23 +912,23 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id20">
-<h3>Removed<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
+<span id="removed-2"></span><h3>Removed<a class="headerlink" href="#id20" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.upload_dataset.bfabric_save_csv2dataset</span></code> (inner function) — removed outright; accessing it raises <code class="docutils literal notranslate"><span class="pre">AttributeError</span></code> with a migration hint.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.dataset_column_types</span></code> — internal implementation detail of <code class="docutils literal notranslate"><span class="pre">upload_dataset</span></code>, never public; symbols now live at <code class="docutils literal notranslate"><span class="pre">bfabric.operations.dataset._column_types</span></code>.</p></li>
 </ul>
 </section>
 <section id="id21">
-<h3>Fixed<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
+<span id="fixed-5"></span><h3>Fixed<a class="headerlink" href="#id21" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">User.is_employee</span></code> returns <code class="docutils literal notranslate"><span class="pre">False</span></code> when <code class="docutils literal notranslate"><span class="pre">empdegree</span></code> is missing or <code class="docutils literal notranslate"><span class="pre">None</span></code>, instead of raising <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>.</p></li>
 </ul>
 </section>
 </section>
 <section id="id22">
-<h2>[1.18.0] - 2026-04-20<a class="headerlink" href="#id22" title="Link to this heading">#</a></h2>
+<span id="1180---2026-04-20"></span><h2>[1.18.0] - 2026-04-20<a class="headerlink" href="#id22" title="Link to this heading">#</a></h2>
 <section id="id23">
-<h3>Added<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
+<span id="added-5"></span><h3>Added<a class="headerlink" href="#id23" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">EntityReader.query_one</span></code>: returns at most one matching entity (or <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">User.is_employee</span></code> property: <code class="docutils literal notranslate"><span class="pre">True</span></code> iff the user’s <code class="docutils literal notranslate"><span class="pre">empdegree</span></code> parses to a value <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">0</span></code>.</p></li>
@@ -935,23 +937,23 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id24">
-<h3>Changed<a class="headerlink" href="#id24" title="Link to this heading">#</a></h3>
+<span id="changed-4"></span><h3>Changed<a class="headerlink" href="#id24" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">EntityReader.query</span></code> accepts an <code class="docutils literal notranslate"><span class="pre">expected_type</span></code> keyword for typed narrowing of results.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">User.find_by_login</span></code> no longer triggers a <code class="docutils literal notranslate"><span class="pre">FindMixin</span></code> deprecation warning.</p></li>
 </ul>
 </section>
 <section id="id25">
-<h3>Fixed<a class="headerlink" href="#id25" title="Link to this heading">#</a></h3>
+<span id="fixed-6"></span><h3>Fixed<a class="headerlink" href="#id25" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">FindMixin.find_all</span></code> now correctly handles string IDs.</p></li>
 </ul>
 </section>
 </section>
 <section id="id26">
-<h2>[1.17.0] - 2026-03-12<a class="headerlink" href="#id26" title="Link to this heading">#</a></h2>
+<span id="1170---2026-03-12"></span><h2>[1.17.0] - 2026-03-12<a class="headerlink" href="#id26" title="Link to this heading">#</a></h2>
 <section id="id27">
-<h3>Added<a class="headerlink" href="#id27" title="Link to this heading">#</a></h3>
+<span id="added-6"></span><h3>Added<a class="headerlink" href="#id27" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Improved token authentication</p>
 <ul>
@@ -965,21 +967,21 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id28">
-<h3>Deprecated<a class="headerlink" href="#id28" title="Link to this heading">#</a></h3>
+<span id="deprecated-1"></span><h3>Deprecated<a class="headerlink" href="#id28" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_config</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.connect_webapp</span></code></p></li>
 </ul>
 </section>
 <section id="id29">
-<h3>Changed<a class="headerlink" href="#id29" title="Link to this heading">#</a></h3>
+<span id="changed-5"></span><h3>Changed<a class="headerlink" href="#id29" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">WorkunitExecutionDefinition</span></code> no longer validates that dataset or resources are provided.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">setup_script_logging()</span></code> now supports a <code class="docutils literal notranslate"><span class="pre">BFABRICPY_LOG_LEVEL</span></code> environment variable (<code class="docutils literal notranslate"><span class="pre">DEBUG</span></code>, <code class="docutils literal notranslate"><span class="pre">INFO</span></code>, <code class="docutils literal notranslate"><span class="pre">WARNING</span></code>, <code class="docutils literal notranslate"><span class="pre">ERROR</span></code>, <code class="docutils literal notranslate"><span class="pre">CRITICAL</span></code>, <code class="docutils literal notranslate"><span class="pre">OFF</span></code>/<code class="docutils literal notranslate"><span class="pre">0</span></code>). The previous <code class="docutils literal notranslate"><span class="pre">BFABRICPY_DEBUG</span></code> environment variable has been removed; use <code class="docutils literal notranslate"><span class="pre">BFABRICPY_LOG_LEVEL=DEBUG</span></code> instead.</p></li>
 </ul>
 </section>
 <section id="id30">
-<h3>Fixed<a class="headerlink" href="#id30" title="Link to this heading">#</a></h3>
+<span id="fixed-7"></span><h3>Fixed<a class="headerlink" href="#id30" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">References</span></code> correctly handles references with extra fields like <code class="docutils literal notranslate"><span class="pre">_position</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">ResultContainer.to_polars</span></code> sets the schema length to <code class="docutils literal notranslate"><span class="pre">None</span></code> to fix bugs in some cases with more than 100 items.</p></li>
@@ -987,33 +989,33 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </section>
 </section>
 <section id="id31">
-<h2>[1.16.2] - 2026-03-02<a class="headerlink" href="#id31" title="Link to this heading">#</a></h2>
+<span id="1162---2026-03-02"></span><h2>[1.16.2] - 2026-03-02<a class="headerlink" href="#id31" title="Link to this heading">#</a></h2>
 <section id="id32">
-<h3>Fixed<a class="headerlink" href="#id32" title="Link to this heading">#</a></h3>
+<span id="fixed-8"></span><h3>Fixed<a class="headerlink" href="#id32" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">BfabricAuth</span></code> does not prevent users with username shorter than 3 characters from logging in.</p></li>
 </ul>
 </section>
 <section id="id33">
-<h3>Changed<a class="headerlink" href="#id33" title="Link to this heading">#</a></h3>
+<span id="changed-6"></span><h3>Changed<a class="headerlink" href="#id33" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">BfabricAPIEngineType</span></code> is a <code class="docutils literal notranslate"><span class="pre">StrEnum</span></code> now, rather than <code class="docutils literal notranslate"><span class="pre">str,</span> <span class="pre">Enum</span></code> subclass.</p></li>
 </ul>
 </section>
 </section>
 <section id="id34">
-<h2>[1.16.1] - 2025-12-15<a class="headerlink" href="#id34" title="Link to this heading">#</a></h2>
+<span id="1161---2025-12-15"></span><h2>[1.16.1] - 2025-12-15<a class="headerlink" href="#id34" title="Link to this heading">#</a></h2>
 <section id="id35">
-<h3>Fixed<a class="headerlink" href="#id35" title="Link to this heading">#</a></h3>
+<span id="fixed-9"></span><h3>Fixed<a class="headerlink" href="#id35" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Dataset</span></code> correctly handles <code class="docutils literal notranslate"><span class="pre">None</span></code> values in items.</p></li>
 </ul>
 </section>
 </section>
 <section id="id36">
-<h2>[1.16.0] - 2025-12-15<a class="headerlink" href="#id36" title="Link to this heading">#</a></h2>
+<span id="1160---2025-12-15"></span><h2>[1.16.0] - 2025-12-15<a class="headerlink" href="#id36" title="Link to this heading">#</a></h2>
 <section id="id37">
-<h3>Added<a class="headerlink" href="#id37" title="Link to this heading">#</a></h3>
+<span id="added-7"></span><h3>Added<a class="headerlink" href="#id37" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.typing</span></code> with specific types for the API request and response objects.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Executable.decoded_str</span></code>, <code class="docutils literal notranslate"><span class="pre">Executable.decoded_bytes</span></code></p></li>
@@ -1022,7 +1024,7 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id38">
-<h3>Changed<a class="headerlink" href="#id38" title="Link to this heading">#</a></h3>
+<span id="changed-7"></span><h3>Changed<a class="headerlink" href="#id38" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Type hints have been narrowed in the public interfaces of the following classes:</p>
 <ul>
@@ -1039,53 +1041,53 @@ Historically, before 1.14.0, a different versioning scheme was used.</p>
 </ul>
 </section>
 <section id="id39">
-<h3>Removed<a class="headerlink" href="#id39" title="Link to this heading">#</a></h3>
+<span id="removed-3"></span><h3>Removed<a class="headerlink" href="#id39" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Legacy workaround for B-Fabric with non-list <code class="docutils literal notranslate"><span class="pre">technology</span></code> field is removed. Assumed to not be breaking since for the current B-Fabric instances, this change should be transparent.</p></li>
 </ul>
 </section>
 <section id="id40">
-<h3>Deprecated<a class="headerlink" href="#id40" title="Link to this heading">#</a></h3>
+<span id="deprecated-2"></span><h3>Deprecated<a class="headerlink" href="#id40" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Executable.decoded</span></code>: misleading name</p></li>
 </ul>
 </section>
 </section>
 <section id="id41">
-<h2>[1.15.1] - 2025-12-09<a class="headerlink" href="#id41" title="Link to this heading">#</a></h2>
+<span id="1151---2025-12-09"></span><h2>[1.15.1] - 2025-12-09<a class="headerlink" href="#id41" title="Link to this heading">#</a></h2>
 <section id="id42">
-<h3>Fixed<a class="headerlink" href="#id42" title="Link to this heading">#</a></h3>
+<span id="fixed-10"></span><h3>Fixed<a class="headerlink" href="#id42" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Allow <code class="docutils literal notranslate"><span class="pre">http://localhost</span></code> for EntityURIs.</p></li>
 </ul>
 </section>
 </section>
 <section id="id43">
-<h2>[1.15.0] - 2025-12-09<a class="headerlink" href="#id43" title="Link to this heading">#</a></h2>
+<span id="1150---2025-12-09"></span><h2>[1.15.0] - 2025-12-09<a class="headerlink" href="#id43" title="Link to this heading">#</a></h2>
 <section id="id44">
-<h3>Added<a class="headerlink" href="#id44" title="Link to this heading">#</a></h3>
+<span id="added-8"></span><h3>Added<a class="headerlink" href="#id44" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">TokenData.web_service_user</span></code> which indicates whether the user has permission to use webservices API.</p></li>
 </ul>
 </section>
 </section>
 <section id="id45">
-<h2>[1.14.1] - 2025-12-02<a class="headerlink" href="#id45" title="Link to this heading">#</a></h2>
+<span id="1141---2025-12-02"></span><h2>[1.14.1] - 2025-12-02<a class="headerlink" href="#id45" title="Link to this heading">#</a></h2>
 <section id="id46">
-<h3>Added<a class="headerlink" href="#id46" title="Link to this heading">#</a></h3>
+<span id="added-9"></span><h3>Added<a class="headerlink" href="#id46" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">EntityReader.read_</span></code> methods accept a <code class="docutils literal notranslate"><span class="pre">expected_type</span></code> parameter to specify the expected type of the entity (default <code class="docutils literal notranslate"><span class="pre">Entity</span></code>).</p></li>
 </ul>
 </section>
 <section id="id47">
-<h3>Fixed<a class="headerlink" href="#id47" title="Link to this heading">#</a></h3>
+<span id="fixed-11"></span><h3>Fixed<a class="headerlink" href="#id47" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>A few imports within the package were accidentally broken in 1.14.0 which is resolved now. <code class="docutils literal notranslate"><span class="pre">basedpyright</span></code> has been added to identify issues like this earlier.</p></li>
 </ul>
 </section>
 </section>
 <section id="id48">
-<h2>[1.14.0] - 2025-12-02<a class="headerlink" href="#id48" title="Link to this heading">#</a></h2>
+<span id="1140---2025-12-02"></span><h2>[1.14.0] - 2025-12-02<a class="headerlink" href="#id48" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>The minimal Python version has been updated to 3.11.</p></li>
 <li><p><em>bfabric.entities</em></p>
@@ -1110,7 +1112,7 @@ either in their version (planned for <code class="docutils literal notranslate">
 </li>
 </ul>
 <section id="id49">
-<h3>Added<a class="headerlink" href="#id49" title="Link to this heading">#</a></h3>
+<span id="added-10"></span><h3>Added<a class="headerlink" href="#id49" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Entity.uri</span></code> property to obtain the URI of an entity.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Entity.refs</span></code> resolves all references of entities generically, writes the data into <code class="docutils literal notranslate"><span class="pre">data_dict</span></code> and is compatible with pre-loaded references from B-Fabric.</p></li>
@@ -1124,7 +1126,7 @@ either in their version (planned for <code class="docutils literal notranslate">
 </ul>
 </section>
 <section id="id50">
-<h3>Changed<a class="headerlink" href="#id50" title="Link to this heading">#</a></h3>
+<span id="changed-8"></span><h3>Changed<a class="headerlink" href="#id50" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Minimal Python version is now 3.11.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">BFabricClientConfig</span></code> does not allow passing <code class="docutils literal notranslate"><span class="pre">None</span></code> for values anymore.</p></li>
@@ -1141,7 +1143,7 @@ either in their version (planned for <code class="docutils literal notranslate">
 </ul>
 </section>
 <section id="id51">
-<h3>Removed<a class="headerlink" href="#id51" title="Link to this heading">#</a></h3>
+<span id="removed-4"></span><h3>Removed<a class="headerlink" href="#id51" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.cache</span></code> is removed in favor of <code class="docutils literal notranslate"><span class="pre">bfabric.entities.cache</span></code>.</p></li>
 <li><p>Future deprecations:</p>
@@ -1154,9 +1156,9 @@ either in their version (planned for <code class="docutils literal notranslate">
 </section>
 </section>
 <section id="id52">
-<h2>[1.13.36] - 2025-10-27<a class="headerlink" href="#id52" title="Link to this heading">#</a></h2>
+<span id="11336---2025-10-27"></span><h2>[1.13.36] - 2025-10-27<a class="headerlink" href="#id52" title="Link to this heading">#</a></h2>
 <section id="id53">
-<h3>Changed<a class="headerlink" href="#id53" title="Link to this heading">#</a></h3>
+<span id="changed-9"></span><h3>Changed<a class="headerlink" href="#id53" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>This is the last release supporting Python 3.9. From the next release onwards, Python 3.11 or higher will be required.</p></li>
 <li><p>Flask is not a dependency anymore, as the dependency will be moved to bfabric-scripts.</p></li>
@@ -1165,25 +1167,25 @@ either in their version (planned for <code class="docutils literal notranslate">
 </ul>
 </section>
 <section id="id54">
-<h3>Fixed<a class="headerlink" href="#id54" title="Link to this heading">#</a></h3>
+<span id="fixed-12"></span><h3>Fixed<a class="headerlink" href="#id54" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>A test-only incompatibility with Polars was fixed.</p></li>
 </ul>
 </section>
 </section>
 <section id="id55">
-<h2>[1.13.35] - 2025-09-22<a class="headerlink" href="#id55" title="Link to this heading">#</a></h2>
+<span id="11335---2025-09-22"></span><h2>[1.13.35] - 2025-09-22<a class="headerlink" href="#id55" title="Link to this heading">#</a></h2>
 <section id="id56">
-<h3>Changed<a class="headerlink" href="#id56" title="Link to this heading">#</a></h3>
+<span id="changed-10"></span><h3>Changed<a class="headerlink" href="#id56" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Dataset column type detection now supports case-insensitive entity matching (e.g., “resource” is detected as “Resource” type automatically).</p></li>
 </ul>
 </section>
 </section>
 <section id="id57">
-<h2>[1.13.34] - 2025-09-19<a class="headerlink" href="#id57" title="Link to this heading">#</a></h2>
+<span id="11334---2025-09-19"></span><h2>[1.13.34] - 2025-09-19<a class="headerlink" href="#id57" title="Link to this heading">#</a></h2>
 <section id="id58">
-<h3>Added<a class="headerlink" href="#id58" title="Link to this heading">#</a></h3>
+<span id="added-11"></span><h3>Added<a class="headerlink" href="#id58" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.cache</span></code> which implements re-entrant lookup caching for entities (when retrieved by ID).</p></li>
 <li><p>Fields <code class="docutils literal notranslate"><span class="pre">filename</span></code>, <code class="docutils literal notranslate"><span class="pre">storage_relative_path</span></code>, <code class="docutils literal notranslate"><span class="pre">storage_absolute_path</span></code> have been added to <code class="docutils literal notranslate"><span class="pre">Resource</span></code>. This should be used
@@ -1191,39 +1193,39 @@ in the future, to ensure path handling is performed consistently</p></li>
 </ul>
 </section>
 <section id="id59">
-<h3>Removed<a class="headerlink" href="#id59" title="Link to this heading">#</a></h3>
+<span id="removed-5"></span><h3>Removed<a class="headerlink" href="#id59" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.entity_lookup_cache</span></code> has been removed in favor of the new (experimental) API.</p></li>
 </ul>
 </section>
 </section>
 <section id="id60">
-<h2>[1.13.33] - 2025-08-26<a class="headerlink" href="#id60" title="Link to this heading">#</a></h2>
+<span id="11333---2025-08-26"></span><h2>[1.13.33] - 2025-08-26<a class="headerlink" href="#id60" title="Link to this heading">#</a></h2>
 <section id="id61">
-<h3>Added<a class="headerlink" href="#id61" title="Link to this heading">#</a></h3>
+<span id="added-12"></span><h3>Added<a class="headerlink" href="#id61" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add new field <code class="docutils literal notranslate"><span class="pre">WorkunitDefinition.registration.user_id</span></code>.</p></li>
 <li><p>Add created/modified fields to <code class="docutils literal notranslate"><span class="pre">Workunit</span></code> entity.</p></li>
 </ul>
 </section>
 <section id="id62">
-<h3>Fixed<a class="headerlink" href="#id62" title="Link to this heading">#</a></h3>
+<span id="fixed-13"></span><h3>Fixed<a class="headerlink" href="#id62" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Legacy wrapper creator also writes the inputdataset name.</p></li>
 </ul>
 </section>
 </section>
 <section id="id63">
-<h2>[1.13.32] - 2025-08-26<a class="headerlink" href="#id63" title="Link to this heading">#</a></h2>
+<span id="11332---2025-08-26"></span><h2>[1.13.32] - 2025-08-26<a class="headerlink" href="#id63" title="Link to this heading">#</a></h2>
 <section id="id64">
-<h3>Added<a class="headerlink" href="#id64" title="Link to this heading">#</a></h3>
+<span id="added-13"></span><h3>Added<a class="headerlink" href="#id64" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>New entities: <code class="docutils literal notranslate"><span class="pre">Workflow</span></code>, <code class="docutils literal notranslate"><span class="pre">WorkflowStep</span></code>, <code class="docutils literal notranslate"><span class="pre">WorkflowTemplate</span></code>, <code class="docutils literal notranslate"><span class="pre">WorkflowTemplateStep</span></code></p></li>
 <li><p>New relationship: <code class="docutils literal notranslate"><span class="pre">HasUser</span></code> to resolve user references (since these are modeled differently from other relationships).</p></li>
 </ul>
 </section>
 <section id="id65">
-<h3>Fixed<a class="headerlink" href="#id65" title="Link to this heading">#</a></h3>
+<span id="fixed-14"></span><h3>Fixed<a class="headerlink" href="#id65" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>There was an issue in <code class="docutils literal notranslate"><span class="pre">import_entity.py</span></code> which made loading entities with additional uppercase characters in the type fail.</p></li>
 <li><p>Fix compatibility in legacy wrapper creator for dataset-flow workunits.</p></li>
@@ -1231,9 +1233,9 @@ in the future, to ensure path handling is performed consistently</p></li>
 </section>
 </section>
 <section id="id66">
-<h2>[1.13.31] - 2025-09-20<a class="headerlink" href="#id66" title="Link to this heading">#</a></h2>
+<span id="11331---2025-09-20"></span><h2>[1.13.31] - 2025-09-20<a class="headerlink" href="#id66" title="Link to this heading">#</a></h2>
 <section id="id67">
-<h3>Changed<a class="headerlink" href="#id67" title="Link to this heading">#</a></h3>
+<span id="changed-11"></span><h3>Changed<a class="headerlink" href="#id67" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">Bfabric.connect_webapp</span></code> will use the <code class="docutils literal notranslate"><span class="pre">caller</span></code> field from the token data to set the <code class="docutils literal notranslate"><span class="pre">base_url</span></code> of the client.</p>
 <ul>
@@ -1244,39 +1246,39 @@ in the future, to ensure path handling is performed consistently</p></li>
 </ul>
 </section>
 <section id="id68">
-<h3>Added<a class="headerlink" href="#id68" title="Link to this heading">#</a></h3>
+<span id="added-14"></span><h3>Added<a class="headerlink" href="#id68" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">TokenData</span></code> will include the <code class="docutils literal notranslate"><span class="pre">caller</span></code> url now.</p></li>
 <li><p>Entity <code class="docutils literal notranslate"><span class="pre">User</span></code> has been added.</p></li>
 </ul>
 </section>
 <section id="id69">
-<h3>Fixed<a class="headerlink" href="#id69" title="Link to this heading">#</a></h3>
+<span id="fixed-15"></span><h3>Fixed<a class="headerlink" href="#id69" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Legacy wrapper creator creates <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> rather than <code class="docutils literal notranslate"><span class="pre">None</span></code> for empty parameter values.</p></li>
 </ul>
 </section>
 </section>
 <section id="id70">
-<h2>[1.13.30] - 2025-08-19<a class="headerlink" href="#id70" title="Link to this heading">#</a></h2>
+<span id="11330---2025-08-19"></span><h2>[1.13.30] - 2025-08-19<a class="headerlink" href="#id70" title="Link to this heading">#</a></h2>
 <section id="id71">
-<h3>Fixed<a class="headerlink" href="#id71" title="Link to this heading">#</a></h3>
+<span id="fixed-16"></span><h3>Fixed<a class="headerlink" href="#id71" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix legacy wrapper creator for orders without projects.</p></li>
 </ul>
 </section>
 </section>
 <section id="id72">
-<h2>[1.13.29] - 2025-07-04<a class="headerlink" href="#id72" title="Link to this heading">#</a></h2>
+<span id="11329---2025-07-04"></span><h2>[1.13.29] - 2025-07-04<a class="headerlink" href="#id72" title="Link to this heading">#</a></h2>
 <section id="id73">
-<h3>Changed<a class="headerlink" href="#id73" title="Link to this heading">#</a></h3>
+<span id="changed-12"></span><h3>Changed<a class="headerlink" href="#id73" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.rest.token_data.get_token_data</span></code> now only requires the base_url instead of the whole config.</p></li>
 </ul>
 </section>
 </section>
 <section id="id74">
-<h2>[1.13.28] - 2025-06-27<a class="headerlink" href="#id74" title="Link to this heading">#</a></h2>
+<span id="11328---2025-06-27"></span><h2>[1.13.28] - 2025-06-27<a class="headerlink" href="#id74" title="Link to this heading">#</a></h2>
 <section id="breaking">
 <h3>Breaking<a class="headerlink" href="#breaking" title="Link to this heading">#</a></h3>
 <ul class="simple">
@@ -1284,7 +1286,7 @@ in the future, to ensure path handling is performed consistently</p></li>
 </ul>
 </section>
 <section id="id75">
-<h3>Added<a class="headerlink" href="#id75" title="Link to this heading">#</a></h3>
+<span id="added-15"></span><h3>Added<a class="headerlink" href="#id75" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>It is now possible to configure <code class="docutils literal notranslate"><span class="pre">~/.bfabricpy.yml</span></code> without a default environment. In that case it will always be
 necessary to specify the requested config environment to be used.</p></li>
@@ -1292,13 +1294,13 @@ necessary to specify the requested config environment to be used.</p></li>
 </ul>
 </section>
 <section id="id76">
-<h3>Removed<a class="headerlink" href="#id76" title="Link to this heading">#</a></h3>
+<span id="removed-6"></span><h3>Removed<a class="headerlink" href="#id76" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Some old submitter related functionality is deleted.</p></li>
 </ul>
 </section>
 <section id="id77">
-<h3>Changed<a class="headerlink" href="#id77" title="Link to this heading">#</a></h3>
+<span id="changed-13"></span><h3>Changed<a class="headerlink" href="#id77" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Columns of tables named after B-Fabric entities, containing only integers, will be set as the specified type
 when saving to B-Fabric (in <code class="docutils literal notranslate"><span class="pre">experimental.upload_dataset</span></code>).</p></li>
@@ -1306,9 +1308,9 @@ when saving to B-Fabric (in <code class="docutils literal notranslate"><span cla
 </section>
 </section>
 <section id="id78">
-<h2>[1.13.27] - 2025-05-21<a class="headerlink" href="#id78" title="Link to this heading">#</a></h2>
+<span id="11327---2025-05-21"></span><h2>[1.13.27] - 2025-05-21<a class="headerlink" href="#id78" title="Link to this heading">#</a></h2>
 <section id="id79">
-<h3>Added<a class="headerlink" href="#id79" title="Link to this heading">#</a></h3>
+<span id="added-16"></span><h3>Added<a class="headerlink" href="#id79" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Attribute <code class="docutils literal notranslate"><span class="pre">Bfabric.config_data</span></code> to obtain a <code class="docutils literal notranslate"><span class="pre">ConfigData</span></code> object directly.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">TokenData.load_entity</span></code> convenience method to load an entity from the token data.</p></li>
@@ -1317,26 +1319,26 @@ when saving to B-Fabric (in <code class="docutils literal notranslate"><span cla
 </ul>
 </section>
 <section id="id80">
-<h3>Changed<a class="headerlink" href="#id80" title="Link to this heading">#</a></h3>
+<span id="changed-14"></span><h3>Changed<a class="headerlink" href="#id80" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Submitter parameters will not be written any longer to <code class="docutils literal notranslate"><span class="pre">WorkunitExecution</span></code> parameters.</p></li>
 </ul>
 </section>
 <section id="id81">
-<h3>Fixed<a class="headerlink" href="#id81" title="Link to this heading">#</a></h3>
+<span id="fixed-17"></span><h3>Fixed<a class="headerlink" href="#id81" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Compatibility with upcoming change that <code class="docutils literal notranslate"><span class="pre">Application</span></code> can have multiple <code class="docutils literal notranslate"><span class="pre">technology</span></code> values.</p></li>
 </ul>
 </section>
 <section id="id82">
-<h3>Deprecated<a class="headerlink" href="#id82" title="Link to this heading">#</a></h3>
+<span id="deprecated-3"></span><h3>Deprecated<a class="headerlink" href="#id82" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Workunit.parameter_values</span></code> will be removed in favor of <code class="docutils literal notranslate"><span class="pre">Workunit.application_parameters</span></code> and <code class="docutils literal notranslate"><span class="pre">Workunit.submitter_parameters</span></code> in a future version.</p></li>
 </ul>
 </section>
 </section>
 <section id="id83">
-<h2>[1.13.26] - 2025-04-26<a class="headerlink" href="#id83" title="Link to this heading">#</a></h2>
+<span id="11326---2025-04-26"></span><h2>[1.13.26] - 2025-04-26<a class="headerlink" href="#id83" title="Link to this heading">#</a></h2>
 <p>This release introduces an environment variable <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_OVERRIDE</span></code> to configure the <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client completely,
 along with a new method for creating an instance of the <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client, <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code>.
 This will allow us to propagate any configuration to subprocesses reliably. <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_ENV</span></code> remains available
@@ -1344,14 +1346,14 @@ with the same semantics, but lower priority than <code class="docutils literal n
 <p>This also simplifies the logic that was present in <code class="docutils literal notranslate"><span class="pre">Bfabric.from_config</span></code> which is why this introduced with a new API
 to prevent configuration mix-ups.</p>
 <section id="id84">
-<h3>Added<a class="headerlink" href="#id84" title="Link to this heading">#</a></h3>
+<span id="added-17"></span><h3>Added<a class="headerlink" href="#id84" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>New environment variable <code class="docutils literal notranslate"><span class="pre">BFABRICPY_CONFIG_OVERRIDE</span></code> to configure the <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client completely</p></li>
 <li><p>New method <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code> for creating an instance of the <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client</p></li>
 </ul>
 </section>
 <section id="id85">
-<h3>Changed<a class="headerlink" href="#id85" title="Link to this heading">#</a></h3>
+<span id="changed-15"></span><h3>Changed<a class="headerlink" href="#id85" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Renamed <code class="docutils literal notranslate"><span class="pre">Bfabric.from_token</span></code> to <code class="docutils literal notranslate"><span class="pre">Bfabric.connect_webapp()</span></code> (along with some changes, no known users of this API yet)</p></li>
 <li><p>Disallowed <code class="docutils literal notranslate"><span class="pre">default</span></code> as an environment config name</p></li>
@@ -1359,38 +1361,38 @@ to prevent configuration mix-ups.</p>
 </ul>
 </section>
 <section id="id86">
-<h3>Deprecated<a class="headerlink" href="#id86" title="Link to this heading">#</a></h3>
+<span id="deprecated-4"></span><h3>Deprecated<a class="headerlink" href="#id86" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_config</span></code> is now deprecated in favor of <code class="docutils literal notranslate"><span class="pre">Bfabric.connect()</span></code></p></li>
 </ul>
 </section>
 </section>
 <section id="id87">
-<h2>[1.13.25] - 2025-04-22<a class="headerlink" href="#id87" title="Link to this heading">#</a></h2>
+<span id="11325---2025-04-22"></span><h2>[1.13.25] - 2025-04-22<a class="headerlink" href="#id87" title="Link to this heading">#</a></h2>
 <section id="id88">
-<h3>Breaking<a class="headerlink" href="#id88" title="Link to this heading">#</a></h3>
+<span id="breaking-1"></span><h3>Breaking<a class="headerlink" href="#id88" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_token</span></code> returns the <code class="docutils literal notranslate"><span class="pre">TokenData</span></code> in addition to the client instance. While this is breaking, I’m not aware
 of any existing users of this API and I noticed that this information is going to be needed in this context often.</p></li>
 </ul>
 </section>
 <section id="id89">
-<h3>Added<a class="headerlink" href="#id89" title="Link to this heading">#</a></h3>
+<span id="added-18"></span><h3>Added<a class="headerlink" href="#id89" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.experimental.upload_dataset.warn_on_trailing_spaces</span></code> function used by <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code> to validate</p></li>
 </ul>
 </section>
 </section>
 <section id="id90">
-<h2>[1.13.24] - 2025-04-08<a class="headerlink" href="#id90" title="Link to this heading">#</a></h2>
+<span id="11324---2025-04-08"></span><h2>[1.13.24] - 2025-04-08<a class="headerlink" href="#id90" title="Link to this heading">#</a></h2>
 <section id="id91">
-<h3>Removed<a class="headerlink" href="#id91" title="Link to this heading">#</a></h3>
+<span id="removed-7"></span><h3>Removed<a class="headerlink" href="#id91" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cyclopts</span></code> is not a dependency of <code class="docutils literal notranslate"><span class="pre">bfabric</span></code> anymore, but rather of <code class="docutils literal notranslate"><span class="pre">bfabric-scripts</span></code> and <code class="docutils literal notranslate"><span class="pre">bfabric-app-runner</span></code>.</p></li>
 </ul>
 </section>
 <section id="id92">
-<h3>Changed<a class="headerlink" href="#id92" title="Link to this heading">#</a></h3>
+<span id="changed-16"></span><h3>Changed<a class="headerlink" href="#id92" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> client now does not take <code class="docutils literal notranslate"><span class="pre">engine</span></code> argument anymore, but rather this information comes from <code class="docutils literal notranslate"><span class="pre">ClientConfig</span></code>.
 For compatibility reasons, the <code class="docutils literal notranslate"><span class="pre">engine</span></code> argument is still accepted in <code class="docutils literal notranslate"><span class="pre">Bfabric.from_config</span></code> and
@@ -1399,9 +1401,9 @@ For compatibility reasons, the <code class="docutils literal notranslate"><span 
 </section>
 </section>
 <section id="id93">
-<h2>[1.13.23] - 2025-03-25<a class="headerlink" href="#id93" title="Link to this heading">#</a></h2>
+<span id="11323---2025-03-25"></span><h2>[1.13.23] - 2025-03-25<a class="headerlink" href="#id93" title="Link to this heading">#</a></h2>
 <section id="id94">
-<h3>Fixed<a class="headerlink" href="#id94" title="Link to this heading">#</a></h3>
+<span id="fixed-18"></span><h3>Fixed<a class="headerlink" href="#id94" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Unsuccessful deletions are detected by checking the B-Fabric response.</p></li>
 <li><p>Handle problematic characters in <code class="docutils literal notranslate"><span class="pre">Workunit.store_output_folder</span></code>.</p></li>
@@ -1409,14 +1411,14 @@ For compatibility reasons, the <code class="docutils literal notranslate"><span 
 </ul>
 </section>
 <section id="id95">
-<h3>Changed<a class="headerlink" href="#id95" title="Link to this heading">#</a></h3>
+<span id="changed-17"></span><h3>Changed<a class="headerlink" href="#id95" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">WorkunitDefinition</span></code> uses <code class="docutils literal notranslate"><span class="pre">PathSafeStr</span></code> to normalize app and workunit names.</p></li>
 <li><p>Internal: <code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code> has no optional constructor arguments anymore to avoid confusion.</p></li>
 </ul>
 </section>
 <section id="id96">
-<h3>Added<a class="headerlink" href="#id96" title="Link to this heading">#</a></h3>
+<span id="added-19"></span><h3>Added<a class="headerlink" href="#id96" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Generic functionality in <code class="docutils literal notranslate"><span class="pre">bfabric.utils.path_safe_name</span></code> to validate names for use in paths.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.Dataset.{write_parquet,</span> <span class="pre">get_parquet}</span></code> methods for writing parquet</p></li>
@@ -1424,24 +1426,24 @@ For compatibility reasons, the <code class="docutils literal notranslate"><span 
 </section>
 </section>
 <section id="id97">
-<h2>[1.13.22] - 2025-02-19<a class="headerlink" href="#id97" title="Link to this heading">#</a></h2>
+<span id="11322---2025-02-19"></span><h2>[1.13.22] - 2025-02-19<a class="headerlink" href="#id97" title="Link to this heading">#</a></h2>
 <section id="id98">
-<h3>Fixed<a class="headerlink" href="#id98" title="Link to this heading">#</a></h3>
+<span id="fixed-19"></span><h3>Fixed<a class="headerlink" href="#id98" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Correctly read datasets, if columns were swapped in B-Fabric.</p></li>
 </ul>
 </section>
 <section id="id99">
-<h3>Changed<a class="headerlink" href="#id99" title="Link to this heading">#</a></h3>
+<span id="changed-18"></span><h3>Changed<a class="headerlink" href="#id99" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Dataset.types</span></code> was renamed to <code class="docutils literal notranslate"><span class="pre">Dataset.column_types</span></code>, since there is only 1 usage and it is recent, this is not considered breaking.</p></li>
 </ul>
 </section>
 </section>
 <section id="id100">
-<h2>[1.13.21] - 2025-02-19<a class="headerlink" href="#id100" title="Link to this heading">#</a></h2>
+<span id="11321---2025-02-19"></span><h2>[1.13.21] - 2025-02-19<a class="headerlink" href="#id100" title="Link to this heading">#</a></h2>
 <section id="id101">
-<h3>Added<a class="headerlink" href="#id101" title="Link to this heading">#</a></h3>
+<span id="added-20"></span><h3>Added<a class="headerlink" href="#id101" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Entity.load_yaml</span></code> and <code class="docutils literal notranslate"><span class="pre">Entity.dump_yaml</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Bfabric.from_token</span></code> to create a <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> instance from a token</p></li>
@@ -1449,22 +1451,22 @@ For compatibility reasons, the <code class="docutils literal notranslate"><span 
 </ul>
 </section>
 <section id="id102">
-<h3>Changed<a class="headerlink" href="#id102" title="Link to this heading">#</a></h3>
+<span id="changed-19"></span><h3>Changed<a class="headerlink" href="#id102" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Internally, the user password is now in a <code class="docutils literal notranslate"><span class="pre">pydantic.SecretStr</span></code> until we construct the API call. This should prevent some logging related accidents.</p></li>
 </ul>
 </section>
 </section>
 <section id="id103">
-<h2>[1.13.20] - 2025-02-10<a class="headerlink" href="#id103" title="Link to this heading">#</a></h2>
+<span id="11320---2025-02-10"></span><h2>[1.13.20] - 2025-02-10<a class="headerlink" href="#id103" title="Link to this heading">#</a></h2>
 <section id="id104">
-<h3>Breaking<a class="headerlink" href="#id104" title="Link to this heading">#</a></h3>
+<span id="breaking-2"></span><h3>Breaking<a class="headerlink" href="#id104" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>the old <code class="docutils literal notranslate"><span class="pre">bfabric.cli_formatting</span></code> and <code class="docutils literal notranslate"><span class="pre">bfabric.bfabric2</span></code> modules have been deleted</p></li>
 </ul>
 </section>
 <section id="id105">
-<h3>Changed<a class="headerlink" href="#id105" title="Link to this heading">#</a></h3>
+<span id="changed-20"></span><h3>Changed<a class="headerlink" href="#id105" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>move <code class="docutils literal notranslate"><span class="pre">use_client</span></code> to <code class="docutils literal notranslate"><span class="pre">bfabric.utils.cli_integration</span></code>: this will allow reuse between bfabric-scripts and bfabric-app-runner</p></li>
 <li><p>move functionality from <code class="docutils literal notranslate"><span class="pre">bfabric.cli_formatting</span></code> to <code class="docutils literal notranslate"><span class="pre">bfabric.utils.cli_integration</span></code></p></li>
@@ -1472,40 +1474,40 @@ For compatibility reasons, the <code class="docutils literal notranslate"><span 
 </section>
 </section>
 <section id="id106">
-<h2>[1.13.19] - 2025-02-06<a class="headerlink" href="#id106" title="Link to this heading">#</a></h2>
+<span id="11319---2025-02-06"></span><h2>[1.13.19] - 2025-02-06<a class="headerlink" href="#id106" title="Link to this heading">#</a></h2>
 <section id="id107">
-<h3>Fixed<a class="headerlink" href="#id107" title="Link to this heading">#</a></h3>
+<span id="fixed-20"></span><h3>Fixed<a class="headerlink" href="#id107" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Config: Log messages of app runner are shown by default again.</p></li>
 </ul>
 </section>
 </section>
 <section id="id108">
-<h2>[1.13.18] - 2025-01-28<a class="headerlink" href="#id108" title="Link to this heading">#</a></h2>
+<span id="11318---2025-01-28"></span><h2>[1.13.18] - 2025-01-28<a class="headerlink" href="#id108" title="Link to this heading">#</a></h2>
 <section id="id109">
-<h3>Changed<a class="headerlink" href="#id109" title="Link to this heading">#</a></h3>
+<span id="changed-21"></span><h3>Changed<a class="headerlink" href="#id109" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric_upload_resource.py</span></code> does not print a list anymore, but rather only the dict of the uploaded resource.</p></li>
 </ul>
 </section>
 <section id="id110">
-<h3>Fixed<a class="headerlink" href="#id110" title="Link to this heading">#</a></h3>
+<span id="fixed-21"></span><h3>Fixed<a class="headerlink" href="#id110" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Some scripts were not Python 3.9 compatible, which is restored now. However, we can consider increasing the Python requirement soon.</p></li>
 </ul>
 </section>
 </section>
 <section id="id111">
-<h2>[1.13.17] - 2025-01-23<a class="headerlink" href="#id111" title="Link to this heading">#</a></h2>
+<span id="11317---2025-01-23"></span><h2>[1.13.17] - 2025-01-23<a class="headerlink" href="#id111" title="Link to this heading">#</a></h2>
 <section id="id112">
-<h3>Added<a class="headerlink" href="#id112" title="Link to this heading">#</a></h3>
+<span id="added-21"></span><h3>Added<a class="headerlink" href="#id112" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">workunit</span> <span class="pre">export-definition</span></code> to export <code class="docutils literal notranslate"><span class="pre">workunit_definition.yml</span></code> files</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Executable.storage</span></code> relationship</p></li>
 </ul>
 </section>
 <section id="id113">
-<h3>Fixed<a class="headerlink" href="#id113" title="Link to this heading">#</a></h3>
+<span id="fixed-22"></span><h3>Fixed<a class="headerlink" href="#id113" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Workunit.parameters</span></code> and <code class="docutils literal notranslate"><span class="pre">Workunit.resources</span></code> are optional</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric-cli</span></code> had unmet dependencies, that were not caught by the tests either</p></li>
@@ -1513,9 +1515,9 @@ For compatibility reasons, the <code class="docutils literal notranslate"><span 
 </section>
 </section>
 <section id="id114">
-<h2>[1.13.16] - 2025-01-22<a class="headerlink" href="#id114" title="Link to this heading">#</a></h2>
+<span id="11316---2025-01-22"></span><h2>[1.13.16] - 2025-01-22<a class="headerlink" href="#id114" title="Link to this heading">#</a></h2>
 <section id="id115">
-<h3>Added<a class="headerlink" href="#id115" title="Link to this heading">#</a></h3>
+<span id="added-22"></span><h3>Added<a class="headerlink" href="#id115" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add missing <code class="docutils literal notranslate"><span class="pre">Entity.__contains__</span></code> implementation to check if a key is present in an entity.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">polars_utils.py</span></code> which contains functionality to normalize relational fields in tables</p></li>
@@ -1524,16 +1526,16 @@ For compatibility reasons, the <code class="docutils literal notranslate"><span 
 </ul>
 </section>
 <section id="id116">
-<h3>Fixed<a class="headerlink" href="#id116" title="Link to this heading">#</a></h3>
+<span id="fixed-23"></span><h3>Fixed<a class="headerlink" href="#id116" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Order.project</span></code> is optional</p></li>
 </ul>
 </section>
 </section>
 <section id="id117">
-<h2>[1.13.15] - 2025-01-15<a class="headerlink" href="#id117" title="Link to this heading">#</a></h2>
+<span id="11315---2025-01-15"></span><h2>[1.13.15] - 2025-01-15<a class="headerlink" href="#id117" title="Link to this heading">#</a></h2>
 <section id="id118">
-<h3>Added<a class="headerlink" href="#id118" title="Link to this heading">#</a></h3>
+<span id="added-23"></span><h3>Added<a class="headerlink" href="#id118" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Entity <code class="docutils literal notranslate"><span class="pre">Sample</span></code></p></li>
 <li><p>Relationship <code class="docutils literal notranslate"><span class="pre">Resource.sample</span></code>.</p></li>
@@ -1541,38 +1543,38 @@ For compatibility reasons, the <code class="docutils literal notranslate"><span 
 </ul>
 </section>
 <section id="id119">
-<h3>Fixed<a class="headerlink" href="#id119" title="Link to this heading">#</a></h3>
+<span id="fixed-24"></span><h3>Fixed<a class="headerlink" href="#id119" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Fix bug in <code class="docutils literal notranslate"><span class="pre">bfabric_save_fasta.py</span></code>.</p></li>
 </ul>
 </section>
 </section>
 <section id="id120">
-<h2>[1.13.14] - 2025-01-08<a class="headerlink" href="#id120" title="Link to this heading">#</a></h2>
+<span id="11314---2025-01-08"></span><h2>[1.13.14] - 2025-01-08<a class="headerlink" href="#id120" title="Link to this heading">#</a></h2>
 <section id="id121">
-<h3>Changed<a class="headerlink" href="#id121" title="Link to this heading">#</a></h3>
+<span id="changed-22"></span><h3>Changed<a class="headerlink" href="#id121" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Slurm submitter prints more diagnostics about PATH variable etc.</p></li>
 </ul>
 </section>
 <section id="id122">
-<h3>Fixed<a class="headerlink" href="#id122" title="Link to this heading">#</a></h3>
+<span id="fixed-25"></span><h3>Fixed<a class="headerlink" href="#id122" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Some commands in bfabric-cli are broken because <code class="docutils literal notranslate"><span class="pre">__future__.annotations</span></code> is imported and this breaks cyclopts.</p></li>
 </ul>
 </section>
 </section>
 <section id="id123">
-<h2>[1.13.13] - 2024-12-18<a class="headerlink" href="#id123" title="Link to this heading">#</a></h2>
+<span id="11313---2024-12-18"></span><h2>[1.13.13] - 2024-12-18<a class="headerlink" href="#id123" title="Link to this heading">#</a></h2>
 <section id="id124">
-<h3>Changed<a class="headerlink" href="#id124" title="Link to this heading">#</a></h3>
+<span id="changed-23"></span><h3>Changed<a class="headerlink" href="#id124" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Move <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">read</span></code> to <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">read</span></code>.</p></li>
 <li><p>(internal) <code class="docutils literal notranslate"><span class="pre">use_client</span></code> decorator is introduced to simplify and standardize the client usage in the new CLI code.</p></li>
 </ul>
 </section>
 <section id="id125">
-<h3>Added<a class="headerlink" href="#id125" title="Link to this heading">#</a></h3>
+<span id="added-24"></span><h3>Added<a class="headerlink" href="#id125" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Functionality to log by specifying the workunit instead of external job, which is used in some legacy scripts.</p></li>
 <li><p>Add logging commands to <code class="docutils literal notranslate"><span class="pre">bfabric-cli</span> <span class="pre">api</span> <span class="pre">log</span></code>.</p></li>
@@ -1581,22 +1583,22 @@ For compatibility reasons, the <code class="docutils literal notranslate"><span 
 </ul>
 </section>
 <section id="id126">
-<h3>Fixed<a class="headerlink" href="#id126" title="Link to this heading">#</a></h3>
+<span id="fixed-26"></span><h3>Fixed<a class="headerlink" href="#id126" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>A bug in bfabric_save_workflowstep.py that crashed the script.</p></li>
 </ul>
 </section>
 </section>
 <section id="id127">
-<h2>[1.13.12] - 2024-12-17<a class="headerlink" href="#id127" title="Link to this heading">#</a></h2>
+<span id="11312---2024-12-17"></span><h2>[1.13.12] - 2024-12-17<a class="headerlink" href="#id127" title="Link to this heading">#</a></h2>
 <section id="id128">
-<h3>Changed<a class="headerlink" href="#id128" title="Link to this heading">#</a></h3>
+<span id="changed-24"></span><h3>Changed<a class="headerlink" href="#id128" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The submitter ensures that workunits always get set to <code class="docutils literal notranslate"><span class="pre">processing</span></code>.</p></li>
 </ul>
 </section>
 <section id="id129">
-<h3>Fixed<a class="headerlink" href="#id129" title="Link to this heading">#</a></h3>
+<span id="fixed-27"></span><h3>Fixed<a class="headerlink" href="#id129" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The script <code class="docutils literal notranslate"><span class="pre">bfabric_setResourceStatus_available.py</span></code> and other uses of <code class="docutils literal notranslate"><span class="pre">report_resource</span></code>, correctly search files which
 have a relative path starting with <code class="docutils literal notranslate"><span class="pre">/</span></code> as in the case of the legacy wrapper creator.</p></li>
@@ -1604,24 +1606,24 @@ have a relative path starting with <code class="docutils literal notranslate"><s
 </section>
 </section>
 <section id="id130">
-<h2>[1.13.11] - 2024-12-13<a class="headerlink" href="#id130" title="Link to this heading">#</a></h2>
+<span id="11311---2024-12-13"></span><h2>[1.13.11] - 2024-12-13<a class="headerlink" href="#id130" title="Link to this heading">#</a></h2>
 <section id="id131">
-<h3>Fixed<a class="headerlink" href="#id131" title="Link to this heading">#</a></h3>
+<span id="fixed-28"></span><h3>Fixed<a class="headerlink" href="#id131" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The script <code class="docutils literal notranslate"><span class="pre">bfabric_setWorkunitStatus.py</span></code> did always set the status to <code class="docutils literal notranslate"><span class="pre">available</span></code>, instead of the specified status.</p></li>
 </ul>
 </section>
 <section id="id132">
-<h3>Changed<a class="headerlink" href="#id132" title="Link to this heading">#</a></h3>
+<span id="changed-25"></span><h3>Changed<a class="headerlink" href="#id132" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric_setResourceStatus_available.py</span></code> calls the <code class="docutils literal notranslate"><span class="pre">report_resource</span></code> function, in general this functionality has been refactored.</p></li>
 </ul>
 </section>
 </section>
 <section id="id133">
-<h2>[1.13.10] - 2024-12-13<a class="headerlink" href="#id133" title="Link to this heading">#</a></h2>
+<span id="11310---2024-12-13"></span><h2>[1.13.10] - 2024-12-13<a class="headerlink" href="#id133" title="Link to this heading">#</a></h2>
 <section id="id134">
-<h3>Fixed<a class="headerlink" href="#id134" title="Link to this heading">#</a></h3>
+<span id="fixed-29"></span><h3>Fixed<a class="headerlink" href="#id134" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>If <code class="docutils literal notranslate"><span class="pre">bfabricpy.yml</span></code> contains a root-level key which is not a dictionary, a correct error message is shown instead of raising an exception.</p></li>
 <li><p>A bug introduced while refactoring in <code class="docutils literal notranslate"><span class="pre">slurm.py</span></code> which passed <code class="docutils literal notranslate"><span class="pre">Path</span></code> objects to <code class="docutils literal notranslate"><span class="pre">subprocess</span></code> instead of strings.</p></li>
@@ -1635,18 +1637,18 @@ have a relative path starting with <code class="docutils literal notranslate"><s
 </ul>
 </section>
 <section id="id135">
-<h3>Added<a class="headerlink" href="#id135" title="Link to this heading">#</a></h3>
+<span id="added-25"></span><h3>Added<a class="headerlink" href="#id135" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Experimental bfabric-cli interface. Please do not use it in production yet as it will need a lot of refinement.</p></li>
 </ul>
 </section>
 </section>
 <section id="id136">
-<h2>[1.13.9] - 2024-12-10<a class="headerlink" href="#id136" title="Link to this heading">#</a></h2>
+<span id="1139---2024-12-10"></span><h2>[1.13.9] - 2024-12-10<a class="headerlink" href="#id136" title="Link to this heading">#</a></h2>
 <p>From this release onwards, the experimental app runner is not part of the main bfabric package and
 instead a separate Python package with its individual changelog.</p>
 <section id="id137">
-<h3>Added<a class="headerlink" href="#id137" title="Link to this heading">#</a></h3>
+<span id="added-26"></span><h3>Added<a class="headerlink" href="#id137" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Relationship: <code class="docutils literal notranslate"><span class="pre">ExternalJob.executable</span></code></p></li>
 <li><p>(experimental) EntityLookupCache that allows to cache entity lookups in a script to avoid redundant requests.</p></li>
@@ -1654,13 +1656,13 @@ instead a separate Python package with its individual changelog.</p>
 </ul>
 </section>
 <section id="id138">
-<h3>Fixed<a class="headerlink" href="#id138" title="Link to this heading">#</a></h3>
+<span id="fixed-30"></span><h3>Fixed<a class="headerlink" href="#id138" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Entity.find_all</span></code> returns no values when an empty list is passed as an argument.</p></li>
 </ul>
 </section>
 <section id="id139">
-<h3>Changed<a class="headerlink" href="#id139" title="Link to this heading">#</a></h3>
+<span id="changed-26"></span><h3>Changed<a class="headerlink" href="#id139" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Except for macOS x86_64 (which we assume is Rosetta emulation nowadays), we use the faster <code class="docutils literal notranslate"><span class="pre">polars</span></code> instead of <code class="docutils literal notranslate"><span class="pre">polars-lts-cpu</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">BfabricRequestError</span></code> is now a <code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> subclass.</p></li>
@@ -1668,7 +1670,7 @@ instead a separate Python package with its individual changelog.</p>
 </ul>
 </section>
 <section id="id140">
-<h3>Removed<a class="headerlink" href="#id140" title="Link to this heading">#</a></h3>
+<span id="removed-8"></span><h3>Removed<a class="headerlink" href="#id140" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric_legacy.py</span></code> has been removed.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">math_helper.py</span></code> has been removed.</p></li>
@@ -1676,10 +1678,10 @@ instead a separate Python package with its individual changelog.</p>
 </section>
 </section>
 <section id="id141">
-<h2>[1.13.8] - 2024-10-03<a class="headerlink" href="#id141" title="Link to this heading">#</a></h2>
+<span id="1138---2024-10-03"></span><h2>[1.13.8] - 2024-10-03<a class="headerlink" href="#id141" title="Link to this heading">#</a></h2>
 <p>This release contains mainly internal changes and ongoing development on the experimental app interface functionality.</p>
 <section id="id142">
-<h3>Added<a class="headerlink" href="#id142" title="Link to this heading">#</a></h3>
+<span id="added-27"></span><h3>Added<a class="headerlink" href="#id142" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Entities can be compared and sorted by ID now.</p></li>
 <li><p>Show Python version in version info string.</p></li>
@@ -1689,13 +1691,13 @@ instead a separate Python package with its individual changelog.</p>
 </ul>
 </section>
 <section id="id143">
-<h3>Fixed<a class="headerlink" href="#id143" title="Link to this heading">#</a></h3>
+<span id="fixed-31"></span><h3>Fixed<a class="headerlink" href="#id143" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>bfabric_read.py is a bit more robust if “name” misses and tabular output is requested.</p></li>
 </ul>
 </section>
 <section id="id144">
-<h3>Changed<a class="headerlink" href="#id144" title="Link to this heading">#</a></h3>
+<span id="changed-27"></span><h3>Changed<a class="headerlink" href="#id144" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.scripts</span></code> has been moved into a namespace package <code class="docutils literal notranslate"><span class="pre">bfabric_scripts</span></code> so we can later split it off.</p></li>
 <li><p>(internal) migrate to src layout</p></li>
@@ -1706,15 +1708,15 @@ the collect step is responsible for generating the <code class="docutils literal
 </section>
 </section>
 <section id="id145">
-<h2>[1.13.7] - 2024-09-17<a class="headerlink" href="#id145" title="Link to this heading">#</a></h2>
+<span id="1137---2024-09-17"></span><h2>[1.13.7] - 2024-09-17<a class="headerlink" href="#id145" title="Link to this heading">#</a></h2>
 <section id="id146">
-<h3>Fixed<a class="headerlink" href="#id146" title="Link to this heading">#</a></h3>
+<span id="fixed-32"></span><h3>Fixed<a class="headerlink" href="#id146" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric_save_csv2dataset.py</span></code> considers all rows for schema inference, only considering the first 100 rows did cause problems with some files previously.</p></li>
 </ul>
 </section>
 <section id="id147">
-<h3>Added<a class="headerlink" href="#id147" title="Link to this heading">#</a></h3>
+<span id="added-28"></span><h3>Added<a class="headerlink" href="#id147" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Script logging configuration</p>
 <ul>
@@ -1732,28 +1734,28 @@ the collect step is responsible for generating the <code class="docutils literal
 </ul>
 </section>
 <section id="id148">
-<h3>Changed<a class="headerlink" href="#id148" title="Link to this heading">#</a></h3>
+<span id="changed-28"></span><h3>Changed<a class="headerlink" href="#id148" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Correctly support optional workunit parameters.</p></li>
 </ul>
 </section>
 <section id="id149">
-<h3>Removed<a class="headerlink" href="#id149" title="Link to this heading">#</a></h3>
+<span id="removed-9"></span><h3>Removed<a class="headerlink" href="#id149" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.entities.Resource</span></code> association <code class="docutils literal notranslate"><span class="pre">application</span></code> has been removed as it does not exist</p></li>
 </ul>
 </section>
 </section>
 <section id="id150">
-<h2>[1.13.6] - 2024-08-29<a class="headerlink" href="#id150" title="Link to this heading">#</a></h2>
+<span id="1136---2024-08-29"></span><h2>[1.13.6] - 2024-08-29<a class="headerlink" href="#id150" title="Link to this heading">#</a></h2>
 <section id="id151">
-<h3>Added<a class="headerlink" href="#id151" title="Link to this heading">#</a></h3>
+<span id="added-29"></span><h3>Added<a class="headerlink" href="#id151" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Entity.find_by</span></code> has new parameter <code class="docutils literal notranslate"><span class="pre">max_results</span></code>.</p></li>
 </ul>
 </section>
 <section id="id152">
-<h3>Changed<a class="headerlink" href="#id152" title="Link to this heading">#</a></h3>
+<span id="changed-29"></span><h3>Changed<a class="headerlink" href="#id152" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric_read.py</span></code> prints non-output information exclusively through logger and does not restrict entity types anymore.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric_delete.py</span></code> accepts multiple ids at once and does not restrict entity types anymore.</p></li>
@@ -1761,16 +1763,16 @@ the collect step is responsible for generating the <code class="docutils literal
 </ul>
 </section>
 <section id="id153">
-<h3>Removed<a class="headerlink" href="#id153" title="Link to this heading">#</a></h3>
+<span id="removed-10"></span><h3>Removed<a class="headerlink" href="#id153" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric.endpoints</span></code> list is deleted, since it was out of date and generally not so useful.</p></li>
 </ul>
 </section>
 </section>
 <section id="id154">
-<h2>[1.13.5] - 2024-08-13<a class="headerlink" href="#id154" title="Link to this heading">#</a></h2>
+<span id="1135---2024-08-13"></span><h2>[1.13.5] - 2024-08-13<a class="headerlink" href="#id154" title="Link to this heading">#</a></h2>
 <section id="id155">
-<h3>Added<a class="headerlink" href="#id155" title="Link to this heading">#</a></h3>
+<span id="added-30"></span><h3>Added<a class="headerlink" href="#id155" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> instance is now pickleable.</p></li>
 <li><p>Entities mapping:</p>
@@ -1787,16 +1789,16 @@ the collect step is responsible for generating the <code class="docutils literal
 </ul>
 </section>
 <section id="id156">
-<h3>Changed<a class="headerlink" href="#id156" title="Link to this heading">#</a></h3>
+<span id="changed-30"></span><h3>Changed<a class="headerlink" href="#id156" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Entity.find_all</span></code> supports more than 100 IDs now by using the experimental MultiQuery API.</p></li>
 </ul>
 </section>
 </section>
 <section id="id157">
-<h2>[1.13.4] - 2024-08-05<a class="headerlink" href="#id157" title="Link to this heading">#</a></h2>
+<span id="1134---2024-08-05"></span><h2>[1.13.4] - 2024-08-05<a class="headerlink" href="#id157" title="Link to this heading">#</a></h2>
 <section id="id158">
-<h3>Added<a class="headerlink" href="#id158" title="Link to this heading">#</a></h3>
+<span id="added-31"></span><h3>Added<a class="headerlink" href="#id158" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">Workunit</span></code>, <code class="docutils literal notranslate"><span class="pre">Parameter</span></code>, and <code class="docutils literal notranslate"><span class="pre">Resource</span></code> entities.</p></li>
 <li><p>Add concept of has_many and has_one relationships to entities.</p></li>
@@ -1805,7 +1807,7 @@ the collect step is responsible for generating the <code class="docutils literal
 </ul>
 </section>
 <section id="id159">
-<h3>Changed<a class="headerlink" href="#id159" title="Link to this heading">#</a></h3>
+<span id="changed-31"></span><h3>Changed<a class="headerlink" href="#id159" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Most messages are now logged to debug level.</p></li>
 <li><p>The old verbose version information is now always logged, to INFO level, since it could entail useful information for error reporting.</p></li>
@@ -1813,9 +1815,9 @@ the collect step is responsible for generating the <code class="docutils literal
 </section>
 </section>
 <section id="id160">
-<h2>[1.13.3] - 2024-07-18<a class="headerlink" href="#id160" title="Link to this heading">#</a></h2>
+<span id="1133---2024-07-18"></span><h2>[1.13.3] - 2024-07-18<a class="headerlink" href="#id160" title="Link to this heading">#</a></h2>
 <section id="id161">
-<h3>Added<a class="headerlink" href="#id161" title="Link to this heading">#</a></h3>
+<span id="added-32"></span><h3>Added<a class="headerlink" href="#id161" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Flask</p>
 <ul>
@@ -1825,7 +1827,7 @@ the collect step is responsible for generating the <code class="docutils literal
 </ul>
 </section>
 <section id="id162">
-<h3>Changed<a class="headerlink" href="#id162" title="Link to this heading">#</a></h3>
+<span id="changed-32"></span><h3>Changed<a class="headerlink" href="#id162" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Flask</p>
 <ul>
@@ -1836,16 +1838,16 @@ the collect step is responsible for generating the <code class="docutils literal
 </ul>
 </section>
 <section id="id163">
-<h3>Fixed<a class="headerlink" href="#id163" title="Link to this heading">#</a></h3>
+<span id="fixed-33"></span><h3>Fixed<a class="headerlink" href="#id163" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bfabric_save_csv2dataset.py</span></code> had an undeclared dependency on numpy and a few bugs which was improved.</p></li>
 </ul>
 </section>
 </section>
 <section id="id164">
-<h2>[1.13.2] - 2024-07-11<a class="headerlink" href="#id164" title="Link to this heading">#</a></h2>
+<span id="1132---2024-07-11"></span><h2>[1.13.2] - 2024-07-11<a class="headerlink" href="#id164" title="Link to this heading">#</a></h2>
 <section id="id165">
-<h3>Added<a class="headerlink" href="#id165" title="Link to this heading">#</a></h3>
+<span id="added-33"></span><h3>Added<a class="headerlink" href="#id165" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">bfabric.entities.Dataset</span></code> to easily read datasets.</p></li>
 <li><p>Pydantic-based configuration parsing</p>
@@ -1860,33 +1862,33 @@ the collect step is responsible for generating the <code class="docutils literal
 </section>
 </section>
 <section id="id166">
-<h2>[1.13.1] - 2024-07-02<a class="headerlink" href="#id166" title="Link to this heading">#</a></h2>
+<span id="1131---2024-07-02"></span><h2>[1.13.1] - 2024-07-02<a class="headerlink" href="#id166" title="Link to this heading">#</a></h2>
 <section id="id167">
-<h3>Changed<a class="headerlink" href="#id167" title="Link to this heading">#</a></h3>
+<span id="changed-33"></span><h3>Changed<a class="headerlink" href="#id167" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>bfabric_save_csv2dataset will raise an error if problematic characters are found in any of the cells</p></li>
 <li><p>Correctly define <code class="docutils literal notranslate"><span class="pre">bfabric_setWorkunitStatus_available.py</span></code>, and <code class="docutils literal notranslate"><span class="pre">processing</span></code> and <code class="docutils literal notranslate"><span class="pre">failed</span></code> variants.</p></li>
 </ul>
 </section>
 <section id="id168">
-<h3>Added<a class="headerlink" href="#id168" title="Link to this heading">#</a></h3>
+<span id="added-34"></span><h3>Added<a class="headerlink" href="#id168" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Add loguru for future logging refactoring.</p></li>
 <li><p>Easily runnable tests with <code class="docutils literal notranslate"><span class="pre">nox</span></code> and standardized formatting using <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code>.</p></li>
 </ul>
 </section>
 <section id="id169">
-<h3>Removed<a class="headerlink" href="#id169" title="Link to this heading">#</a></h3>
+<span id="removed-11"></span><h3>Removed<a class="headerlink" href="#id169" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Pandas is no longer a dependency, and has been replaced by polars.</p></li>
 </ul>
 </section>
 </section>
 <section id="id170">
-<h2>[1.13.0] - 2024-05-24<a class="headerlink" href="#id170" title="Link to this heading">#</a></h2>
+<span id="1130---2024-05-24"></span><h2>[1.13.0] - 2024-05-24<a class="headerlink" href="#id170" title="Link to this heading">#</a></h2>
 <p>This is a major release refactoring bfabricPy’s API.</p>
 <section id="id171">
-<h3>Changed<a class="headerlink" href="#id171" title="Link to this heading">#</a></h3>
+<span id="changed-34"></span><h3>Changed<a class="headerlink" href="#id171" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>The <code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> class operations now return <code class="docutils literal notranslate"><span class="pre">ResultContainer</span></code> objects.</p>
 <ul>
@@ -1901,7 +1903,7 @@ the collect step is responsible for generating the <code class="docutils literal
 </ul>
 </section>
 <section id="id172">
-<h3>Added<a class="headerlink" href="#id172" title="Link to this heading">#</a></h3>
+<span id="added-35"></span><h3>Added<a class="headerlink" href="#id172" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Zeep can be used instead of suds for SOAP communication.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Bfabric</span></code> can be instantiated without authentication, that can be provided later. This is useful in a server setup.</p></li>
@@ -1910,7 +1912,7 @@ the collect step is responsible for generating the <code class="docutils literal
 </ul>
 </section>
 <section id="id173">
-<h3>Removed<a class="headerlink" href="#id173" title="Link to this heading">#</a></h3>
+<span id="removed-12"></span><h3>Removed<a class="headerlink" href="#id173" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Several old scripts have been moved into a <code class="docutils literal notranslate"><span class="pre">deprecated_scripts</span></code> folder.</p></li>
 <li><p>Wrapper creator related code is currently not updated but has been extracted into a dedicated folder <code class="docutils literal notranslate"><span class="pre">wrapper_creator</span></code> as well.</p></li>

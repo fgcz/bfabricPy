@@ -429,7 +429,7 @@ rm<span class="w"> </span>-f<span class="w"> </span><span class="s2">"dist/</spa
 <p>These files can be managed with git-lfs in the slurmworker configuration repository.</p>
 </section>
 <section id="referencing-in-app-yml">
-<h2>Referencing in app.yml<a class="headerlink" href="#referencing-in-app-yml" title="Link to this heading">#</a></h2>
+<span id="referencing-in-appyml"></span><h2>Referencing in app.yml<a class="headerlink" href="#referencing-in-app-yml" title="Link to this heading">#</a></h2>
 <p>Once deployed, reference the wheel and pylock files in your <code class="docutils literal notranslate"><span class="pre">app.yml</span></code> using the <code class="docutils literal notranslate"><span class="pre">${app.version}</span></code> template variable. This avoids duplicating paths across multiple version entries.</p>
 <p>Paths are resolved relative to the directory containing the <code class="docutils literal notranslate"><span class="pre">app.yml</span></code> (see <a class="reference internal" href="../specs/app_specification.html#paths"><span class="std std-ref">Paths</span></a>), so the deployment directory can be moved or checked out elsewhere without rewriting the spec.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">bfabric</span><span class="p">:</span>
