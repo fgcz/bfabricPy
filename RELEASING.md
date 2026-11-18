@@ -5,7 +5,7 @@ How the five packages get to PyPI; the everyday conventions are in [AGENTS.md](A
 ## The branch loop
 
 1. **`rel-<date>-NN` → `release`** — the PR targets `release`, never `main`. Merging it starts the publish run.
-2. **The workflow tags and publishes** on the `release` ref. Never hand-tag, and never tag on `main`.
+2. **The workflow tags and publishes** on the `release` ref. Never hand-tag, and never tag on `main`. It creates each GitHub release as a draft, so publish it by hand once PyPI has it: `gh release edit <pkg>/<version> --draft=false`, plus `--latest` for a `bfabric` stable release (a draft cannot be made latest).
 3. **`release` → `main`** with a plain merge commit (`gh pr merge <n> --merge`), preserving the released commit in `main`'s history. The publish jobs appear as `release-packages (<pkg>)` checks on this PR; don't merge before they are green — a failed publish is easier to redo before `main` absorbs the release commit.
 
 The `push` trigger takes no inputs: with no `force_packages` or `environment`, `check-package-versions` compares each version against PyPI to decide what to build, and publishes to production. `priority-order: bfabric,bfabric_scripts,bfabric_app_runner` plus `max-parallel: 1` releases sequentially, so `bfabric` lands before the packages that floor on it.
