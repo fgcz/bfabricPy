@@ -9,6 +9,13 @@ Minor breaking changes are still possible in `1.X.Y` but we try to announce them
 
 ## \[Unreleased\]
 
+## \[1.24.2\] - 2026-11-18
+
+### Fixed
+
+- `OAuthCredentialProvider` processes sharing one token cache file (web app workers, an unpickled client in a job worker, several CLI processes) no longer each refresh the same token: refreshes are serialised by a `<cache>.lock` file and the others adopt the refreshed token, so B-Fabric no longer rejects the reused refresh token and revokes all of the user's sessions. A token passed in (or restored by unpickling) only replaces the cached one if it expires later.
+- `TokenCache.save` uses a unique temporary file per write, so several threads saving the same cache at once no longer fail with `FileNotFoundError`.
+
 ## \[1.24.1\] - 2026-11-10
 
 ### Fixed

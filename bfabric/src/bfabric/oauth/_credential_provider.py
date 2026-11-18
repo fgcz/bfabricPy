@@ -8,15 +8,21 @@ This module adds three things authlib does not provide:
 
 * **Thread safety** — a :class:`threading.Lock` serialises token operations.
 * **Disk caching** — tokens are persisted to a JSON file (0o600) so they
-  survive process restarts.
+  survive process restarts. Processes sharing one cache file serialise refreshes
+  on a sibling ``.lock`` file, because B-Fabric rotates refresh tokens and revokes
+  every token of the user once a rotated one is presented again.
 * **BfabricAuth wrapping** — the current access token is returned as
   ``BfabricAuth(login="__oauth__", password=<jwt>)``.
 """
 
 from __future__ import annotations
 
+import os
+import sys
 import threading
-from typing import TYPE_CHECKING
+import time
+from contextlib import contextmanager
+from typing import TYPE_CHECKING, cast
 
 from authlib.common.errors import AuthlibBaseError
 from authlib.integrations.base_client.errors import OAuthError
@@ -32,6 +38,8 @@ from bfabric.oauth._endpoints import token_url as _token_url
 from bfabric.oauth._token_cache import TokenCache, compute_token_cache_path
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from bfabric.config.base_url import BaseUrl
     from pathlib import Path
 
@@ -44,6 +52,37 @@ def _canonical_token(token: dict[str, object]) -> dict[str, object]:
     single normalization rule shared by every code path that persists a token to the cache.
     """
     return dict(OAuth2Token(dict(token)))
+
+
+def _expires_at(token: dict[str, object] | None) -> float:
+    """Absolute expiry of *token*, the measure of which of two tokens is newer; ``0`` when unknown."""
+    value = _canonical_token(token).get("expires_at") if token else None
+    return value if isinstance(value, int | float) else 0
+
+
+def _is_expired(token: dict[str, object], leeway: int) -> bool:
+    """Whether *token* expires within *leeway* seconds, by authlib's rule (no ``expires_at`` never expires)."""
+    expires_at = _expires_at(token)
+    return expires_at > 0 and expires_at - leeway < time.time()
+
+
+@contextmanager
+def _cache_file_lock(cache_path: Path | None) -> Iterator[None]:
+    """Hold an exclusive cross-process lock on ``<cache_path>.lock``; a no-op without a cache path."""
+    # flock is POSIX-only; on Windows processes sharing a cache file stay unsynchronised as before.
+    if cache_path is None or sys.platform == "win32":
+        yield
+        return
+    import fcntl
+
+    lock_path = cache_path.with_name(f"{cache_path.name}.lock")
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(lock_path, os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        yield
+    finally:
+        os.close(fd)  # closing the descriptor releases the lock
 
 
 class OAuthCredentialProvider:
@@ -109,17 +148,20 @@ class OAuthCredentialProvider:
             leeway=leeway,
         )
 
-        # Seed the session with an existing token (from caller or disk).
-        # An explicitly provided token (e.g. fresh from PKCE) always takes
-        # priority over a stale cache entry.
-        initial = token
-        if initial is None and self._cache:
+        # Seed the session with the newer of the caller's token and the cached one. A fresh login
+        # token (PKCE, device code, webapp exchange) expires later than any cached token, so it wins
+        # and is persisted; a stale one (e.g. from unpickling) must not overwrite a newer cache entry.
+        if self._cache is None:
+            if token is not None:
+                self._session.token = token
+            return
+        with _cache_file_lock(token_cache_path):
             cached = self._cache.load()
-            if cached is not None:
-                initial = cached
-        if initial is not None:
-            self._session.token = initial
-            self._persist()
+            if token is not None and (cached is None or _expires_at(token) > _expires_at(cached)):
+                self._session.token = token
+                self._persist()
+            elif cached is not None:
+                self._session.token = cached
 
     @classmethod
     def for_client_credentials(
@@ -202,22 +244,28 @@ class OAuthCredentialProvider:
     def _ensure_token(self) -> None:
         """Make sure the session has a valid token, fetching if needed.
 
-        Must be called while holding ``self._lock``.
+        Must be called while holding ``self._lock``. While the in-memory token is valid this does no
+        file I/O; otherwise it takes the cache file lock, adopts a newer token another process cached,
+        and only refreshes if that one is expired too.
         """
-        token = self._session.token  # pyright: ignore[reportUnknownMemberType, reportUnknownVariableType]
+        token = cast("dict[str, object] | None", self._session.token)
+        needs_token = not token or _is_expired(token, self._leeway)
         try:
-            if token:
-                self._strip_unusable_refresh_token()
-                # Let authlib check expiry + refresh/re-fetch as appropriate (operates on self.token).
-                logger.debug("Ensuring token is active (refresh if needed)")
-                self._session.ensure_active_token()  # pyright: ignore[reportUnknownMemberType]
-            else:
-                # No token at all — perform the initial fetch.
-                logger.debug("No token present, fetching initial token")
-                token_endpoint: str | None = self._session.metadata.get("token_endpoint")  # pyright: ignore[reportAny]
-                self._session.fetch_token(token_endpoint)  # pyright: ignore[reportUnknownMemberType]
-                self._strip_unusable_refresh_token()
-                self._persist()
+            with _cache_file_lock(self._token_cache_path if needs_token else None):
+                if needs_token:
+                    self._adopt_newer_cached_token()
+                if self._session.token:  # pyright: ignore[reportUnknownMemberType]
+                    self._strip_unusable_refresh_token()
+                    # Let authlib check expiry + refresh/re-fetch as appropriate (operates on self.token).
+                    logger.debug("Ensuring token is active (refresh if needed)")
+                    self._session.ensure_active_token()  # pyright: ignore[reportUnknownMemberType]
+                else:
+                    # No token at all — perform the initial fetch.
+                    logger.debug("No token present, fetching initial token")
+                    endpoint = self._session.metadata.get("token_endpoint")  # pyright: ignore[reportAny]
+                    self._session.fetch_token(endpoint)  # pyright: ignore[reportUnknownMemberType, reportAny]
+                    self._strip_unusable_refresh_token()
+                    self._persist()
         # authlib's errors extend Exception (not RuntimeError) and transport failures raise requests
         # exceptions, so either would otherwise escape the CLI's error handling as a raw traceback.
         # Wrap them in the domain error (a RuntimeError) with an actionable message.
@@ -234,6 +282,14 @@ class OAuthCredentialProvider:
             raise BfabricOAuthError(f"OAuth token request failed: {e}") from e
         except RequestException as e:
             raise BfabricOAuthError(f"Could not reach the OAuth token endpoint ({self._token_url}): {e}") from e
+
+    def _adopt_newer_cached_token(self) -> None:
+        """Replace the session token with the cached one if another process stored a newer token."""
+        cached = self._cache.load() if self._cache else None
+        current = cast("dict[str, object] | None", self._session.token)
+        if cached is not None and _expires_at(cached) > _expires_at(current):
+            logger.debug("Adopting newer token from cache")
+            self._session.token = cached
 
     def _strip_unusable_refresh_token(self) -> None:
         """Drop the ``refresh_token`` from a client-credentials session token.

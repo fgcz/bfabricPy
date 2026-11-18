@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -57,18 +58,24 @@ class TokenCache:
 
         The write is atomic: data is written to a temporary file (0o600) and
         then ``Path.replace``-d into place, so a concurrent reader (possibly in
-        another process sharing this cache path) never sees a torn file.
+        another process sharing this cache path) never sees a torn file. The
+        temporary name is unique per write, so concurrent writers (threads or
+        processes) never rename each other's file away.
         """
         logger.debug("Saving token cache to {}", self._path)
         self._path.parent.mkdir(parents=True, exist_ok=True)
         data = json.dumps(token).encode()
-        tmp = self._path.with_name(f".{self._path.name}.{os.getpid()}.tmp")
-        fd = os.open(str(tmp), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        fd, tmp_name = tempfile.mkstemp(dir=self._path.parent, prefix=f".{self._path.name}.", suffix=".tmp")  # 0o600
+        tmp = Path(tmp_name)
         try:
-            _ = os.write(fd, data)
-        finally:
-            os.close(fd)
-        _ = tmp.replace(self._path)
+            try:
+                _ = os.write(fd, data)
+            finally:
+                os.close(fd)
+            _ = tmp.replace(self._path)
+        except BaseException:
+            tmp.unlink(missing_ok=True)
+            raise
 
     def clear(self) -> None:
         """Remove the cache file if it exists."""
